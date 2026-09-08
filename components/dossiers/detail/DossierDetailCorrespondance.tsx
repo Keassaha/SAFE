@@ -1,9 +1,9 @@
 "use client";
 
 /**
- * Onglet Correspondance du cartable — le chargement (lot 0).
+ * Onglet Correspondance du cartable — le chargement.
  *
- * Doctrine : docs/product/SPEC_SAFE_CORRESPONDANCE_ASSISTEE.md §22, lot 0.
+ * Doctrine : docs/product/SPEC_SAFE_CORRESPONDANCE_ASSISTEE.md §22.
  *
  * ── Ce que ça remplace ───────────────────────────────────────────────────────
  * Vingt-et-une lignes affichant deux phrases de remplissage, au-dessus de trois
@@ -11,17 +11,21 @@
  * `NotificationLog` et `DossierCorrespondence`. Du moteur sans bouton, au sens
  * du §4.2 de la règle de build.
  *
- * ── Ce que ça ne fait PAS encore ─────────────────────────────────────────────
- * Aucun envoi depuis cet écran, aucune réception, aucun fil. La chronologie est
- * en lecture seule et le dit.
+ * ── Lot 0.5 ──────────────────────────────────────────────────────────────────
+ * L'onglet gagne son action principale : transmettre un document ou une facture
+ * du dossier, sans passer par le portail d'édition ni par l'écran de la
+ * facture. Après un envoi, la chronologie se recharge, donc on voit la ligne
+ * apparaître. C'est la boucle la plus courte que le lot puisse fermer.
  *
- * La vue vit dans `components/correspondance/ChronologieCorrespondance.tsx`.
- * Ce fichier ne fait que la nourrir.
+ * ── Ce qui n'existe toujours pas ─────────────────────────────────────────────
+ * Aucune réception, aucun fil, aucune réponse. La réponse du client arrive dans
+ * la boîte de l'avocate, pas dans le dossier. L'écran le dit sous son titre.
  */
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { ChronologieCorrespondance } from "@/components/correspondance/ChronologieCorrespondance";
+import { NouvelEnvoiDossier } from "@/components/correspondance/NouvelEnvoiDossier";
 import type { EntreeCorrespondance } from "@/lib/services/correspondance/chronologie";
 
 export function DossierDetailCorrespondance({ dossierId }: { dossierId: string }) {
@@ -31,29 +35,25 @@ export function DossierDetailCorrespondance({ dossierId }: { dossierId: string }
   const [chargement, setChargement] = useState(true);
   const [erreur, setErreur] = useState<string | null>(null);
 
-  useEffect(() => {
-    let annule = false;
-    async function charger() {
-      setChargement(true);
-      setErreur(null);
-      try {
-        const res = await fetch(`/api/dossiers/${dossierId}/correspondance`, { cache: "no-store" });
-        if (!res.ok) throw new Error(t("corrLoadError"));
-        const data = (await res.json()) as { entrees: EntreeCorrespondance[]; tronquee: boolean };
-        if (annule) return;
-        setEntrees(data.entrees ?? []);
-        setTronquee(Boolean(data.tronquee));
-      } catch (e) {
-        if (!annule) setErreur(e instanceof Error ? e.message : t("corrLoadError"));
-      } finally {
-        if (!annule) setChargement(false);
-      }
+  const charger = useCallback(async () => {
+    setChargement(true);
+    setErreur(null);
+    try {
+      const res = await fetch(`/api/dossiers/${dossierId}/correspondance`, { cache: "no-store" });
+      if (!res.ok) throw new Error(t("corrLoadError"));
+      const data = (await res.json()) as { entrees: EntreeCorrespondance[]; tronquee: boolean };
+      setEntrees(data.entrees ?? []);
+      setTronquee(Boolean(data.tronquee));
+    } catch (e) {
+      setErreur(e instanceof Error ? e.message : t("corrLoadError"));
+    } finally {
+      setChargement(false);
     }
-    charger();
-    return () => {
-      annule = true;
-    };
   }, [dossierId, t]);
+
+  useEffect(() => {
+    void charger();
+  }, [charger]);
 
   return (
     <ChronologieCorrespondance
@@ -61,6 +61,7 @@ export function DossierDetailCorrespondance({ dossierId }: { dossierId: string }
       tronquee={tronquee}
       chargement={chargement}
       erreur={erreur}
+      action={<NouvelEnvoiDossier dossierId={dossierId} onSent={charger} />}
     />
   );
 }

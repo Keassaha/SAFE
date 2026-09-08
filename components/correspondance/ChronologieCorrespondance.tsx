@@ -86,6 +86,9 @@ export interface ChronologieCorrespondanceProps {
   erreur?: string | null;
   /** Injectable pour que la page de spécimens rende un temps relatif stable. */
   maintenant?: number;
+  /** L'action principale de l'écran, quand le contexte en autorise une. La vue
+   *  cabinet n'en a pas : on n'écrit pas à « tous les dossiers ». */
+  action?: React.ReactNode;
 }
 
 export function ChronologieCorrespondance({
@@ -95,6 +98,7 @@ export function ChronologieCorrespondance({
   chargement = false,
   erreur = null,
   maintenant,
+  action,
 }: ChronologieCorrespondanceProps) {
   const t = useTranslations("matterDetailUi");
   const { intlLocale } = useFormatteurs();
@@ -119,10 +123,15 @@ export function ChronologieCorrespondance({
   return (
     <div className="rounded-lg border border-si-line bg-si-surface">
       <header className="border-b border-si-line px-5 py-4">
-        <h3 className="text-[15px] font-medium text-si-ink">{t("corrHeading")}</h3>
-        <p className="mt-1 max-w-[65ch] text-[13px] text-si-muted">
-          {t(afficherDossier ? "corrSubheadingCabinet" : "corrSubheading")}
-        </p>
+        <div className="flex items-start justify-between gap-4">
+          <div className="min-w-0">
+            <h3 className="text-[15px] font-medium text-si-ink">{t("corrHeading")}</h3>
+            <p className="mt-1 max-w-[65ch] text-[13px] text-si-muted">
+              {t(afficherDossier ? "corrSubheadingCabinet" : "corrSubheading")}
+            </p>
+          </div>
+          {action ? <div className="shrink-0">{action}</div> : null}
+        </div>
 
         <div className="mt-3 flex flex-wrap gap-1.5">
           {FILTRES.map((f) => {
@@ -133,7 +142,7 @@ export function ChronologieCorrespondance({
                 type="button"
                 onClick={() => setFiltre(f.id)}
                 aria-pressed={actif}
-                className={`safe-zoom-menu inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[12px] font-medium ${
+                className={`min-h-tap safe-zoom-menu inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[12px] font-medium ${
                   actif ? "border-si-ink-strong bg-si-ink-strong text-si-surface" : "border-si-line text-si-muted"
                 }`}
               >

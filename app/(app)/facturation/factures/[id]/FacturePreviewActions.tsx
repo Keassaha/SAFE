@@ -1,12 +1,25 @@
 "use client";
 
+/**
+ * Actions de l'aperçu d'une facture.
+ *
+ * La fenêtre d'envoi vivait ici, sur 190 lignes, ce qui la rendait
+ * inatteignable de partout ailleurs. Elle est passée dans
+ * `components/facturation/EnvoiFactureDialog.tsx` pour que l'onglet
+ * Correspondance d'un dossier puisse l'ouvrir aussi (lot 0.5).
+ *
+ * Le comportement de cet écran n'a pas changé : mêmes boutons, mêmes règles
+ * d'affichage, même route appelée.
+ */
+
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { CheckCircle2, ExternalLink, Mail, Trash2, Loader2, Paperclip, X } from "lucide-react";
+import { CheckCircle2, ExternalLink, Mail, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/Button";
+import { EnvoiFactureDialog } from "@/components/facturation/EnvoiFactureDialog";
 import { routes } from "@/lib/routes";
 
 type FacturePreviewActionsProps = {
@@ -14,122 +27,31 @@ type FacturePreviewActionsProps = {
   invoiceStatus: string | null;
 };
 
-type AttachableDoc = { id: string; titre: string; type: string; statut: string };
-
-async function postInvoiceAction(
-  invoiceId: string,
-  action: "valider" | "envoyer-email" | "annuler",
-  extraBody?: Record<string, unknown>
-) {
-  const body =
-    action === "annuler"
-      ? JSON.stringify({ cancelReason: "Annulé depuis l'aperçu" })
-      : JSON.stringify(extraBody ?? {});
-  const response = await fetch(`/api/facturation/factures/${invoiceId}/${action}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body,
-  });
-  const payload = await response.json().catch(() => ({}));
-  if (!response.ok) {
-    throw new Error(payload.error ?? "Action impossible pour cette facture");
-  }
-  return payload;
-}
-
-export function FacturePreviewActions({
-  invoiceId,
-  invoiceStatus,
-}: FacturePreviewActionsProps) {
+export function FacturePreviewActions({ invoiceId, invoiceStatus }: FacturePreviewActionsProps) {
   const router = useRouter();
   const t = useTranslations("billingUi");
   const [pendingAction, setPendingAction] = useState<string | null>(null);
+  const [showSend, setShowSend] = useState(false);
+
   const isDraft = invoiceStatus === "DRAFT" || invoiceStatus == null;
   const canIssue = invoiceStatus === "DRAFT" || invoiceStatus === "READY_TO_ISSUE";
 
-  // Fenêtre d'envoi : message éditable + instructions de paiement + pièces jointes.
-  const [showSend, setShowSend] = useState(false);
-  const [docs, setDocs] = useState<AttachableDoc[]>([]);
-  const [loadingDocs, setLoadingDocs] = useState(false);
-  const [docsError, setDocsError] = useState(false);
-  const [selected, setSelected] = useState<Set<string>>(new Set());
-  const [subject, setSubject] = useState("");
-  const [message, setMessage] = useState("");
-  const [paymentInstructions, setPaymentInstructions] = useState("");
-  const [isSendDirty, setIsSendDirty] = useState(false);
-
-  const openSendDialog = async () => {
-    setShowSend(true);
-    setSelected(new Set());
-    setDocsError(false);
-    setIsSendDirty(false);
-    setLoadingDocs(true);
-    try {
-      const res = await fetch(`/api/facturation/factures/${invoiceId}/envoyer-email`);
-      const data = await res.json().catch(() => ({ documents: [] }));
-      setDocs(Array.isArray(data.documents) ? data.documents : []);
-      if (data.defaults) {
-        setSubject(data.defaults.subject ?? "");
-        setMessage(data.defaults.message ?? "");
-        setPaymentInstructions(data.defaults.paymentInstructions ?? "");
-      }
-    } catch {
-      setDocs([]);
-      setDocsError(true);
-    } finally {
-      setLoadingDocs(false);
-    }
-  };
-
-  const closeSendDialog = () => {
-    if (isSendDirty && !window.confirm(t("confirmCloseSendDialog"))) return;
-    setShowSend(false);
-    setIsSendDirty(false);
-  };
-
-  const confirmSend = async () => {
-    try {
-      setPendingAction("envoyer-email");
-      await postInvoiceAction(invoiceId, "envoyer-email", {
-        attachRichDocumentIds: [...selected],
-        subject,
-        message,
-        paymentInstructions,
-      });
-      toast.success(t("toastInvoiceSent"));
-      setShowSend(false);
-      router.refresh();
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : t("actionNotPossible"));
-    } finally {
-      setPendingAction(null);
-    }
-  };
-
-  const toggle = (id: string) => {
-    setIsSendDirty(true);
-    setSelected((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  };
-
-  const runAction = async (
-    action: "valider" | "envoyer-email" | "annuler",
-    successMessage: string
-  ) => {
+  const runAction = async (action: "valider" | "annuler", successMessage: string) => {
     if (action === "annuler" && !window.confirm(t("confirmCancelDraft"))) return;
     try {
       setPendingAction(action);
-      await postInvoiceAction(invoiceId, action);
+      const body =
+        action === "annuler" ? JSON.stringify({ cancelReason: "Annulé depuis l'aperçu" }) : JSON.stringify({});
+      const response = await fetch(`/api/facturation/factures/${invoiceId}/${action}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body,
+      });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(payload.error ?? t("actionNotPossible"));
       toast.success(successMessage);
-      if (action === "annuler") {
-        router.push(routes.facturation);
-      } else {
-        router.refresh();
-      }
+      if (action === "annuler") router.push(routes.facturation);
+      else router.refresh();
     } catch (error) {
       toast.error(error instanceof Error ? error.message : t("actionNotPossible"));
     } finally {
@@ -142,11 +64,12 @@ export function FacturePreviewActions({
       <Link
         href={`/api/facturation/factures/${invoiceId}/pdf`}
         target="_blank"
-        className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-md border border-si-line px-4 text-sm font-medium text-si-ink transition-colors hover:bg-si-canvas"
+        className="inline-flex min-h-tap items-center justify-center gap-1.5 rounded-md border border-si-line px-4 text-sm font-medium text-si-ink transition-colors hover:bg-si-canvas"
       >
         <ExternalLink className="h-4 w-4" />
         {t("viewPdf")}
       </Link>
+
       {isDraft ? (
         <Button
           variant="secondary"
@@ -158,17 +81,14 @@ export function FacturePreviewActions({
           {t("approveInvoice")}
         </Button>
       ) : null}
+
       {canIssue ? (
-        <Button
-          variant="primary"
-          className="gap-2"
-          disabled={pendingAction != null}
-          onClick={openSendDialog}
-        >
+        <Button variant="primary" className="gap-2" disabled={pendingAction != null} onClick={() => setShowSend(true)}>
           <Mail className="h-4 w-4" />
           {t("sendByEmail")}
         </Button>
       ) : null}
+
       {isDraft ? (
         <Button
           variant="ghost"
@@ -180,6 +100,7 @@ export function FacturePreviewActions({
           {t("cancelDraft")}
         </Button>
       ) : null}
+
       {pendingAction ? (
         <span className="sr-only" role="status" aria-live="polite">
           {t("actionInProgress")}
@@ -187,111 +108,11 @@ export function FacturePreviewActions({
       ) : null}
 
       {showSend ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          {/* Le voile et le panneau sont FRÈRES, jamais imbriqués. Un élément
-              qui porte un `backdrop-filter` devient racine d'arrière-plan pour
-              sa descendance : posé à l'intérieur du voile, le panneau ne
-              floutait plus la page, seulement le voile lui-même. */}
-          <div className="safe-scrim absolute inset-0" aria-hidden />
-          {/* Plan 3, niveau focus : l'envoi d'une facture à un client est une
-              décision. Le focus est le plus opaque des trois verres, la
-              lisibilité du destinataire et du montant prime sur la matière. */}
-          <div
-            className="safe-glass-focus relative z-10 flex max-h-[88vh] w-full max-w-lg flex-col overflow-hidden rounded-lg border"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="send-invoice-title"
-          >
-            <div className="flex items-center justify-between border-b border-si-line px-5 py-3">
-              <h3 id="send-invoice-title" className="text-base font-medium text-si-ink">{t("sendInvoiceTitle")}</h3>
-              <button
-                type="button"
-                onClick={closeSendDialog}
-                className="inline-flex h-11 w-11 items-center justify-center rounded-md text-si-muted transition-colors hover:bg-si-canvas hover:text-si-ink"
-                aria-label={t("close")}
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-            <div className="overflow-y-auto px-5 py-4">
-              <p className="text-sm leading-6 text-si-muted">{t("sendDialogIntro")}</p>
-
-              <div className="mt-4">
-                <label htmlFor="invoice-email-subject" className="mb-1.5 block text-xs font-medium text-si-muted">{t("subject")}</label>
-                <input
-                  id="invoice-email-subject"
-                  type="text"
-                  value={subject}
-                  onChange={(e) => { setSubject(e.target.value); setIsSendDirty(true); }}
-                  className="min-h-11 w-full rounded-md border border-si-line bg-si-surface px-3 py-2 text-sm text-si-ink focus:border-si-verified focus:outline-none focus:ring-2 focus:ring-si-verified/20"
-                />
-              </div>
-
-              <div className="mt-3">
-                <label htmlFor="invoice-email-message" className="mb-1.5 block text-xs font-medium text-si-muted">{t("message")}</label>
-                <textarea
-                  id="invoice-email-message"
-                  value={message}
-                  onChange={(e) => { setMessage(e.target.value); setIsSendDirty(true); }}
-                  rows={7}
-                  className="w-full rounded-md border border-si-line bg-si-surface px-3 py-2 text-sm text-si-ink focus:border-si-verified focus:outline-none focus:ring-2 focus:ring-si-verified/20"
-                />
-              </div>
-
-              <div className="mt-3">
-                <label htmlFor="invoice-payment-instructions" className="mb-1.5 block text-xs font-medium text-si-muted">{t("paymentInstructions")}</label>
-                <textarea
-                  id="invoice-payment-instructions"
-                  value={paymentInstructions}
-                  onChange={(e) => { setPaymentInstructions(e.target.value); setIsSendDirty(true); }}
-                  rows={5}
-                  placeholder={t("paymentInstructionsPlaceholder")}
-                  className="w-full rounded-md border border-si-line bg-si-surface px-3 py-2 text-sm text-si-ink placeholder:text-si-muted/60 focus:border-si-verified focus:outline-none focus:ring-2 focus:ring-si-verified/20"
-                />
-                <p className="mt-1 text-xs text-si-muted">{t("paymentInstructionsHint")}</p>
-              </div>
-
-              <div className="mt-4">
-                <div className="mb-1.5 flex items-center gap-1.5 text-[12px] font-medium text-si-muted">
-                  <Paperclip className="h-3.5 w-3.5" />
-                  {t("attachOtherDocs")}
-                </div>
-                {loadingDocs ? (
-                  <div className="flex items-center gap-2 py-3 text-sm text-si-muted/50">
-                    <Loader2 className="h-4 w-4 animate-spin" /> {t("loading")}
-                  </div>
-                ) : docsError ? (
-                  <p className="py-2 text-xs text-status-error" role="alert">{t("documentsLoadError")}</p>
-                ) : docs.length === 0 ? (
-                  <p className="py-2 text-xs text-si-muted/50">{t("noAttachableDocs")}</p>
-                ) : (
-                  <ul className="max-h-48 space-y-1 overflow-y-auto">
-                    {docs.map((d) => (
-                      <li key={d.id}>
-                        <label className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-si-canvas">
-                          <input type="checkbox" checked={selected.has(d.id)} onChange={() => toggle(d.id)} className="accent-si-ink-strong" />
-                          <span className="flex-1 truncate text-si-ink">{d.titre}</span>
-                          {d.statut === "brouillon" ? (
-                            <span className="border-l-2 border-status-warning pl-2 text-[10px] font-medium text-status-warning">
-                              {t("draftBadge")}
-                            </span>
-                          ) : null}
-                        </label>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-              <div className="mt-4 flex items-center justify-end gap-2">
-                <Button type="button" variant="secondary" onClick={closeSendDialog}>{t("cancel")}</Button>
-                <Button variant="primary" className="gap-2" disabled={pendingAction != null} onClick={confirmSend}>
-                  {pendingAction != null ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}
-                  {selected.size > 0 ? t("sendWithCount", { n: selected.size }) : t("sendByEmail")}
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
+        <EnvoiFactureDialog
+          invoiceId={invoiceId}
+          onClose={() => setShowSend(false)}
+          onSent={() => router.refresh()}
+        />
       ) : null}
     </div>
   );

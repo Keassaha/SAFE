@@ -1,4 +1,5 @@
 import { ChronologieCorrespondance } from "@/components/correspondance/ChronologieCorrespondance";
+import { ApercuListeEnvoyables, BoutonFactice } from "./apercu-envoi";
 import type { EntreeCorrespondance } from "@/lib/services/correspondance/chronologie";
 
 /**
@@ -121,8 +122,16 @@ export default function ApercuCorrespondancePage() {
         </p>
       </header>
 
-      <Cas titre="Garni, vue d'un dossier">
-        <ChronologieCorrespondance entrees={ENTREES} maintenant={MAINTENANT} />
+      <Cas titre="Garni, vue d'un dossier (avec l'action du lot 0.5)">
+        <ChronologieCorrespondance
+          entrees={ENTREES}
+          maintenant={MAINTENANT}
+          action={<BoutonFactice />}
+        />
+      </Cas>
+
+      <Cas titre="Lot 0.5 — le choix de la piece a transmettre">
+        <ApercuListeEnvoyables />
       </Cas>
 
       <Cas titre="Garni, vue cabinet (le dossier s'affiche)">
