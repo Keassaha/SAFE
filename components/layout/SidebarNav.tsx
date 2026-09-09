@@ -460,7 +460,10 @@ export function SidebarNavList({
         {visibleItems.map((item) => {
           if (!item.show(userRole)) return null;
 
-          // Override for forfait mode: "temps" → "Fiche de temps" / "Task Register" (task register view)
+          /* Un cabinet au forfait ne note pas des heures, il pose des forfaits.
+             Le lien est le même, le mot change. La barre du bureau fait
+             désormais la même bascule (Header.tsx), ce qui n'était pas le cas :
+             le même lien s'y appelait « Prestation & honoraires ». */
           const displayLabel = item.id === "temps" && isForfait ? t("nav.taskRegister") : t(item.labelKey);
           const DisplayIcon = item.id === "temps" && isForfait ? ListChecks : item.icon;
 
@@ -572,7 +575,7 @@ export function SidebarBottomSection({
       <Link
         href={routes.parametres}
         onClick={() => onNavigate?.()}
-        className="safe-zoom-menu flex items-center gap-2.5 px-2 py-2 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-si-ink-strong/40"
+        className="min-h-tap safe-zoom-menu flex items-center gap-2.5 px-2 py-2 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-si-ink-strong/40"
       >
         <span
           className="flex w-8 h-8 shrink-0 items-center justify-center rounded-full text-[13px] font-medium safe-action-degrade text-white"

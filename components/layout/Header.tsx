@@ -28,6 +28,7 @@ import {
   FileText,
   Building2,
   LifeBuoy,
+  Inbox,
   GitBranch,
   Flame,
   CalendarDays,
@@ -68,6 +69,11 @@ interface HeaderProps {
   activeNavIds?: string[] | null;
   role?: string;
   isSafeInc?: boolean;
+  /**
+   * Demandes du site qui attendent une réponse. Console SAFE Inc. seulement :
+   * le chiffre n'a de sens que pour l'équipe qui répond.
+   */
+  demandesEnAttente?: number;
   /** Obligations ouvertes du cabinet, présentées par le centre d'alertes. */
   trustStatus?: TrustReconciliationStatus | null;
   abonnement?: AbonnementAlerte | null;
@@ -319,6 +325,12 @@ const CONSULTANT_NAV: NavGroup[] = [
     icon: LayoutDashboard,
   },
   {
+    id: "console-demandes",
+    label: "Demandes",
+    href: "/console/demandes",
+    icon: Inbox,
+  },
+  {
     id: "console-safe-lead",
     label: "SAFE Lead",
     href: "/console/safe-lead",
@@ -411,6 +423,7 @@ function nomCompact(nomComplet: string | null | undefined): string | null {
  *  ─────────────────────────────────────────────────────────── */
 
 export function Header({
+  demandesEnAttente,
   user,
   cabinetId,
   onOpenMobileNav,
@@ -432,9 +445,19 @@ export function Header({
   // cette barre est la seule navigation, et une entrée refusée par la garde de
   // page se soldait par un aller simple vers le tableau de bord.
   const navGroups = filterNavByRole(isSafeInc ? CONSULTANT_NAV : NAV, effectiveRole);
-  // Résout le libellé : littéral (consultant) ou clé i18n (cabinet).
-  const navLabel = (o: { label?: string; labelKey?: string }) =>
-    o.label ?? (o.labelKey ? tMisc(o.labelKey) : "");
+  /* Résout le libellé : littéral (consultant) ou clé i18n (cabinet).
+   *
+   * L'entrée « Temps » porte le seul libellé du produit qui dépend du cabinet :
+   * un cabinet au forfait ne note pas des heures, il pose des forfaits. Le
+   * tiroir mobile faisait déjà cette bascule ; la barre du bureau, non. Le même
+   * lien s'appelait donc « Prestation & honoraires » sur un écran et « Fiche de
+   * temps » sur l'autre, ce que personne ne pouvait voir : les deux navigations
+   * ne se lisent jamais côte à côte. Décision CEO du 2026-09-09, une prestation
+   * EST un forfait. */
+  const navLabel = (o: { label?: string; labelKey?: string }) => {
+    if (o.labelKey === "navTimeFees" && billingMode === "forfait") return tMisc("navFlatFees");
+    return o.label ?? (o.labelKey ? tMisc(o.labelKey) : "");
+  };
   const currentUserId = (user as { id?: string })?.id ?? "";
   const initial = (user?.name ?? user?.email ?? "?")[0].toUpperCase();
   const displayName =
@@ -721,7 +744,7 @@ export function Header({
                 onMouseEnter={() => setSurvole(group.id)}
                 onFocus={() => setSurvole(group.id)}
                 onBlur={() => setSurvole(null)}
-                className={`relative z-10 inline-flex shrink-0 origin-bottom items-center gap-1.5 whitespace-nowrap rounded-lg px-2.5 py-2 text-[12.5px] font-sans font-medium transition-[color,transform] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-transform ${
+                className={`min-h-tap relative z-10 inline-flex shrink-0 origin-bottom items-center gap-1.5 whitespace-nowrap rounded-lg px-2.5 py-2 text-[12.5px] font-sans font-medium transition-[color,transform] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-transform ${
                   active ? "text-si-ink" : "text-si-muted hover:text-si-ink"
                 }`}
                 aria-current={active ? "page" : undefined}
@@ -732,6 +755,14 @@ export function Header({
                     Au-dessus, `safe-nav-label` laisse la mesure ci-dessus les
                     retirer quand la barre se remplit (chrono en cours). */}
                 <span className="safe-nav-label hidden xl:inline">{navLabel(group)}</span>
+                {/* Le compte des demandes en attente reste posé même quand le
+                    libellé se retire : c'est lui qui dit s'il y a lieu d'ouvrir
+                    l'écran, et une icône seule ne le dit pas. */}
+                {group.id === "console-demandes" && (demandesEnAttente ?? 0) > 0 ? (
+                  <span className="ml-0.5 inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-si-amber/[0.14] px-1 text-[11px] font-medium leading-none tabular-nums text-si-amber-ink">
+                    {demandesEnAttente}
+                  </span>
+                ) : null}
               </Link>
             );
           }
@@ -753,7 +784,7 @@ export function Header({
                 }}
                 onFocus={() => setSurvole(group.id)}
                 onBlur={() => setSurvole(null)}
-                className={`inline-flex shrink-0 origin-bottom items-center gap-1.5 whitespace-nowrap rounded-lg px-2.5 py-2 text-[12.5px] font-sans font-medium transition-[color,transform] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-transform ${
+                className={`min-h-tap inline-flex shrink-0 origin-bottom items-center gap-1.5 whitespace-nowrap rounded-lg px-2.5 py-2 text-[12.5px] font-sans font-medium transition-[color,transform] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-transform ${
                   active || isOpen ? "text-si-ink" : "text-si-muted hover:text-si-ink"
                 }`}
                 aria-haspopup="menu"
@@ -817,7 +848,7 @@ export function Header({
                                  soulève l'entrée. Le fond teinté ne sert plus
                                  qu'à dire « vous êtes ici », ce qui est un état
                                  et non un survol. */
-                              className={`safe-zoom-menu group flex items-start gap-3 rounded-lg px-2.5 py-2.5 ${
+                              className={`min-h-tap safe-zoom-menu group flex items-start gap-3 rounded-lg px-2.5 py-2.5 ${
                                 childActive ? "bg-si-ink-strong/5" : ""
                               }`}
                               onClick={() => setOpenGroupId(null)}
@@ -879,7 +910,7 @@ export function Header({
             type="search"
             placeholder={t("searchPlaceholder")}
             aria-label={t("searchLabel")}
-            className="w-full h-[32px] pl-8 pr-10 rounded-[7px] bg-[var(--si-canvas)] border border-[0.5px] border-border text-[12.5px] font-sans text-text-body outline-none focus:border-si-ink-strong/40 focus:bg-surface transition-all placeholder:text-si-muted"
+            className="w-full h-tap pl-8 pr-10 rounded-[7px] bg-[var(--si-canvas)] border border-[0.5px] border-border text-[12.5px] font-sans text-text-body outline-none focus:border-si-ink-strong/40 focus:bg-surface transition-all placeholder:text-si-muted"
           />
           <kbd className="absolute right-2 top-1/2 -translate-y-1/2 px-1 bg-surface border border-[0.5px] border-border text-si-muted text-[9px] font-mono rounded pointer-events-none uppercase">
             ⌘K
@@ -922,7 +953,7 @@ export function Header({
           <button
             type="button"
             onClick={() => setUserMenuOpen((v) => !v)}
-            className="w-[32px] h-[32px] rounded-full safe-action-degrade flex items-center justify-center text-white text-[12px] font-medium hover:opacity-90 transition-opacity ml-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-si-ink-strong/40"
+            className="w-[32px] h-tap rounded-full safe-action-degrade flex items-center justify-center text-white text-[12px] font-medium hover:opacity-90 transition-opacity ml-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-si-ink-strong/40"
             aria-label={displayName}
             aria-haspopup="menu"
             aria-expanded={userMenuOpen}
@@ -970,7 +1001,7 @@ export function Header({
                     href={routes.parametres}
                     role="menuitem"
                     onClick={() => setUserMenuOpen(false)}
-                    className="safe-zoom-menu flex items-center gap-3 rounded-lg px-2.5 py-2 text-[13px] font-sans text-text-body hover:text-text-primary"
+                    className="min-h-tap safe-zoom-menu flex items-center gap-3 rounded-lg px-2.5 py-2 text-[13px] font-sans text-text-body hover:text-text-primary"
                   >
                     <Settings className="w-4 h-4" strokeWidth={1.75} />
                     {t("settings")}
@@ -979,7 +1010,7 @@ export function Header({
                     href={routes.parametres}
                     role="menuitem"
                     onClick={() => setUserMenuOpen(false)}
-                    className="safe-zoom-menu flex items-center gap-3 rounded-lg px-2.5 py-2 text-[13px] font-sans text-text-body hover:text-text-primary"
+                    className="min-h-tap safe-zoom-menu flex items-center gap-3 rounded-lg px-2.5 py-2 text-[13px] font-sans text-text-body hover:text-text-primary"
                   >
                     <UserIcon className="w-4 h-4" strokeWidth={1.75} />
                     {tMisc("myProfile")}
@@ -994,7 +1025,7 @@ export function Header({
                       setUserMenuOpen(false);
                       void signOutClient("/");
                     }}
-                    className="safe-zoom-menu flex w-full items-center gap-3 rounded-lg px-2.5 py-2 text-[13px] font-sans text-[#B84A3E]"
+                    className="min-h-tap safe-zoom-menu flex w-full items-center gap-3 rounded-lg px-2.5 py-2 text-[13px] font-sans text-[#B84A3E]"
                   >
                     <LogOut className="w-4 h-4" strokeWidth={1.75} />
                     {t("signOut")}

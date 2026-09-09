@@ -10,7 +10,7 @@ import { TrustAlertsPanel } from "./TrustAlertsPanel";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { routes } from "@/lib/routes";
-import { Scale, FileText, ShieldAlert, Sparkles } from "lucide-react";
+import { Scale, FileText, ShieldAlert } from "lucide-react";
 import { useCabinetProvince } from "@/components/providers/CabinetProvinceProvider";
 import { getTrustRegulatorCopy } from "@/lib/trust/regulator";
 
@@ -53,12 +53,13 @@ export function FideicommisDashboard({
       <SoldeCards cabinetId={cabinetId} seuilBas={seuilBas} />
 
       <div className="flex flex-wrap gap-3">
-        <Link href={routes.briefing}>
-          <Button variant="secondary">
-            <Sparkles className="w-4 h-4" />
-            Briefing du jour
-          </Button>
-        </Link>
+        {/* Le bouton « Briefing du jour » est retiré le 2026-09-09.
+            L'écran qu'il ouvrait ne compose que trois choses qui ont déjà leur
+            propre destination : les alertes de sécurité (bouton voisin), le
+            temps non facturé et les créances en retard. C'était le seul vrai
+            doublon du produit, et un cinquième endroit où commencer sa journée.
+            La route reste servie pour les signets, elle n'est simplement plus
+            annoncée. Voir docs/product/VOCABULAIRE_SAFE.md §7. */}
         <Link href="/comptes/rapprochement">
           <Button variant="secondary">
             <Scale className="w-4 h-4" />
@@ -74,7 +75,7 @@ export function FideicommisDashboard({
         <Link href={routes.securite}>
           <Button variant="secondary">
             <ShieldAlert className="w-4 h-4" />
-            Tableau de sécurité
+            Points à surveiller
           </Button>
         </Link>
       </div>

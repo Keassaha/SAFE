@@ -40,7 +40,7 @@ export default async function SecuritePage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Tableau de sécurité"
+        title="Points à surveiller"
         description="Ce qui demande votre attention pour rester conforme et protégé : fidéicommis, échéances légales et conformité client."
       />
 
@@ -83,7 +83,7 @@ export default async function SecuritePage() {
           <ShieldAlert className="w-4 h-4 text-emerald-700" /> Fidéicommis
         </h2>
         {fideicommis.rapprochementEnRetard && (
-          <Link href="/comptes/rapprochement" className="block rounded-md border border-[#B84A3E]/30 bg-[#B84A3E]/10 px-3 py-2 hover:bg-[#B84A3E]/10">
+          <Link href="/comptes/rapprochement" className="min-h-tap block rounded-md border border-[#B84A3E]/30 bg-[#B84A3E]/10 px-3 py-2 hover:bg-[#B84A3E]/10">
             <p className="text-sm font-medium text-[#B84A3E]">
               Rapprochement {fideicommis.rapprochementEnRetard.periode} en retard ({fideicommis.rapprochementEnRetard.joursDepuisFinMois} j)
             </p>
@@ -131,7 +131,7 @@ export default async function SecuritePage() {
               const j = joursLabel(e.joursRestants);
               return (
                 <Link key={`${e.dossierId}-${e.libelle}`} href={routes.dossier(e.dossierId)}
-                  className="block rounded-md border border-si-line bg-si-surface px-3 py-2 hover:bg-si-canvas">
+                  className="min-h-tap block rounded-md border border-si-line bg-si-surface px-3 py-2 hover:bg-si-canvas">
                   <div className="flex justify-between gap-3">
                     <span className="text-sm text-si-ink">
                       {e.libelle} · {e.clientNom}
@@ -157,7 +157,7 @@ export default async function SecuritePage() {
             const j = joursLabel(d.joursRestants);
             return (
               <Link key={`${d.dossierId}-${i}`} href={routes.dossier(d.dossierId)}
-                className="block rounded-md border border-si-line bg-si-surface px-3 py-2 hover:bg-si-canvas">
+                className="min-h-tap block rounded-md border border-si-line bg-si-surface px-3 py-2 hover:bg-si-canvas">
                 <div className="flex justify-between gap-3">
                   <span className="text-sm text-si-ink">
                     {DOC_TYPE_LABELS[d.type] ?? d.type}{d.label ? ` (${d.label})` : ""} · {d.clientNom}
