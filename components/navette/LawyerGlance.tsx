@@ -107,19 +107,19 @@ export function LawyerGlance({ rows }: { rows: GlanceRow[] }) {
                         <input
                           value={reason}
                           onChange={(e) => setReason(e.target.value)}
-                          placeholder={t("sendBackPlaceholder")}
-                          className="flex-1 rounded-lg border border-si-line bg-si-canvas px-3 py-2 text-sm text-si-ink outline-none focus:border-si-verified focus:ring-2 focus:ring-si-verified/25"
+                          placeholder={t("correctionPlaceholder")}
+                          className="min-h-tap flex-1 rounded-lg border border-si-line bg-si-canvas px-3 py-2 text-sm text-si-ink outline-none focus:border-si-verified focus:ring-2 focus:ring-si-verified/25"
                         />
                         <button
                           type="button"
                           disabled={pending || !reason.trim()}
-                          onClick={() => run(() => sendBackAction({ dossierId: r.dossierId, reason: reason.trim() }))}
-                          className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium text-white disabled:opacity-50"
+                          onClick={() => run(() => sendBackAction({ requestId: r.id, reason: reason.trim() }))}
+                          className="min-h-tap inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium text-white disabled:opacity-50"
                           style={{ backgroundColor: DANGER }}
                         >
-                          {pending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CornerUpLeft className="h-3.5 w-3.5" />} {t("sendBack")}
+                          {pending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CornerUpLeft className="h-3.5 w-3.5" />} {t("requestCorrection")}
                         </button>
-                        <button type="button" onClick={() => setSendBackId(null)} className="rounded-lg border border-si-line px-3 py-2 text-xs font-medium text-si-muted hover:bg-si-canvas">
+                        <button type="button" onClick={() => setSendBackId(null)} className="min-h-tap rounded-lg border border-si-line px-3 py-2 text-xs font-medium text-si-muted hover:bg-si-canvas">
                           {t("cancel")}
                         </button>
                       </div>
@@ -128,8 +128,8 @@ export function LawyerGlance({ rows }: { rows: GlanceRow[] }) {
                         <button
                           type="button"
                           disabled={pending}
-                          onClick={() => run(() => approveMatterAction({ dossierId: r.dossierId }))}
-                          className="inline-flex items-center gap-1.5 rounded-lg safe-action-degrade px-3 py-1.5 text-xs font-medium text-si-surface disabled:opacity-50"
+                          onClick={() => run(() => approveMatterAction({ requestId: r.id }))}
+                          className="min-h-tap inline-flex items-center gap-1.5 rounded-lg safe-action-degrade px-3 py-1.5 text-xs font-medium text-si-surface disabled:opacity-50"
                         >
                           <Check className="h-3.5 w-3.5" aria-hidden /> {t("approve")}
                         </button>
@@ -137,17 +137,17 @@ export function LawyerGlance({ rows }: { rows: GlanceRow[] }) {
                           type="button"
                           disabled={pending}
                           onClick={() => { setSendBackId(r.id); setReason(""); }}
-                          className="inline-flex items-center gap-1.5 rounded-lg border border-si-line px-3 py-1.5 text-xs font-medium text-si-muted hover:bg-si-canvas"
+                          className="min-h-tap inline-flex items-center gap-1.5 rounded-lg border border-si-line px-3 py-1.5 text-xs font-medium text-si-muted hover:bg-si-canvas"
                         >
-                          <CornerUpLeft className="h-3.5 w-3.5" aria-hidden /> {t("sendBack")}
+                          <CornerUpLeft className="h-3.5 w-3.5" aria-hidden /> {t("requestCorrection")}
                         </button>
-                        <Link href={`/dossiers/${r.dossierId}`} className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-si-ink-strong hover:bg-si-canvas">
+                        <Link href={`/dossiers/${r.dossierId}`} className="min-h-tap inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-si-ink-strong hover:bg-si-canvas">
                           {t("open")} <ArrowRight className="h-3.5 w-3.5" aria-hidden />
                         </Link>
                       </div>
                     )
                   ) : (
-                    <Link href={`/dossiers/${r.dossierId}`} className="mt-2 inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-si-ink-strong hover:bg-si-canvas">
+                    <Link href={`/dossiers/${r.dossierId}`} className="min-h-tap mt-2 inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-si-ink-strong hover:bg-si-canvas">
                       {t("open")} <ArrowRight className="h-3.5 w-3.5" aria-hidden />
                     </Link>
                   )}

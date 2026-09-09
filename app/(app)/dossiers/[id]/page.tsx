@@ -256,9 +256,12 @@ export default async function DossierDetailPage({
     id: r.id,
     type: r.type,
     body: r.body,
+    authorId: r.authorId,
     authorName: r.authorName,
     authorRole: r.authorRole,
     recipientId: r.recipientId,
+    recipientName: r.recipientName,
+    parentId: r.parentId,
     dueDate: r.dueDate ? r.dueDate.toISOString() : null,
     confidentiel: r.confidentiel,
     resolvedAt: r.resolvedAt ? r.resolvedAt.toISOString() : null,
@@ -333,31 +336,15 @@ export default async function DossierDetailPage({
               dossierLabel={numeroDossier}
               variant="soft"
             />
-            {/* Le resume IA est une ACTION depuis le 2026-08-27, decision CEO.
-                Il occupait un bloc entier de la fiche pour une fonction qu'on
-                declenche rarement et qu'on ne lit pas en passant.
-
-                Le garde-fou ne bouge pas : entierement MASQUE tant que
-                ANTHROPIC_API_KEY n'est pas configuree, clé absente de Vercel a
-                ce jour. Un bouton qui echoue devant un cabinet est pire que pas
-                de bouton. Le test reste ICI parce que seule la page lit
-                l'environnement cote serveur. */}
-            {process.env.ANTHROPIC_API_KEY && (
-              <DossierResumeIAAction
-                dossierId={dossier.id}
-                initialResume={dossier.resumeDossier}
-                canSave={["admin_cabinet", "avocat", "assistante"].includes(role as string)}
-              />
-            )}
             <Link
               href={routes.client(dossier.clientId)}
-              className="inline-flex items-center rounded-lg border border-si-line bg-si-surface/80 px-4 py-2 text-sm font-medium text-si-ink hover:bg-si-surface hover:border-si-line transition-colors"
+              className="min-h-tap inline-flex items-center rounded-lg border border-si-line bg-si-surface/80 px-4 py-2 text-sm font-medium text-si-ink hover:bg-si-surface hover:border-si-line transition-colors"
             >
               {t("viewClient")}
             </Link>
             <Link
               href={`${routes.dossier(id)}?edit=1`}
-              className="inline-flex items-center rounded-lg safe-action-degrade px-4 py-2 text-sm font-medium text-white transition-colors shadow-md shadow-si-card"
+              className="min-h-tap inline-flex items-center rounded-lg safe-action-degrade px-4 py-2 text-sm font-medium text-white transition-colors shadow-md shadow-si-card"
             >
               {t("editMatter")}
             </Link>
@@ -392,6 +379,26 @@ export default async function DossierDetailPage({
               reference={dossier.reference}
               locale={intlLocale}
             />
+
+            {/* La synthese descend de l'en-tete vers « Vue d'ensemble » le
+                2026-09-05. En premiere ligne d'actions, a cote de « Modifier
+                le dossier », elle donnait a une fonction rare le rang d'une
+                fonction quotidienne, et elle annoncait la technologie plutot
+                que le resultat. Elle se lit ici, la ou l'on regarde deja de
+                quoi le dossier est fait.
+
+                Le garde-fou ne bouge pas : entierement MASQUE tant que
+                ANTHROPIC_API_KEY n'est pas configuree. Le test reste dans la
+                page, seule a lire l'environnement cote serveur. */}
+            {process.env.ANTHROPIC_API_KEY && (
+              <div>
+                <DossierResumeIAAction
+                  dossierId={dossier.id}
+                  initialResume={dossier.resumeDossier}
+                  canSave={["admin_cabinet", "avocat", "assistante"].includes(role as string)}
+                />
+              </div>
+            )}
           {/* ── UN SEUL bloc d'état, depuis le 2026-08-27 ──────────────────────
               « Où j'en étais ? » et « État de préparation » affichaient la MÊME
               phrase. Sur un dossier neuf, « Prochaine action : Créer le mandat du
@@ -520,17 +527,15 @@ export default async function DossierDetailPage({
           </div>
         }
         communications={
-          <div className="space-y-5">
-          {/* N2 — Navette : communication interne assistante↔avocate sur ce dossier */}
-            <NavetteThread
-              dossierId={id}
-              rows={navetteSerialized}
-              currentUserId={userId}
-              currentUserRole={role}
-              locale={resumeLocale}
-            />
-    
-          </div>
+          /* Le panneau d'onglet porte deja la surface et le titre : la section
+             s'y rend a plat, sans carte de plus. */
+          <NavetteThread
+            dossierId={id}
+            rows={navetteSerialized}
+            currentUserId={userId}
+            currentUserRole={role}
+            locale={resumeLocale}
+          />
         }
         documents={
           <div className="space-y-5">
@@ -544,7 +549,7 @@ export default async function DossierDetailPage({
               </div>
               <Link
                 href={`/edition/${id}`}
-                className="inline-flex items-center gap-1.5 rounded-md safe-action-degrade text-white px-3 py-1.5 text-xs font-medium transition-colors"
+                className="min-h-tap inline-flex items-center gap-1.5 rounded-md safe-action-degrade text-white px-3 py-1.5 text-xs font-medium transition-colors"
               >
                 + Nouveau / Atelier
               </Link>
@@ -571,7 +576,7 @@ export default async function DossierDetailPage({
                     <Link
                       key={d.id}
                       href={`/edition/${id}/${d.id}`}
-                      className={`flex items-center gap-3 px-4 py-2.5 hover:bg-si-canvas transition-colors ${
+                      className={`min-h-tap flex items-center gap-3 px-4 py-2.5 hover:bg-si-canvas transition-colors ${
                         i > 0 ? "border-t border-si-line" : ""
                       }`}
                     >

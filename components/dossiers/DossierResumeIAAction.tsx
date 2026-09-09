@@ -29,7 +29,7 @@
  */
 
 import { useState } from "react";
-import { Sparkles } from "lucide-react";
+import { FileSearch } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import { DossierResumeIA } from "./DossierResumeIA";
@@ -45,12 +45,16 @@ export function DossierResumeIAAction({ dossierId, initialResume, canSave }: Pro
 
   return (
     <>
+      {/* « Synthèse du dossier » et non « Résumé IA » : le libellé nomme ce
+          qu'on obtient, pas la technologie qui le produit. L'étincelle part
+          avec lui. La provenance, elle, reste écrite dans le contenu généré
+          (DossierResumeIA), là où elle sert vraiment. */}
       <Button variant="secondary" onClick={() => setOuvert(true)}>
-        <Sparkles className="h-4 w-4" />
-        Résumé IA
+        <FileSearch className="h-4 w-4" />
+        Synthèse du dossier
       </Button>
 
-      <Modal open={ouvert} onClose={() => setOuvert(false)} title="Résumé IA du dossier">
+      <Modal open={ouvert} onClose={() => setOuvert(false)} title="Synthèse du dossier">
         <DossierResumeIA
           dossierId={dossierId}
           initialResume={initialResume}

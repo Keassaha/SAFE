@@ -56,3 +56,105 @@ export function canSendNavetteType(role: string, type: NavetteMessageType): bool
 export function canSeeConfidential(role: string): boolean {
   return isLawyerOrAdmin(role);
 }
+
+/* ═══════════════════ Décider, résoudre, voir ═══════════════════
+ *
+ * Ajouté le 2026-09-05. Jusque-là, l'écran seul décidait qui pouvait
+ * approuver : les actions serveur ne vérifiaient que la session et le
+ * cabinet. Un avocat pouvait approuver un dossier sans qu'aucune demande
+ * existe, et n'importe quel participant pouvait résoudre le message d'un
+ * autre en connaissant son identifiant.
+ *
+ * Ces trois helpers sont PURS : ils prennent l'instantané du message déjà
+ * lu en base et rendent un verdict. Le service les appelle, l'écran les
+ * appelle aussi pour n'afficher que ce qui aboutira.
+ */
+
+/** Le seul rôle qui supplée un destinataire. Explicite, jamais déduit du métier. */
+export function hasNavetteAdminOverride(role: string): boolean {
+  return role === "admin_cabinet";
+}
+
+/** Instantané d'un message, tel qu'il est lu en base. */
+export interface NavetteMessageSnapshot {
+  type: NavetteMessageType;
+  recipientId: string | null;
+  resolvedAt: Date | null;
+  confidentiel: boolean;
+}
+
+export type NavetteGuardReason =
+  | "forbidden"
+  | "already_resolved"
+  | "not_a_request";
+
+export type NavetteGuard = { ok: true } | { ok: false; reason: NavetteGuardReason };
+
+/** Un message est-il lisible par ce rôle ? (cloison du confidentiel) */
+export function canViewNavetteMessage(
+  role: string,
+  message: { confidentiel: boolean },
+): boolean {
+  if (!isNavetteParticipant(role)) return false;
+  return !message.confidentiel || canSeeConfidential(role);
+}
+
+/** Les types qui portent une DEMANDE, c'est-à-dire qui peuvent rester à traiter. */
+export const NAVETTE_REQUEST_TYPES: NavetteMessageType[] = [
+  "ready_for_review",
+  "sent_back",
+  "question",
+  "document_ready",
+  "invoice_ready",
+  "acte_urgent",
+];
+
+export function isNavetteRequestType(type: NavetteMessageType): boolean {
+  return NAVETTE_REQUEST_TYPES.includes(type);
+}
+
+/**
+ * Approuver ou demander une correction VISE une demande de révision précise.
+ *
+ * Trois conditions cumulatives, dans l'ordre où elles se lisent :
+ *   1. la demande est bien une demande de révision (`ready_for_review`) ;
+ *   2. elle est encore ouverte — une décision ne se prend pas deux fois ;
+ *   3. elle vise cette personne, ou cette personne a la suppléance admin.
+ *
+ * Limite assumée : une demande sans destinataire (dossier sans avocate
+ * responsable) n'est décidable que par l'admin du cabinet. C'est le prix de
+ * la règle « jamais approuver parce qu'on est avocat ».
+ */
+export function checkNavetteDecision(args: {
+  role: string;
+  userId: string;
+  decision: "approve" | "send_back";
+  request: NavetteMessageSnapshot;
+}): NavetteGuard {
+  const { role, userId, decision, request } = args;
+  if (!canViewNavetteMessage(role, request)) return { ok: false, reason: "forbidden" };
+  if (request.type !== "ready_for_review") return { ok: false, reason: "not_a_request" };
+  if (request.resolvedAt) return { ok: false, reason: "already_resolved" };
+
+  const emitted: NavetteMessageType = decision === "approve" ? "approved" : "sent_back";
+  if (!canSendNavetteType(role, emitted)) return { ok: false, reason: "forbidden" };
+
+  const cible = request.recipientId !== null && request.recipientId === userId;
+  if (!cible && !hasNavetteAdminOverride(role)) return { ok: false, reason: "forbidden" };
+  return { ok: true };
+}
+
+/** Marquer traité : réservé au destinataire du message, ou à l'admin. */
+export function checkNavetteResolve(args: {
+  role: string;
+  userId: string;
+  message: NavetteMessageSnapshot;
+}): NavetteGuard {
+  const { role, userId, message } = args;
+  if (!canViewNavetteMessage(role, message)) return { ok: false, reason: "forbidden" };
+  if (!isNavetteRequestType(message.type)) return { ok: false, reason: "not_a_request" };
+  if (message.resolvedAt) return { ok: false, reason: "already_resolved" };
+  const cible = message.recipientId !== null && message.recipientId === userId;
+  if (!cible && !hasNavetteAdminOverride(role)) return { ok: false, reason: "forbidden" };
+  return { ok: true };
+}

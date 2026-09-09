@@ -14,7 +14,13 @@
 import type { NavetteMessageType, Prisma, PrismaClient } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { emitReadyForReviewSignal, markSignalRead } from "@/lib/services/ready-for-review-service";
-import { canSendNavetteType } from "./navette-permissions";
+import {
+  canSendNavetteType,
+  canViewNavetteMessage,
+  checkNavetteDecision,
+  checkNavetteResolve,
+  type NavetteGuardReason,
+} from "./navette-permissions";
 
 type DBClient = PrismaClient | Prisma.TransactionClient;
 
@@ -29,6 +35,8 @@ export interface NavetteRow {
   authorName: string | null;
   authorRole: string;
   recipientId: string | null;
+  recipientName: string | null;
+  parentId: string | null;
   dueDate: Date | null;
   confidentiel: boolean;
   readAt: Date | null;
@@ -75,7 +83,7 @@ export interface CreateNavetteInput {
 
 export type CreateNavetteResult =
   | { ok: true; id: string }
-  | { ok: false; error: "forbidden" | "not_found" };
+  | { ok: false; error: "forbidden" | "not_found" | "already_pending" };
 
 /**
  * Insère un message de Navette après contrôle de permission par type.
@@ -132,50 +140,141 @@ export async function createNavetteMessage(
 /* ───────── Handoffs structurés ───────── */
 
 /**
- * Résout les « prêt pour revue » en attente d'un dossier : appelé quand
- * l'avocate tranche (approuve ou renvoie) → le signal sort de sa file « needs me ».
+ * Ferme UNE demande précise, et elle seule.
+ *
+ * Ce que ça remplace : un `updateMany` sur « toutes les demandes non résolues
+ * du dossier ». Une avocate qui approuvait la version 3 fermait aussi, sans le
+ * savoir, la question posée la veille sur le même dossier.
+ *
+ * L'update est CONDITIONNEL (`resolvedAt: null` dans le `where`) : c'est lui
+ * qui interdit la double décision, y compris sur deux onglets ouverts en même
+ * temps. `count === 0` veut dire « quelqu'un a tranché avant vous ».
  */
-async function resolvePendingReadyForReview(
+async function closeRequest(
+  requestId: string,
   cabinetId: string,
-  dossierId: string,
   userId: string,
   client: DBClient,
-): Promise<void> {
-  await client.dossierNavetteMessage.updateMany({
-    where: { cabinetId, dossierId, type: "ready_for_review", resolvedAt: null },
+): Promise<boolean> {
+  const res = await client.dossierNavetteMessage.updateMany({
+    where: { id: requestId, cabinetId, resolvedAt: null },
     data: { resolvedAt: new Date(), resolvedById: userId },
   });
+  return res.count > 0;
 }
 
-/** Avocate → assistante : renvoi avec raison + échéance optionnelle. */
+export type DecideResult =
+  | { ok: true; id: string; dossierId: string }
+  | { ok: false; error: NavetteGuardReason | "not_found" };
+
+interface DecideArgs {
+  cabinetId: string;
+  requestId: string;
+  userId: string;
+  role: string;
+  /** Motif du renvoi (obligatoire) ou note d'approbation (facultative). */
+  body?: string | null;
+  dueDate?: Date | null;
+  isAdmin?: boolean;
+  signalId?: string | null;
+}
+
+/** Lit la demande visée et vérifie qu'on a le droit de trancher dessus. */
+async function loadDecidableRequest(
+  args: DecideArgs,
+  decision: "approve" | "send_back",
+  client: DBClient,
+) {
+  const request = await client.dossierNavetteMessage.findFirst({
+    where: { id: args.requestId, cabinetId: args.cabinetId },
+    select: {
+      id: true,
+      dossierId: true,
+      type: true,
+      authorId: true,
+      recipientId: true,
+      resolvedAt: true,
+      confidentiel: true,
+    },
+  });
+  if (!request) return { request: null, guard: { ok: false as const, error: "not_found" as const } };
+  const verdict = checkNavetteDecision({
+    role: args.role,
+    userId: args.userId,
+    decision,
+    request,
+  });
+  if (!verdict.ok) return { request, guard: { ok: false as const, error: verdict.reason } };
+  return { request, guard: { ok: true as const } };
+}
+
+/**
+ * Avocate → assistante : « Demander une correction » sur une demande précise.
+ * Le motif n'est pas facultatif : c'est lui qui dit quoi corriger.
+ */
 export async function sendBackToAssistant(
-  args: { cabinetId: string; dossierId: string; authorId: string; authorRole: string; reason: string; dueDate?: Date | null },
+  args: DecideArgs,
   client: DBClient = prisma,
-): Promise<CreateNavetteResult> {
+): Promise<DecideResult> {
+  const reason = (args.body ?? "").trim();
+  if (!reason) return { ok: false, error: "forbidden" };
+
+  const { request, guard } = await loadDecidableRequest(args, "send_back", client);
+  if (!guard.ok || !request) return { ok: false, error: guard.ok ? "not_found" : guard.error };
+
+  if (!(await closeRequest(request.id, args.cabinetId, args.userId, client))) {
+    return { ok: false, error: "already_resolved" };
+  }
+
   const res = await createNavetteMessage(
-    { ...args, type: "sent_back", body: args.reason, dueDate: args.dueDate ?? null },
+    {
+      cabinetId: args.cabinetId,
+      dossierId: request.dossierId,
+      authorId: args.userId,
+      authorRole: args.role,
+      type: "sent_back",
+      recipientId: request.authorId,
+      parentId: request.id,
+      body: reason,
+      dueDate: args.dueDate ?? null,
+    },
     client,
   );
-  if (res.ok) await resolvePendingReadyForReview(args.cabinetId, args.dossierId, args.authorId, client);
-  return res;
+  if (!res.ok) return { ok: false, error: res.error === "forbidden" ? "forbidden" : "not_found" };
+  return { ok: true, id: res.id, dossierId: request.dossierId };
 }
 
-/** Avocate → assistante : approbation. Acquitte aussi le signal legacy. */
+/** Avocate → assistante : approbation d'une demande précise. Acquitte le signal legacy. */
 export async function approveMatter(
-  args: { cabinetId: string; dossierId: string; authorId: string; authorRole: string; isAdmin: boolean; note?: string | null; signalId?: string | null },
+  args: DecideArgs,
   client: DBClient = prisma,
-): Promise<CreateNavetteResult> {
+): Promise<DecideResult> {
+  const { request, guard } = await loadDecidableRequest(args, "approve", client);
+  if (!guard.ok || !request) return { ok: false, error: guard.ok ? "not_found" : guard.error };
+
+  if (!(await closeRequest(request.id, args.cabinetId, args.userId, client))) {
+    return { ok: false, error: "already_resolved" };
+  }
+
   const res = await createNavetteMessage(
-    { cabinetId: args.cabinetId, dossierId: args.dossierId, authorId: args.authorId, authorRole: args.authorRole, type: "approved", body: args.note ?? null },
+    {
+      cabinetId: args.cabinetId,
+      dossierId: request.dossierId,
+      authorId: args.userId,
+      authorRole: args.role,
+      type: "approved",
+      recipientId: request.authorId,
+      parentId: request.id,
+      body: (args.body ?? "").trim() || null,
+    },
     client,
   );
-  if (res.ok) {
-    await resolvePendingReadyForReview(args.cabinetId, args.dossierId, args.authorId, client);
-    if (args.signalId) {
-      await markSignalRead(args.signalId, args.cabinetId, args.authorId, args.isAdmin, client);
-    }
+  if (!res.ok) return { ok: false, error: res.error === "forbidden" ? "forbidden" : "not_found" };
+
+  if (args.signalId) {
+    await markSignalRead(args.signalId, args.cabinetId, args.userId, args.isAdmin ?? false, client);
   }
-  return res;
+  return { ok: true, id: res.id, dossierId: request.dossierId };
 }
 
 /** Assistante → avocate : prêt pour revue. Écrit le message + émet le signal legacy. */
@@ -185,6 +284,15 @@ export async function markReadyForReview(
 ): Promise<CreateNavetteResult> {
   const parties = await getDossierParties(args.cabinetId, args.dossierId, client);
   if (!parties) return { ok: false, error: "not_found" };
+
+  // Une seule demande de révision ouverte à la fois par dossier. Sinon deux
+  // soumissions produisent deux demandes, l'avocate en approuve une, et la
+  // seconde reste à traiter sans que personne comprenne de quoi elle parle.
+  const pending = await client.dossierNavetteMessage.findFirst({
+    where: { cabinetId: args.cabinetId, dossierId: args.dossierId, type: "ready_for_review", resolvedAt: null },
+    select: { id: true },
+  });
+  if (pending) return { ok: false, error: "already_pending" };
 
   const res = await createNavetteMessage(
     {
@@ -227,7 +335,10 @@ const ROW_INCLUDE = {
   author: { select: { nom: true } },
 } satisfies Prisma.DossierNavetteMessageInclude;
 
-function toRow(r: Prisma.DossierNavetteMessageGetPayload<{ include: typeof ROW_INCLUDE }>): NavetteRow {
+function toRow(
+  r: Prisma.DossierNavetteMessageGetPayload<{ include: typeof ROW_INCLUDE }>,
+  recipientNames?: Map<string, string | null>,
+): NavetteRow {
   return {
     id: r.id,
     dossierId: r.dossierId,
@@ -239,6 +350,8 @@ function toRow(r: Prisma.DossierNavetteMessageGetPayload<{ include: typeof ROW_I
     authorName: r.author?.nom ?? null,
     authorRole: r.authorRole,
     recipientId: r.recipientId,
+    recipientName: r.recipientId ? (recipientNames?.get(r.recipientId) ?? null) : null,
+    parentId: r.parentId,
     dueDate: r.dueDate,
     confidentiel: r.confidentiel,
     readAt: r.readAt,
@@ -258,13 +371,22 @@ export async function getDossierNavette(
     where: {
       cabinetId,
       dossierId,
-      // confidentiel masqué pour l'assistante
-      ...(viewerRole === "assistante" ? { confidentiel: false } : {}),
+      // Cloison du confidentiel : la même règle que `canViewNavetteMessage`,
+      // exprimée en SQL pour ne pas charger ce qui ne sera pas rendu.
+      ...(canViewNavetteMessage(viewerRole, { confidentiel: true }) ? {} : { confidentiel: false }),
     },
     orderBy: { createdAt: "desc" },
     include: ROW_INCLUDE,
   });
-  return rows.map(toRow);
+
+  // Le destinataire n'est pas une relation Prisma (choix du modèle : un
+  // identifiant nu). Une seule requête pour tous les noms, jamais une par ligne.
+  const recipientIds = [...new Set(rows.map((r) => r.recipientId).filter((v): v is string => !!v))];
+  const recipients = recipientIds.length
+    ? await client.user.findMany({ where: { id: { in: recipientIds } }, select: { id: true, nom: true } })
+    : [];
+  const noms = new Map(recipients.map((u) => [u.id, u.nom]));
+  return rows.map((r) => toRow(r, noms));
 }
 
 export type NavetteFilter = "all" | "needs_me" | "sent_for_review" | "approved";
@@ -298,7 +420,7 @@ export async function getNavetteInbox(
     take: limit,
     include: ROW_INCLUDE,
   });
-  return rows.map(toRow);
+  return rows.map((r) => toRow(r));
 }
 
 /** Badge « needs me » : messages qui m'attendent et non résolus. */
@@ -321,43 +443,69 @@ export function countNeedsMe(
 
 /* ───────── Cycle de vie ───────── */
 
+/**
+ * Marque un message comme lu.
+ *
+ * Ce que ça corrige : la version précédente ne vérifiait que le `cabinetId`.
+ * Une comptable, ou une assistante devant un message confidentiel, marquait
+ * comme lu un message qu'elle n'avait pas le droit de voir, et l'horodatage
+ * de lecture devenait faux dans un dossier opposable.
+ */
 export async function markNavetteRead(
   id: string,
   cabinetId: string,
   userId: string,
+  viewerRole: string,
   client: DBClient = prisma,
-): Promise<{ ok: boolean }> {
+): Promise<{ ok: boolean; dossierId?: string; error?: NavetteGuardReason | "not_found" }> {
   const msg = await client.dossierNavetteMessage.findFirst({
     where: { id, cabinetId },
-    select: { id: true, readAt: true },
+    select: { id: true, dossierId: true, readAt: true, confidentiel: true },
   });
-  if (!msg) return { ok: false };
+  if (!msg) return { ok: false, error: "not_found" };
+  if (!canViewNavetteMessage(viewerRole, msg)) return { ok: false, error: "forbidden" };
+
   if (!msg.readAt) {
     await client.dossierNavetteMessage.update({
       where: { id },
       data: { readAt: new Date(), readById: userId },
     });
   }
-  return { ok: true };
+  return { ok: true, dossierId: msg.dossierId };
 }
 
-/** Marque un message « traité » (addressed/fixed) — par son destinataire. */
+/**
+ * Marque une demande « traitée » — par son destinataire, ou par l'admin.
+ *
+ * Le dossier vient du MESSAGE, jamais du navigateur : l'appelant fournissait
+ * auparavant le `dossierId` lui-même, ce qui n'était pas une vérification mais
+ * une politesse.
+ */
 export async function resolveNavetteMessage(
   id: string,
   cabinetId: string,
   userId: string,
+  viewerRole: string,
   client: DBClient = prisma,
-): Promise<{ ok: boolean }> {
+): Promise<{ ok: boolean; dossierId?: string; error?: NavetteGuardReason | "not_found" }> {
   const msg = await client.dossierNavetteMessage.findFirst({
     where: { id, cabinetId },
-    select: { id: true, resolvedAt: true },
+    select: {
+      id: true,
+      dossierId: true,
+      type: true,
+      recipientId: true,
+      resolvedAt: true,
+      confidentiel: true,
+    },
   });
-  if (!msg) return { ok: false };
-  if (!msg.resolvedAt) {
-    await client.dossierNavetteMessage.update({
-      where: { id },
-      data: { resolvedAt: new Date(), resolvedById: userId },
-    });
+  if (!msg) return { ok: false, error: "not_found" };
+
+  const verdict = checkNavetteResolve({ role: viewerRole, userId, message: msg });
+  if (!verdict.ok) return { ok: false, dossierId: msg.dossierId, error: verdict.reason };
+
+  if (!(await closeRequest(msg.id, cabinetId, userId, client))) {
+    return { ok: false, dossierId: msg.dossierId, error: "already_resolved" };
   }
-  return { ok: true };
+  return { ok: true, dossierId: msg.dossierId };
 }
