@@ -49,7 +49,7 @@ export function FacturationNotesCreditView({ cabinetId }: FacturationNotesCredit
       <header className="pb-1">
         <Link
           href={routes.facturation}
-          className="mb-3 inline-flex items-center gap-2 text-sm text-si-muted transition-colors hover:text-si-ink"
+          className="min-h-tap mb-3 inline-flex items-center gap-2 text-sm text-si-muted transition-colors hover:text-si-ink"
         >
           <ArrowLeft className="w-4 h-4 shrink-0" aria-hidden />
           {t("backToOverview")}

@@ -90,7 +90,7 @@ export function RevenueChart({ data, range: initialRange = 6 }: RevenueChartProp
                 key={opt.value}
                 type="button"
                 onClick={() => setRange(opt.value)}
-                className="px-3 py-1 rounded-md text-xs font-medium transition-colors"
+                className="min-h-tap px-3 py-1 rounded-md text-xs font-medium transition-colors"
                 style={{
                   background: range === opt.value ? "var(--brand-800)" : "transparent",
                   color:
@@ -103,7 +103,7 @@ export function RevenueChart({ data, range: initialRange = 6 }: RevenueChartProp
           </div>
           <Link
             href={routes.rapports}
-            className="w-8 h-8 rounded-md flex items-center justify-center transition-colors"
+            className="w-8 h-tap rounded-md flex items-center justify-center transition-colors"
             style={{
               background: "var(--sand-100)",
               border: "1px solid var(--sand-300)",

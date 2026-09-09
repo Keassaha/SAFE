@@ -139,7 +139,7 @@ export function BillingPipeline({ rows }: BillingPipelineProps) {
         </div>
         <Link
           href={routes.facturationSuivi}
-          className="w-8 h-8 rounded-md flex items-center justify-center transition-colors"
+          className="w-8 h-tap rounded-md flex items-center justify-center transition-colors"
           style={{
             background: "var(--sand-100)",
             border: "1px solid var(--sand-300)",

@@ -175,7 +175,7 @@ export function CatalogueDemoView() {
               key={d.id}
               type="button"
               onClick={() => applyDomainPreset(d.id)}
-              className="rounded-full border border-si-line bg-si-surface px-3 py-1 text-xs font-medium text-si-ink transition hover:border-si-verified/50 hover:bg-si-verified/10"
+              className="min-h-tap rounded-full border border-si-line bg-si-surface px-3 py-1 text-xs font-medium text-si-ink transition hover:border-si-verified/50 hover:bg-si-verified/10"
             >
               Cabinet « {d.label} »
             </button>
@@ -196,7 +196,7 @@ export function CatalogueDemoView() {
                       type="checkbox"
                       checked={on}
                       onChange={() => toggle(tool.id)}
-                      className="mt-1 h-4 w-4 shrink-0 accent-emerald-600"
+                      className="mt-1 h-tap w-4 shrink-0 accent-emerald-600"
                     />
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
@@ -262,7 +262,7 @@ export function CatalogueDemoView() {
         </div>
 
         <details className="rounded-lg border border-si-line bg-si-canvas">
-          <summary className="cursor-pointer px-4 py-2.5 text-xs font-medium uppercase tracking-wide text-si-muted">
+          <summary className="min-h-tap cursor-pointer px-4 py-2.5 text-xs font-medium uppercase tracking-wide text-si-muted">
             Manifeste d'activation (ce que la Console générerait)
           </summary>
           <pre className="overflow-x-auto px-4 pb-4 text-xs text-si-ink">

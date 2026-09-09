@@ -36,7 +36,7 @@ export function DashboardTransactionsList({
         </h3>
         <button
           type="button"
-          className="w-8 h-8 rounded-safe-sm flex items-center justify-center text-[var(--safe-icon-default)] hover:bg-emerald-100 hover:text-emerald-700 transition-colors"
+          className="w-8 h-tap rounded-safe-sm flex items-center justify-center text-[var(--safe-icon-default)] hover:bg-emerald-100 hover:text-emerald-700 transition-colors"
           aria-label={t("options")}
         >
           <MoreHorizontal className="w-4 h-4" />
@@ -93,7 +93,7 @@ export function DashboardTransactionsList({
       {items.length > 0 && viewAllHref && (
         <Link
           href={viewAllHref}
-          className="block text-center text-sm font-medium text-emerald-700 hover:text-emerald-800 mt-3 pt-3 border-t border-[var(--safe-neutral-border)]"
+          className="min-h-tap block text-center text-sm font-medium text-emerald-700 hover:text-emerald-800 mt-3 pt-3 border-t border-[var(--safe-neutral-border)]"
         >
           {tc("viewAll")}
         </Link>

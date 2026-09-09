@@ -82,7 +82,7 @@ export default async function NouveauClientPage({
           </p>
           <Link
             href={`/clients/${blockedDuplicate.id}`}
-            className="mt-2 inline-flex items-center font-medium text-amber-900 underline underline-offset-2"
+            className="min-h-tap mt-2 inline-flex items-center font-medium text-amber-900 underline underline-offset-2"
           >
             {t("openExistingRecord")}
           </Link>

@@ -69,7 +69,7 @@ export function HonorairesAFacturerView({ cabinetId, role, embedded = false }: H
         <header className="pb-1">
           <Link
             href={routes.facturation}
-            className="mb-3 inline-flex items-center gap-2 text-sm text-si-muted transition-colors hover:text-si-ink"
+            className="min-h-tap mb-3 inline-flex items-center gap-2 text-sm text-si-muted transition-colors hover:text-si-ink"
           >
             <ArrowLeft className="w-4 h-4 shrink-0" aria-hidden />
             {t("backToOverview")}
@@ -112,7 +112,7 @@ export function HonorairesAFacturerView({ cabinetId, role, embedded = false }: H
                   setSearchQ(e.target.value);
                   pageRows.setPage(1);
                 }}
-                className="flex-1 rounded-lg border border-si-line px-3 py-2 text-sm"
+                className="min-h-tap flex-1 rounded-lg border border-si-line px-3 py-2 text-sm"
               />
             </div>
             <div className="flex items-center gap-2">
@@ -123,7 +123,7 @@ export function HonorairesAFacturerView({ cabinetId, role, embedded = false }: H
                   setFilters((f) => ({ ...f, userId: e.target.value || undefined }));
                   pageRows.setPage(1);
                 }}
-                className="rounded-lg border border-si-line px-3 py-2 text-sm min-w-[160px]"
+                className="min-h-tap rounded-lg border border-si-line px-3 py-2 text-sm min-w-[160px]"
               >
                 <option value="">{t("all")}</option>
                 {users.map((u) => (
@@ -141,7 +141,7 @@ export function HonorairesAFacturerView({ cabinetId, role, embedded = false }: H
                   setFilters((f) => ({ ...f, dossierId: e.target.value || undefined }));
                   pageRows.setPage(1);
                 }}
-                className="rounded-lg border border-si-line px-3 py-2 text-sm min-w-[200px]"
+                className="min-h-tap rounded-lg border border-si-line px-3 py-2 text-sm min-w-[200px]"
               >
                 <option value="">{t("all")}</option>
                 {dossiers.map((d) => (
@@ -163,7 +163,7 @@ export function HonorairesAFacturerView({ cabinetId, role, embedded = false }: H
                   }));
                   pageRows.setPage(1);
                 }}
-                className="rounded-lg border border-si-line px-3 py-2 text-sm"
+                className="min-h-tap rounded-lg border border-si-line px-3 py-2 text-sm"
               />
             </div>
             <div className="flex items-center gap-2">
@@ -178,7 +178,7 @@ export function HonorairesAFacturerView({ cabinetId, role, embedded = false }: H
                   }));
                   pageRows.setPage(1);
                 }}
-                className="rounded-lg border border-si-line px-3 py-2 text-sm"
+                className="min-h-tap rounded-lg border border-si-line px-3 py-2 text-sm"
               />
             </div>
           </div>

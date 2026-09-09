@@ -146,7 +146,7 @@ export function DossierPartiesEditor({
                   type="button"
                   aria-label={t("removePerson")}
                   onClick={() => removeCoClient(idx)}
-                  className="shrink-0 h-6 w-6 grid place-items-center rounded-full text-si-muted hover:text-si-ink hover:bg-si-surface transition"
+                  className="shrink-0 h-tap w-6 grid place-items-center rounded-full text-si-muted hover:text-si-ink hover:bg-si-surface transition"
                 >
                   <X className="w-3.5 h-3.5" />
                 </button>
@@ -175,7 +175,7 @@ export function DossierPartiesEditor({
                   key={c.id}
                   type="button"
                   onClick={() => addExisting(c.id)}
-                  className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-si-ink hover:bg-si-canvas transition"
+                  className="min-h-tap flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-si-ink hover:bg-si-canvas transition"
                 >
                   <Users className="w-3.5 h-3.5 text-si-muted shrink-0" />
                   {formatClientLabel(c)}
@@ -188,7 +188,7 @@ export function DossierPartiesEditor({
                 <button
                   type="button"
                   onClick={() => addNew("personne_physique")}
-                  className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-si-ink-strong hover:bg-si-canvas transition"
+                  className="min-h-tap flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-si-ink-strong hover:bg-si-canvas transition"
                 >
                   <Plus className="w-3.5 h-3.5 shrink-0" />
                   {t("createAsIndividual", { name: query.trim() })}
@@ -196,7 +196,7 @@ export function DossierPartiesEditor({
                 <button
                   type="button"
                   onClick={() => addNew("personne_morale")}
-                  className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-si-ink-strong hover:bg-si-canvas transition"
+                  className="min-h-tap flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-si-ink-strong hover:bg-si-canvas transition"
                 >
                   <Plus className="w-3.5 h-3.5 shrink-0" />
                   {t("createAsCompany", { name: query.trim() })}
@@ -250,7 +250,7 @@ export function DossierPartiesEditor({
                 type="button"
                 aria-label={t("removePerson")}
                 onClick={() => setExternes(externes.filter((_, i) => i !== idx))}
-                className="shrink-0 h-10 w-10 grid place-items-center rounded-[10px] border border-si-line text-si-muted hover:text-si-ink hover:bg-si-canvas transition"
+                className="shrink-0 h-tap w-10 grid place-items-center rounded-[10px] border border-si-line text-si-muted hover:text-si-ink hover:bg-si-canvas transition"
               >
                 <X className="w-4 h-4" />
               </button>

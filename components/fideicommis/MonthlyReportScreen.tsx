@@ -266,7 +266,7 @@ export function MonthlyReportScreen({
           <button
             type="button"
             onClick={() => setShowGenerate((v) => !v)}
-            className="w-full rounded-lg border border-[var(--si-line)] bg-[var(--si-surface)] px-3 py-2 text-sm text-[var(--si-ink)] transition-colors hover:bg-si-ink-strong/[0.04]"
+            className="min-h-tap w-full rounded-lg border border-[var(--si-line)] bg-[var(--si-surface)] px-3 py-2 text-sm text-[var(--si-ink)] transition-colors hover:bg-si-ink-strong/[0.04]"
           >
             Produire un rapport
           </button>
@@ -289,7 +289,7 @@ export function MonthlyReportScreen({
                     <button
                       type="button"
                       onClick={() => router.push(`/inspection/rapport-mensuel?rapport=${r.id}`)}
-                      className={`flex w-full flex-col gap-1 px-3 py-2.5 text-left transition-colors ${
+                      className={`min-h-tap flex w-full flex-col gap-1 px-3 py-2.5 text-left transition-colors ${
                         actif ? "bg-si-ink-strong/[0.05]" : "hover:bg-si-ink-strong/[0.03]"
                       }`}
                     >
@@ -340,7 +340,7 @@ export function MonthlyReportScreen({
                     type="month"
                     name="periode"
                     defaultValue={defaultPeriode}
-                    className="mt-1 w-full rounded-lg border border-[var(--si-line)] bg-white px-3 py-2 text-sm text-[var(--si-ink)] focus:border-[var(--si-ink-strong)] focus:outline-none"
+                    className="min-h-tap mt-1 w-full rounded-lg border border-[var(--si-line)] bg-white px-3 py-2 text-sm text-[var(--si-ink)] focus:border-[var(--si-ink-strong)] focus:outline-none"
                   />
                 </label>
 
@@ -349,7 +349,7 @@ export function MonthlyReportScreen({
                   <select
                     name="trustBankAccountId"
                     defaultValue={defaultAccountId ?? ""}
-                    className="mt-1 w-full rounded-lg border border-[var(--si-line)] bg-white px-3 py-2 text-sm text-[var(--si-ink)] focus:border-[var(--si-ink-strong)] focus:outline-none"
+                    className="min-h-tap mt-1 w-full rounded-lg border border-[var(--si-line)] bg-white px-3 py-2 text-sm text-[var(--si-ink)] focus:border-[var(--si-ink-strong)] focus:outline-none"
                   >
                     {accounts.map((a) => (
                       <option key={a.id} value={a.id}>
@@ -366,7 +366,7 @@ export function MonthlyReportScreen({
                     name="bankStatementBalance"
                     inputMode="decimal"
                     placeholder="0,00"
-                    className="mt-1 w-full rounded-lg border border-[var(--si-line)] bg-white px-3 py-2 text-right text-sm tabular-nums text-[var(--si-ink)] focus:border-[var(--si-ink-strong)] focus:outline-none"
+                    className="min-h-tap mt-1 w-full rounded-lg border border-[var(--si-line)] bg-white px-3 py-2 text-right text-sm tabular-nums text-[var(--si-ink)] focus:border-[var(--si-ink-strong)] focus:outline-none"
                   />
                 </label>
               </div>
@@ -391,7 +391,7 @@ export function MonthlyReportScreen({
                             type="checkbox"
                             name="depositInTransit"
                             value={d.id}
-                            className="h-4 w-4 rounded border-[var(--si-line)] accent-[var(--si-ink-strong)]"
+                            className="h-tap w-4 rounded border-[var(--si-line)] accent-[var(--si-ink-strong)]"
                           />
                           <span className="tabular-nums text-[var(--si-muted)]">
                             {day(d.receivedDate)}
@@ -412,7 +412,7 @@ export function MonthlyReportScreen({
                 <button
                   type="submit"
                   disabled={pending}
-                  className="rounded-lg bg-[var(--si-ink-strong)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-si-ink-strong-soft disabled:opacity-50"
+                  className="min-h-tap rounded-lg bg-[var(--si-ink-strong)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-si-ink-strong-soft disabled:opacity-50"
                 >
                   {pending ? "Production en cours" : "Produire le rapport"}
                 </button>
@@ -694,7 +694,7 @@ export function MonthlyReportScreen({
                     <select
                       name="documentId"
                       defaultValue=""
-                      className="min-w-0 flex-1 rounded-lg border border-[var(--si-line)] bg-white px-3 py-2 text-sm text-[var(--si-ink)] focus:border-[var(--si-ink-strong)] focus:outline-none"
+                      className="min-h-tap min-w-0 flex-1 rounded-lg border border-[var(--si-line)] bg-white px-3 py-2 text-sm text-[var(--si-ink)] focus:border-[var(--si-ink-strong)] focus:outline-none"
                     >
                       <option value="">Choisir le relevé du mois</option>
                       {detail.documents.map((d) => (
@@ -706,7 +706,7 @@ export function MonthlyReportScreen({
                     <button
                       type="submit"
                       disabled={pending}
-                      className="rounded-lg border border-[var(--si-line)] px-3 py-2 text-sm text-[var(--si-ink)] transition-colors hover:bg-si-ink-strong/[0.04] disabled:opacity-50"
+                      className="min-h-tap rounded-lg border border-[var(--si-line)] px-3 py-2 text-sm text-[var(--si-ink)] transition-colors hover:bg-si-ink-strong/[0.04] disabled:opacity-50"
                     >
                       Rattacher
                     </button>
@@ -729,7 +729,7 @@ export function MonthlyReportScreen({
                   <button
                     type="submit"
                     disabled={pending}
-                    className="rounded-lg bg-[var(--si-ink-strong)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-si-ink-strong-soft disabled:opacity-50"
+                    className="min-h-tap rounded-lg bg-[var(--si-ink-strong)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-si-ink-strong-soft disabled:opacity-50"
                   >
                     {pending ? "Certification en cours" : "Certifier le rapport"}
                   </button>
@@ -874,13 +874,13 @@ function DiscrepancyForms({
             <input
               name="explanation"
               placeholder="Ce qui explique la différence"
-              className="mt-1 w-full rounded-lg border border-[var(--si-line)] bg-white px-3 py-2 text-sm text-[var(--si-ink)] focus:border-[var(--si-ink-strong)] focus:outline-none"
+              className="min-h-tap mt-1 w-full rounded-lg border border-[var(--si-line)] bg-white px-3 py-2 text-sm text-[var(--si-ink)] focus:border-[var(--si-ink-strong)] focus:outline-none"
             />
           </label>
           <button
             type="submit"
             disabled={pending}
-            className="rounded-lg border border-[var(--si-line)] px-3 py-2 text-sm text-[var(--si-ink)] transition-colors hover:bg-si-ink-strong/[0.04] disabled:opacity-50"
+            className="min-h-tap rounded-lg border border-[var(--si-line)] px-3 py-2 text-sm text-[var(--si-ink)] transition-colors hover:bg-si-ink-strong/[0.04] disabled:opacity-50"
           >
             Consigner
           </button>

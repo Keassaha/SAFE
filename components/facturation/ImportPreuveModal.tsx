@@ -351,7 +351,7 @@ export function ImportPreuveModal({ open, onClose, clients, invoices, onSuccess 
                 type="checkbox"
                 checked={rememberPayer}
                 onChange={(e) => setRememberPayer(e.target.checked)}
-                className="mt-0.5 h-4 w-4 shrink-0 rounded border-si-line text-si-verified focus:ring-si-verified/30"
+                className="mt-0.5 h-tap w-4 shrink-0 rounded border-si-line text-si-verified focus:ring-si-verified/30"
               />
               <span className="text-sm text-si-ink">
                 {t("rememberPayer", { payer: extraction.expediteurNom ?? extraction.expediteurCourriel ?? "" })}

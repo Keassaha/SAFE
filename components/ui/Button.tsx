@@ -74,11 +74,21 @@ const variants: Record<Variant, string> = {
     "safe-glass-subtle border text-si-ink hover:bg-si-surface active:bg-si-line2 aria-pressed:bg-si-line2",
 };
 
+/**
+ * Les quatre tailles partagent la MÊME hauteur, 44 px, et se distinguent par
+ * le texte et le rembourrage horizontal.
+ *
+ * `sm` valait `min-h-9`, soit 33,75 px sur une racine à 15 px : un bouton
+ * qu'on rate au doigt. La compacité d'un bouton discret se lit à sa largeur
+ * et à sa graisse, pas à la surface qu'on doit viser. C'est la position
+ * d'Apple et de Material depuis toujours : l'apparence rétrécit, la cible
+ * non. Voir SAFE_PREMIUM_DESIGN_STANDARD §2.7 et §3.3, PS-025.
+ */
 const sizes: Record<Size, string> = {
-  default: "min-h-11 px-4",
-  sm: "min-h-9 px-3 text-xs",
-  lg: "min-h-11 px-6 text-sm",
-  icon: "h-11 w-11 p-0",
+  default: "min-h-tap px-4",
+  sm: "min-h-tap px-3 text-xs",
+  lg: "min-h-tap px-6 text-sm",
+  icon: "h-tap w-tap p-0",
 };
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(

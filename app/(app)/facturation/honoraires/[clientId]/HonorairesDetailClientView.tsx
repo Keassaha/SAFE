@@ -235,7 +235,7 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
       <header className="pb-1">
         <Link
           href={routes.facturationHonoraires}
-          className="mb-3 inline-flex items-center gap-2 text-sm text-si-muted transition-colors hover:text-si-ink"
+          className="min-h-tap mb-3 inline-flex items-center gap-2 text-sm text-si-muted transition-colors hover:text-si-ink"
         >
           <ArrowLeft className="w-4 h-4" />
           {t("backToFeesToBill")}

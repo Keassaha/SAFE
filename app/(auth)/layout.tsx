@@ -12,7 +12,7 @@ export default async function AuthLayout({
     <div className="min-h-screen bg-canvas font-sans selection:bg-si-ink-strong/15 selection:text-si-ink-strong px-4 py-8">
       {/* En-tête simple pour l'authentification */}
       <div className="w-full flex justify-between items-center max-w-6xl mx-auto mb-16 px-4">
-        <Link href="/" className="inline-flex items-center gap-2 transition-transform duration-300 hover:scale-[1.02]">
+        <Link href="/" className="inline-flex min-h-tap items-center gap-2 transition-transform duration-300 hover:scale-[1.02]">
           <SafeLogo size={20} />
         </Link>
       </div>

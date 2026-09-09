@@ -45,10 +45,8 @@ function CommandeChrono({
       type="button"
       role="menuitem"
       onClick={onClick}
-      className={`safe-zoom-menu flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] font-sans ${
-        ton === "primaire"
-          ? "safe-action-degrade text-white"
-          : "text-text-body hover:text-text-primary"
+      className={`min-h-tap safe-zoom-menu flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] font-sans ${
+        ton === "primaire" ? "safe-action-degrade text-white" : "text-text-body hover:text-text-primary"
       }`}
     >
       <Icone className="h-4 w-4 shrink-0" strokeWidth={1.75} />
@@ -164,7 +162,7 @@ export function GlobalTimer({ cabinetId, currentUserId }: GlobalTimerProps) {
               aria-haspopup="menu"
               aria-expanded={panneauOuvert}
               title={`${displayTime} · ${etat}`}
-              className="safe-topbar-text flex items-center gap-1.5 rounded-[7px] border border-[0.5px] border-border bg-[var(--si-canvas)] py-1 pl-2 pr-1.5 text-sm font-mono font-medium text-si-ink transition-colors hover:border-si-ink-strong/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-si-ink-strong/40"
+              className="min-h-tap safe-topbar-text flex items-center gap-1.5 rounded-[7px] border border-[0.5px] border-border bg-[var(--si-canvas)] py-1 pl-2 pr-1.5 text-sm font-mono font-medium text-si-ink transition-colors hover:border-si-ink-strong/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-si-ink-strong/40"
             >
               <Clock
                 className={`h-4 w-4 ${timer.running ? "text-si-verified" : "text-si-muted"}`}

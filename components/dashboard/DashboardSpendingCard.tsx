@@ -44,7 +44,7 @@ export function DashboardSpendingCard({
         </div>
         <Link
           href={routes.rapports}
-          className="w-8 h-8 rounded-safe-sm bg-neutral-100 hover:bg-neutral-300 flex items-center justify-center transition-colors text-[var(--safe-icon-default)] hover:text-green-800"
+          className="w-8 h-tap rounded-safe-sm bg-neutral-100 hover:bg-neutral-300 flex items-center justify-center transition-colors text-[var(--safe-icon-default)] hover:text-green-800"
           aria-label={td("viewReportsLabel")}
         >
           <Maximize2 className="w-4 h-4" />

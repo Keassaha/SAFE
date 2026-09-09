@@ -223,10 +223,7 @@ export default function OnboardingForm() {
                   <button
                     type="button"
                     onClick={handleBack}
-                    className={`px-6 py-2.5 rounded-xl text-sm font-medium transition-all duration-200
-                      ${step === 1
-                        ? "invisible"
-                        : "border border-[var(--safe-neutral-border)] text-[var(--safe-darkest)] hover:bg-[var(--safe-neutral-100)]"}`}
+                    className={`min-h-tap px-6 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${step === 1 ? "invisible" : "border border-[var(--safe-neutral-border)] text-[var(--safe-darkest)] hover:bg-[var(--safe-neutral-100)]"}`}
                   >
                     {T("back", lang)}
                   </button>
@@ -235,10 +232,7 @@ export default function OnboardingForm() {
                     <button
                       type="button"
                       onClick={handleNext}
-                      className="px-8 py-2.5 rounded-xl text-sm font-medium
-                                 bg-[var(--safe-accent)] text-white
-                                 hover:bg-[var(--safe-green-800)] active:scale-[0.98]
-                                 transition-all duration-200 shadow-md hover:shadow-lg"
+                      className="min-h-tap px-8 py-2.5 rounded-xl text-sm font-medium bg-[var(--safe-accent)] text-white hover:bg-[var(--safe-green-800)] active:scale-[0.98] transition-all duration-200 shadow-md hover:shadow-lg"
                     >
                       {T("next", lang)}
                     </button>
@@ -247,11 +241,7 @@ export default function OnboardingForm() {
                       type="button"
                       onClick={handleSubmit}
                       disabled={isSubmitting}
-                      className="px-8 py-3 rounded-xl text-sm font-medium
-                                 bg-[var(--safe-accent)] text-white
-                                 hover:bg-[var(--safe-green-800)] active:scale-[0.98]
-                                 transition-all duration-200 shadow-md hover:shadow-lg
-                                 disabled:opacity-60 disabled:cursor-not-allowed"
+                      className="min-h-tap px-8 py-3 rounded-xl text-sm font-medium bg-[var(--safe-accent)] text-white hover:bg-[var(--safe-green-800)] active:scale-[0.98] transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-60 disabled:cursor-not-allowed"
                     >
                       {isSubmitting ? T("submitting", lang) : T("confirmCall", lang)}
                     </button>

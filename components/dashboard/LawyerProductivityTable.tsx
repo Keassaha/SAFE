@@ -35,7 +35,7 @@ export function LawyerProductivityTable({
         </div>
         <Link
           href={viewAllHref}
-          className="w-8 h-8 rounded-safe-sm bg-[var(--safe-neutral-page)] hover:bg-[var(--safe-neutral-100)] flex items-center justify-center transition-colors text-[var(--safe-text-secondary)]"
+          className="w-8 h-tap rounded-safe-sm bg-[var(--safe-neutral-page)] hover:bg-[var(--safe-neutral-100)] flex items-center justify-center transition-colors text-[var(--safe-text-secondary)]"
           aria-label={t("viewTimesheets")}
         >
           <Maximize2 className="w-4 h-4" />
@@ -103,7 +103,7 @@ export function LawyerProductivityTable({
       {rows.length > 0 && (
         <Link
           href={viewAllHref}
-          className="block text-center text-sm font-medium text-blue-600 hover:text-blue-700 mt-3 pt-3 border-t border-[var(--safe-neutral-100)]"
+          className="min-h-tap block text-center text-sm font-medium text-blue-600 hover:text-blue-700 mt-3 pt-3 border-t border-[var(--safe-neutral-100)]"
         >
           {tc("viewAll")}
         </Link>

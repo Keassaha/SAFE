@@ -256,7 +256,7 @@ export default async function ConsoleClientDetailPage({
                   <InfoRow label="Soumis le" value={formatDate(lead.auditSubmission.createdAt)} />
                   <Link
                     href={`/audit/${lead.auditSubmission.id}`}
-                    className="mt-1 inline-flex items-center gap-1 text-sm font-medium text-si-verified hover:underline"
+                    className="min-h-tap mt-1 inline-flex items-center gap-1 text-sm font-medium text-si-verified hover:underline"
                   >
                     Voir le rapport d'audit →
                   </Link>
@@ -383,7 +383,7 @@ export default async function ConsoleClientDetailPage({
                   <button
                     type="button"
                     disabled
-                    className="inline-flex cursor-not-allowed items-center gap-2 rounded-md bg-si-verified/60 px-4 py-2 text-sm font-medium text-si-surface"
+                    className="min-h-tap inline-flex cursor-not-allowed items-center gap-2 rounded-md bg-si-verified/60 px-4 py-2 text-sm font-medium text-si-surface"
                     title="Flux d'activation en cours de câblage (chantier suivant)"
                   >
                     Activer le cabinet & créer les accès

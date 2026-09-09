@@ -43,7 +43,7 @@ export function ActiveCasesTable({
         </div>
         <Link
           href={viewAllHref}
-          className="w-9 h-9 rounded-safe bg-violet-100 hover:bg-violet-200 flex items-center justify-center text-violet-700 transition-colors"
+          className="w-9 h-tap rounded-safe bg-violet-100 hover:bg-violet-200 flex items-center justify-center text-violet-700 transition-colors"
           aria-label={t("viewMatters")}
         >
           <Maximize2 className="w-4 h-4" />
@@ -95,7 +95,7 @@ export function ActiveCasesTable({
       {rows.length > 0 && (
         <Link
           href={viewAllHref}
-          className="block text-center text-sm font-medium text-violet-600 hover:text-violet-700 mt-3 pt-3 border-t border-[var(--safe-neutral-border)]"
+          className="min-h-tap block text-center text-sm font-medium text-violet-600 hover:text-violet-700 mt-3 pt-3 border-t border-[var(--safe-neutral-border)]"
         >
           {tc("viewAll")}
         </Link>

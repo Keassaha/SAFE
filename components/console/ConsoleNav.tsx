@@ -65,10 +65,8 @@ export function ConsoleNav() {
           <Link
             key={item.href}
             href={item.href}
-            className={`flex shrink-0 items-center gap-1.5 border-b-2 px-3 py-2.5 text-sm font-medium transition-colors ${
-              active
-                ? "border-si-verified text-si-verified"
-                : "border-transparent text-si-muted hover:text-si-ink"
+            className={`min-h-tap flex shrink-0 items-center gap-1.5 border-b-2 px-3 py-2.5 text-sm font-medium transition-colors ${
+              active ? "border-si-verified text-si-verified" : "border-transparent text-si-muted hover:text-si-ink"
             }`}
           >
             <Icon className="h-4 w-4" />

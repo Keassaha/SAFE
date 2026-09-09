@@ -66,10 +66,8 @@ function OptionChip({
     <button
       type="button"
       onClick={onClick}
-      className={`flex flex-col items-start gap-0.5 rounded-xl border px-3 py-2.5 text-left text-sm transition ${
-        selected
-          ? "border-si-verified bg-si-verified/10 text-si-ink"
-          : "border-si-line bg-si-surface text-si-ink hover:border-si-verified/40"
+      className={`min-h-tap flex flex-col items-start gap-0.5 rounded-xl border px-3 py-2.5 text-left text-sm transition ${
+        selected ? "border-si-verified bg-si-verified/10 text-si-ink" : "border-si-line bg-si-surface text-si-ink hover:border-si-verified/40"
       }`}
     >
       <span className="font-medium">{label}</span>
@@ -159,7 +157,7 @@ function Field({
               key={n}
               type="button"
               onClick={() => onChange(n)}
-              className={`h-10 w-10 rounded-lg border text-sm font-medium tabular-nums transition ${
+              className={`h-tap w-10 rounded-lg border text-sm font-medium tabular-nums transition ${
                 v === n
                   ? "border-si-verified bg-si-verified text-si-surface"
                   : "border-si-line bg-si-surface text-si-ink hover:border-si-verified/40"
@@ -417,7 +415,7 @@ export function ConsoleIntakeForm({ imports = [] }: { imports?: ImportableAudit[
           type="button"
           onClick={handleSubmit}
           disabled={submitting}
-          className="rounded-xl safe-action-degrade px-6 py-3 text-sm font-medium text-si-surface transition disabled:opacity-60"
+          className="min-h-tap rounded-xl safe-action-degrade px-6 py-3 text-sm font-medium text-si-surface transition disabled:opacity-60"
         >
           {submitting ? "Création…" : "Créer le client"}
         </button>

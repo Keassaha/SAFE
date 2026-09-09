@@ -97,7 +97,7 @@ export function InvoiceCard({ invoice, onPreview, status }: InvoiceCardProps) {
       <Button
         variant="secondary"
         onClick={onPreview}
-        className="w-full mt-2 h-8 text-xs"
+        className="flex items-center w-full mt-2 h-tap text-xs"
       >
         {t("preview")}
       </Button>

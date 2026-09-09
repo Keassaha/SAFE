@@ -52,7 +52,7 @@ export function BillingFollowUpTable({
         </div>
         <Link
           href={viewAllHref}
-          className="w-9 h-9 rounded-safe bg-amber-100 hover:bg-amber-200 flex items-center justify-center text-amber-700 transition-colors"
+          className="w-9 h-tap rounded-safe bg-amber-100 hover:bg-amber-200 flex items-center justify-center text-amber-700 transition-colors"
           aria-label={t("viewBillingFollowUp")}
         >
           <Maximize2 className="w-4 h-4" />
@@ -113,7 +113,7 @@ export function BillingFollowUpTable({
       {rows.length > 0 && (
         <Link
           href={viewAllHref}
-          className="block text-center text-sm font-medium text-amber-700 hover:text-amber-800 mt-3 pt-3 border-t border-[var(--safe-neutral-border)]"
+          className="min-h-tap block text-center text-sm font-medium text-amber-700 hover:text-amber-800 mt-3 pt-3 border-t border-[var(--safe-neutral-border)]"
         >
           {tc("viewAll")}
         </Link>

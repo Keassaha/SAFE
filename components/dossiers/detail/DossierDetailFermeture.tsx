@@ -238,7 +238,7 @@ export function DossierDetailFermeture({
                 type="checkbox"
                 checked={ack}
                 onChange={(e) => setAck(e.target.checked)}
-                className="mt-0.5 h-4 w-4 shrink-0 accent-si-ink-strong"
+                className="mt-0.5 h-tap w-4 shrink-0 accent-si-ink-strong"
               />
               <span>{t("closeAck")}</span>
             </label>

@@ -201,10 +201,10 @@ const card = "rounded-lg border border-si-line bg-si-surface";
 const sectionTitle = "text-sm font-medium text-si-ink";
 
 const selectBase =
-  "h-11 w-full appearance-none rounded-md border border-si-line bg-si-surface px-3 pr-9 text-sm text-si-ink outline-none transition-colors hover:border-si-muted focus:border-si-accent focus:ring-2 focus:ring-si-accent/20";
+  "h-tap w-full appearance-none rounded-md border border-si-line bg-si-surface px-3 pr-9 text-sm text-si-ink outline-none transition-colors hover:border-si-muted focus:border-si-accent focus:ring-2 focus:ring-si-accent/20";
 
 const inputBase =
-  "h-11 w-full rounded-md border border-si-line bg-si-surface px-3 text-sm text-si-ink outline-none transition-colors hover:border-si-muted focus:border-si-accent focus:ring-2 focus:ring-si-accent/20";
+  "h-tap w-full rounded-md border border-si-line bg-si-surface px-3 text-sm text-si-ink outline-none transition-colors hover:border-si-muted focus:border-si-accent focus:ring-2 focus:ring-si-accent/20";
 
 const lineInput =
   "h-10 w-full rounded-md border border-si-line bg-si-surface px-3 text-sm text-si-ink outline-none transition-colors focus:border-si-accent focus:ring-2 focus:ring-si-accent/20";
@@ -811,7 +811,7 @@ export function CreateInvoiceView({
           <div className="flex min-w-0 items-center gap-3">
             <Link
               href={routes.facturation}
-              className="safe-zoom inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-md text-si-muted hover:bg-si-surface2 hover:text-si-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-si-ink/25"
+              className="safe-zoom inline-flex h-tap w-tap shrink-0 items-center justify-center rounded-md text-si-muted hover:bg-si-surface2 hover:text-si-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-si-ink/25"
               aria-label={t("invoices")}
             >
               <ArrowLeft size={17} aria-hidden="true" />
@@ -847,7 +847,7 @@ export function CreateInvoiceView({
             <button
               type="button"
               onClick={() => setSubmitError(null)}
-              className="min-h-11 text-xs font-medium text-status-error underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-status-error/30"
+              className="min-h-tap text-xs font-medium text-status-error underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-status-error/30"
             >
               {t("close")}
             </button>
@@ -902,7 +902,7 @@ export function CreateInvoiceView({
                 <h3 className={sectionTitle}>{t("myContactInfo")}</h3>
                 <button
                   type="button"
-                  className="inline-flex min-h-11 items-center gap-1.5 rounded-md px-3 text-xs font-medium text-si-verified transition-colors hover:bg-si-verified/[0.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-si-accent/30"
+                  className="inline-flex min-h-tap items-center gap-1.5 rounded-md px-3 text-xs font-medium text-si-verified transition-colors hover:bg-si-verified/[0.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-si-accent/30"
                 >
                   <Pencil size={12} />
                   {t("edit")}
@@ -1019,7 +1019,7 @@ export function CreateInvoiceView({
                   <button
                     key={p}
                     onClick={() => handleDueDatePreset(p)}
-                    className={`min-h-11 rounded-md border px-4 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-si-accent/30 ${
+                    className={`min-h-tap rounded-md border px-4 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-si-accent/30 ${
                       dueDatePreset === p
                         ? "border-si-ink-strong bg-si-canvas text-si-verified"
                         : "border-si-line bg-si-surface text-si-muted hover:border-si-muted hover:text-si-ink"
@@ -1154,14 +1154,14 @@ export function CreateInvoiceView({
                 <div className="flex items-center gap-1">
                   <button
                     onClick={addLine}
-                    className="inline-flex min-h-11 items-center gap-1.5 rounded-md px-3 text-xs font-medium text-si-verified transition-colors hover:bg-si-verified/[0.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-si-accent/30"
+                    className="inline-flex min-h-tap items-center gap-1.5 rounded-md px-3 text-xs font-medium text-si-verified transition-colors hover:bg-si-verified/[0.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-si-accent/30"
                   >
                     <Plus size={14} />
                     {t("line")}
                   </button>
                   <button
                     onClick={addRabais}
-                    className="inline-flex min-h-11 items-center gap-1.5 rounded-md px-3 text-xs font-medium text-si-verified transition-colors hover:bg-si-verified/[0.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-si-accent/30"
+                    className="inline-flex min-h-tap items-center gap-1.5 rounded-md px-3 text-xs font-medium text-si-verified transition-colors hover:bg-si-verified/[0.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-si-accent/30"
                     title={t("addDiscountTitle")}
                   >
                     <Percent size={14} />
@@ -1169,7 +1169,7 @@ export function CreateInvoiceView({
                   </button>
                   <button
                     onClick={addFrais}
-                    className="inline-flex min-h-11 items-center gap-1.5 rounded-md px-3 text-xs font-medium text-si-amber-ink transition-colors hover:bg-si-amber/[0.10] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-si-amber/30"
+                    className="inline-flex min-h-tap items-center gap-1.5 rounded-md px-3 text-xs font-medium text-si-amber-ink transition-colors hover:bg-si-amber/[0.10] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-si-amber/30"
                     title={t("addAdminChargesTitle")}
                   >
                     <Receipt size={14} />
@@ -1191,7 +1191,7 @@ export function CreateInvoiceView({
                           type="date"
                           value={line.date}
                           onChange={(e) => updateLine(line.id, { date: e.target.value })}
-                          className="h-8 flex-1 rounded-md border border-transparent bg-transparent px-2 text-xs tabular-nums text-si-muted outline-none hover:border-si-line focus:border-si-accent focus:ring-1 focus:ring-si-accent/20"
+                          className="h-tap flex-1 rounded-md border border-transparent bg-transparent px-2 text-xs tabular-nums text-si-muted outline-none hover:border-si-line focus:border-si-accent focus:ring-1 focus:ring-si-accent/20"
                         />
                       </div>
                       <div className="flex items-center gap-1.5 flex-1 min-w-0">
@@ -1203,7 +1203,7 @@ export function CreateInvoiceView({
                           <select
                             value={line.responsableUserId ?? ""}
                             onChange={(e) => selectResponsable(line.id, e.target.value)}
-                            className="h-8 w-full appearance-none rounded-md border border-transparent bg-transparent pl-2 pr-6 text-xs text-si-muted outline-none hover:border-si-line focus:border-si-accent focus:ring-1 focus:ring-si-accent/20"
+                            className="h-tap w-full appearance-none rounded-md border border-transparent bg-transparent pl-2 pr-6 text-xs text-si-muted outline-none hover:border-si-line focus:border-si-accent focus:ring-1 focus:ring-si-accent/20"
                           >
                             <option value="">—</option>
                             {lawyers.map((u) => (
@@ -1242,7 +1242,7 @@ export function CreateInvoiceView({
                           <button
                             type="button"
                             onClick={() => setLineMode(line.id, "forfait")}
-                            className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition-all duration-150 ${
+                            className={`min-h-tap px-2.5 py-1 rounded-md text-[11px] font-medium transition-all duration-150 ${
                               showForfait
                                 ? "safe-action-degrade text-white"
                                 : "text-si-muted hover:text-si-ink"
@@ -1253,7 +1253,7 @@ export function CreateInvoiceView({
                           <button
                             type="button"
                             onClick={() => setLineMode(line.id, "honoraires")}
-                            className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition-all duration-150 ${
+                            className={`min-h-tap px-2.5 py-1 rounded-md text-[11px] font-medium transition-all duration-150 ${
                               !showForfait
                                 ? "safe-action-degrade text-white"
                                 : "text-si-muted hover:text-si-ink"
@@ -1335,7 +1335,7 @@ export function CreateInvoiceView({
                         <div className="col-span-1 flex justify-end">
                           <button
                             onClick={() => removeLine(line.id)}
-                            className="inline-flex h-11 w-11 items-center justify-center rounded-md text-si-muted transition-colors hover:bg-status-error-bg hover:text-status-error focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-status-error/30"
+                            className="inline-flex h-tap w-tap items-center justify-center rounded-md text-si-muted transition-colors hover:bg-status-error-bg hover:text-status-error focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-status-error/30"
                             title={t("delete")}
                           >
                             <Trash2 size={14} />
@@ -1439,7 +1439,7 @@ export function CreateInvoiceView({
                       <div className="col-span-1 flex justify-end">
                         <button
                           onClick={() => removeLine(line.id)}
-                          className="inline-flex h-11 w-11 items-center justify-center rounded-md text-si-muted transition-colors hover:bg-status-error-bg hover:text-status-error focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-status-error/30"
+                          className="inline-flex h-tap w-tap items-center justify-center rounded-md text-si-muted transition-colors hover:bg-status-error-bg hover:text-status-error focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-status-error/30"
                           title={t("delete")}
                         >
                           <Trash2 size={14} />
@@ -1532,7 +1532,7 @@ export function CreateInvoiceView({
                       <div className="col-span-1 flex justify-end">
                         <button
                           onClick={() => removeLine(line.id)}
-                          className="inline-flex h-11 w-11 items-center justify-center rounded-md text-si-muted transition-colors hover:bg-status-error-bg hover:text-status-error focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-status-error/30"
+                          className="inline-flex h-tap w-tap items-center justify-center rounded-md text-si-muted transition-colors hover:bg-status-error-bg hover:text-status-error focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-status-error/30"
                           title={t("delete")}
                         >
                           <Trash2 size={14} />
@@ -1600,7 +1600,7 @@ export function CreateInvoiceView({
                 onChange={(e) => setClientNote(e.target.value)}
                 placeholder={t("optionalMessagePlaceholder")}
                 rows={3}
-                className="w-full resize-none rounded-md border border-si-line bg-si-surface px-3 py-3 text-sm text-si-ink outline-none transition-colors placeholder:text-si-muted focus:border-si-accent focus:ring-2 focus:ring-si-accent/20"
+                className="min-h-tap w-full resize-none rounded-md border border-si-line bg-si-surface px-3 py-3 text-sm text-si-ink outline-none transition-colors placeholder:text-si-muted focus:border-si-accent focus:ring-2 focus:ring-si-accent/20"
               />
             </div>
           </div>
@@ -1631,7 +1631,7 @@ export function CreateInvoiceView({
                   type="checkbox"
                   checked={showSignature}
                   onChange={(e) => setShowSignature(e.target.checked)}
-                  className="h-4 w-4 rounded border-si-line text-si-verified focus:ring-si-accent/30"
+                  className="h-tap w-4 rounded border-si-line text-si-verified focus:ring-si-accent/30"
                 />
                 {t("addMySignature")}
               </label>
