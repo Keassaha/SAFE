@@ -253,6 +253,30 @@ Aucune autre durée, aucune autre courbe. Aucun mouvement au delà de 260 ms.
 | Barre de synthèse | `36px` |
 | Cible tactile minimale | `44px` |
 
+**Ces hauteurs sont en pixels, et c'est délibéré.** La racine du produit est à
+15 px (`app/globals.css`). Une hauteur écrite en rem suit donc la typographie :
+`h-11`, soit 2,75 rem, mesurait 41,25 px et non 44. Tous les boutons du produit
+sont restés trois pixels sous le seuil, sans que rien ne le signale, parce que
+la classe annonce onze quarts de rem et que personne ne relit la racine.
+
+Une cible tactile est la mesure d'un doigt. Elle ne suit pas la taille du texte.
+Les jetons vivent dans `lib/ds/tokens.ts` (`densite`) et s'écrivent `h-tap`,
+`min-h-tap`, `h-rang`, `h-rang-tactile`.
+
+**PS-025 se vérifie à deux endroits, parce qu'une seule mesure ne suffit pas.**
+La règle de lint refuse `h-11` dans un fichier d'interface : ce chiffre a
+toujours voulu dire 44, il n'a jamais valu 44, c'est donc toujours une erreur.
+Elle laisse passer `h-8`, `h-9` et `h-10`, tailles légitimes d'une barre de
+squelette ou d'une pastille d'icône, qu'une expression sur la classe ne sait
+pas distinguer d'un contrôle. C'est `scripts/audit-cibles-tactiles.mjs` qui
+tient ce versant : il remonte de la classe à la balise et ne juge que ce qui se
+clique. Il rend 1 s'il trouve quoi que ce soit, et sa base de référence
+`.audit-cibles-baseline.json` ne doit que rétrécir.
+
+Conséquence sur les tailles de bouton : les quatre tailles partagent la même
+hauteur de 44 px. Un bouton discret se distingue par son texte et son
+rembourrage horizontal, jamais par une cible plus petite.
+
 ### 2.8 Zoom souple — la marque de ce qui se sélectionne
 
 Décision CEO du 2026-08-11. **Partout où quelque chose se sélectionne dans SAFE,
@@ -328,6 +352,7 @@ fin du lot · **m** mineur, à inscrire au journal.
 | PS-022 | Destructif en texte rouge, jamais en fond plein, confirmation obligatoire | 100 % | revue | M |
 | PS-023 | Tout bouton désactivé porte une raison lisible à proximité ou en info-bulle | 100 % | revue | M |
 | PS-024 | Aucune action essentielle révélée par le seul survol | 0 | revue plus test tactile | B |
+| PS-025 | Cible tactile de 44 px sur tout contrôle, par les jetons `tap` / `rang` | 0 sous 44 px | `node scripts/audit-cibles-tactiles.mjs` plus lint | B |
 
 ### 3.4 États et retours
 
