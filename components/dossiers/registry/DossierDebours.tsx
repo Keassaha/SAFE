@@ -85,7 +85,7 @@ export function DossierDebours({
               </label>
               <select
                 name="deboursTypeId"
-                className="w-full h-10 px-3 rounded-lg border border-si-line bg-si-surface text-sm"
+                className="w-full h-tap px-3 rounded-lg border border-si-line bg-si-surface text-sm"
               >
                 <option value="">{t("manualEntry")}</option>
                 {deboursTypes.map((dt) => (
@@ -118,7 +118,7 @@ export function DossierDebours({
                   type="date"
                   name="date"
                   defaultValue={toIsoDay(toCalendarDayUTC(new Date()))}
-                  className="w-full h-10 px-3 rounded-lg border border-si-line bg-si-surface text-sm"
+                  className="w-full h-tap px-3 rounded-lg border border-si-line bg-si-surface text-sm"
                 />
               </div>
             </div>

@@ -32,7 +32,7 @@ export function SkeletonCard() {
 /** Skeleton for a table row */
 export function SkeletonRow({ cols = 4 }: { cols?: number }) {
   return (
-    <tr className="h-11 border-b border-si-line2">
+    <tr className="h-rang border-b border-si-line2">
       {Array.from({ length: cols }).map((_, i) => (
         <td key={i} className="px-4 py-3">
           <Skeleton className="h-4 w-full max-w-[120px]" />

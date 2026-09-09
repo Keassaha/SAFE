@@ -153,14 +153,14 @@ export function VersionsPanel({ documentId, onClose, onRestore }: Props) {
                 onChange={(e) => setSnapshotLabel(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleSnapshot()}
                 placeholder={t("snapshotPlaceholder")}
-                className="w-full text-sm border border-[var(--safe-neutral-border)] rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-[var(--safe-primary)] focus:border-transparent bg-white"
+                className="min-h-tap w-full text-sm border border-[var(--safe-neutral-border)] rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-[var(--safe-primary)] focus:border-transparent bg-white"
                 autoFocus
               />
               <div className="flex gap-2">
                 <button
                   onClick={handleSnapshot}
                   disabled={isSnapshotting}
-                  className="flex-1 flex items-center justify-center gap-1.5 text-xs bg-[var(--safe-primary)] text-white rounded-lg px-3 py-1.5 hover:bg-[var(--safe-primary-dark)] disabled:opacity-50 transition-colors"
+                  className="min-h-tap flex-1 flex items-center justify-center gap-1.5 text-xs bg-[var(--safe-primary)] text-white rounded-lg px-3 py-1.5 hover:bg-[var(--safe-primary-dark)] disabled:opacity-50 transition-colors"
                 >
                   {isSnapshotting ? (
                     <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -171,7 +171,7 @@ export function VersionsPanel({ documentId, onClose, onRestore }: Props) {
                 </button>
                 <button
                   onClick={() => { setShowSnapshotInput(false); setSnapshotLabel(""); }}
-                  className="text-xs text-[var(--safe-text-secondary)] hover:bg-white rounded-lg px-3 py-1.5 transition-colors"
+                  className="min-h-tap text-xs text-[var(--safe-text-secondary)] hover:bg-white rounded-lg px-3 py-1.5 transition-colors"
                 >
                   {t("cancel")}
                 </button>
@@ -180,7 +180,7 @@ export function VersionsPanel({ documentId, onClose, onRestore }: Props) {
           ) : (
             <button
               onClick={() => setShowSnapshotInput(true)}
-              className="w-full flex items-center justify-center gap-1.5 text-xs text-[var(--safe-text-secondary)] hover:text-[var(--safe-primary)] border border-dashed border-[var(--safe-neutral-border)] rounded-lg px-3 py-2 hover:border-[var(--safe-primary)] transition-colors bg-white"
+              className="min-h-tap w-full flex items-center justify-center gap-1.5 text-xs text-[var(--safe-text-secondary)] hover:text-[var(--safe-primary)] border border-dashed border-[var(--safe-neutral-border)] rounded-lg px-3 py-2 hover:border-[var(--safe-primary)] transition-colors bg-white"
             >
               <Plus className="w-3.5 h-3.5" />
               {t("createManualSnapshot")}

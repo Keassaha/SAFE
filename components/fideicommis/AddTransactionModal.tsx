@@ -56,7 +56,7 @@ export function AddTransactionModal({
           <button
             type="button"
             onClick={() => setTab("depot")}
-            className={`flex-1 rounded-safe-sm px-3 py-2 text-sm font-medium transition-colors ${
+            className={`min-h-tap flex-1 rounded-safe-sm px-3 py-2 text-sm font-medium transition-colors ${
               tab === "depot"
                 ? "bg-white text-[var(--safe-text-title)] shadow-sm"
                 : "text-[var(--safe-text-secondary)] hover:text-[var(--safe-text-title)]"
@@ -67,7 +67,7 @@ export function AddTransactionModal({
           <button
             type="button"
             onClick={() => setTab("retrait")}
-            className={`flex-1 rounded-safe-sm px-3 py-2 text-sm font-medium transition-colors ${
+            className={`min-h-tap flex-1 rounded-safe-sm px-3 py-2 text-sm font-medium transition-colors ${
               tab === "retrait"
                 ? "bg-white text-[var(--safe-text-title)] shadow-sm"
                 : "text-[var(--safe-text-secondary)] hover:text-[var(--safe-text-title)]"

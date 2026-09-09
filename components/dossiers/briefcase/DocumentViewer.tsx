@@ -82,7 +82,7 @@ export function DocumentViewer({ dossierId, itemId, onEdit }: DocumentViewerProp
           </div>
           <button
             onClick={() => onEdit(itemId)}
-            className="inline-flex items-center gap-2 rounded-lg border border-si-line bg-si-surface px-3 py-2 text-sm font-medium text-si-ink hover:bg-si-canvas transition-colors"
+            className="min-h-tap inline-flex items-center gap-2 rounded-lg border border-si-line bg-si-surface px-3 py-2 text-sm font-medium text-si-ink hover:bg-si-canvas transition-colors"
           >
             <Edit className="h-4 w-4" />
             {t("create")}
@@ -124,7 +124,7 @@ export function DocumentViewer({ dossierId, itemId, onEdit }: DocumentViewerProp
               href={`/api/documents/download/${document.id}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-lg border border-si-line bg-si-surface px-3 py-2 text-sm font-medium text-si-ink hover:bg-si-canvas transition-colors"
+              className="min-h-tap inline-flex items-center gap-2 rounded-lg border border-si-line bg-si-surface px-3 py-2 text-sm font-medium text-si-ink hover:bg-si-canvas transition-colors"
             >
               <Download className="h-4 w-4" />
               {t("download")}
@@ -132,7 +132,7 @@ export function DocumentViewer({ dossierId, itemId, onEdit }: DocumentViewerProp
           )}
           <button
             onClick={() => onEdit(itemId)}
-            className="inline-flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm font-medium text-emerald-700 hover:bg-emerald-100 transition-colors"
+            className="min-h-tap inline-flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm font-medium text-emerald-700 hover:bg-emerald-100 transition-colors"
           >
             <Edit className="h-4 w-4" />
             {t("edit")}
@@ -170,7 +170,7 @@ export function DocumentViewer({ dossierId, itemId, onEdit }: DocumentViewerProp
               href={`/api/documents/download/${document.id}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-4 inline-flex items-center gap-2 rounded-lg safe-action-degrade px-4 py-2 text-sm font-medium text-white transition-colors"
+              className="min-h-tap mt-4 inline-flex items-center gap-2 rounded-lg safe-action-degrade px-4 py-2 text-sm font-medium text-white transition-colors"
             >
               <Download className="h-4 w-4" />
               {t("downloadFile")}

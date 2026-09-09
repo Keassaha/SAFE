@@ -93,7 +93,7 @@ export function DocumentExpiryTracker({ dossierId }: DocumentExpiryTrackerProps)
               <select
                 value={newDocType}
                 onChange={(e) => setNewDocType(e.target.value)}
-                className="h-9 px-2 rounded-xl border border-si-line bg-si-surface text-sm"
+                className="h-tap px-2 rounded-xl border border-si-line bg-si-surface text-sm"
               >
                 <option value="">Select...</option>
                 {DOC_TYPES.map((t) => (
@@ -107,7 +107,7 @@ export function DocumentExpiryTracker({ dossierId }: DocumentExpiryTrackerProps)
                 type="date"
                 value={newDocDate}
                 onChange={(e) => setNewDocDate(e.target.value)}
-                className="h-9 px-2 rounded-xl border border-si-line bg-si-surface text-sm"
+                className="h-tap px-2 rounded-xl border border-si-line bg-si-surface text-sm"
               />
             </div>
             <Button

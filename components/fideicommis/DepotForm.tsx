@@ -108,7 +108,7 @@ export function DepotForm({ clients, dossiers, onSuccess, disabled, embedded }: 
               }}
               required
               disabled={disabled}
-              className="w-full h-10 px-3 rounded-safe border border-neutral-border bg-white/90 focus:ring-2 focus:ring-primary-500/30 outline-none"
+              className="w-full h-tap px-3 rounded-safe border border-neutral-border bg-white/90 focus:ring-2 focus:ring-primary-500/30 outline-none"
             >
               <option value="">{tf("selectClient")}</option>
               {clients.map((c) => (
@@ -127,7 +127,7 @@ export function DepotForm({ clients, dossiers, onSuccess, disabled, embedded }: 
               onChange={(e) => setDossierId(e.target.value)}
               required
               disabled={disabled || !clientId}
-              className="w-full h-10 px-3 rounded-safe border border-neutral-border bg-white/90 focus:ring-2 focus:ring-primary-500/30 outline-none"
+              className="w-full h-tap px-3 rounded-safe border border-neutral-border bg-white/90 focus:ring-2 focus:ring-primary-500/30 outline-none"
             >
               <option value="">{tf("selectMatter")}</option>
               {dossiersForClient.map((d) => (
@@ -166,7 +166,7 @@ export function DepotForm({ clients, dossiers, onSuccess, disabled, embedded }: 
               onChange={(e) => setModePaiement(e.target.value as typeof modePaiement)}
               required
               disabled={disabled}
-              className="w-full h-10 px-3 rounded-safe border border-neutral-border bg-white/90 focus:ring-2 focus:ring-primary-500/30 outline-none"
+              className="w-full h-tap px-3 rounded-safe border border-neutral-border bg-white/90 focus:ring-2 focus:ring-primary-500/30 outline-none"
             >
               {MODES_PAIEMENT.map((m) => (
                 <option key={m.value} value={m.value}>

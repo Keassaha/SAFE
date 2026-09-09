@@ -101,7 +101,7 @@ export default async function ConsoleClientsPage() {
           isConsoleIntakeEnabled() ? (
             <Link
               href="/console/clients/nouveau"
-              className="inline-flex items-center rounded-xl bg-si-surface px-4 py-2 text-sm font-medium text-si-ink-strong transition hover:bg-si-surface/90"
+              className="min-h-tap inline-flex items-center rounded-xl bg-si-surface px-4 py-2 text-sm font-medium text-si-ink-strong transition hover:bg-si-surface/90"
             >
               + Nouveau client
             </Link>
@@ -159,7 +159,7 @@ export default async function ConsoleClientsPage() {
                         <td className="px-4 py-3 text-right">
                           <Link
                             href={`/console/clients/${r.leadId}`}
-                            className="rounded border border-si-line bg-si-surface px-2.5 py-1 text-xs font-medium text-si-ink hover:border-si-verified/50 hover:text-si-verified"
+                            className="inline-flex items-center min-h-tap rounded border border-si-line bg-si-surface px-2.5 py-1 text-xs font-medium text-si-ink hover:border-si-verified/50 hover:text-si-verified"
                           >
                             Détails
                           </Link>

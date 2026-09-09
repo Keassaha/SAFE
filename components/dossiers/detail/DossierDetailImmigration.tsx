@@ -132,7 +132,7 @@ export function DossierDetailImmigration({ dossierId }: DossierDetailImmigration
                       href={doc.viewHref(dossierId)}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center rounded-lg border border-white/20 bg-si-surface/5 px-3 py-1.5 text-xs font-medium text-white hover:bg-si-surface/10 transition-colors"
+                      className="min-h-tap inline-flex items-center rounded-lg border border-white/20 bg-si-surface/5 px-3 py-1.5 text-xs font-medium text-white hover:bg-si-surface/10 transition-colors"
                     >
                       {t("viewPdf")}
                     </a>

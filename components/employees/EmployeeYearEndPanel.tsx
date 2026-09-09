@@ -101,7 +101,7 @@ export function EmployeeYearEndPanel({
           <button
             type="button"
             onClick={handleEdit}
-            className="flex items-center gap-1.5 rounded-md px-2.5 py-1 text-[12px] font-medium text-si-muted hover:bg-si-canvas hover:text-si-ink"
+            className="min-h-tap flex items-center gap-1.5 rounded-md px-2.5 py-1 text-[12px] font-medium text-si-muted hover:bg-si-canvas hover:text-si-ink"
           >
             <Pencil className="h-3.5 w-3.5" />
             Modifier
@@ -143,7 +143,7 @@ export function EmployeeYearEndPanel({
             <select
               value={type}
               onChange={(e) => setType(e.target.value as EmploymentType)}
-              className="w-full rounded-lg border border-si-line px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-si-verified"
+              className="min-h-tap w-full rounded-lg border border-si-line px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-si-verified"
             >
               <option value="employee">Employé — T4 (retenues CPP / AE / impôt)</option>
               <option value="contractor">Contractuel — T4A (case 48 honoraires)</option>
@@ -161,7 +161,7 @@ export function EmployeeYearEndPanel({
               value={sinInput}
               onChange={handleSinChange}
               placeholder="123-456-789"
-              className="w-full rounded-lg border border-si-line px-3 py-2 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-si-verified"
+              className="min-h-tap w-full rounded-lg border border-si-line px-3 py-2 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-si-verified"
               maxLength={11}
             />
             <p className="mt-1 text-[11px] text-si-muted/50">
@@ -188,7 +188,7 @@ export function EmployeeYearEndPanel({
               type="button"
               onClick={handleCancel}
               disabled={isPending}
-              className="flex items-center gap-1.5 rounded-lg border border-si-line px-3 py-1.5 text-sm text-si-muted hover:bg-si-canvas"
+              className="min-h-tap flex items-center gap-1.5 rounded-lg border border-si-line px-3 py-1.5 text-sm text-si-muted hover:bg-si-canvas"
             >
               <X className="h-4 w-4" />
               Annuler

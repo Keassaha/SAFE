@@ -225,14 +225,14 @@ export function NewLeadForm() {
         <button
           type="submit"
           disabled={isPending}
-          className="rounded-md bg-si-verified px-4 py-2 text-sm font-medium text-si-surface hover:bg-si-ink-strong-soft disabled:opacity-50"
+          className="min-h-tap rounded-md bg-si-verified px-4 py-2 text-sm font-medium text-si-surface hover:bg-si-ink-strong-soft disabled:opacity-50"
         >
           {isPending ? "Création…" : "Créer le cabinet"}
         </button>
         <button
           type="button"
           onClick={() => router.push("/console/leads")}
-          className="rounded-md border border-si-line px-4 py-2 text-sm font-medium text-si-ink hover:bg-si-canvas/60"
+          className="min-h-tap rounded-md border border-si-line px-4 py-2 text-sm font-medium text-si-ink hover:bg-si-canvas/60"
         >
           Annuler
         </button>

@@ -206,7 +206,7 @@ export function TempsPageClient({
             <button
               type="button"
               onClick={() => setActiveTab("active")}
-              className={`px-4 py-3 text-sm font-medium border-b-2 -mb-px ${
+              className={`min-h-tap px-4 py-3 text-sm font-medium border-b-2 -mb-px ${
                 activeTab === "active"
                   ? "border-si-ink-strong text-si-verified"
                   : "border-transparent text-si-muted hover:text-si-ink"
@@ -217,7 +217,7 @@ export function TempsPageClient({
             <button
               type="button"
               onClick={() => setActiveTab("facture")}
-              className={`px-4 py-3 text-sm font-medium border-b-2 -mb-px ${
+              className={`min-h-tap px-4 py-3 text-sm font-medium border-b-2 -mb-px ${
                 activeTab === "facture"
                   ? "border-si-ink-strong text-si-verified"
                   : "border-transparent text-si-muted hover:text-si-ink"

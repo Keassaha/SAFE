@@ -91,7 +91,7 @@ export default async function ConsoleLeadsPage() {
         action={
           <Link
             href="/console/leads/nouveau"
-            className="inline-flex items-center gap-1.5 rounded-md bg-si-verified px-4 py-2 text-sm font-medium text-si-surface hover:bg-si-ink-strong-soft"
+            className="min-h-tap inline-flex items-center gap-1.5 rounded-md bg-si-verified px-4 py-2 text-sm font-medium text-si-surface hover:bg-si-ink-strong-soft"
           >
             + Nouveau cabinet
           </Link>

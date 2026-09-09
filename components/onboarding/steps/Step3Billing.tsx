@@ -62,7 +62,7 @@ export default function Step3Billing({ data, setData, lang, errors }: StepProps)
               key={value}
               type="button"
               onClick={() => setData({ billingMethod: value })}
-              className={`py-3 px-4 rounded-xl border text-sm font-medium transition-all duration-200
+              className={`min-h-tap py-3 px-4 rounded-xl border text-sm font-medium transition-all duration-200
                 ${data.billingMethod === value
                   ? "bg-[var(--safe-accent)] text-white border-[var(--safe-accent)]"
                   : "bg-white border-[var(--safe-neutral-border)] text-[var(--safe-darkest)] hover:border-[var(--safe-sage)]"}`}
@@ -73,7 +73,7 @@ export default function Step3Billing({ data, setData, lang, errors }: StepProps)
         </div>
         {data.billingMethod === "other" && (
           <input type="text" value={data.billingMethodOther} onChange={(e) => setData({ billingMethodOther: e.target.value })}
-            className="w-full mt-2 px-4 py-2.5 rounded-xl border border-[var(--safe-neutral-border)] text-sm outline-none focus:border-[var(--safe-accent)] focus:ring-2 focus:ring-[var(--safe-accent)]/20"
+            className="min-h-tap w-full mt-2 px-4 py-2.5 rounded-xl border border-[var(--safe-neutral-border)] text-sm outline-none focus:border-[var(--safe-accent)] focus:ring-2 focus:ring-[var(--safe-accent)]/20"
             placeholder={T("otherPlaceholder", lang)} />
         )}
         {errors.billingMethod && <p className="text-xs text-red-500 mt-1">{errors.billingMethod}</p>}
@@ -88,7 +88,7 @@ export default function Step3Billing({ data, setData, lang, errors }: StepProps)
           <div className="relative">
             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--safe-text-muted)] text-sm">$</span>
             <input type="number" value={data.hourlyRate} onChange={(e) => setData({ hourlyRate: e.target.value })}
-              className="w-full pl-7 pr-4 py-2.5 rounded-xl border border-[var(--safe-neutral-border)] text-sm outline-none focus:border-[var(--safe-accent)] focus:ring-2 focus:ring-[var(--safe-accent)]/20"
+              className="min-h-tap w-full pl-7 pr-4 py-2.5 rounded-xl border border-[var(--safe-neutral-border)] text-sm outline-none focus:border-[var(--safe-accent)] focus:ring-2 focus:ring-[var(--safe-accent)]/20"
               placeholder={T("hourlyRatePlaceholder", lang)} />
           </div>
         </div>
@@ -102,7 +102,7 @@ export default function Step3Billing({ data, setData, lang, errors }: StepProps)
         <div className="grid grid-cols-2 gap-2">
           {FREQUENCIES.map(({ value, key }) => (
             <button key={value} type="button" onClick={() => setData({ billingFrequency: value })}
-              className={`py-3 px-4 rounded-xl border text-sm font-medium transition-all duration-200
+              className={`min-h-tap py-3 px-4 rounded-xl border text-sm font-medium transition-all duration-200
                 ${data.billingFrequency === value
                   ? "bg-[var(--safe-accent)] text-white border-[var(--safe-accent)]"
                   : "bg-white border-[var(--safe-neutral-border)] text-[var(--safe-darkest)] hover:border-[var(--safe-sage)]"}`}>
@@ -112,7 +112,7 @@ export default function Step3Billing({ data, setData, lang, errors }: StepProps)
         </div>
         {data.billingFrequency === "other" && (
           <input type="text" value={data.billingFrequencyOther} onChange={(e) => setData({ billingFrequencyOther: e.target.value })}
-            className="w-full mt-2 px-4 py-2.5 rounded-xl border border-[var(--safe-neutral-border)] text-sm outline-none focus:border-[var(--safe-accent)] focus:ring-2 focus:ring-[var(--safe-accent)]/20"
+            className="min-h-tap w-full mt-2 px-4 py-2.5 rounded-xl border border-[var(--safe-neutral-border)] text-sm outline-none focus:border-[var(--safe-accent)] focus:ring-2 focus:ring-[var(--safe-accent)]/20"
             placeholder={T("otherPlaceholder", lang)} />
         )}
         {errors.billingFrequency && <p className="text-xs text-red-500 mt-1">{errors.billingFrequency}</p>}
@@ -126,7 +126,7 @@ export default function Step3Billing({ data, setData, lang, errors }: StepProps)
         <div className="grid grid-cols-2 gap-2">
           {PAYMENT_TERMS.map(({ value, key }) => (
             <button key={value} type="button" onClick={() => setData({ paymentTerms: value })}
-              className={`py-3 px-4 rounded-xl border text-sm font-medium transition-all duration-200
+              className={`min-h-tap py-3 px-4 rounded-xl border text-sm font-medium transition-all duration-200
                 ${data.paymentTerms === value
                   ? "bg-[var(--safe-accent)] text-white border-[var(--safe-accent)]"
                   : "bg-white border-[var(--safe-neutral-border)] text-[var(--safe-darkest)] hover:border-[var(--safe-sage)]"}`}>
@@ -136,7 +136,7 @@ export default function Step3Billing({ data, setData, lang, errors }: StepProps)
         </div>
         {data.paymentTerms === "other" && (
           <input type="text" value={data.paymentTermsOther} onChange={(e) => setData({ paymentTermsOther: e.target.value })}
-            className="w-full mt-2 px-4 py-2.5 rounded-xl border border-[var(--safe-neutral-border)] text-sm outline-none focus:border-[var(--safe-accent)] focus:ring-2 focus:ring-[var(--safe-accent)]/20"
+            className="min-h-tap w-full mt-2 px-4 py-2.5 rounded-xl border border-[var(--safe-neutral-border)] text-sm outline-none focus:border-[var(--safe-accent)] focus:ring-2 focus:ring-[var(--safe-accent)]/20"
             placeholder={T("otherPlaceholder", lang)} />
         )}
         {errors.paymentTerms && <p className="text-xs text-red-500 mt-1">{errors.paymentTerms}</p>}
@@ -151,7 +151,7 @@ export default function Step3Billing({ data, setData, lang, errors }: StepProps)
         <div className="flex flex-wrap gap-2">
           {PAYMENT_METHODS_LIST.map(({ value, key }) => (
             <button key={value} type="button" onClick={() => togglePayMethod(value)}
-              className={`py-2 px-4 rounded-full border text-sm font-medium transition-all duration-200
+              className={`min-h-tap py-2 px-4 rounded-full border text-sm font-medium transition-all duration-200
                 ${data.paymentMethods.includes(value)
                   ? "bg-[var(--safe-accent)] text-white border-[var(--safe-accent)]"
                   : "bg-white border-[var(--safe-neutral-border)] text-[var(--safe-darkest)] hover:border-[var(--safe-sage)]"}`}>
@@ -161,7 +161,7 @@ export default function Step3Billing({ data, setData, lang, errors }: StepProps)
         </div>
         {data.paymentMethods.includes("other") && (
           <input type="text" value={data.paymentMethodsOther} onChange={(e) => setData({ paymentMethodsOther: e.target.value })}
-            className="w-full mt-2 px-4 py-2.5 rounded-xl border border-[var(--safe-neutral-border)] text-sm outline-none focus:border-[var(--safe-accent)] focus:ring-2 focus:ring-[var(--safe-accent)]/20"
+            className="min-h-tap w-full mt-2 px-4 py-2.5 rounded-xl border border-[var(--safe-neutral-border)] text-sm outline-none focus:border-[var(--safe-accent)] focus:ring-2 focus:ring-[var(--safe-accent)]/20"
             placeholder={T("otherPlaceholder", lang)} />
         )}
         {errors.paymentMethods && <p className="text-xs text-red-500 mt-1">{errors.paymentMethods}</p>}

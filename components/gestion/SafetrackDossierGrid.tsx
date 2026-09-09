@@ -76,7 +76,7 @@ export function SafetrackDossierGrid({ dossiers }: SafetrackDossierGridProps) {
               value={search}
               onChange={(e) => { setSearch(e.target.value); setExpanded(false); }}
               placeholder={t("filterPlaceholder")}
-              className="pl-8 pr-3 py-1.5 text-xs rounded-md border border-si-line bg-si-surface text-si-ink placeholder:text-si-muted focus:outline-none focus:ring-2 focus:ring-si-ink-strong/35 w-48"
+              className="min-h-tap pl-8 pr-3 py-1.5 text-xs rounded-md border border-si-line bg-si-surface text-si-ink placeholder:text-si-muted focus:outline-none focus:ring-2 focus:ring-si-ink-strong/35 w-48"
             />
           </div>
         )}
@@ -152,7 +152,7 @@ export function SafetrackDossierGrid({ dossiers }: SafetrackDossierGridProps) {
           <button
             type="button"
             onClick={() => setExpanded(!expanded)}
-            className="safe-zoom inline-flex items-center gap-1.5 text-xs font-medium text-si-muted hover:text-si-ink transition-colors px-4 py-2 rounded-md hover:bg-si-canvas"
+            className="min-h-tap safe-zoom inline-flex items-center gap-1.5 text-xs font-medium text-si-muted hover:text-si-ink transition-colors px-4 py-2 rounded-md hover:bg-si-canvas"
           >
             {expanded ? (
               <>{t("showLess")} <ChevronUp className="w-3.5 h-3.5" /></>

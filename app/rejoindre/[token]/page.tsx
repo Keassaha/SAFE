@@ -128,7 +128,7 @@ export default function RejoindrePage() {
                 onChange={(e) => setNom(e.target.value)}
                 required
                 placeholder="Prénom Nom"
-                className="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                className="min-h-tap w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
               />
             </div>
 
@@ -143,7 +143,7 @@ export default function RejoindrePage() {
                 required
                 minLength={8}
                 placeholder="8 caractères minimum"
-                className="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                className="min-h-tap w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
               />
             </div>
 
@@ -157,7 +157,7 @@ export default function RejoindrePage() {
                 onChange={(e) => setConfirm(e.target.value)}
                 required
                 placeholder="Répétez votre mot de passe"
-                className="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                className="min-h-tap w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
               />
             </div>
 
@@ -168,7 +168,7 @@ export default function RejoindrePage() {
             <button
               type="submit"
               disabled={submitting || !nom || !password || !confirm}
-              className="w-full bg-gray-900 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="min-h-tap w-full bg-gray-900 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {submitting ? "Création du compte…" : "Créer mon compte →"}
             </button>

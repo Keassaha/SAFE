@@ -160,7 +160,7 @@ export function ValidationPanel({
                 {t("category")}
               </label>
               <select
-                className="w-full rounded-safe-sm border border-[var(--safe-neutral-border)] bg-white/5 text-sm text-[var(--safe-text-title)] px-3 py-2"
+                className="min-h-tap w-full rounded-safe-sm border border-[var(--safe-neutral-border)] bg-white/5 text-sm text-[var(--safe-text-title)] px-3 py-2"
                 value={currentCategoryId}
                 onChange={(e) => {
                   const c = categories.find((cat) => cat.id === e.target.value);

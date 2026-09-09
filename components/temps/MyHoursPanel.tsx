@@ -160,7 +160,7 @@ export function MyHoursPanel({ data, matters, locale = "en", today }: Props) {
               value={date}
               max={today}
               onChange={(e) => setDate(e.target.value)}
-              className="h-[38px] w-full rounded-md border border-si-line bg-si-surface px-3 text-sm text-si-ink focus:border-si-verified focus:outline-none"
+              className="h-tap w-full rounded-md border border-si-line bg-si-surface px-3 text-sm text-si-ink focus:border-si-verified focus:outline-none"
             />
           </label>
           <label className="block">
@@ -174,7 +174,7 @@ export function MyHoursPanel({ data, matters, locale = "en", today }: Props) {
               value={hours}
               onChange={(e) => setHours(e.target.value)}
               placeholder="0.0"
-              className="h-[38px] w-full rounded-md border border-si-line bg-si-surface px-3 text-sm text-si-ink focus:border-si-verified focus:outline-none"
+              className="h-tap w-full rounded-md border border-si-line bg-si-surface px-3 text-sm text-si-ink focus:border-si-verified focus:outline-none"
             />
           </label>
           <label className="block">
@@ -182,7 +182,7 @@ export function MyHoursPanel({ data, matters, locale = "en", today }: Props) {
             <select
               value={dossierId}
               onChange={(e) => setDossierId(e.target.value)}
-              className="h-[38px] w-full rounded-md border border-si-line bg-si-surface px-3 text-sm text-si-ink focus:border-si-verified focus:outline-none"
+              className="h-tap w-full rounded-md border border-si-line bg-si-surface px-3 text-sm text-si-ink focus:border-si-verified focus:outline-none"
             >
               <option value="">{t("matterNone")}</option>
               {matters.map((m) => (
@@ -197,7 +197,7 @@ export function MyHoursPanel({ data, matters, locale = "en", today }: Props) {
               value={note}
               onChange={(e) => setNote(e.target.value)}
               placeholder={t("notePlaceholder")}
-              className="h-[38px] w-full rounded-md border border-si-line bg-si-surface px-3 text-sm text-si-ink focus:border-si-verified focus:outline-none"
+              className="h-tap w-full rounded-md border border-si-line bg-si-surface px-3 text-sm text-si-ink focus:border-si-verified focus:outline-none"
             />
           </label>
         </div>
@@ -206,7 +206,7 @@ export function MyHoursPanel({ data, matters, locale = "en", today }: Props) {
             type="button"
             disabled={pending}
             onClick={submit}
-            className="inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+            className="min-h-tap inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
             style={{ backgroundColor: "var(--si-ink-strong)" }}
           >
             {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" aria-hidden />}
@@ -252,7 +252,7 @@ export function MyHoursPanel({ data, matters, locale = "en", today }: Props) {
                       disabled={pending}
                       onClick={() => withdraw(e.id)}
                       title={t("withdraw")}
-                      className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-si-line px-2.5 py-1.5 text-xs font-medium text-si-muted hover:text-si-ink disabled:opacity-50"
+                      className="min-h-tap inline-flex shrink-0 items-center gap-1 rounded-lg border border-si-line px-2.5 py-1.5 text-xs font-medium text-si-muted hover:text-si-ink disabled:opacity-50"
                     >
                       <Trash2 className="h-3.5 w-3.5" aria-hidden /> {t("withdraw")}
                     </button>

@@ -405,7 +405,7 @@ export function EditionDashboard({ stats, recent, activeSessions, userName, doss
                     <Link
                       key={d.id}
                       href={routes.editionDossier(d.id)}
-                      className="safe-zoom-rang flex items-center gap-3 px-4 py-2.5"
+                      className="min-h-tap safe-zoom-rang flex items-center gap-3 px-4 py-2.5"
                     >
                       <FolderOpen
                         className="h-4 w-4 shrink-0 text-si-muted"

@@ -164,7 +164,7 @@ export function BriefcaseSidebar({
             <div key={section.sectionKey}>
               <button
                 onClick={() => toggleSection(section.sectionKey)}
-                className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-si-ink hover:bg-si-surface transition-colors"
+                className="min-h-tap flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-si-ink hover:bg-si-surface transition-colors"
               >
                 {isExpanded ? (
                   <ChevronDown className="h-4 w-4 shrink-0" />
@@ -191,7 +191,7 @@ export function BriefcaseSidebar({
                       <button
                         key={item.id}
                         onClick={() => onSelectItem(item.id)}
-                        className={`flex w-full items-start gap-2 rounded-lg px-3 py-2 text-left text-sm transition-colors ${
+                        className={`min-h-tap flex w-full items-start gap-2 rounded-lg px-3 py-2 text-left text-sm transition-colors ${
                           selectedItemId === item.id
                             ? "bg-emerald-50 text-emerald-700 border border-emerald-200/70"
                             : "text-si-ink hover:bg-si-surface"
@@ -211,7 +211,7 @@ export function BriefcaseSidebar({
                       <button
                         onClick={createMandat}
                         disabled={creatingMandat}
-                        className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-medium text-si-primary hover:bg-si-primary/5 disabled:opacity-60"
+                        className="min-h-tap flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-medium text-si-primary hover:bg-si-primary/5 disabled:opacity-60"
                       >
                         {creatingMandat ? (
                           <Loader2 className="h-4 w-4 shrink-0 animate-spin" />
@@ -225,7 +225,7 @@ export function BriefcaseSidebar({
                       <button
                         onClick={() => setShowImportMandat(true)}
                         disabled={creatingMandat}
-                        className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-medium text-si-ink hover:bg-si-surface disabled:opacity-60"
+                        className="min-h-tap flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-medium text-si-ink hover:bg-si-surface disabled:opacity-60"
                       >
                         <Upload className="h-4 w-4 shrink-0" />
                         <span className="truncate">{tm("mandateImportButton")}</span>

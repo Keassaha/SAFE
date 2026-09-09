@@ -271,6 +271,13 @@ const config: Config = {
         "safe-24": "96px",
         sidebar: "224px",
         topbar: "56px",
+
+        /* Densité, §2.7 du référentiel. En pixels : une cible tactile est la
+           mesure d'un doigt, elle ne suit pas la taille du texte.
+           `h-11` valait 41,25 px sur une racine à 15 px. Voir lib/ds/tokens.ts. */
+        tap: `${tokens.densite.tap}px`,
+        rang: `${tokens.densite.rang}px`,
+        "rang-tactile": `${tokens.densite["rang-tactile"]}px`,
       },
 
       borderRadius: {

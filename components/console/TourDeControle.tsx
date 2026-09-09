@@ -190,12 +190,12 @@ export function TourDeControle({ actions }: { actions: ActionCleVue[] }) {
                   required
                   minLength={3}
                   placeholder="Ex. Appeler Me Tremblay pour la place fondatrice"
-                  className="w-full rounded-md border border-si-line px-3 py-2 text-sm focus:border-si-verified focus:outline-none focus:ring-1 focus:ring-si-verified/20"
+                  className="min-h-tap w-full rounded-md border border-si-line px-3 py-2 text-sm focus:border-si-verified focus:outline-none focus:ring-1 focus:ring-si-verified/20"
                 />
                 <input
                   name="dateEcheance"
                   type="date"
-                  className="w-full rounded-md border border-si-line px-3 py-2 text-sm focus:border-si-verified focus:outline-none focus:ring-1 focus:ring-si-verified/20"
+                  className="min-h-tap w-full rounded-md border border-si-line px-3 py-2 text-sm focus:border-si-verified focus:outline-none focus:ring-1 focus:ring-si-verified/20"
                 />
                 <input type="hidden" name="leadId" value={principale?.leadId ?? ""} />
                 <input type="hidden" name="priorite" value="HAUTE" />

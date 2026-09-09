@@ -221,7 +221,7 @@ export function YearEndReportClient({
             id="year-select"
             value={selectedYear}
             onChange={(e) => handleYearChange(e.target.value)}
-            className="rounded-lg border border-si-line px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-si-verified"
+            className="min-h-tap rounded-lg border border-si-line px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-si-verified"
           >
             {availableYears.map((y) => (
               <option key={y} value={y}>

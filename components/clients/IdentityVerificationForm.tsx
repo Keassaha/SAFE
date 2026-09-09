@@ -89,7 +89,7 @@ export function IdentityVerificationForm({
           value={methodCode}
           onChange={(e) => setMethodCode(e.target.value)}
           required
-          className="w-full h-10 px-3 rounded-safe border border-neutral-border bg-white/90 focus:ring-2 focus:ring-primary-500/30"
+          className="w-full h-tap px-3 rounded-safe border border-neutral-border bg-white/90 focus:ring-2 focus:ring-primary-500/30"
         >
           {methods.map((m) => (
             <option key={m.code} value={m.code}>
@@ -155,7 +155,7 @@ export function IdentityVerificationForm({
               accept="application/pdf,image/jpeg,image/png,image/webp,image/heic"
               required={proofRequired}
               onChange={(e) => setHasFile(Boolean(e.target.files?.length))}
-              className="w-full rounded-safe border border-neutral-border bg-white/90 px-3 py-2 text-sm"
+              className="min-h-tap w-full rounded-safe border border-neutral-border bg-white/90 px-3 py-2 text-sm"
             />
           </div>
         )}
@@ -226,7 +226,7 @@ export function IdentityVerificationForm({
           name="statut"
           value={statut}
           onChange={(e) => setStatut(e.target.value as typeof statut)}
-          className="w-full h-10 px-3 rounded-safe border border-neutral-border bg-white/90 focus:ring-2 focus:ring-primary-500/30"
+          className="w-full h-tap px-3 rounded-safe border border-neutral-border bg-white/90 focus:ring-2 focus:ring-primary-500/30"
         >
           <option value="verifie">{t("statusVerified")}</option>
           <option value="en_attente">{t("statusPending")}</option>
@@ -248,7 +248,7 @@ export function IdentityVerificationForm({
         <textarea
           name="notes"
           rows={2}
-          className="w-full px-3 py-2 rounded-safe border border-neutral-border bg-white/90 focus:ring-2 focus:ring-primary-500/30"
+          className="min-h-tap w-full px-3 py-2 rounded-safe border border-neutral-border bg-white/90 focus:ring-2 focus:ring-primary-500/30"
         />
       </div>
 

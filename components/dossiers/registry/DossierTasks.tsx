@@ -81,7 +81,7 @@ export function DossierTasks({ dossierId, tasks, users }: DossierTasksProps) {
               <textarea
                 name="description"
                 rows={2}
-                className="w-full px-3 py-2 rounded-lg border border-si-line bg-si-surface text-si-ink text-sm"
+                className="min-h-tap w-full px-3 py-2 rounded-lg border border-si-line bg-si-surface text-si-ink text-sm"
                 placeholder={t("optional")}
               />
             </div>
@@ -91,7 +91,7 @@ export function DossierTasks({ dossierId, tasks, users }: DossierTasksProps) {
                 <select
                   name="priorite"
                   defaultValue="medium"
-                  className="w-full h-10 px-3 rounded-lg border border-si-line bg-si-surface text-sm"
+                  className="w-full h-tap px-3 rounded-lg border border-si-line bg-si-surface text-sm"
                 >
                   <option value="low">{t("priorityLow")}</option>
                   <option value="medium">{t("priorityMedium")}</option>
@@ -101,7 +101,7 @@ export function DossierTasks({ dossierId, tasks, users }: DossierTasksProps) {
               </div>
               <div>
                 <label className="block text-sm font-medium text-si-muted mb-1">{t("assignedTo")}</label>
-                <select name="assigneeId" className="w-full h-10 px-3 rounded-lg border border-si-line bg-si-surface text-sm">
+                <select name="assigneeId" className="w-full h-tap px-3 rounded-lg border border-si-line bg-si-surface text-sm">
                   <option value="">—</option>
                   {users.map((u) => (
                     <option key={u.id} value={u.id}>
@@ -140,13 +140,13 @@ export function DossierTasks({ dossierId, tasks, users }: DossierTasksProps) {
                         name="description"
                         rows={2}
                         defaultValue={task.description ?? ""}
-                        className="w-full px-3 py-2 rounded-lg border border-si-line bg-si-surface text-sm"
+                        className="min-h-tap w-full px-3 py-2 rounded-lg border border-si-line bg-si-surface text-sm"
                       />
                     </div>
                     <div className="flex flex-wrap gap-3">
                       <div>
                         <label className="block text-sm font-medium text-si-muted mb-1">{tc("status")}</label>
-                        <select name="statut" defaultValue={task.statut} className="w-full h-10 px-3 rounded-lg border border-si-line bg-si-surface text-sm">
+                        <select name="statut" defaultValue={task.statut} className="w-full h-tap px-3 rounded-lg border border-si-line bg-si-surface text-sm">
                           <option value="a_faire">{t("taskStatusTodo")}</option>
                           <option value="en_cours">{t("taskStatusInProgress")}</option>
                           <option value="terminee">{t("taskStatusDone")}</option>
@@ -155,7 +155,7 @@ export function DossierTasks({ dossierId, tasks, users }: DossierTasksProps) {
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-si-muted mb-1">{t("priority")}</label>
-                        <select name="priorite" defaultValue={task.priorite} className="w-full h-10 px-3 rounded-lg border border-si-line bg-si-surface text-sm">
+                        <select name="priorite" defaultValue={task.priorite} className="w-full h-tap px-3 rounded-lg border border-si-line bg-si-surface text-sm">
                           <option value="low">{t("priorityLow")}</option>
                           <option value="medium">{t("priorityMedium")}</option>
                           <option value="high">{t("priorityHigh")}</option>
@@ -164,7 +164,7 @@ export function DossierTasks({ dossierId, tasks, users }: DossierTasksProps) {
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-si-muted mb-1">{t("assignedTo")}</label>
-                        <select name="assigneeId" defaultValue={task.assigneeId ?? ""} className="w-full h-10 px-3 rounded-lg border border-si-line bg-si-surface text-sm">
+                        <select name="assigneeId" defaultValue={task.assigneeId ?? ""} className="w-full h-tap px-3 rounded-lg border border-si-line bg-si-surface text-sm">
                           <option value="">—</option>
                           {users.map((u) => (
                             <option key={u.id} value={u.id}>

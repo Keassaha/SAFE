@@ -181,7 +181,7 @@ export default async function SafeLeadPage() {
         action={
           <Link
             href="/console/leads/nouveau"
-            className="inline-flex items-center gap-2 rounded-md bg-si-verified px-4 py-2 text-sm font-medium text-si-surface transition hover:bg-si-ink-strong-soft"
+            className="min-h-tap inline-flex items-center gap-2 rounded-md bg-si-verified px-4 py-2 text-sm font-medium text-si-surface transition hover:bg-si-ink-strong-soft"
           >
             <Plus className="h-4 w-4" />
             Nouveau lead

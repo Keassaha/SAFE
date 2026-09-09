@@ -101,7 +101,7 @@ export default function SpecimenChamps() {
                         {l}
                       </label>
                       <div
-                        className="h-11 rounded-md border px-3 text-sm leading-[44px]"
+                        className="h-tap rounded-md border px-3 text-sm leading-[44px]"
                         style={{
                           background: AVANT.champFond,
                           borderColor: AVANT.champBord,

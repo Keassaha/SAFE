@@ -21,7 +21,7 @@ export default async function Loading() {
           <div key={index} className="h-14 rounded-lg bg-si-line2" />
         ))}
       </div>
-      <div className="h-11 w-full rounded-lg bg-si-line2" />
+      <div className="h-tap w-full rounded-lg bg-si-line2" />
       <div className="space-y-2">
         {Array.from({ length: 8 }).map((_, index) => (
           <div key={index} className="h-12 w-full rounded-lg bg-si-line2" />

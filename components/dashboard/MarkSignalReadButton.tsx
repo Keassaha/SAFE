@@ -44,7 +44,7 @@ export function MarkSignalReadButton({ signalId }: MarkSignalReadButtonProps) {
       type="button"
       onClick={handleClick}
       disabled={isPending}
-      className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-safe-sm border border-[var(--safe-status-success)]/40 text-[var(--safe-status-success)] hover:bg-[var(--safe-status-success-bg)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+      className="min-h-tap inline-flex items-center gap-1 text-xs px-2 py-1 rounded-safe-sm border border-[var(--safe-status-success)]/40 text-[var(--safe-status-success)] hover:bg-[var(--safe-status-success-bg)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
       aria-label={tUi("markAsRead")}
     >
       <Check className="w-3 h-3" aria-hidden />

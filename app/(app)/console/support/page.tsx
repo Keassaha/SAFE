@@ -77,7 +77,7 @@ export default async function ConsoleSupportPage() {
       />
 
       <div className="flex items-center gap-2 text-sm">
-        <Link href="/console/support/messages" className="rounded-md px-3 py-1.5 text-si-muted hover:bg-si-canvas">
+        <Link href="/console/support/messages" className="inline-flex items-center min-h-tap rounded-md px-3 py-1.5 text-si-muted hover:bg-si-canvas">
           Messages
         </Link>
         <span className="rounded-md bg-si-ink-strong/[0.06] px-3 py-1.5 font-medium text-si-ink-strong">Billets</span>

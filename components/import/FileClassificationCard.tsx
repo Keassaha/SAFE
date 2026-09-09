@@ -84,7 +84,7 @@ export function FileClassificationCard({
                   key={dt}
                   type="button"
                   onClick={() => onTypeChange(dt)}
-                  className="text-xs px-2 py-1 rounded-[var(--safe-radius-sm)] border border-[var(--safe-neutral-border)] bg-white/80 hover:bg-white safe-text-title transition-colors"
+                  className="min-h-tap text-xs px-2 py-1 rounded-[var(--safe-radius-sm)] border border-[var(--safe-neutral-border)] bg-white/80 hover:bg-white safe-text-title transition-colors"
                 >
                   {TYPE_LABELS[dt]}
                 </button>

@@ -51,7 +51,7 @@ export function TransactionsTable({ cabinetId, clients, dossiers }: Transactions
             <select
               value={clientId}
               onChange={(e) => setClientId(e.target.value)}
-              className="h-9 px-2 rounded border border-neutral-border bg-white text-sm"
+              className="h-tap px-2 rounded border border-neutral-border bg-white text-sm"
             >
               <option value="">{tf("allClients")}</option>
               {clients.map((c) => (
@@ -63,7 +63,7 @@ export function TransactionsTable({ cabinetId, clients, dossiers }: Transactions
             <select
               value={dossierId}
               onChange={(e) => setDossierId(e.target.value)}
-              className="h-9 px-2 rounded border border-neutral-border bg-white text-sm"
+              className="h-tap px-2 rounded border border-neutral-border bg-white text-sm"
             >
               <option value="">{tf("allMatters")}</option>
               {dossiers.map((d) => (
@@ -76,13 +76,13 @@ export function TransactionsTable({ cabinetId, clients, dossiers }: Transactions
               type="date"
               value={dateFrom}
               onChange={(e) => setDateFrom(e.target.value)}
-              className="h-9 px-2 rounded border border-neutral-border bg-white text-sm"
+              className="h-tap px-2 rounded border border-neutral-border bg-white text-sm"
             />
             <input
               type="date"
               value={dateTo}
               onChange={(e) => setDateTo(e.target.value)}
-              className="h-9 px-2 rounded border border-neutral-border bg-white text-sm"
+              className="h-tap px-2 rounded border border-neutral-border bg-white text-sm"
             />
           </div>
         }

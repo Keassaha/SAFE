@@ -255,7 +255,7 @@ export function PiecesAttenduesSection({
                   type="date"
                   disabled={enCours}
                   onChange={(e) => saisirDate(champ, e.target.value)}
-                  className="w-full rounded-md border-[0.5px] border-si-line bg-si-surface px-3 py-2 text-[14px] text-si-ink outline-none focus:border-si-verified focus:shadow-focus"
+                  className="min-h-tap w-full rounded-md border-[0.5px] border-si-line bg-si-surface px-3 py-2 text-[14px] text-si-ink outline-none focus:border-si-verified focus:shadow-focus"
                 />
               </div>
             ))}
@@ -416,7 +416,7 @@ export function PiecesAttenduesSection({
                             rows={2}
                             autoFocus
                             placeholder="Ce que votre client doit corriger"
-                            className="w-full rounded-md border-[0.5px] border-si-line bg-si-surface px-3 py-2 text-[13px] text-si-ink outline-none focus:border-si-verified focus:shadow-focus"
+                            className="min-h-tap w-full rounded-md border-[0.5px] border-si-line bg-si-surface px-3 py-2 text-[13px] text-si-ink outline-none focus:border-si-verified focus:shadow-focus"
                           />
                           <div className="flex justify-end gap-2">
                             <Button

@@ -83,7 +83,7 @@ export function FintracChecklist({
               name="fintracDoc1"
               value={doc1}
               onChange={(e) => setDoc1(e.target.value)}
-              className="w-full h-10 px-3 rounded-xl border border-si-line bg-si-surface/90 text-sm focus:ring-2 focus:ring-si-verified/25 outline-none"
+              className="w-full h-tap px-3 rounded-xl border border-si-line bg-si-surface/90 text-sm focus:ring-2 focus:ring-si-verified/25 outline-none"
             >
               <option value="">Select ID type...</option>
               {ID_TYPES.map((t) => (
@@ -99,7 +99,7 @@ export function FintracChecklist({
               name="fintracDoc2"
               value={doc2}
               onChange={(e) => setDoc2(e.target.value)}
-              className="w-full h-10 px-3 rounded-xl border border-si-line bg-si-surface/90 text-sm focus:ring-2 focus:ring-si-verified/25 outline-none"
+              className="w-full h-tap px-3 rounded-xl border border-si-line bg-si-surface/90 text-sm focus:ring-2 focus:ring-si-verified/25 outline-none"
             >
               <option value="">Select ID type...</option>
               {ID_TYPES.filter((t) => t !== doc1).map((t) => (

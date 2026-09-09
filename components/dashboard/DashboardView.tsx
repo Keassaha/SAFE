@@ -607,7 +607,7 @@ function PipelineBoard({
                 <Link
                   key={item.id}
                   href={item.href}
-                  className="rounded-md border border-si-line px-3 py-2 transition-colors duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-si-line2"
+                  className="inline-flex items-center min-h-tap rounded-md border border-si-line px-3 py-2 transition-colors duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-si-line2"
                 >
                   <p className="truncate text-xs font-medium safe-text-title">{item.label}</p>
                   {item.sub && <p className="mt-0.5 truncate text-[11px] safe-text-secondary">{item.sub}</p>}
@@ -662,7 +662,7 @@ function ActivityRecent({
             <Link
               key={item.id}
               href={item.href}
-              className="flex items-center gap-3 px-4 py-2.5 transition-colors duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-si-line2"
+              className="min-h-tap flex items-center gap-3 px-4 py-2.5 transition-colors duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-si-line2"
             >
               <FileText className="h-4 w-4 shrink-0 text-si-muted" aria-hidden />
               <div className="min-w-0 flex-1">

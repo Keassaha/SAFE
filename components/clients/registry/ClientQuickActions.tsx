@@ -197,7 +197,7 @@ export function ClientQuickActions({
           disabled
           aria-disabled="true"
           title={t("exportDossier")}
-          className="flex w-full cursor-not-allowed select-none items-center gap-2.5 px-3 py-2 text-left text-sm text-si-muted/50"
+          className="min-h-tap flex w-full cursor-not-allowed select-none items-center gap-2.5 px-3 py-2 text-left text-sm text-si-muted/50"
           role="menuitem"
         >
           <Download className="h-4 w-4 shrink-0" aria-hidden />
@@ -221,7 +221,7 @@ export function ClientQuickActions({
             }
           }
         }}
-        className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-si-line bg-si-surface text-si-muted text-sm font-medium shadow-sm transition-[background-color,border-color,box-shadow,transform] duration-150 ease-out hover:bg-si-canvas hover:border-si-line active:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-si-verified/40"
+        className="min-h-tap inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-si-line bg-si-surface text-si-muted text-sm font-medium shadow-sm transition-[background-color,border-color,box-shadow,transform] duration-150 ease-out hover:bg-si-canvas hover:border-si-line active:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-si-verified/40"
         aria-haspopup="menu"
         aria-expanded={open}
         aria-controls={open ? menuId : undefined}

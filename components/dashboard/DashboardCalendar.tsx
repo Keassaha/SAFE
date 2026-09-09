@@ -191,7 +191,7 @@ export function DashboardCalendar({
                 key={d}
                 type="button"
                 onClick={() => setSelectedDay(d === selectedDay ? null : d)}
-                className={`relative h-9 flex flex-col items-center justify-center rounded-safe text-xs font-medium transition-all ${
+                className={`relative h-tap flex flex-col items-center justify-center rounded-safe text-xs font-medium transition-all ${
                   isSelected
                     ? "bg-emerald-600 text-white shadow-md"
                     : isToday

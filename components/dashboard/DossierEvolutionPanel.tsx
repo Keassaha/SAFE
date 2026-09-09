@@ -297,7 +297,7 @@ export function DossierEvolutionPanel({ dossiers }: Props) {
                 key={v.id}
                 type="button"
                 onClick={() => setViewMode(v.id)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-safe-sm text-xs font-medium transition-all ${
+                className={`min-h-tap flex items-center gap-1.5 px-3 py-1.5 rounded-safe-sm text-xs font-medium transition-all ${
                   isActive
                     ? "bg-white text-emerald-800 shadow-sm"
                     : "text-gray-500 hover:text-gray-700"

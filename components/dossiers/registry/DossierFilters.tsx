@@ -154,7 +154,7 @@ export function DossierFilters({ clients, canViewTrust = false }: DossierFilters
           onClick={() => setAvancesOuverts((v) => !v)}
           aria-expanded={avancesOuverts}
           aria-controls={zoneAvancesId}
-          className={`safe-zoom-menu inline-flex h-9 items-center gap-2 rounded-md border px-2.5 text-[13px] font-medium ${
+          className={`safe-zoom-menu inline-flex h-tap items-center gap-2 rounded-md border px-2.5 text-[13px] font-medium ${
             avancesOuverts || nbAvancesActifs > 0
               ? "border-si-ink-strong/40 text-si-ink-strong"
               : "border-si-line bg-si-surface text-si-muted hover:text-si-ink"
@@ -176,7 +176,7 @@ export function DossierFilters({ clients, canViewTrust = false }: DossierFilters
           type="button"
           onClick={handleRefresh}
           disabled={isPending}
-          className="safe-zoom-menu inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-si-line bg-si-surface text-si-muted hover:text-si-ink-strong disabled:opacity-50"
+          className="safe-zoom-menu inline-flex h-tap w-9 shrink-0 items-center justify-center rounded-md border border-si-line bg-si-surface text-si-muted hover:text-si-ink-strong disabled:opacity-50"
           aria-label={t("refresh")}
           title={t("refresh")}
         >
@@ -231,7 +231,7 @@ export function DossierFilters({ clients, canViewTrust = false }: DossierFilters
             type="button"
             onClick={() => updateFilter(PARAMS.overdue, overdueActive ? "" : "1")}
             aria-pressed={overdueActive}
-            className={`safe-zoom-menu inline-flex h-9 items-center rounded-md border px-2.5 text-[13px] font-medium ${
+            className={`safe-zoom-menu inline-flex h-tap items-center rounded-md border px-2.5 text-[13px] font-medium ${
               overdueActive
                 ? "border-si-ink-strong/40 bg-si-ink-strong/10 text-si-ink-strong"
                 : "border-si-line bg-si-surface text-si-muted hover:text-si-ink"

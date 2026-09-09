@@ -114,7 +114,7 @@ export function BillingStageConfig({ dossierId }: BillingStageConfigProps) {
                     {i + 1}
                   </span>
                   <input
-                    className="flex-1 h-8 px-2 rounded border border-si-line bg-si-surface text-sm"
+                    className="flex-1 h-tap px-2 rounded border border-si-line bg-si-surface text-sm"
                     value={stage.nom}
                     onChange={(e) => {
                       const updated = [...customStages];
@@ -123,7 +123,7 @@ export function BillingStageConfig({ dossierId }: BillingStageConfigProps) {
                     }}
                   />
                   <input
-                    className="w-16 h-8 px-2 rounded border border-si-line bg-si-surface text-sm text-right"
+                    className="w-16 h-tap px-2 rounded border border-si-line bg-si-surface text-sm text-right"
                     type="number"
                     value={stage.pourcentage}
                     onChange={(e) => {

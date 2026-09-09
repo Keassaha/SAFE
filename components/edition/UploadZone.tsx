@@ -352,7 +352,7 @@ function UploadCard({
               type="text"
               value={upload.customTitre ?? file.name}
               onChange={(e) => onUpdate({ customTitre: e.target.value })}
-              className="w-full text-sm border border-[var(--safe-neutral-border)] rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[var(--safe-primary)]"
+              className="min-h-tap w-full text-sm border border-[var(--safe-neutral-border)] rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[var(--safe-primary)]"
             />
           </div>
 
@@ -362,7 +362,7 @@ function UploadCard({
             <select
               value={upload.selectedDossierId ?? ""}
               onChange={(e) => onUpdate({ selectedDossierId: e.target.value })}
-              className="w-full text-sm border border-[var(--safe-neutral-border)] rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[var(--safe-primary)]"
+              className="min-h-tap w-full text-sm border border-[var(--safe-neutral-border)] rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[var(--safe-primary)]"
             >
               <option value="">{t("chooseMatter")}</option>
               {dossiers.map((d) => (
@@ -382,7 +382,7 @@ function UploadCard({
                 <button
                   key={dt.value}
                   onClick={() => onUpdate({ selectedType: dt.value })}
-                  className={`px-2.5 py-1 rounded-full text-xs transition-colors ${
+                  className={`min-h-tap px-2.5 py-1 rounded-full text-xs transition-colors ${
                     upload.selectedType === dt.value
                       ? "bg-[var(--safe-primary)] text-white"
                       : "bg-[var(--safe-neutral-bg)] text-[var(--safe-text-secondary)] hover:bg-[var(--safe-neutral-border)]"
@@ -406,7 +406,7 @@ function UploadCard({
             </Button>
             <button
               onClick={onRemove}
-              className="px-3 py-2 text-sm text-[var(--safe-text-secondary)] border border-[var(--safe-neutral-border)] rounded-xl hover:bg-[var(--safe-neutral-bg)]"
+              className="min-h-tap px-3 py-2 text-sm text-[var(--safe-text-secondary)] border border-[var(--safe-neutral-border)] rounded-xl hover:bg-[var(--safe-neutral-bg)]"
             >
               {t("cancel")}
             </button>

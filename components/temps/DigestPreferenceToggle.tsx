@@ -51,7 +51,7 @@ export function DigestPreferenceToggle({ enabled: initial }: Props) {
         aria-checked={enabled}
         disabled={pending}
         onClick={toggle}
-        className="relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors disabled:opacity-50"
+        className="relative inline-flex h-tap w-tap shrink-0 items-center rounded-full transition-colors disabled:opacity-50"
         style={{ backgroundColor: enabled ? FOREST : "#D4D4D8" }}
       >
         <span

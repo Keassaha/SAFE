@@ -159,7 +159,7 @@ export function DossierAtelierView({ dossier, allDossiers = [] }: Props) {
       <div className="flex items-center gap-1 border-b border-[var(--safe-neutral-border)]">
         <button
           onClick={() => setTab("redaction")}
-          className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors ${
+          className={`min-h-tap flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors ${
             tab === "redaction"
               ? "border-[var(--safe-primary)] text-[var(--safe-primary)]"
               : "border-transparent text-[var(--safe-text-secondary)] hover:text-[var(--safe-text-title)]"
@@ -173,7 +173,7 @@ export function DossierAtelierView({ dossier, allDossiers = [] }: Props) {
         </button>
         <button
           onClick={() => setTab("fichiers")}
-          className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors ${
+          className={`min-h-tap flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors ${
             tab === "fichiers"
               ? "border-[var(--safe-primary)] text-[var(--safe-primary)]"
               : "border-transparent text-[var(--safe-text-secondary)] hover:text-[var(--safe-text-title)]"
@@ -193,7 +193,7 @@ export function DossierAtelierView({ dossier, allDossiers = [] }: Props) {
               <button
                 key={f}
                 onClick={() => setFilter(f)}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                className={`min-h-tap px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
                   filter === f
                     ? "bg-[var(--safe-primary)] text-white"
                     : "bg-[var(--safe-neutral-bg)] text-[var(--safe-text-secondary)] hover:bg-[var(--safe-neutral-border)]"
@@ -281,7 +281,7 @@ function DocumentRow({
     <>
       <div className="group flex items-center gap-4 p-4 rounded-lg border border-[var(--safe-neutral-border)] bg-white hover:border-[var(--safe-primary)] hover:shadow-sm transition-all">
         {/* Icone type document */}
-        <Link href={`/edition/${dossierId}/${doc.id}`} className="w-10 h-10 rounded-lg bg-[var(--safe-neutral-bg)] flex items-center justify-center shrink-0 group-hover:bg-[var(--safe-primary)]/10 transition-colors">
+        <Link href={`/edition/${dossierId}/${doc.id}`} className="w-10 h-tap rounded-lg bg-[var(--safe-neutral-bg)] flex items-center justify-center shrink-0 group-hover:bg-[var(--safe-primary)]/10 transition-colors">
           <FileEdit className="w-5 h-5 text-[var(--safe-text-secondary)] group-hover:text-[var(--safe-primary)]" />
         </Link>
 
@@ -400,7 +400,7 @@ function NewDocPopover({
               onChange={(e) => setTitle(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && onConfirm()}
               placeholder={t("newDocumentPlaceholder")}
-              className="w-full text-sm border border-[var(--safe-neutral-border)] rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[var(--safe-primary)] focus:border-transparent"
+              className="min-h-tap w-full text-sm border border-[var(--safe-neutral-border)] rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[var(--safe-primary)] focus:border-transparent"
               autoFocus
             />
           </div>
@@ -410,7 +410,7 @@ function NewDocPopover({
             <select
               value={type}
               onChange={(e) => setType(e.target.value)}
-              className="w-full text-sm border border-[var(--safe-neutral-border)] rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[var(--safe-primary)]"
+              className="min-h-tap w-full text-sm border border-[var(--safe-neutral-border)] rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[var(--safe-primary)]"
             >
               {DOC_TYPE_VALUES.map((v) => (
                 <option key={v} value={v}>{t(DOC_TYPE_KEYS[v])}</option>
@@ -428,7 +428,7 @@ function NewDocPopover({
             </Button>
             <button
               onClick={() => setOpen(false)}
-              className="px-3 py-2 text-sm text-[var(--safe-text-secondary)] hover:bg-[var(--safe-neutral-bg)] rounded-lg"
+              className="min-h-tap px-3 py-2 text-sm text-[var(--safe-text-secondary)] hover:bg-[var(--safe-neutral-bg)] rounded-lg"
             >
               {t("cancel")}
             </button>

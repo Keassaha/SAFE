@@ -74,7 +74,7 @@ export function DossierEvents({ dossierId, events }: DossierEventsProps) {
               <select
                 name="type"
                 required
-                className="w-full h-10 px-3 rounded-lg border border-si-line bg-si-surface text-sm"
+                className="w-full h-tap px-3 rounded-lg border border-si-line bg-si-surface text-sm"
               >
                 <option value="audience">{t("eventTypeHearing")}</option>
                 <option value="reunion_client">{t("eventTypeClientMeeting")}</option>
@@ -90,7 +90,7 @@ export function DossierEvents({ dossierId, events }: DossierEventsProps) {
               <textarea
                 name="notes"
                 rows={2}
-                className="w-full px-3 py-2 rounded-lg border border-si-line bg-si-surface text-sm"
+                className="min-h-tap w-full px-3 py-2 rounded-lg border border-si-line bg-si-surface text-sm"
                 placeholder={t("optional")}
               />
             </div>
@@ -119,7 +119,7 @@ export function DossierEvents({ dossierId, events }: DossierEventsProps) {
                       <input type="hidden" name="dossierId" value={dossierId} />
                       <div>
                         <label className="block text-sm font-medium text-si-muted mb-1">{tc("type")}</label>
-                        <select name="type" defaultValue={e.type} required className="w-full h-10 px-3 rounded-lg border border-si-line bg-si-surface text-sm">
+                        <select name="type" defaultValue={e.type} required className="w-full h-tap px-3 rounded-lg border border-si-line bg-si-surface text-sm">
                           <option value="audience">{t("eventTypeHearing")}</option>
                           <option value="reunion_client">{t("eventTypeClientMeeting")}</option>
                           <option value="echeance">{t("eventTypeDeadline")}</option>
@@ -143,7 +143,7 @@ export function DossierEvents({ dossierId, events }: DossierEventsProps) {
                           name="notes"
                           rows={2}
                           defaultValue={e.notes ?? ""}
-                          className="w-full px-3 py-2 rounded-lg border border-si-line bg-si-surface text-sm"
+                          className="min-h-tap w-full px-3 py-2 rounded-lg border border-si-line bg-si-surface text-sm"
                         />
                       </div>
                       <div className="flex gap-2">

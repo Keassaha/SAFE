@@ -143,7 +143,7 @@ export function CashflowChart({ data }: Props) {
               type="button"
               onClick={() => setFenetre(f)}
               aria-pressed={fenetre === f}
-              className={`safe-zoom-menu rounded-md px-2.5 py-1 text-[12px] font-medium ${
+              className={`min-h-tap safe-zoom-menu rounded-md px-2.5 py-1 text-[12px] font-medium ${
                 fenetre === f
                   ? "bg-si-surface2 text-si-ink"
                   : "text-si-muted hover:text-si-ink"
@@ -279,7 +279,7 @@ export function CashflowChart({ data }: Props) {
           {/* Repli textuel : le diagramme n'est jamais le seul porteur du
               chiffre. Il sert aussi le daltonisme complet et l'impression. */}
           <details className="mt-3">
-            <summary className="safe-zoom-menu inline-block cursor-pointer rounded-md px-1.5 py-0.5 text-[12px] text-si-muted hover:text-si-ink">
+            <summary className="min-h-tap safe-zoom-menu inline-block cursor-pointer rounded-md px-1.5 py-0.5 text-[12px] text-si-muted hover:text-si-ink">
               Voir les chiffres
             </summary>
             <table className="mt-2 w-full border-collapse text-[12px]">

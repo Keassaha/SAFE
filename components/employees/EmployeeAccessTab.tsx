@@ -114,7 +114,7 @@ export function EmployeeAccessTab({
             <select
               value={role}
               onChange={(e) => onRoleChange(e.target.value as EmployeeRole)}
-              className="rounded-lg border border-si-line px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-si-verified/25"
+              className="min-h-tap rounded-lg border border-si-line px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-si-verified/25"
             >
               {(Object.keys(EMPLOYEE_ROLE_LABELS) as EmployeeRole[]).map((r) => (
                 <option key={r} value={r}>

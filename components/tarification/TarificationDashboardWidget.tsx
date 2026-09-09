@@ -35,7 +35,7 @@ export function TarificationDashboardWidget({ variant = "pack-ev" }: Props) {
         </p>
         <Link
           href="/tarification#fondateurs"
-          className="inline-flex items-center justify-center rounded-full bg-forest-600 text-white px-4 py-1.5 text-[13px] font-medium hover:bg-forest-700 transition-colors"
+          className="min-h-tap inline-flex items-center justify-center rounded-full bg-forest-600 text-white px-4 py-1.5 text-[13px] font-medium hover:bg-forest-700 transition-colors"
         >
           Devenir Fondateur &rarr;
         </Link>
@@ -58,13 +58,13 @@ export function TarificationDashboardWidget({ variant = "pack-ev" }: Props) {
       <div className="flex flex-wrap gap-2">
         <Link
           href="/tarification#employe-virtuel"
-          className="inline-flex items-center justify-center rounded-full bg-forest-600 text-white px-4 py-1.5 text-[13px] font-medium hover:bg-forest-700 transition-colors"
+          className="min-h-tap inline-flex items-center justify-center rounded-full bg-forest-600 text-white px-4 py-1.5 text-[13px] font-medium hover:bg-forest-700 transition-colors"
         >
           Découvrir le Pack — {TARIFICATION.packEv.prix.toLocaleString("fr-CA")} $/mois
         </Link>
         <Link
           href="/tarification"
-          className="inline-flex items-center justify-center rounded-full border border-[0.5px] border-border px-4 py-1.5 text-[13px] font-medium text-text-primary hover:bg-surface transition-colors"
+          className="min-h-tap inline-flex items-center justify-center rounded-full border border-[0.5px] border-border px-4 py-1.5 text-[13px] font-medium text-text-primary hover:bg-surface transition-colors"
         >
           En savoir plus
         </Link>

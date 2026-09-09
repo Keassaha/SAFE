@@ -122,7 +122,7 @@ export function ImportHistoryTable() {
           <select
             value={filterStatus}
             onChange={(e) => { setFilterStatus(e.target.value); setPage(0); }}
-            className="text-xs rounded-safe-sm border border-[var(--safe-neutral-border)]/60 bg-white/70 px-3 py-1.5 safe-text-title focus:outline-none focus:ring-1 focus:ring-[var(--safe-green-500)]"
+            className="min-h-tap text-xs rounded-safe-sm border border-[var(--safe-neutral-border)]/60 bg-white/70 px-3 py-1.5 safe-text-title focus:outline-none focus:ring-1 focus:ring-[var(--safe-green-500)]"
           >
             <option value="">{t("allStatuses")}</option>
             <option value="success">{t("statusSuccess")}</option>
@@ -132,7 +132,7 @@ export function ImportHistoryTable() {
           <select
             value={filterType}
             onChange={(e) => { setFilterType(e.target.value); setPage(0); }}
-            className="text-xs rounded-safe-sm border border-[var(--safe-neutral-border)]/60 bg-white/70 px-3 py-1.5 safe-text-title focus:outline-none focus:ring-1 focus:ring-[var(--safe-green-500)]"
+            className="min-h-tap text-xs rounded-safe-sm border border-[var(--safe-neutral-border)]/60 bg-white/70 px-3 py-1.5 safe-text-title focus:outline-none focus:ring-1 focus:ring-[var(--safe-green-500)]"
           >
             <option value="">{t("allTypes")}</option>
             <option value="registre_clients">{t("typeClientRegistry")}</option>

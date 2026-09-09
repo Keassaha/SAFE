@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/Button";
 import Link from "next/link";
 
 const inputClass =
-  "w-full h-11 rounded-[6px] border border-border bg-surface px-4 text-[14px] text-text-primary placeholder:text-text-muted outline-none transition-all duration-200 focus:border-si-ink-strong focus:ring-1 focus:ring-si-ink-strong/40 font-sans";
+  "w-full h-tap rounded-[6px] border border-border bg-surface px-4 text-[14px] text-text-primary placeholder:text-text-muted outline-none transition-all duration-200 focus:border-si-ink-strong focus:ring-1 focus:ring-si-ink-strong/40 font-sans";
 
 export default function ForgotPasswordPage() {
   const t = useTranslations("authUi");
@@ -52,7 +52,7 @@ export default function ForgotPasswordPage() {
             {t("linkSentBody")}
           </p>
           <Link href="/connexion" className="block mt-4">
-            <Button className="w-full h-11 bg-text-primary text-canvas hover:bg-black border-none">
+            <Button className="w-full h-tap bg-text-primary text-canvas hover:bg-black border-none">
               {t("backToSignIn")}
             </Button>
           </Link>
@@ -102,7 +102,7 @@ export default function ForgotPasswordPage() {
 
             <Button
               type="submit"
-              className="h-11 w-full mt-2 bg-text-primary text-canvas hover:bg-black border-none"
+              className="h-tap w-full mt-2 bg-text-primary text-canvas hover:bg-black border-none"
               disabled={loading}
             >
               {loading ? t("sending") : t("sendLinkButton")}

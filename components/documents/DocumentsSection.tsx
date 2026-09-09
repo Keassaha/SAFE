@@ -64,7 +64,7 @@ export function DocumentsSection({
           <input
             type="file"
             onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-            className="text-sm text-si-muted file:mr-2 file:py-2 file:px-3 file:rounded-xl file:border-0 file:bg-si-ink-strong/10 file:text-si-ink"
+            className="min-h-tap text-sm text-si-muted file:mr-2 file:py-2 file:px-3 file:rounded-xl file:border-0 file:bg-si-ink-strong/10 file:text-si-ink"
           />
           <Button type="submit" disabled={!file || uploading}>
             {uploading ? t("sending") : t("upload")}

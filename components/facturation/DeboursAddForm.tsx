@@ -64,7 +64,7 @@ export function DeboursAddForm({
                 required
                 value={clientId}
                 onChange={(e) => setClientId(e.target.value)}
-                className="w-full h-10 px-3 rounded-lg border border-si-line bg-si-surface text-sm focus:ring-2 focus:ring-si-verified/25 focus:border-si-verified outline-none"
+                className="w-full h-tap px-3 rounded-lg border border-si-line bg-si-surface text-sm focus:ring-2 focus:ring-si-verified/25 focus:border-si-verified outline-none"
               >
                 <option value="">{td("chooseClient")}</option>
                 {clients.map((c) => (
@@ -82,7 +82,7 @@ export function DeboursAddForm({
                 name="dossierId"
                 required
                 disabled={!clientId || dossiersForClient.length === 0}
-                className="w-full h-10 px-3 rounded-lg border border-si-line bg-si-surface text-sm focus:ring-2 focus:ring-si-verified/25 focus:border-si-verified outline-none disabled:opacity-60"
+                className="w-full h-tap px-3 rounded-lg border border-si-line bg-si-surface text-sm focus:ring-2 focus:ring-si-verified/25 focus:border-si-verified outline-none disabled:opacity-60"
               >
                 <option value="">
                   {!clientId
@@ -106,7 +106,7 @@ export function DeboursAddForm({
             </label>
             <select
               name="deboursTypeId"
-              className="w-full h-10 px-3 rounded-lg border border-si-line bg-si-surface text-sm"
+              className="w-full h-tap px-3 rounded-lg border border-si-line bg-si-surface text-sm"
             >
               <option value="">{td("manual")}</option>
               {deboursTypes.map((t) => (
@@ -141,7 +141,7 @@ export function DeboursAddForm({
                 type="date"
                 name="date"
                 defaultValue={toIsoDay(toCalendarDayUTC(new Date()))}
-                className="w-full h-10 px-3 rounded-lg border border-si-line bg-si-surface text-sm focus:ring-2 focus:ring-si-verified/25 focus:border-si-verified outline-none"
+                className="w-full h-tap px-3 rounded-lg border border-si-line bg-si-surface text-sm focus:ring-2 focus:ring-si-verified/25 focus:border-si-verified outline-none"
               />
             </div>
           </div>

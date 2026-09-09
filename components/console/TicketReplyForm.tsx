@@ -63,13 +63,13 @@ export function TicketReplyForm({
           name="contenu"
           required
           rows={3}
-          className="w-full rounded-md border border-si-line px-3 py-2 text-sm focus:border-si-verified focus:outline-none focus:ring-1 focus:ring-si-verified/20"
+          className="min-h-tap w-full rounded-md border border-si-line px-3 py-2 text-sm focus:border-si-verified focus:outline-none focus:ring-1 focus:ring-si-verified/20"
           placeholder="Répondre au client…"
         />
         <button
           type="submit"
           disabled={isPending}
-          className="rounded-md bg-si-verified px-3 py-1.5 text-sm font-medium text-si-surface hover:bg-si-ink-strong-soft disabled:opacity-50"
+          className="min-h-tap rounded-md bg-si-verified px-3 py-1.5 text-sm font-medium text-si-surface hover:bg-si-ink-strong-soft disabled:opacity-50"
         >
           {isPending ? "Envoi…" : "Envoyer la réponse"}
         </button>
@@ -81,7 +81,7 @@ export function TicketReplyForm({
           defaultValue={currentStatut}
           onChange={(e) => handleStatus(e.target.value)}
           disabled={isPending}
-          className="rounded-md border border-si-line px-2 py-1 text-xs focus:border-si-verified focus:outline-none"
+          className="min-h-tap rounded-md border border-si-line px-2 py-1 text-xs focus:border-si-verified focus:outline-none"
         >
           {STATUTS.map((s) => (
             <option key={s.v} value={s.v}>{s.l}</option>

@@ -160,7 +160,7 @@ export function LSOReportGenerator({
                 {copy.reportFieldType}
               </label>
               <select
-                className="h-10 px-3 rounded-safe border border-neutral-border bg-white/90 text-sm"
+                className="h-tap px-3 rounded-safe border border-neutral-border bg-white/90 text-sm"
                 value={reportType}
                 onChange={(e) => setReportType(e.target.value as "monthly" | "quarterly" | "annual")}
               >

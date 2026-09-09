@@ -171,7 +171,7 @@ export function SafeImportWizard() {
       <div className="flex gap-1 p-1 rounded-[var(--safe-radius-lg)] bg-white/40 border border-[var(--safe-neutral-border)]/40 w-fit">
         <button
           onClick={() => setActiveTab("import")}
-          className={`flex items-center gap-2 px-4 py-2 rounded-[var(--safe-radius-md)] text-sm font-medium transition-all duration-200 ${
+          className={`min-h-tap flex items-center gap-2 px-4 py-2 rounded-[var(--safe-radius-md)] text-sm font-medium transition-all duration-200 ${
             activeTab === "import"
               ? "bg-white shadow-sm safe-text-title"
               : "safe-text-secondary hover:safe-text-title hover:bg-white/50"
@@ -182,7 +182,7 @@ export function SafeImportWizard() {
         </button>
         <button
           onClick={() => setActiveTab("history")}
-          className={`flex items-center gap-2 px-4 py-2 rounded-[var(--safe-radius-md)] text-sm font-medium transition-all duration-200 ${
+          className={`min-h-tap flex items-center gap-2 px-4 py-2 rounded-[var(--safe-radius-md)] text-sm font-medium transition-all duration-200 ${
             activeTab === "history"
               ? "bg-white shadow-sm safe-text-title"
               : "safe-text-secondary hover:safe-text-title hover:bg-white/50"

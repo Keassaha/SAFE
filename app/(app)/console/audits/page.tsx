@@ -187,7 +187,7 @@ export default async function ConsoleAuditsPage() {
                     </div>
                     <Link
                       href={`/console/leads/${r.leadId}`}
-                      className="rounded border border-si-line bg-si-surface px-2.5 py-1 text-xs font-medium text-si-ink hover:border-si-verified/50 hover:text-si-verified"
+                      className="inline-flex items-center min-h-tap rounded border border-si-line bg-si-surface px-2.5 py-1 text-xs font-medium text-si-ink hover:border-si-verified/50 hover:text-si-verified"
                     >
                       Voir le cabinet
                     </Link>

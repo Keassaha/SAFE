@@ -509,7 +509,7 @@ export function DocumentEditor({ doc, activeSession, allDossiers = [] }: Props) 
           {allDossiers.length > 1 && (
             <button
               onClick={() => setShowMove(true)}
-              className="flex items-center gap-1.5 text-xs font-medium text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 px-2.5 py-1.5 rounded-md transition-colors"
+              className="min-h-tap flex items-center gap-1.5 text-xs font-medium text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 px-2.5 py-1.5 rounded-md transition-colors"
             >
               <FolderOpen className="w-3.5 h-3.5" />
               {t("move")}
@@ -517,7 +517,7 @@ export function DocumentEditor({ doc, activeSession, allDossiers = [] }: Props) 
           )}
           <button
             onClick={() => setShowVersions(true)}
-            className="flex items-center gap-1.5 text-xs font-medium text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 px-2.5 py-1.5 rounded-md transition-colors"
+            className="min-h-tap flex items-center gap-1.5 text-xs font-medium text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 px-2.5 py-1.5 rounded-md transition-colors"
           >
             <History className="w-3.5 h-3.5" />
             {t("versions")}
@@ -545,7 +545,7 @@ export function DocumentEditor({ doc, activeSession, allDossiers = [] }: Props) 
               }
             }}
             disabled={isExportingPdf}
-            className="flex items-center gap-1.5 text-xs font-medium text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 px-2.5 py-1.5 rounded-md transition-colors disabled:opacity-50"
+            className="min-h-tap flex items-center gap-1.5 text-xs font-medium text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 px-2.5 py-1.5 rounded-md transition-colors disabled:opacity-50"
           >
             {isExportingPdf ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <FileDown className="w-3.5 h-3.5" />}
             {t("exportPdf")}
@@ -555,7 +555,7 @@ export function DocumentEditor({ doc, activeSession, allDossiers = [] }: Props) 
               await save();
               setShowSendDialog(true);
             }}
-            className="flex items-center gap-1.5 text-xs font-medium text-white px-2.5 py-1.5 rounded-md transition-colors disabled:opacity-50"
+            className="min-h-tap flex items-center gap-1.5 text-xs font-medium text-white px-2.5 py-1.5 rounded-md transition-colors disabled:opacity-50"
             style={{ backgroundColor: "var(--si-ink-strong)" }}
           >
             <SendHorizontal className="w-3.5 h-3.5" />
@@ -1009,7 +1009,7 @@ function HeadingDropdown({ editor }: { editor: Editor }) {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex items-center gap-1 text-xs font-medium text-zinc-700 hover:bg-zinc-100 px-2.5 py-1.5 rounded-md transition-colors min-w-[120px]"
+        className="min-h-tap flex items-center gap-1 text-xs font-medium text-zinc-700 hover:bg-zinc-100 px-2.5 py-1.5 rounded-md transition-colors min-w-[120px]"
       >
         <span className="flex-1 text-left truncate">{current}</span>
         <ChevronDown className="w-3.5 h-3.5 opacity-60" />
@@ -1028,7 +1028,7 @@ function HeadingDropdown({ editor }: { editor: Editor }) {
                 }
                 setOpen(false);
               }}
-              className="w-full text-left px-3 py-1.5 text-xs hover:bg-zinc-50 flex items-center gap-2"
+              className="min-h-tap w-full text-left px-3 py-1.5 text-xs hover:bg-zinc-50 flex items-center gap-2"
               style={{
                 fontSize: opt.level === 0 ? 13 : opt.level === 1 ? 18 : opt.level === 2 ? 16 : opt.level === 3 ? 14 : 13,
                 fontWeight: opt.level === 0 ? 400 : 600,

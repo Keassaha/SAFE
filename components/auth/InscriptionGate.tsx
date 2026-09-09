@@ -89,7 +89,7 @@ export function InscriptionGate() {
                   <button
                     type="button"
                     onClick={() => router.push("/")}
-                    className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-[7px] text-[13.5px] font-sans font-medium text-text-muted hover:text-text-primary hover:bg-surface-2 transition-colors duration-200"
+                    className="min-h-tap inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-[7px] text-[13.5px] font-sans font-medium text-text-muted hover:text-text-primary hover:bg-surface-2 transition-colors duration-200"
                   >
                     <Home className="h-4 w-4" />
                     {t("backHome")}
@@ -97,7 +97,7 @@ export function InscriptionGate() {
                   <button
                     type="button"
                     onClick={handleContinue}
-                    className="group inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-[7px] bg-forest-600 text-white text-[13.5px] font-sans font-medium hover:bg-forest-700 active:scale-[0.98] transition-all duration-200 shadow-[0_8px_24px_-10px_rgba(31,58,46,0.5)]"
+                    className="min-h-tap group inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-[7px] bg-forest-600 text-white text-[13.5px] font-sans font-medium hover:bg-forest-700 active:scale-[0.98] transition-all duration-200 shadow-[0_8px_24px_-10px_rgba(31,58,46,0.5)]"
                   >
                     {t("continue")}
                     <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5" />

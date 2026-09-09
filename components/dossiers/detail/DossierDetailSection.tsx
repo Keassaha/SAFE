@@ -43,7 +43,7 @@ export function DossierDetailSection({
       <div className="flex justify-end">
         <button
           type="button"
-          className="inline-flex items-center gap-1.5 rounded-lg border border-si-line bg-si-surface px-3 py-1.5 text-xs font-medium text-si-ink hover:bg-si-canvas transition-colors"
+          className="min-h-tap inline-flex items-center gap-1.5 rounded-lg border border-si-line bg-si-surface px-3 py-1.5 text-xs font-medium text-si-ink hover:bg-si-canvas transition-colors"
         >
           {t("addDocument")}
         </button>

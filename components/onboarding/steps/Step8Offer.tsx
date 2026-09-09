@@ -105,7 +105,7 @@ export default function Step8Offer({ data, setData, lang, errors }: StepProps) {
               value={data.preferredDate}
               onChange={(e) => setData({ preferredDate: e.target.value })}
               min={toIsoDay(toCalendarDayUTC(new Date()))}
-              className="w-full px-4 py-2.5 rounded-xl border border-[var(--safe-neutral-border)] text-sm outline-none focus:border-[var(--safe-accent)] focus:ring-2 focus:ring-[var(--safe-accent)]/20"
+              className="min-h-tap w-full px-4 py-2.5 rounded-xl border border-[var(--safe-neutral-border)] text-sm outline-none focus:border-[var(--safe-accent)] focus:ring-2 focus:ring-[var(--safe-accent)]/20"
             />
             {errors.preferredDate && <p className="text-xs text-red-500 mt-1">{errors.preferredDate}</p>}
           </div>
@@ -122,7 +122,7 @@ export default function Step8Offer({ data, setData, lang, errors }: StepProps) {
                 { value: "evening", key: "timeEvening" as const },
               ]).map(({ value, key }) => (
                 <button key={value} type="button" onClick={() => setData({ preferredTime: value })}
-                  className={`py-3 rounded-xl border text-sm font-medium transition-all duration-200
+                  className={`min-h-tap py-3 rounded-xl border text-sm font-medium transition-all duration-200
                     ${data.preferredTime === value
                       ? "bg-[var(--safe-accent)] text-white border-[var(--safe-accent)]"
                       : "bg-white border-[var(--safe-neutral-border)] text-[var(--safe-darkest)] hover:border-[var(--safe-sage)]"}`}>
@@ -142,7 +142,7 @@ export default function Step8Offer({ data, setData, lang, errors }: StepProps) {
               value={data.optionalMessage}
               onChange={(e) => setData({ optionalMessage: e.target.value })}
               rows={3}
-              className="w-full px-4 py-2.5 rounded-xl border border-[var(--safe-neutral-border)] text-sm outline-none focus:border-[var(--safe-accent)] focus:ring-2 focus:ring-[var(--safe-accent)]/20 resize-none"
+              className="min-h-tap w-full px-4 py-2.5 rounded-xl border border-[var(--safe-neutral-border)] text-sm outline-none focus:border-[var(--safe-accent)] focus:ring-2 focus:ring-[var(--safe-accent)]/20 resize-none"
             />
           </div>
         </div>

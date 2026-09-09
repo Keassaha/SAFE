@@ -39,7 +39,7 @@ export default function Step5Team({ data, setData, lang, errors }: StepProps) {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           {TEAM_STRUCTURES.map(({ value, key }) => (
             <button key={value} type="button" onClick={() => setData({ teamStructure: value })}
-              className={`py-3 px-4 rounded-xl border text-sm font-medium transition-all duration-200 text-left
+              className={`min-h-tap py-3 px-4 rounded-xl border text-sm font-medium transition-all duration-200 text-left
                 ${data.teamStructure === value
                   ? "bg-[var(--safe-accent)] text-white border-[var(--safe-accent)]"
                   : "bg-white border-[var(--safe-neutral-border)] text-[var(--safe-darkest)] hover:border-[var(--safe-sage)]"}`}>
@@ -49,7 +49,7 @@ export default function Step5Team({ data, setData, lang, errors }: StepProps) {
         </div>
         {data.teamStructure === "other" && (
           <input type="text" value={data.teamStructureOther} onChange={(e) => setData({ teamStructureOther: e.target.value })}
-            className="w-full mt-2 px-4 py-2.5 rounded-xl border border-[var(--safe-neutral-border)] text-sm outline-none focus:border-[var(--safe-accent)] focus:ring-2 focus:ring-[var(--safe-accent)]/20"
+            className="min-h-tap w-full mt-2 px-4 py-2.5 rounded-xl border border-[var(--safe-neutral-border)] text-sm outline-none focus:border-[var(--safe-accent)] focus:ring-2 focus:ring-[var(--safe-accent)]/20"
             placeholder={T("otherPlaceholder", lang)} />
         )}
         {errors.teamStructure && <p className="text-xs text-red-500 mt-1">{errors.teamStructure}</p>}
@@ -63,7 +63,7 @@ export default function Step5Team({ data, setData, lang, errors }: StepProps) {
         <div className="grid grid-cols-4 gap-2">
           {["1", "2", "3-5", "6-15"].map((val) => (
             <button key={val} type="button" onClick={() => setData({ totalUsers: val })}
-              className={`py-3 rounded-xl border text-sm font-medium transition-all duration-200
+              className={`min-h-tap py-3 rounded-xl border text-sm font-medium transition-all duration-200
                 ${data.totalUsers === val
                   ? "bg-[var(--safe-accent)] text-white border-[var(--safe-accent)]"
                   : "bg-white border-[var(--safe-neutral-border)] text-[var(--safe-darkest)] hover:border-[var(--safe-sage)]"}`}>
@@ -82,7 +82,7 @@ export default function Step5Team({ data, setData, lang, errors }: StepProps) {
         <div className="grid grid-cols-2 gap-2">
           {INVOICE_PREP.map(({ value, key }) => (
             <button key={value} type="button" onClick={() => setData({ whoPreparesInvoices: value })}
-              className={`py-3 px-4 rounded-xl border text-sm font-medium transition-all duration-200
+              className={`min-h-tap py-3 px-4 rounded-xl border text-sm font-medium transition-all duration-200
                 ${data.whoPreparesInvoices === value
                   ? "bg-[var(--safe-accent)] text-white border-[var(--safe-accent)]"
                   : "bg-white border-[var(--safe-neutral-border)] text-[var(--safe-darkest)] hover:border-[var(--safe-sage)]"}`}>
@@ -92,7 +92,7 @@ export default function Step5Team({ data, setData, lang, errors }: StepProps) {
         </div>
         {data.whoPreparesInvoices === "other" && (
           <input type="text" value={data.whoPreparesInvoicesOther} onChange={(e) => setData({ whoPreparesInvoicesOther: e.target.value })}
-            className="w-full mt-2 px-4 py-2.5 rounded-xl border border-[var(--safe-neutral-border)] text-sm outline-none focus:border-[var(--safe-accent)] focus:ring-2 focus:ring-[var(--safe-accent)]/20"
+            className="min-h-tap w-full mt-2 px-4 py-2.5 rounded-xl border border-[var(--safe-neutral-border)] text-sm outline-none focus:border-[var(--safe-accent)] focus:ring-2 focus:ring-[var(--safe-accent)]/20"
             placeholder={T("otherPlaceholder", lang)} />
         )}
         {errors.whoPreparesInvoices && <p className="text-xs text-red-500 mt-1">{errors.whoPreparesInvoices}</p>}
@@ -106,7 +106,7 @@ export default function Step5Team({ data, setData, lang, errors }: StepProps) {
         <div className="grid grid-cols-3 gap-2">
           {TECH_LEVELS.map(({ value, key }) => (
             <button key={value} type="button" onClick={() => setData({ techComfort: value })}
-              className={`py-3 px-4 rounded-xl border text-sm font-medium transition-all duration-200
+              className={`min-h-tap py-3 px-4 rounded-xl border text-sm font-medium transition-all duration-200
                 ${data.techComfort === value
                   ? "bg-[var(--safe-accent)] text-white border-[var(--safe-accent)]"
                   : "bg-white border-[var(--safe-neutral-border)] text-[var(--safe-darkest)] hover:border-[var(--safe-sage)]"}`}>

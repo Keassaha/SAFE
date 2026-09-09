@@ -42,7 +42,7 @@ export function AddContactForm({ leadId }: { leadId: string }) {
     return (
       <button
         onClick={() => setOpen(true)}
-        className="rounded-md border border-dashed border-si-line px-3 py-1.5 text-xs font-medium text-si-muted hover:border-si-verified/50 hover:text-si-verified"
+        className="min-h-tap rounded-md border border-dashed border-si-line px-3 py-1.5 text-xs font-medium text-si-muted hover:border-si-verified/50 hover:text-si-verified"
       >
         + Ajouter un contact
       </button>
@@ -122,14 +122,14 @@ export function AddContactForm({ leadId }: { leadId: string }) {
         <button
           type="submit"
           disabled={isPending}
-          className="rounded-md bg-si-verified px-3 py-1.5 text-sm font-medium text-si-surface hover:bg-si-ink-strong-soft disabled:opacity-50"
+          className="min-h-tap rounded-md bg-si-verified px-3 py-1.5 text-sm font-medium text-si-surface hover:bg-si-ink-strong-soft disabled:opacity-50"
         >
           {isPending ? "Ajout…" : "Ajouter le contact"}
         </button>
         <button
           type="button"
           onClick={() => setOpen(false)}
-          className="rounded-md border border-si-line px-3 py-1.5 text-sm text-si-ink hover:bg-si-canvas/60"
+          className="min-h-tap rounded-md border border-si-line px-3 py-1.5 text-sm text-si-ink hover:bg-si-canvas/60"
         >
           Annuler
         </button>

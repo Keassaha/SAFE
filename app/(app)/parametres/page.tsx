@@ -460,7 +460,7 @@ export default async function ParametresPage() {
           <CardContent className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <Link
               href={routes.parametresEnvoiFacture}
-              className="flex items-center gap-3 rounded-lg border border-si-line/60 px-3 py-2.5 text-sm hover:bg-si-canvas transition-colors"
+              className="min-h-tap flex items-center gap-3 rounded-lg border border-si-line/60 px-3 py-2.5 text-sm hover:bg-si-canvas transition-colors"
             >
               <Send className="h-4 w-4 text-si-muted" aria-hidden />
               <span className="text-si-ink font-medium">{t("quickInvoiceSend")}</span>
@@ -468,7 +468,7 @@ export default async function ParametresPage() {
             {isAdmin && (
               <Link
                 href={routes.parametresFacture}
-                className="flex items-center gap-3 rounded-lg border border-si-line/60 px-3 py-2.5 text-sm hover:bg-si-canvas transition-colors"
+                className="min-h-tap flex items-center gap-3 rounded-lg border border-si-line/60 px-3 py-2.5 text-sm hover:bg-si-canvas transition-colors"
               >
                 <Receipt className="h-4 w-4 text-si-muted" aria-hidden />
                 <span className="text-si-ink font-medium">{t("cardInvoiceAppearanceCta")}</span>
@@ -477,7 +477,7 @@ export default async function ParametresPage() {
             {canAccessAudit && (
               <Link
                 href={routes.parametresAudit}
-                className="flex items-center gap-3 rounded-lg border border-si-line/60 px-3 py-2.5 text-sm hover:bg-si-canvas transition-colors"
+                className="min-h-tap flex items-center gap-3 rounded-lg border border-si-line/60 px-3 py-2.5 text-sm hover:bg-si-canvas transition-colors"
               >
                 <FileClock className="h-4 w-4 text-si-muted" aria-hidden />
                 <span className="text-si-ink font-medium">{t("quickAudit")}</span>
@@ -486,7 +486,7 @@ export default async function ParametresPage() {
             {canAccessRetention && (
               <Link
                 href={routes.parametresRetention}
-                className="flex items-center gap-3 rounded-lg border border-si-line/60 px-3 py-2.5 text-sm hover:bg-si-canvas transition-colors"
+                className="min-h-tap flex items-center gap-3 rounded-lg border border-si-line/60 px-3 py-2.5 text-sm hover:bg-si-canvas transition-colors"
               >
                 <ShieldCheck className="h-4 w-4 text-si-muted" aria-hidden />
                 <span className="text-si-ink font-medium">{t("quickRetention")}</span>
@@ -495,7 +495,7 @@ export default async function ParametresPage() {
             {overdueInvoicesCount > 0 && canAccessBilling && (
               <Link
                 href={routes.facturation}
-                className="flex items-center gap-3 rounded-lg border border-si-amber/40 bg-si-amber/5 px-3 py-2.5 text-sm hover:bg-si-amber/10 transition-colors"
+                className="min-h-tap flex items-center gap-3 rounded-lg border border-si-amber/40 bg-si-amber/5 px-3 py-2.5 text-sm hover:bg-si-amber/10 transition-colors"
               >
                 <CircleDollarSign className="h-4 w-4 text-si-amber-ink" aria-hidden />
                 <span className="text-si-ink font-medium">

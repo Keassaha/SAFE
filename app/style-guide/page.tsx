@@ -61,7 +61,7 @@ export default function StyleGuidePage() {
               <input
                 type="text"
                 placeholder="Placeholder"
-                className="w-full h-10 px-3 rounded-safe border border-neutral-border bg-white/90 backdrop-blur-sm text-neutral-text-primary placeholder:text-neutral-muted focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 outline-none transition-all"
+                className="w-full h-tap px-3 rounded-safe border border-neutral-border bg-white/90 backdrop-blur-sm text-neutral-text-primary placeholder:text-neutral-muted focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 outline-none transition-all"
               />
             </div>
             <div className="space-y-2">
@@ -75,7 +75,7 @@ export default function StyleGuidePage() {
                 <input
                   type="search"
                   placeholder="Search for clients, cases, invoices…"
-                  className="w-full h-10 pl-9 pr-3 rounded-safe border-0 bg-white/60 backdrop-blur-md text-neutral-text-primary placeholder:text-neutral-muted focus:ring-2 focus:ring-primary-500/30 outline-none transition-all"
+                  className="w-full h-tap pl-9 pr-3 rounded-safe border-0 bg-white/60 backdrop-blur-md text-neutral-text-primary placeholder:text-neutral-muted focus:ring-2 focus:ring-primary-500/30 outline-none transition-all"
                 />
               </div>
             </div>
@@ -84,7 +84,7 @@ export default function StyleGuidePage() {
                 Select
               </label>
               <select
-                className="w-full h-10 px-3 rounded-safe border border-neutral-border bg-white/90 text-neutral-text-primary focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 outline-none transition-all"
+                className="w-full h-tap px-3 rounded-safe border border-neutral-border bg-white/90 text-neutral-text-primary focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 outline-none transition-all"
               >
                 <option>Option A</option>
                 <option>Option B</option>
@@ -96,7 +96,7 @@ export default function StyleGuidePage() {
               </label>
               <input
                 type="date"
-                className="w-full h-10 px-3 rounded-safe border border-neutral-border bg-white/90 text-neutral-text-primary focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 outline-none transition-all"
+                className="w-full h-tap px-3 rounded-safe border border-neutral-border bg-white/90 text-neutral-text-primary focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 outline-none transition-all"
               />
             </div>
           </div>
@@ -186,11 +186,11 @@ export default function StyleGuidePage() {
                   <input
                     type="search"
                     placeholder="Search for clients, cases, invoices…"
-                    className="w-full h-9 px-3 rounded-safe-sm bg-white/60 backdrop-blur-md text-sm placeholder:text-neutral-muted border-0 focus:ring-2 focus:ring-primary-500/30 outline-none"
+                    className="w-full h-tap px-3 rounded-safe-sm bg-white/60 backdrop-blur-md text-sm placeholder:text-neutral-muted border-0 focus:ring-2 focus:ring-primary-500/30 outline-none"
                   />
                 </div>
                 <div className="flex items-center gap-2 ml-4">
-                  <button type="button" className="w-9 h-9 rounded-safe-sm flex items-center justify-center hover:bg-black/5 text-neutral-muted">
+                  <button type="button" className="w-9 h-tap rounded-safe-sm flex items-center justify-center hover:bg-black/5 text-neutral-muted">
                     +
                   </button>
                   <div className="w-8 h-8 rounded-full bg-primary-200" />
@@ -359,13 +359,13 @@ export default function StyleGuidePage() {
             <div className="flex gap-3 mt-4">
               <button
                 type="button"
-                className="px-4 py-2 rounded-safe bg-primary-700 text-white text-sm font-medium hover:bg-primary-600 transition-colors"
+                className="min-h-tap px-4 py-2 rounded-safe bg-primary-700 text-white text-sm font-medium hover:bg-primary-600 transition-colors"
               >
                 Checking
               </button>
               <button
                 type="button"
-                className="px-4 py-2 rounded-safe bg-accent-500 text-white text-sm font-medium hover:bg-accent-400 transition-colors"
+                className="min-h-tap px-4 py-2 rounded-safe bg-accent-500 text-white text-sm font-medium hover:bg-accent-400 transition-colors"
               >
                 Savings
               </button>

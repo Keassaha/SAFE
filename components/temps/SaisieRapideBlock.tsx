@@ -159,7 +159,7 @@ export function SaisieRapideBlock({ cabinetId, currentUserId }: SaisieRapideBloc
                 value={clientId}
                 onChange={(e) => handleClientChange(e.target.value)}
                 disabled={isLoading}
-                className="h-10 w-full rounded-md border border-si-line bg-si-surface px-3 text-sm"
+                className="h-tap w-full rounded-md border border-si-line bg-si-surface px-3 text-sm"
               >
                 <option value="">{t("selectClient")}</option>
                 {clients.map((c) => (
@@ -176,7 +176,7 @@ export function SaisieRapideBlock({ cabinetId, currentUserId }: SaisieRapideBloc
                 value={dossierId}
                 onChange={(e) => setDossierId(e.target.value)}
                 disabled={!clientId || isLoading}
-                className="h-10 w-full rounded-md border border-si-line bg-si-surface px-3 text-sm"
+                className="h-tap w-full rounded-md border border-si-line bg-si-surface px-3 text-sm"
               >
                 <option value="">
                   {!clientId ? t("selectClientFirst") : dossiersForClient.length === 0 ? t("noActiveMatter") : t("chooseMatter")}
@@ -197,7 +197,7 @@ export function SaisieRapideBlock({ cabinetId, currentUserId }: SaisieRapideBloc
                 placeholder={t("descriptionOptional")}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="h-10 w-full rounded-md border border-si-line bg-si-surface px-3 text-sm"
+                className="h-tap w-full rounded-md border border-si-line bg-si-surface px-3 text-sm"
               />
             </div>
             <div className="shrink-0">

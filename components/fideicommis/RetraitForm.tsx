@@ -219,7 +219,7 @@ export function RetraitForm({
                 }}
                 required
                 disabled={disabled}
-                className="w-full h-10 px-3 rounded-safe border border-neutral-border bg-white/90 focus:ring-2 focus:ring-primary-500/30 outline-none"
+                className="w-full h-tap px-3 rounded-safe border border-neutral-border bg-white/90 focus:ring-2 focus:ring-primary-500/30 outline-none"
               >
                 <option value="">{tf("selectClient")}</option>
                 {clients.map((c) => (
@@ -238,7 +238,7 @@ export function RetraitForm({
                 onChange={(e) => setDossierId(e.target.value)}
                 required
                 disabled={disabled || !clientId}
-                className="w-full h-10 px-3 rounded-safe border border-neutral-border bg-white/90 focus:ring-2 focus:ring-primary-500/30 outline-none"
+                className="w-full h-tap px-3 rounded-safe border border-neutral-border bg-white/90 focus:ring-2 focus:ring-primary-500/30 outline-none"
               >
                 <option value="">{tf("selectMatter")}</option>
                 {dossiersForClient.map((d) => (
@@ -277,7 +277,7 @@ export function RetraitForm({
                 onChange={(e) => setMotive(e.target.value as TrustWithdrawalMotive | "")}
                 required
                 disabled={disabled}
-                className="w-full h-10 px-3 rounded-safe border border-neutral-border bg-white/90 focus:ring-2 focus:ring-primary-500/30 outline-none"
+                className="w-full h-tap px-3 rounded-safe border border-neutral-border bg-white/90 focus:ring-2 focus:ring-primary-500/30 outline-none"
               >
                 <option value="">{tf("withdrawalMotiveSelect")}</option>
                 {MOTIFS.map((m) => (
@@ -299,7 +299,7 @@ export function RetraitForm({
                 onChange={(e) => setFactureId(e.target.value)}
                 required={invoiceRequired}
                 disabled={disabled || chargementFactures || !clientId}
-                className="w-full rounded-safe-sm border border-[var(--safe-neutral-border)] bg-white px-3 py-2 text-sm text-[var(--safe-text-title)] disabled:opacity-60"
+                className="min-h-tap w-full rounded-safe-sm border border-[var(--safe-neutral-border)] bg-white px-3 py-2 text-sm text-[var(--safe-text-title)] disabled:opacity-60"
               >
                 <option value="">
                   {!clientId
@@ -330,7 +330,7 @@ export function RetraitForm({
                 value={modePaiement}
                 onChange={(e) => setModePaiement(e.target.value as typeof modePaiement)}
                 disabled={disabled}
-                className="w-full h-10 px-3 rounded-safe border border-neutral-border bg-white/90 focus:ring-2 focus:ring-primary-500/30 outline-none"
+                className="w-full h-tap px-3 rounded-safe border border-neutral-border bg-white/90 focus:ring-2 focus:ring-primary-500/30 outline-none"
               >
                 {MODES_PAIEMENT.map((m) => (
                   <option key={m.value} value={m.value}>

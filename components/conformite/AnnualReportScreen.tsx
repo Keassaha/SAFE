@@ -182,7 +182,7 @@ export function AnnualReportScreen({
                   <button
                     type="button"
                     onClick={() => router.push(`/inspection/rapport-annuel?rapport=${r.id}`)}
-                    className={`flex w-full flex-col items-start gap-1 px-3 py-2.5 text-left transition-colors ${
+                    className={`min-h-tap flex w-full flex-col items-start gap-1 px-3 py-2.5 text-left transition-colors ${
                       detail?.id === r.id ? "bg-si-ink-strong/[0.05]" : "hover:bg-si-ink-strong/[0.03]"
                     }`}
                   >

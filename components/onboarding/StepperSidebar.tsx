@@ -74,7 +74,7 @@ export function StepperSidebar({
       <div className="mt-6 pt-5 border-t border-slate-200/60">
         <button
           onClick={onSaveAndExit}
-          className="w-full px-3 py-2 bg-transparent border border-slate-300 rounded-md text-xs text-slate-600 hover:bg-slate-50 transition flex items-center justify-center gap-1.5"
+          className="min-h-tap w-full px-3 py-2 bg-transparent border border-slate-300 rounded-md text-xs text-slate-600 hover:bg-slate-50 transition flex items-center justify-center gap-1.5"
         >
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />

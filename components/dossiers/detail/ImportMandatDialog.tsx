@@ -117,7 +117,7 @@ export function ImportMandatDialog({
               onChange={(e) => setText(e.target.value)}
               rows={9}
               placeholder={t("mandateImportPastePlaceholder")}
-              className="w-full resize-y rounded border border-si-line px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-si-primary/40"
+              className="min-h-tap w-full resize-y rounded border border-si-line px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-si-primary/40"
             />
           )}
         </div>

@@ -156,7 +156,7 @@ export async function AaliyahTodayView({ data }: { data: AaliyahTodayData }) {
                   </span>
                 ) : null}
                 <Link href={`/dossiers/${data.nextAction.dossierId}`}
-                  className="inline-flex items-center gap-1.5 rounded-xl px-4 py-2.5 text-sm font-medium text-white"
+                  className="min-h-tap inline-flex items-center gap-1.5 rounded-xl px-4 py-2.5 text-sm font-medium text-white"
                   style={{ backgroundColor: ACCENT }}>
                   {t("doItNow")} <ArrowRight className="h-4 w-4" aria-hidden />
                 </Link>
@@ -244,7 +244,7 @@ export async function AaliyahTodayView({ data }: { data: AaliyahTodayData }) {
             <h3 className="mb-3 flex items-center gap-2 text-[13px] font-medium text-si-ink"><Clock className="h-4 w-4 text-si-muted" aria-hidden /> {t("deadlines")}</h3>
             {data.deadlines.length === 0 ? <p className="text-sm text-si-subtle">{t("deadlinesEmpty")}</p> :
               data.deadlines.map((d) => (
-                <Link key={`${d.dossierId}-${d.label}`} href={`/dossiers/${d.dossierId}`} className="safe-zoom-rang flex items-center gap-3 border-t border-si-line2 py-2.5 first:border-t-0 -mx-2 px-2 rounded-lg">
+                <Link key={`${d.dossierId}-${d.label}`} href={`/dossiers/${d.dossierId}`} className="min-h-tap safe-zoom-rang flex items-center gap-3 border-t border-si-line2 py-2.5 first:border-t-0 -mx-2 px-2 rounded-lg">
                   <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-si-surface2 text-si-muted">
                     {d.daysUntil <= 2 ? <AlertTriangle className="h-4 w-4" aria-hidden /> : <Clock className="h-4 w-4" aria-hidden />}
                   </span>
@@ -262,7 +262,7 @@ export async function AaliyahTodayView({ data }: { data: AaliyahTodayData }) {
             <h3 className="mb-3 flex items-center gap-2 text-[13px] font-medium text-si-ink"><Clock className="h-4 w-4 text-si-muted" aria-hidden /> {t("awaitingClient")}</h3>
             {data.awaiting.length === 0 ? <p className="text-sm text-si-subtle">{t("awaitingEmpty")}</p> :
               data.awaiting.map((a) => (
-                <Link key={a.dossierId} href={`/dossiers/${a.dossierId}`} className="safe-zoom-rang flex items-center justify-between gap-2 border-t border-si-line2 py-2.5 first:border-t-0 -mx-2 px-2 rounded-lg text-[13.5px] text-si-ink">
+                <Link key={a.dossierId} href={`/dossiers/${a.dossierId}`} className="min-h-tap safe-zoom-rang flex items-center justify-between gap-2 border-t border-si-line2 py-2.5 first:border-t-0 -mx-2 px-2 rounded-lg text-[13.5px] text-si-ink">
                   <span className="min-w-0"><span className="block truncate font-medium">{a.matterLabel}</span><span className="text-xs text-si-subtle">{a.clientName}</span></span>
                 </Link>
               ))}

@@ -134,7 +134,7 @@ export function BackgroundDeclarationForm({ dossierId }: BackgroundDeclarationFo
                 </label>
                 {checked && (
                   <textarea
-                    className="w-full mt-2 px-3 py-2 rounded-xl border border-si-line bg-si-surface text-sm"
+                    className="min-h-tap w-full mt-2 px-3 py-2 rounded-xl border border-si-line bg-si-surface text-sm"
                     placeholder="Provide details (dates, countries, circumstances)..."
                     rows={2}
                     value={getDetail(f.detailKey)}

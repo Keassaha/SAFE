@@ -206,7 +206,7 @@ export function InvoiceAppearanceForm({ initial, cabinet }: Props) {
                     type="button"
                     onClick={() => setAccent(p.hex)}
                     title={t(p.labelKey)}
-                    className={`h-9 w-9 rounded-full border-2 transition-transform hover:scale-105 ${
+                    className={`h-tap w-9 rounded-full border-2 transition-transform hover:scale-105 ${
                       isActive ? "border-si-ink ring-2 ring-si-line" : "border-white shadow"
                     }`}
                     style={{ backgroundColor: p.hex }}
@@ -285,7 +285,7 @@ export function InvoiceAppearanceForm({ initial, cabinet }: Props) {
                 value={noticeFr}
                 onChange={(e) => setNoticeFr(e.target.value)}
                 rows={4}
-                className="w-full rounded-lg border border-si-line px-3 py-2 text-sm"
+                className="min-h-tap w-full rounded-lg border border-si-line px-3 py-2 text-sm"
                 placeholder={t("noticePlaceholderFr")}
               />
             </div>
@@ -295,7 +295,7 @@ export function InvoiceAppearanceForm({ initial, cabinet }: Props) {
                 value={noticeEn}
                 onChange={(e) => setNoticeEn(e.target.value)}
                 rows={4}
-                className="w-full rounded-lg border border-si-line px-3 py-2 text-sm"
+                className="min-h-tap w-full rounded-lg border border-si-line px-3 py-2 text-sm"
                 placeholder={t("noticePlaceholderEn")}
               />
             </div>

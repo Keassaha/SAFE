@@ -214,7 +214,7 @@ function ContactButton() {
   return (
     <button
       type="button"
-      className="rounded-full font-medium uppercase tracking-widest text-white px-8 py-3 sm:px-10 sm:py-3.5 md:px-12 md:py-4 text-xs sm:text-sm md:text-base"
+      className="min-h-tap rounded-full font-medium uppercase tracking-widest text-white px-8 py-3 sm:px-10 sm:py-3.5 md:px-12 md:py-4 text-xs sm:text-sm md:text-base"
       style={{
         background: CTA_GRADIENT,
         boxShadow: CTA_SHADOW,
@@ -231,7 +231,7 @@ function LiveProjectButton() {
   return (
     <button
       type="button"
-      className="jack-ghost rounded-full border-2 font-medium uppercase tracking-widest px-8 py-3 sm:px-10 sm:py-3.5 text-sm sm:text-base transition-colors duration-200"
+      className="min-h-tap jack-ghost rounded-full border-2 font-medium uppercase tracking-widest px-8 py-3 sm:px-10 sm:py-3.5 text-sm sm:text-base transition-colors duration-200"
       style={{ borderColor: MIST, color: MIST }}
     >
       Live Project

@@ -94,13 +94,13 @@ function Bloc({ c }: { c: Candidat }) {
           </p>
           <div className="flex items-center gap-3">
             <span
-              className="inline-flex h-11 items-center justify-center rounded-md px-6 text-[14px] font-medium text-white"
+              className="inline-flex h-tap items-center justify-center rounded-md px-6 text-[14px] font-medium text-white"
               style={{ background: c.action }}
             >
               Se connecter
             </span>
             <span
-              className="inline-flex h-11 items-center justify-center rounded-md px-6 text-[14px] font-medium text-white"
+              className="inline-flex h-tap items-center justify-center rounded-md px-6 text-[14px] font-medium text-white"
               style={{ background: c.survol }}
             >
               Se connecter
@@ -108,7 +108,7 @@ function Bloc({ c }: { c: Candidat }) {
             {/* Survol réel, en CSS pur : la page reste un composant serveur. */}
             <button
               type="button"
-              className="inline-flex h-11 items-center justify-center rounded-md bg-[var(--repos)] px-6 text-[14px] font-medium text-white transition-colors duration-150 hover:bg-[var(--survol)]"
+              className="inline-flex h-tap items-center justify-center rounded-md bg-[var(--repos)] px-6 text-[14px] font-medium text-white transition-colors duration-150 hover:bg-[var(--survol)]"
               style={{ "--repos": c.action, "--survol": c.survol } as React.CSSProperties}
             >
               Survolez-moi
@@ -124,7 +124,7 @@ function Bloc({ c }: { c: Candidat }) {
           </p>
           <div className="flex items-center gap-3">
             <span
-              className="inline-flex h-11 items-center justify-center rounded-md border px-5 text-[14px] font-medium"
+              className="inline-flex h-tap items-center justify-center rounded-md border px-5 text-[14px] font-medium"
               style={{ borderColor: c.action, color: c.action }}
             >
               Exporter

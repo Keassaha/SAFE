@@ -489,7 +489,7 @@ function PaliersGrid() {
                 index > 0 ? "border-t border-emerald-900/10 md:border-l md:border-t-0" : ""
               }`}
             >
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-emerald-900/10 bg-emerald-50 text-emerald-800">
+              <span className="flex h-tap w-tap shrink-0 items-center justify-center rounded-xl border border-emerald-900/10 bg-emerald-50 text-emerald-800">
                 <Icon className="h-5 w-5" aria-hidden="true" />
               </span>
               <span>

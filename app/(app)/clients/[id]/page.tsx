@@ -280,7 +280,7 @@ export default async function ClientDetailPage({
             {canEditClient && !showForm && (
               <Link
                 href={`${routes.client(id)}?edit=1`}
-                className="safe-zoom inline-flex items-center gap-2 rounded-md border border-si-line bg-si-surface px-3.5 py-2 text-sm font-medium text-si-ink hover:bg-si-surface2"
+                className="min-h-tap safe-zoom inline-flex items-center gap-2 rounded-md border border-si-line bg-si-surface px-3.5 py-2 text-sm font-medium text-si-ink hover:bg-si-surface2"
               >
                 <Pencil className="w-4 h-4" />
                 {tc("edit")}
@@ -304,7 +304,7 @@ export default async function ClientDetailPage({
             {dossiers.length > 0 && (
               <Link
                 href={routes.dossiers + `?clientId=${id}`}
-                className="safe-zoom inline-flex items-center gap-1.5 rounded-md border border-si-line bg-si-surface px-3.5 py-2 text-sm font-medium text-si-ink hover:bg-si-surface2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-si-ink/25"
+                className="min-h-tap safe-zoom inline-flex items-center gap-1.5 rounded-md border border-si-line bg-si-surface px-3.5 py-2 text-sm font-medium text-si-ink hover:bg-si-surface2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-si-ink/25"
               >
                 {t("viewFullMatter")}
                 <ExternalLink className="w-3.5 h-3.5" />
@@ -374,7 +374,7 @@ export default async function ClientDetailPage({
                     <Link
                       key={d.id}
                       href={`/edition/${d.dossierId}/${d.id}`}
-                      className={`flex items-center gap-3 px-4 py-2.5 hover:bg-si-canvas transition-colors ${
+                      className={`min-h-tap flex items-center gap-3 px-4 py-2.5 hover:bg-si-canvas transition-colors ${
                         i > 0 ? "border-t border-si-line" : ""
                       }`}
                     >

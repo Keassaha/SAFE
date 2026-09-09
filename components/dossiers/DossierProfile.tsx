@@ -92,7 +92,7 @@ export function DossierProfile({
               type="button"
               onClick={() => setActif(o.id)}
               aria-current={estActif ? "page" : undefined}
-              className={`relative -mb-px flex items-center gap-2 px-4 py-3 text-sm font-medium transition-colors duration-200 ${
+              className={`min-h-tap relative -mb-px flex items-center gap-2 px-4 py-3 text-sm font-medium transition-colors duration-200 ${
                 estActif ? "text-si-ink-strong" : "text-si-muted hover:text-si-ink"
               }`}
             >

@@ -574,7 +574,7 @@ function FieldRenderer({
               <button
                 key={n}
                 onClick={() => onChange(n)}
-                className="h-11 w-11 rounded-[8px] border font-mono text-[14px] tabular-nums transition-colors duration-300"
+                className="h-tap w-tap rounded-[8px] border font-mono text-[14px] tabular-nums transition-colors duration-300"
                 style={
                   v === n
                     ? { background: "var(--si-ink-strong)", borderColor: "var(--si-ink-strong)", color: "#F4F7F3" }

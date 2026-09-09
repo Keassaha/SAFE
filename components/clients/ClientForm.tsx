@@ -44,7 +44,7 @@ export function ClientForm({
           name="typeClient"
           value={typeClient}
           onChange={(e) => setTypeClient(e.target.value as "personne_morale" | "personne_physique")}
-          className="w-full h-10 px-3 rounded-xl border border-si-line bg-si-surface/90 text-si-ink focus:ring-2 focus:ring-si-verified/25"
+          className="w-full h-tap px-3 rounded-xl border border-si-line bg-si-surface/90 text-si-ink focus:ring-2 focus:ring-si-verified/25"
         >
           <option value="personne_morale">{t("legalEntity")}</option>
           <option value="personne_physique">{t("naturalPerson")}</option>
@@ -114,7 +114,7 @@ export function ClientForm({
               name="finalitesConsentement"
               defaultValue={client?.finalitesConsentement ?? ""}
               rows={2}
-              className="w-full px-3 py-2 rounded-xl border border-si-line bg-si-surface/90 text-si-ink focus:ring-2 focus:ring-si-verified/25"
+              className="min-h-tap w-full px-3 py-2 rounded-xl border border-si-line bg-si-surface/90 text-si-ink focus:ring-2 focus:ring-si-verified/25"
               placeholder={t("consentPlaceholder")}
             />
           </div>
@@ -137,7 +137,7 @@ export function ClientForm({
                 name="notesConfidentielles"
                 defaultValue={client?.notesConfidentielles ?? ""}
                 rows={3}
-                className="w-full px-3 py-2 rounded-xl border border-si-line bg-si-surface/90 text-si-ink focus:ring-2 focus:ring-si-verified/25"
+                className="min-h-tap w-full px-3 py-2 rounded-xl border border-si-line bg-si-surface/90 text-si-ink focus:ring-2 focus:ring-si-verified/25"
               />
             </div>
           )}

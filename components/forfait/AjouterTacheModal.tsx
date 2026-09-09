@@ -177,7 +177,7 @@ export function AjouterTacheModal({ isOpen, onClose, dossiers, preselectedDossie
             value={clientId}
             onChange={e => handleClientChange(e.target.value)}
             disabled={!!preselectedDossierId}
-            className="w-full h-10 px-3 rounded-safe border border-neutral-border bg-white/90 text-sm"
+            className="w-full h-tap px-3 rounded-safe border border-neutral-border bg-white/90 text-sm"
           >
             <option value="">{t("selectClient")}</option>
             {clients.map(client => (
@@ -197,7 +197,7 @@ export function AjouterTacheModal({ isOpen, onClose, dossiers, preselectedDossie
               value={dossierId}
               onChange={e => setDossierId(e.target.value)}
               disabled={!!preselectedDossierId}
-              className="w-full h-10 px-3 rounded-safe border border-neutral-border bg-white/90 text-sm"
+              className="w-full h-tap px-3 rounded-safe border border-neutral-border bg-white/90 text-sm"
             >
               <option value="">{t("selectTrackingFile")}</option>
               {dossierChoice.dossiers.map(d => (
@@ -235,7 +235,7 @@ export function AjouterTacheModal({ isOpen, onClose, dossiers, preselectedDossie
           <select
             value={serviceId}
             onChange={e => handleServiceChange(e.target.value)}
-            className="w-full h-10 px-3 rounded-safe border border-neutral-border bg-white/90 text-sm"
+            className="w-full h-tap px-3 rounded-safe border border-neutral-border bg-white/90 text-sm"
           >
             <option value="">{t("manualEntry")}</option>
             {services.map(s => (

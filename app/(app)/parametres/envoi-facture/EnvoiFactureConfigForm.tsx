@@ -181,7 +181,7 @@ export function EnvoiFactureConfigForm() {
                     : c
                 )
               }
-              className="w-24 rounded border border-si-line px-3 py-2 text-sm"
+              className="min-h-tap w-24 rounded border border-si-line px-3 py-2 text-sm"
             />
             <p className="mt-1 text-xs text-si-muted">
               {t("linkExpirationHint")}
@@ -205,7 +205,7 @@ export function EnvoiFactureConfigForm() {
                   key={v.token}
                   type="button"
                   onClick={() => insertVariable(v.token)}
-                  className="rounded-full border border-si-line bg-white px-2.5 py-1 text-xs font-mono text-si-ink hover:bg-si-primary/5 transition-colors"
+                  className="min-h-tap rounded-full border border-si-line bg-white px-2.5 py-1 text-xs font-mono text-si-ink hover:bg-si-primary/5 transition-colors"
                   title={t(v.labelKey)}
                 >
                   {v.token}

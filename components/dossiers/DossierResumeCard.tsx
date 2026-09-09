@@ -157,7 +157,7 @@ export function DossierResumeCard({ resume, locale = "en", nextActionHref }: Pro
           {nextActionHref ? (
             <Link
               href={nextActionHref}
-              className="inline-flex shrink-0 items-center gap-1.5 rounded-lg px-4 py-2.5 text-sm font-medium text-white"
+              className="min-h-tap inline-flex shrink-0 items-center gap-1.5 rounded-lg px-4 py-2.5 text-sm font-medium text-white"
               style={{ backgroundColor: ACCENT }}
             >
               {t.doItNow}

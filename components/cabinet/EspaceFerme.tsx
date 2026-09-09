@@ -25,13 +25,13 @@ export async function EspaceFerme({ motif }: { motif?: string | null }) {
               le layout partagé, et cet écran resterait affiché par-dessus. */}
           <a
             href="/api/clients/export"
-            className="inline-flex h-11 items-center justify-center rounded-md bg-si-verified px-5 text-sm font-medium text-white transition-opacity hover:opacity-90"
+            className="inline-flex h-tap items-center justify-center rounded-md bg-si-verified px-5 text-sm font-medium text-white transition-opacity hover:opacity-90"
           >
             {t("exportClients")}
           </a>
           <a
             href="/api/dossiers/export"
-            className="inline-flex h-11 items-center justify-center rounded-md border border-si-line px-5 text-sm font-medium text-si-ink transition-colors hover:bg-si-canvas"
+            className="inline-flex h-tap items-center justify-center rounded-md border border-si-line px-5 text-sm font-medium text-si-ink transition-colors hover:bg-si-canvas"
           >
             {t("exportDossiers")}
           </a>

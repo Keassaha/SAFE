@@ -57,7 +57,7 @@ export function ReleveGenerator({ clients, dossiers, disabled }: ReleveGenerator
               value={mois}
               onChange={(e) => setMois(Number(e.target.value))}
               disabled={disabled}
-              className="w-full h-10 px-3 rounded-safe border border-neutral-border bg-white/90"
+              className="w-full h-tap px-3 rounded-safe border border-neutral-border bg-white/90"
             >
               {Object.entries(MOIS_LABELS).map(([v, l]) => (
                 <option key={v} value={v}>
@@ -75,7 +75,7 @@ export function ReleveGenerator({ clients, dossiers, disabled }: ReleveGenerator
               value={annee}
               onChange={(e) => setAnnee(Number(e.target.value))}
               disabled={disabled}
-              className="w-full h-10 px-3 rounded-safe border border-neutral-border bg-white/90"
+              className="w-full h-tap px-3 rounded-safe border border-neutral-border bg-white/90"
             />
           </div>
         </div>
@@ -88,7 +88,7 @@ export function ReleveGenerator({ clients, dossiers, disabled }: ReleveGenerator
               setDossierId("");
             }}
             disabled={disabled}
-            className="w-full h-10 px-3 rounded-safe border border-neutral-border bg-white/90"
+            className="w-full h-tap px-3 rounded-safe border border-neutral-border bg-white/90"
           >
             <option value="">{tf("all")}</option>
             {clients.map((c) => (
@@ -104,7 +104,7 @@ export function ReleveGenerator({ clients, dossiers, disabled }: ReleveGenerator
             value={dossierId}
             onChange={(e) => setDossierId(e.target.value)}
             disabled={disabled || !clientId}
-            className="w-full h-10 px-3 rounded-safe border border-neutral-border bg-white/90"
+            className="w-full h-tap px-3 rounded-safe border border-neutral-border bg-white/90"
           >
             <option value="">{tf("all")}</option>
             {dossiersForClient.map((d) => (

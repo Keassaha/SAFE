@@ -383,7 +383,7 @@ export function FacturationPaiementsView({
                               href={`/api/facturation/paiements/${p.id}/preuve`}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="inline-flex h-11 w-11 items-center justify-center rounded-md text-si-muted transition-colors hover:bg-si-canvas hover:text-si-ink-strong"
+                              className="inline-flex h-tap w-tap items-center justify-center rounded-md text-si-muted transition-colors hover:bg-si-canvas hover:text-si-ink-strong"
                               aria-label={t("viewProof")}
                               title={t("viewProof")}
                             >
@@ -394,7 +394,7 @@ export function FacturationPaiementsView({
                             href={`/api/documents/payment-receipt/${p.id}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex h-11 w-11 items-center justify-center rounded-md text-si-muted transition-colors hover:bg-si-canvas hover:text-si-ink-strong"
+                            className="inline-flex h-tap w-tap items-center justify-center rounded-md text-si-muted transition-colors hover:bg-si-canvas hover:text-si-ink-strong"
                             aria-label={t("viewReceipt")}
                             title={t("viewReceipt")}
                           >
@@ -404,7 +404,7 @@ export function FacturationPaiementsView({
                           <Button
                             type="button"
                             variant="tertiary"
-                            className="!px-2 !py-1.5 min-w-0"
+                            className="inline-flex items-center min-h-tap !px-2 !py-1.5 min-w-0"
                             onClick={() => openEdit(p.id)}
                             aria-label={t("editPayment")}
                           >
@@ -415,7 +415,7 @@ export function FacturationPaiementsView({
                             <Button
                               type="button"
                               variant="tertiary"
-                              className="!px-2 !py-1.5 min-w-0"
+                              className="inline-flex items-center min-h-tap !px-2 !py-1.5 min-w-0"
                               onClick={() => openAllocation(p)}
                             aria-label={t("allocatePaymentToInvoice")}
                           >
@@ -428,7 +428,7 @@ export function FacturationPaiementsView({
                             <Button
                               type="button"
                               variant="tertiary"
-                              className="!px-2 !py-1.5 min-w-0"
+                              className="inline-flex items-center min-h-tap !px-2 !py-1.5 min-w-0"
                               onClick={() => {
                                 setAnnulationError(null);
                                 setAnnulationCible(p);
@@ -552,7 +552,7 @@ export function FacturationPaiementsView({
               value={refundNote}
               onChange={(e) => setRefundNote(e.target.value)}
               rows={3}
-              className="w-full rounded-lg border border-si-line bg-si-surface px-3 py-2 text-sm focus:border-si-verified focus:ring-2 focus:ring-si-verified/25"
+              className="min-h-tap w-full rounded-lg border border-si-line bg-si-surface px-3 py-2 text-sm focus:border-si-verified focus:ring-2 focus:ring-si-verified/25"
             />
           </div>
           <p className="text-xs text-si-muted">{t("refundManualNotice")}</p>

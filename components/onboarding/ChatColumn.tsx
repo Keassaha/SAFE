@@ -121,7 +121,7 @@ function TextInput({
         value={value}
         onChange={(e) => setValue(e.target.value)}
         placeholder={question.placeholder}
-        className="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg text-sm text-forest-900 placeholder:text-slate-500 focus:border-forest-700 focus:outline-none focus:ring-[3px] focus:ring-forest-700/15 transition"
+        className="min-h-tap w-full px-3.5 py-2.5 border border-slate-300 rounded-lg text-sm text-forest-900 placeholder:text-slate-500 focus:border-forest-700 focus:outline-none focus:ring-[3px] focus:ring-forest-700/15 transition"
       />
       {question.hint && (
         <p className="text-[11px] text-slate-500">{question.hint}</p>
@@ -129,7 +129,7 @@ function TextInput({
       <button
         onClick={() => onAnswer(value)}
         disabled={!value.trim()}
-        className="self-start px-4 py-2 bg-forest-900 text-forest-50 text-[13px] font-medium rounded-lg disabled:opacity-40 disabled:cursor-not-allowed hover:bg-forest-700 transition"
+        className="min-h-tap self-start px-4 py-2 bg-forest-900 text-forest-50 text-[13px] font-medium rounded-lg disabled:opacity-40 disabled:cursor-not-allowed hover:bg-forest-700 transition"
       >
         {t('validate')}
       </button>
@@ -162,7 +162,7 @@ function ChipsInput({
             <button
               key={opt.id}
               onClick={() => toggle(opt.id)}
-              className={`px-3 py-1.5 rounded-full text-xs transition ${
+              className={`min-h-tap px-3 py-1.5 rounded-full text-xs transition ${
                 isSelected
                   ? 'bg-forest-100 border border-forest-700 text-forest-900 font-medium'
                   : 'bg-white border border-slate-300 text-forest-900 hover:border-slate-400'
@@ -177,7 +177,7 @@ function ChipsInput({
       <button
         onClick={() => onAnswer(selected)}
         disabled={selected.length === 0}
-        className="self-start px-4 py-2 bg-forest-900 text-forest-50 text-[13px] font-medium rounded-lg disabled:opacity-40 disabled:cursor-not-allowed hover:bg-forest-700 transition"
+        className="min-h-tap self-start px-4 py-2 bg-forest-900 text-forest-50 text-[13px] font-medium rounded-lg disabled:opacity-40 disabled:cursor-not-allowed hover:bg-forest-700 transition"
       >
         {t('validateCount', { count: selected.length })}
       </button>
@@ -229,7 +229,7 @@ function NavigationFooter({
       <button
         onClick={onBack}
         disabled={!canGoBack}
-        className="px-4 py-2.5 bg-transparent border border-slate-300 rounded-lg text-[13px] text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition flex items-center gap-1.5"
+        className="min-h-tap px-4 py-2.5 bg-transparent border border-slate-300 rounded-lg text-[13px] text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition flex items-center gap-1.5"
       >
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <line x1="19" y1="12" x2="5" y2="12" />
@@ -239,7 +239,7 @@ function NavigationFooter({
       </button>
       <button
         onClick={onNext}
-        className="flex-1 px-4 py-2.5 bg-forest-900 text-forest-50 text-[13px] font-medium rounded-lg hover:bg-forest-700 transition flex items-center justify-center gap-1.5"
+        className="min-h-tap flex-1 px-4 py-2.5 bg-forest-900 text-forest-50 text-[13px] font-medium rounded-lg hover:bg-forest-700 transition flex items-center justify-center gap-1.5"
       >
         {t('next')}
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

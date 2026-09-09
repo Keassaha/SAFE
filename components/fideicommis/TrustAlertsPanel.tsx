@@ -63,7 +63,7 @@ export function TrustAlertsPanel() {
         </div>
 
         {ecartRapprochement && (
-          <Link href="/comptes/rapprochement" className="block rounded-md border border-red-200 bg-white px-3 py-2 hover:bg-red-50/50">
+          <Link href="/comptes/rapprochement" className="min-h-tap block rounded-md border border-red-200 bg-white px-3 py-2 hover:bg-red-50/50">
             <p className="text-sm font-medium text-red-800">
               Écart de rapprochement non nul — période {ecartRapprochement.periode}
             </p>

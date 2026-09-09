@@ -89,7 +89,7 @@ export default function Step2Practice({ data, setData, lang, errors }: StepProps
             type="text"
             value={data.practiceAreasOther}
             onChange={(e) => setData({ practiceAreasOther: e.target.value })}
-            className="w-full mt-2 px-4 py-2.5 rounded-xl border border-[var(--safe-neutral-border)] text-sm outline-none focus:border-[var(--safe-accent)] focus:ring-2 focus:ring-[var(--safe-accent)]/20"
+            className="min-h-tap w-full mt-2 px-4 py-2.5 rounded-xl border border-[var(--safe-neutral-border)] text-sm outline-none focus:border-[var(--safe-accent)] focus:ring-2 focus:ring-[var(--safe-accent)]/20"
             placeholder={T("otherPlaceholder", lang)}
           />
         )}
@@ -107,7 +107,7 @@ export default function Step2Practice({ data, setData, lang, errors }: StepProps
               key={value}
               type="button"
               onClick={() => setData({ monthlyNewFiles: value })}
-              className={`py-3 px-4 rounded-xl border text-sm font-medium transition-all duration-200
+              className={`min-h-tap py-3 px-4 rounded-xl border text-sm font-medium transition-all duration-200
                 ${
                   data.monthlyNewFiles === value
                     ? "bg-[var(--safe-accent)] text-white border-[var(--safe-accent)]"
@@ -132,7 +132,7 @@ export default function Step2Practice({ data, setData, lang, errors }: StepProps
               key={value}
               type="button"
               onClick={() => setData({ clientType: value })}
-              className={`py-3 px-4 rounded-xl border text-sm font-medium transition-all duration-200
+              className={`min-h-tap py-3 px-4 rounded-xl border text-sm font-medium transition-all duration-200
                 ${
                   data.clientType === value
                     ? "bg-[var(--safe-accent)] text-white border-[var(--safe-accent)]"
@@ -148,7 +148,7 @@ export default function Step2Practice({ data, setData, lang, errors }: StepProps
             type="text"
             value={data.clientTypeOther}
             onChange={(e) => setData({ clientTypeOther: e.target.value })}
-            className="w-full mt-2 px-4 py-2.5 rounded-xl border border-[var(--safe-neutral-border)] text-sm outline-none focus:border-[var(--safe-accent)] focus:ring-2 focus:ring-[var(--safe-accent)]/20"
+            className="min-h-tap w-full mt-2 px-4 py-2.5 rounded-xl border border-[var(--safe-neutral-border)] text-sm outline-none focus:border-[var(--safe-accent)] focus:ring-2 focus:ring-[var(--safe-accent)]/20"
             placeholder={T("otherPlaceholder", lang)}
           />
         )}

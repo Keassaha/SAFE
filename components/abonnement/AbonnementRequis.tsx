@@ -42,7 +42,7 @@ export function AbonnementRequis({ raison }: { raison?: string | null }) {
               `x-pathname`, et le layout reconnaît alors le chemin exempté. */}
           <a
             href="/parametres/abonnement"
-            className="inline-flex h-11 items-center justify-center rounded-md bg-si-verified px-5 text-sm font-medium text-white transition-opacity hover:opacity-90"
+            className="inline-flex h-tap items-center justify-center rounded-md bg-si-verified px-5 text-sm font-medium text-white transition-opacity hover:opacity-90"
           >
             Voir mon abonnement
           </a>

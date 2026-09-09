@@ -124,7 +124,7 @@ export function TerminerDialog({ doc, sessionId, dureeMinutes, onClose, onSucces
                 <button
                   key={ta.value}
                   onClick={() => setTypeActivite(ta.value)}
-                  className={`px-3 py-1.5 rounded-full text-sm transition-colors ${
+                  className={`min-h-tap px-3 py-1.5 rounded-full text-sm transition-colors ${
                     typeActivite === ta.value
                       ? "bg-[var(--safe-primary)] text-white"
                       : "bg-[var(--safe-neutral-bg)] text-[var(--safe-text-secondary)] hover:bg-[var(--safe-neutral-border)]"
@@ -145,7 +145,7 @@ export function TerminerDialog({ doc, sessionId, dureeMinutes, onClose, onSucces
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={2}
-              className="w-full text-sm border border-[var(--safe-neutral-border)] rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[var(--safe-primary)] resize-none"
+              className="min-h-tap w-full text-sm border border-[var(--safe-neutral-border)] rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[var(--safe-primary)] resize-none"
             />
           </div>
 
@@ -159,7 +159,7 @@ export function TerminerDialog({ doc, sessionId, dureeMinutes, onClose, onSucces
               value={taux}
               onChange={(e) => setTaux(Number(e.target.value))}
               min={0}
-              className="w-full text-sm border border-[var(--safe-neutral-border)] rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[var(--safe-primary)]"
+              className="min-h-tap w-full text-sm border border-[var(--safe-neutral-border)] rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[var(--safe-primary)]"
             />
           </div>
         </div>
@@ -168,14 +168,14 @@ export function TerminerDialog({ doc, sessionId, dureeMinutes, onClose, onSucces
         <div className="flex gap-3 p-5 border-t border-[var(--safe-neutral-border)]">
           <button
             onClick={onClose}
-            className="flex-1 py-2.5 text-sm text-[var(--safe-text-secondary)] border border-[var(--safe-neutral-border)] rounded-xl hover:bg-[var(--safe-neutral-bg)] transition-colors"
+            className="min-h-tap flex-1 py-2.5 text-sm text-[var(--safe-text-secondary)] border border-[var(--safe-neutral-border)] rounded-xl hover:bg-[var(--safe-neutral-bg)] transition-colors"
           >
             {t("continueWorking")}
           </button>
           <Button
             onClick={handleConfirm}
             disabled={isSubmitting}
-            className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2.5 flex items-center justify-center gap-2"
+            className="min-h-tap flex-1 bg-green-600 hover:bg-green-700 text-white py-2.5 flex items-center justify-center gap-2"
           >
             <CheckCircle className="w-4 h-4" />
             {isSubmitting ? t("creating") : t("createTimeEntry")}

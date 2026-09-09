@@ -48,7 +48,7 @@ export function ReportFilters({
           defaultValue={currentYear}
           min="2020"
           max={new Date().getFullYear() + 1}
-          className="w-28 h-10 px-3 rounded-lg border border-si-line bg-si-surface/80 text-si-ink focus:ring-2 focus:ring-si-verified/25 outline-none"
+          className="w-28 h-tap px-3 rounded-lg border border-si-line bg-si-surface/80 text-si-ink focus:ring-2 focus:ring-si-verified/25 outline-none"
         />
       </div>
       <div>
@@ -57,7 +57,7 @@ export function ReportFilters({
         </label>
         <select
           name="clientId"
-          className="w-48 h-10 px-3 rounded-lg border border-si-line bg-si-surface/80 text-si-ink focus:ring-2 focus:ring-si-verified/25 outline-none"
+          className="w-48 h-tap px-3 rounded-lg border border-si-line bg-si-surface/80 text-si-ink focus:ring-2 focus:ring-si-verified/25 outline-none"
           defaultValue={currentClientId}
         >
           <option value="">{t("all")}</option>
@@ -74,7 +74,7 @@ export function ReportFilters({
         </label>
         <select
           name="userId"
-          className="w-48 h-10 px-3 rounded-lg border border-si-line bg-si-surface/80 text-si-ink focus:ring-2 focus:ring-si-verified/25 outline-none"
+          className="w-48 h-tap px-3 rounded-lg border border-si-line bg-si-surface/80 text-si-ink focus:ring-2 focus:ring-si-verified/25 outline-none"
           defaultValue={currentUserId}
         >
           <option value="">{t("all")}</option>

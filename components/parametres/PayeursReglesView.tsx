@@ -191,10 +191,10 @@ export function PayeursReglesView({
                     <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${r.active ? "bg-si-verified/10 text-si-verified" : "bg-si-canvas text-si-muted"}`}>
                       {r.active ? t("active") : t("inactive")}
                     </span>
-                    <Button type="button" variant="tertiary" className="!px-2 !py-1" onClick={() => toggleActive(r)}>
+                    <Button type="button" variant="tertiary" className="inline-flex items-center min-h-tap !px-2 !py-1" onClick={() => toggleActive(r)}>
                       {r.active ? t("deactivate") : t("reactivate")}
                     </Button>
-                    <Button type="button" variant="tertiary" className="!px-2 !py-1 min-w-0" onClick={() => remove(r)} aria-label={t("deleteRule")}>
+                    <Button type="button" variant="tertiary" className="inline-flex items-center min-h-tap !px-2 !py-1 min-w-0" onClick={() => remove(r)} aria-label={t("deleteRule")}>
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>

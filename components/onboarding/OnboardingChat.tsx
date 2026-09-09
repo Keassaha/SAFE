@@ -1936,7 +1936,7 @@ export default function OnboardingChat() {
                   <div className="space-y-2">
                     <button
                       onClick={() => handleLangSelect("fr")}
-                      className="group w-full text-left px-4 py-3 rounded-safe border border-[var(--safe-sage)]/30 bg-white/60 hover:bg-[var(--safe-text-secondary)]/10 hover:border-[var(--safe-text-secondary)]/30 text-sm text-[var(--safe-text-secondary)] hover:text-[var(--safe-text-title)] font-sans transition-all duration-200 flex items-center gap-3"
+                      className="min-h-tap group w-full text-left px-4 py-3 rounded-safe border border-[var(--safe-sage)]/30 bg-white/60 hover:bg-[var(--safe-text-secondary)]/10 hover:border-[var(--safe-text-secondary)]/30 text-sm text-[var(--safe-text-secondary)] hover:text-[var(--safe-text-title)] font-sans transition-all duration-200 flex items-center gap-3"
                     >
                       <div className="w-5 h-5 rounded-full border border-[var(--safe-sage)] group-hover:border-[var(--safe-text-secondary)] transition-colors shrink-0 flex items-center justify-center">
                         <div className="w-2 h-2 rounded-full bg-transparent group-hover:bg-[var(--safe-text-secondary)] transition-colors" />
@@ -1945,7 +1945,7 @@ export default function OnboardingChat() {
                     </button>
                     <button
                       onClick={() => handleLangSelect("en")}
-                      className="group w-full text-left px-4 py-3 rounded-safe border border-[var(--safe-sage)]/30 bg-white/60 hover:bg-[var(--safe-text-secondary)]/10 hover:border-[var(--safe-text-secondary)]/30 text-sm text-[var(--safe-text-secondary)] hover:text-[var(--safe-text-title)] font-sans transition-all duration-200 flex items-center gap-3"
+                      className="min-h-tap group w-full text-left px-4 py-3 rounded-safe border border-[var(--safe-sage)]/30 bg-white/60 hover:bg-[var(--safe-text-secondary)]/10 hover:border-[var(--safe-text-secondary)]/30 text-sm text-[var(--safe-text-secondary)] hover:text-[var(--safe-text-title)] font-sans transition-all duration-200 flex items-center gap-3"
                     >
                       <div className="w-5 h-5 rounded-full border border-[var(--safe-sage)] group-hover:border-[var(--safe-text-secondary)] transition-colors shrink-0 flex items-center justify-center">
                         <div className="w-2 h-2 rounded-full bg-transparent group-hover:bg-[var(--safe-text-secondary)] transition-colors" />
@@ -1966,7 +1966,7 @@ export default function OnboardingChat() {
                         <button
                           key={opt.value}
                           onClick={() => handleOptionSelect(msg.questionKey!, opt)}
-                          className="group w-full text-left px-4 py-3 rounded-safe border border-[var(--safe-sage)]/30 bg-white/60 hover:bg-[var(--safe-text-secondary)]/10 hover:border-[var(--safe-text-secondary)]/30 text-sm text-[var(--safe-text-secondary)] hover:text-[var(--safe-text-title)] font-sans transition-all duration-200 flex items-center gap-3"
+                          className="min-h-tap group w-full text-left px-4 py-3 rounded-safe border border-[var(--safe-sage)]/30 bg-white/60 hover:bg-[var(--safe-text-secondary)]/10 hover:border-[var(--safe-text-secondary)]/30 text-sm text-[var(--safe-text-secondary)] hover:text-[var(--safe-text-title)] font-sans transition-all duration-200 flex items-center gap-3"
                         >
                           <div className="w-5 h-5 rounded-full border border-[var(--safe-sage)] group-hover:border-[var(--safe-text-secondary)] transition-colors shrink-0 flex items-center justify-center">
                             <div className="w-2 h-2 rounded-full bg-transparent group-hover:bg-[var(--safe-text-secondary)] transition-colors" />
@@ -1983,7 +1983,7 @@ export default function OnboardingChat() {
                             value={customText}
                             onChange={(e) => setCustomText(e.target.value)}
                             placeholder={lang === "en" ? "Please specify..." : "Précisez..."}
-                            className="flex-1 px-4 py-3 rounded-safe bg-white/70 border border-[var(--safe-sage)]/40 text-sm text-[var(--safe-text-title)] placeholder-[var(--safe-sage)] font-sans focus:outline-none focus:border-[var(--safe-text-secondary)]/50 transition-colors"
+                            className="min-h-tap flex-1 px-4 py-3 rounded-safe bg-white/70 border border-[var(--safe-sage)]/40 text-sm text-[var(--safe-text-title)] placeholder-[var(--safe-sage)] font-sans focus:outline-none focus:border-[var(--safe-text-secondary)]/50 transition-colors"
                             autoFocus
                             onKeyDown={(e) => {
                               if (e.key === "Enter") handleCustomSubmit(msg.questionKey!);
@@ -1991,7 +1991,7 @@ export default function OnboardingChat() {
                           />
                           <button
                             onClick={() => handleCustomSubmit(msg.questionKey!)}
-                            className="px-4 py-3 rounded-safe bg-[var(--safe-text-title)] text-[var(--safe-white)] text-sm font-sans hover:bg-[var(--safe-text-secondary)] transition-colors"
+                            className="min-h-tap px-4 py-3 rounded-safe bg-[var(--safe-text-title)] text-[var(--safe-white)] text-sm font-sans hover:bg-[var(--safe-text-secondary)] transition-colors"
                           >
                             <Send className="w-4 h-4" />
                           </button>
@@ -2020,7 +2020,7 @@ export default function OnboardingChat() {
                                 isSelected ? prev.filter((v) => v !== opt.value) : [...prev, opt.value]
                               );
                             }}
-                            className={`group w-full text-left px-4 py-3 rounded-safe border text-sm font-sans transition-all duration-200 flex items-center gap-3 ${
+                            className={`min-h-tap group w-full text-left px-4 py-3 rounded-safe border text-sm font-sans transition-all duration-200 flex items-center gap-3 ${
                               isSelected
                                 ? "border-[var(--safe-text-secondary)]/40 bg-[var(--safe-text-secondary)]/15 text-[var(--safe-text-title)]"
                                 : isDisabled
@@ -2048,7 +2048,7 @@ export default function OnboardingChat() {
                             value={customText}
                             onChange={(e) => setCustomText(e.target.value)}
                             placeholder={lang === "en" ? "Please specify..." : "Précisez..."}
-                            className="flex-1 px-4 py-3 rounded-safe bg-white/70 border border-[var(--safe-sage)]/40 text-sm text-[var(--safe-text-title)] placeholder-[var(--safe-sage)] font-sans focus:outline-none focus:border-[var(--safe-text-secondary)]/50 transition-colors"
+                            className="min-h-tap flex-1 px-4 py-3 rounded-safe bg-white/70 border border-[var(--safe-sage)]/40 text-sm text-[var(--safe-text-title)] placeholder-[var(--safe-sage)] font-sans focus:outline-none focus:border-[var(--safe-text-secondary)]/50 transition-colors"
                             autoFocus
                             onKeyDown={(e) => {
                               if (e.key === "Enter") handleCustomSubmit(msg.questionKey!);
@@ -2056,7 +2056,7 @@ export default function OnboardingChat() {
                           />
                           <button
                             onClick={() => handleCustomSubmit(msg.questionKey!)}
-                            className="px-4 py-3 rounded-safe bg-[var(--safe-text-title)] text-[var(--safe-white)] text-sm font-sans hover:bg-[var(--safe-text-secondary)] transition-colors"
+                            className="min-h-tap px-4 py-3 rounded-safe bg-[var(--safe-text-title)] text-[var(--safe-white)] text-sm font-sans hover:bg-[var(--safe-text-secondary)] transition-colors"
                           >
                             <Send className="w-4 h-4" />
                           </button>
@@ -2066,7 +2066,7 @@ export default function OnboardingChat() {
                       {multiSelect.length > 0 && (
                         <button
                           onClick={() => handleMultiConfirm(msg.questionKey!, msg.options!)}
-                          className="w-full mt-2 px-4 py-3 rounded-safe bg-[var(--safe-text-title)] text-[var(--safe-white)] text-sm font-medium font-sans hover:bg-[var(--safe-text-secondary)] transition-colors flex items-center justify-center gap-2"
+                          className="min-h-tap w-full mt-2 px-4 py-3 rounded-safe bg-[var(--safe-text-title)] text-[var(--safe-white)] text-sm font-medium font-sans hover:bg-[var(--safe-text-secondary)] transition-colors flex items-center justify-center gap-2"
                         >
                           {lang === "en" ? `Confirm (${multiSelect.length})` : `Confirmer (${multiSelect.length})`}
                           <ChevronRight className="w-4 h-4" />
@@ -2083,7 +2083,7 @@ export default function OnboardingChat() {
                         value={openText}
                         onChange={(e) => setOpenText(e.target.value)}
                         placeholder={msg.placeholder || (lang === "en" ? "Type your answer..." : "Écrivez votre réponse...")}
-                        className="w-full px-4 py-3 rounded-safe bg-white/70 border border-[var(--safe-sage)]/40 text-sm text-[var(--safe-text-title)] placeholder-[var(--safe-sage)] font-sans focus:outline-none focus:border-[var(--safe-text-secondary)]/50 transition-colors"
+                        className="min-h-tap w-full px-4 py-3 rounded-safe bg-white/70 border border-[var(--safe-sage)]/40 text-sm text-[var(--safe-text-title)] placeholder-[var(--safe-sage)] font-sans focus:outline-none focus:border-[var(--safe-text-secondary)]/50 transition-colors"
                         autoFocus
                         onKeyDown={(e) => {
                           if (e.key === "Enter") {
@@ -2096,14 +2096,14 @@ export default function OnboardingChat() {
                         <button
                           onClick={() => handleOpenSubmit(msg.questionKey!)}
                           disabled={!openText.trim()}
-                          className="flex-1 py-3 rounded-safe bg-[var(--safe-text-title)] text-[var(--safe-white)] text-sm font-medium font-sans hover:bg-[var(--safe-text-secondary)] transition-colors flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
+                          className="min-h-tap flex-1 py-3 rounded-safe bg-[var(--safe-text-title)] text-[var(--safe-white)] text-sm font-medium font-sans hover:bg-[var(--safe-text-secondary)] transition-colors flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
                         >
                           <Send className="w-4 h-4" />
                           {lang === "en" ? "Send" : "Envoyer"}
                         </button>
                         <button
                           onClick={() => handleOpenSkip(msg.questionKey!)}
-                          className="px-4 py-3 rounded-safe border border-[var(--safe-sage)]/30 bg-white/60 text-xs text-[var(--safe-sage)] font-sans hover:bg-[var(--safe-sage)]/10 transition-colors"
+                          className="min-h-tap px-4 py-3 rounded-safe border border-[var(--safe-sage)]/30 bg-white/60 text-xs text-[var(--safe-sage)] font-sans hover:bg-[var(--safe-sage)]/10 transition-colors"
                         >
                           {lang === "en" ? "Skip" : "Passer"}
                         </button>
@@ -2119,7 +2119,7 @@ export default function OnboardingChat() {
                         value={openText}
                         onChange={(e) => setOpenText(e.target.value)}
                         placeholder={msg.placeholder || (lang === "en" ? "name@firm.ca" : "nom@cabinet.ca")}
-                        className="w-full px-4 py-3 rounded-safe bg-white/70 border border-[var(--safe-sage)]/40 text-sm text-[var(--safe-text-title)] placeholder-[var(--safe-sage)] font-sans focus:outline-none focus:border-[var(--safe-text-secondary)]/50 transition-colors"
+                        className="min-h-tap w-full px-4 py-3 rounded-safe bg-white/70 border border-[var(--safe-sage)]/40 text-sm text-[var(--safe-text-title)] placeholder-[var(--safe-sage)] font-sans focus:outline-none focus:border-[var(--safe-text-secondary)]/50 transition-colors"
                         autoFocus
                         onKeyDown={(e) => {
                           if (e.key === "Enter") {
@@ -2131,7 +2131,7 @@ export default function OnboardingChat() {
                       <button
                         onClick={() => handleEmailSubmit(msg.questionKey!)}
                         disabled={!openText.trim()}
-                        className="w-full py-3 rounded-safe bg-[var(--safe-text-title)] text-[var(--safe-white)] text-sm font-medium font-sans hover:bg-[var(--safe-text-secondary)] transition-colors flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
+                        className="min-h-tap w-full py-3 rounded-safe bg-[var(--safe-text-title)] text-[var(--safe-white)] text-sm font-medium font-sans hover:bg-[var(--safe-text-secondary)] transition-colors flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
                       >
                         <Send className="w-4 h-4" />
                         {lang === "en" ? "Send" : "Envoyer"}
@@ -2149,7 +2149,7 @@ export default function OnboardingChat() {
                           value={contactForm.phone}
                           onChange={(e) => setContactForm((f) => ({ ...f, phone: e.target.value }))}
                           placeholder={lang === "en" ? "Phone (optional)" : "Téléphone (optionnel)"}
-                          className="flex-1 px-4 py-3 rounded-safe bg-white/70 border border-[var(--safe-sage)]/40 text-sm text-[var(--safe-text-title)] placeholder-[var(--safe-sage)] font-sans focus:outline-none focus:border-[var(--safe-text-secondary)]/50 transition-colors"
+                          className="min-h-tap flex-1 px-4 py-3 rounded-safe bg-white/70 border border-[var(--safe-sage)]/40 text-sm text-[var(--safe-text-title)] placeholder-[var(--safe-sage)] font-sans focus:outline-none focus:border-[var(--safe-text-secondary)]/50 transition-colors"
                         />
                       </div>
                       <div className="flex items-center gap-2">
@@ -2159,7 +2159,7 @@ export default function OnboardingChat() {
                           value={contactForm.address}
                           onChange={(e) => setContactForm((f) => ({ ...f, address: e.target.value }))}
                           placeholder={lang === "en" ? "Address (optional)" : "Adresse (optionnel)"}
-                          className="flex-1 px-4 py-3 rounded-safe bg-white/70 border border-[var(--safe-sage)]/40 text-sm text-[var(--safe-text-title)] placeholder-[var(--safe-sage)] font-sans focus:outline-none focus:border-[var(--safe-text-secondary)]/50 transition-colors"
+                          className="min-h-tap flex-1 px-4 py-3 rounded-safe bg-white/70 border border-[var(--safe-sage)]/40 text-sm text-[var(--safe-text-title)] placeholder-[var(--safe-sage)] font-sans focus:outline-none focus:border-[var(--safe-text-secondary)]/50 transition-colors"
                         />
                       </div>
                       <div className="flex items-center gap-2">
@@ -2169,7 +2169,7 @@ export default function OnboardingChat() {
                           value={contactForm.website}
                           onChange={(e) => setContactForm((f) => ({ ...f, website: e.target.value }))}
                           placeholder={lang === "en" ? "Website (optional)" : "Site web (optionnel)"}
-                          className="flex-1 px-4 py-3 rounded-safe bg-white/70 border border-[var(--safe-sage)]/40 text-sm text-[var(--safe-text-title)] placeholder-[var(--safe-sage)] font-sans focus:outline-none focus:border-[var(--safe-text-secondary)]/50 transition-colors"
+                          className="min-h-tap flex-1 px-4 py-3 rounded-safe bg-white/70 border border-[var(--safe-sage)]/40 text-sm text-[var(--safe-text-title)] placeholder-[var(--safe-sage)] font-sans focus:outline-none focus:border-[var(--safe-text-secondary)]/50 transition-colors"
                         />
                       </div>
                       <div className="flex items-center gap-2">
@@ -2178,7 +2178,7 @@ export default function OnboardingChat() {
                           type="date"
                           value={contactForm.preferredDate}
                           onChange={(e) => setContactForm((f) => ({ ...f, preferredDate: e.target.value }))}
-                          className="flex-1 px-4 py-3 rounded-safe bg-white/70 border border-[var(--safe-sage)]/40 text-sm text-[var(--safe-text-title)] placeholder-[var(--safe-sage)] font-sans focus:outline-none focus:border-[var(--safe-text-secondary)]/50 transition-colors"
+                          className="min-h-tap flex-1 px-4 py-3 rounded-safe bg-white/70 border border-[var(--safe-sage)]/40 text-sm text-[var(--safe-text-title)] placeholder-[var(--safe-sage)] font-sans focus:outline-none focus:border-[var(--safe-text-secondary)]/50 transition-colors"
                         />
                       </div>
                       <div className="flex items-center gap-2">
@@ -2193,7 +2193,7 @@ export default function OnboardingChat() {
                               key={time.value}
                               type="button"
                               onClick={() => setContactForm((f) => ({ ...f, preferredTime: time.value }))}
-                              className={`flex-1 py-2 rounded-safe text-xs font-sans transition-all duration-200 border ${
+                              className={`min-h-tap flex-1 py-2 rounded-safe text-xs font-sans transition-all duration-200 border ${
                                 contactForm.preferredTime === time.value
                                   ? "border-[var(--safe-text-secondary)]/40 bg-[var(--safe-text-secondary)]/15 text-[var(--safe-text-title)] font-medium"
                                   : "border-[var(--safe-sage)]/30 bg-white/60 text-[var(--safe-text-secondary)] hover:bg-[var(--safe-text-secondary)]/10"
@@ -2211,12 +2211,12 @@ export default function OnboardingChat() {
                           onChange={(e) => setContactForm((f) => ({ ...f, optionalMessage: e.target.value }))}
                           placeholder={lang === "en" ? "Optional message..." : "Message optionnel..."}
                           rows={2}
-                          className="flex-1 px-4 py-3 rounded-safe bg-white/70 border border-[var(--safe-sage)]/40 text-sm text-[var(--safe-text-title)] placeholder-[var(--safe-sage)] font-sans focus:outline-none focus:border-[var(--safe-text-secondary)]/50 transition-colors resize-none"
+                          className="min-h-tap flex-1 px-4 py-3 rounded-safe bg-white/70 border border-[var(--safe-sage)]/40 text-sm text-[var(--safe-text-title)] placeholder-[var(--safe-sage)] font-sans focus:outline-none focus:border-[var(--safe-text-secondary)]/50 transition-colors resize-none"
                         />
                       </div>
                       <button
                         type="submit"
-                        className="w-full py-3 rounded-safe bg-[var(--safe-text-title)] text-[var(--safe-white)] font-medium text-sm font-sans hover:bg-[var(--safe-text-secondary)] hover:shadow-lg hover:shadow-[var(--safe-text-title)]/15 transition-all duration-300 flex items-center justify-center gap-2"
+                        className="min-h-tap w-full py-3 rounded-safe bg-[var(--safe-text-title)] text-[var(--safe-white)] font-medium text-sm font-sans hover:bg-[var(--safe-text-secondary)] hover:shadow-lg hover:shadow-[var(--safe-text-title)]/15 transition-all duration-300 flex items-center justify-center gap-2"
                       >
                         <Sparkles className="w-4 h-4" />
                         {lang === "en" ? "See my personalized offer" : "Voir mon offre personnalisée"}

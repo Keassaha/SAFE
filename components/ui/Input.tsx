@@ -69,7 +69,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
         aria-describedby={describedBy}
         data-status={resolvedStatus}
         className={cn(
-          "min-h-11 w-full rounded-md border bg-si-surface2 px-3.5 font-sans text-sm text-si-ink",
+          "min-h-tap w-full rounded-md border bg-si-surface2 px-3.5 font-sans text-sm text-si-ink",
           "placeholder:text-si-subtle outline-none transition-[border-color,box-shadow,background-color] duration-normal ease-safe motion-reduce:transition-none",
           "hover:border-si-ink/40",
           "focus:ring-2 disabled:cursor-not-allowed disabled:border-si-line disabled:bg-si-line2 disabled:opacity-60",

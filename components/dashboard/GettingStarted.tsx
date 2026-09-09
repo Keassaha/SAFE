@@ -68,7 +68,7 @@ export function GettingStarted({ checklist }: GettingStartedProps) {
             <li key={key}>
               <Link
                 href={href}
-                className={`flex items-center gap-3 rounded-lg border border-si-line px-3 py-2 transition-colors ${
+                className={`min-h-tap flex items-center gap-3 rounded-lg border border-si-line px-3 py-2 transition-colors ${
                   done ? "bg-si-canvas text-si-muted" : "bg-transparent text-si-ink hover:bg-si-canvas"
                 }`}
                 aria-label={done ? t("doneLabel", { label: t(labelKey) }) : t("todoLabel", { label: t(labelKey) })}

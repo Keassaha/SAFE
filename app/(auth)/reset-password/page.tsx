@@ -19,7 +19,7 @@ function ResetPasswordContent() {
   const [error, setError] = useState("");
 
   const inputClass =
-    "w-full h-11 rounded-safe border border-white/35 bg-white/78 px-4 text-sm text-neutral-text-primary placeholder:text-neutral-muted outline-none transition-all duration-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/25";
+    "w-full h-tap rounded-safe border border-white/35 bg-white/78 px-4 text-sm text-neutral-text-primary placeholder:text-neutral-muted outline-none transition-all duration-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/25";
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();

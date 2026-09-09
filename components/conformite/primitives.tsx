@@ -239,7 +239,7 @@ export function PrimaryButton({
   return (
     <button
       {...props}
-      className={`rounded-lg bg-[var(--si-ink-strong)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-si-ink-strong-soft disabled:opacity-50 ${className}`}
+      className={`min-h-tap rounded-lg bg-[var(--si-ink-strong)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-si-ink-strong-soft disabled:opacity-50 ${className}`}
     >
       {children}
     </button>
@@ -254,7 +254,7 @@ export function SecondaryButton({
   return (
     <button
       {...props}
-      className={`rounded-lg border border-[var(--si-line)] px-3 py-2 text-sm text-[var(--si-ink)] transition-colors hover:bg-si-ink-strong/[0.04] disabled:opacity-50 ${className}`}
+      className={`min-h-tap rounded-lg border border-[var(--si-line)] px-3 py-2 text-sm text-[var(--si-ink)] transition-colors hover:bg-si-ink-strong/[0.04] disabled:opacity-50 ${className}`}
     >
       {children}
     </button>

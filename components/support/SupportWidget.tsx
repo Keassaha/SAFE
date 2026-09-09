@@ -57,7 +57,7 @@ function Attachments({ pieces }: { pieces: WidgetPiece[] }) {
             href={`/api/support/attachments/${p.id}`}
             target="_blank"
             rel="noreferrer"
-            className="flex items-center gap-2 rounded-md border border-black/10 bg-white/60 px-2 py-1.5 text-xs hover:bg-white"
+            className="min-h-tap flex items-center gap-2 rounded-md border border-black/10 bg-white/60 px-2 py-1.5 text-xs hover:bg-white"
           >
             <FileText className="h-4 w-4 shrink-0 text-zinc-500" />
             <span className="truncate">{p.nom}</span>
@@ -215,7 +215,7 @@ export function SupportWidget({ cabinetId }: { cabinetId: string }) {
         onClick={openPanel}
         /* Contrôle discret : l'aide ne doit pas rivaliser avec l'action principale
            de l'écran, qui est le seul élément vert plein autorisé (doctrine §5.1). */
-        className="fixed bottom-5 right-5 z-40 flex items-center gap-2 rounded-full border border-si-line bg-si-surface px-4 py-2.5 text-[13px] font-medium text-si-ink shadow-sm transition-colors hover:bg-si-canvas"
+        className="min-h-tap fixed bottom-5 right-5 z-40 flex items-center gap-2 rounded-full border border-si-line bg-si-surface px-4 py-2.5 text-[13px] font-medium text-si-ink shadow-sm transition-colors hover:bg-si-canvas"
         aria-label="Aide"
       >
         <LifeBuoy className="h-4 w-4 text-si-ink-strong" />
@@ -251,13 +251,13 @@ export function SupportWidget({ cabinetId }: { cabinetId: string }) {
         <div className="flex border-b border-zinc-200">
           <button
             onClick={() => { setView("list"); startTransition(async () => setConvos(await listMyConversations())); }}
-            className={`flex-1 px-3 py-2 text-xs font-medium ${view === "list" ? "border-b-2 border-emerald-600 text-emerald-700" : "text-zinc-500"}`}
+            className={`min-h-tap flex-1 px-3 py-2 text-xs font-medium ${view === "list" ? "border-b-2 border-emerald-600 text-emerald-700" : "text-zinc-500"}`}
           >
             Discussions
           </button>
           <button
             onClick={openSuivi}
-            className={`flex-1 px-3 py-2 text-xs font-medium ${view === "suivi" ? "border-b-2 border-emerald-600 text-emerald-700" : "text-zinc-500"}`}
+            className={`min-h-tap flex-1 px-3 py-2 text-xs font-medium ${view === "suivi" ? "border-b-2 border-emerald-600 text-emerald-700" : "text-zinc-500"}`}
           >
             Suivi ({tickets.length})
           </button>
@@ -273,7 +273,7 @@ export function SupportWidget({ cabinetId }: { cabinetId: string }) {
           <div className="space-y-2">
             <button
               onClick={() => { setView("new"); setError(null); }}
-              className="flex w-full items-center gap-2 rounded-md border border-dashed border-emerald-300 px-3 py-2 text-sm font-medium text-emerald-700 hover:bg-emerald-50"
+              className="min-h-tap flex w-full items-center gap-2 rounded-md border border-dashed border-emerald-300 px-3 py-2 text-sm font-medium text-emerald-700 hover:bg-emerald-50"
             >
               <Plus className="h-4 w-4" /> Nouvelle discussion
             </button>
@@ -323,10 +323,10 @@ export function SupportWidget({ cabinetId }: { cabinetId: string }) {
                   onChange={(e) => { setNewFiles((prev) => [...prev, ...Array.from(e.target.files ?? [])]); e.target.value = ""; }}
                 />
               </label>
-              <button type="button" onClick={() => setView("list")} className="ml-auto rounded-md border border-zinc-300 px-3 py-1.5 text-sm text-zinc-600 hover:bg-zinc-50">
+              <button type="button" onClick={() => setView("list")} className="min-h-tap ml-auto rounded-md border border-zinc-300 px-3 py-1.5 text-sm text-zinc-600 hover:bg-zinc-50">
                 Annuler
               </button>
-              <button type="submit" disabled={isPending} className="rounded-md bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-50">
+              <button type="submit" disabled={isPending} className="min-h-tap rounded-md bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-50">
                 {isPending ? "Envoi…" : "Démarrer"}
               </button>
             </div>

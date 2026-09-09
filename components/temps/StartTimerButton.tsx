@@ -46,7 +46,7 @@ export function StartTimerButton({
     <button
       type="button"
       onClick={() => start({ clientId, clientLabel, dossierId, dossierLabel, description })}
-      className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-medium"
+      className="min-h-tap inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-medium"
       style={style}
     >
       <Play className="h-4 w-4" aria-hidden /> {t("start")}

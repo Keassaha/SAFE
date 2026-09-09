@@ -214,7 +214,7 @@ export function DossierCreationWizard({
               key={s.id}
               type="button"
               onClick={() => goToStep(s.id)}
-              className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
+              className={`min-h-tap flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
                 isActive
                   ? "bg-si-ink-strong/10 text-si-ink-strong"
                   : isPast
@@ -256,7 +256,7 @@ export function DossierCreationWizard({
                       setSelectedSubject(e.target.value);
                       setSelectedSubmatter("");
                     }}
-                    className="w-full h-10 px-3 rounded-[10px] border border-si-line bg-si-surface font-sans text-si-ink outline-none focus:border-si-verified focus:ring-2 focus:ring-si-verified/25 transition"
+                    className="w-full h-tap px-3 rounded-[10px] border border-si-line bg-si-surface font-sans text-si-ink outline-none focus:border-si-verified focus:ring-2 focus:ring-si-verified/25 transition"
                   >
                     <option value="">{t("selectType")}</option>
                     {subjectOptions!.map((o) => (
@@ -277,7 +277,7 @@ export function DossierCreationWizard({
                       name="submatter"
                       value={selectedSubmatter}
                       onChange={(e) => setSelectedSubmatter(e.target.value)}
-                      className="w-full h-10 px-3 rounded-[10px] border border-si-line bg-si-surface font-sans text-si-ink outline-none focus:border-si-verified focus:ring-2 focus:ring-si-verified/25 transition"
+                      className="w-full h-tap px-3 rounded-[10px] border border-si-line bg-si-surface font-sans text-si-ink outline-none focus:border-si-verified focus:ring-2 focus:ring-si-verified/25 transition"
                     >
                       <option value="">{t("subjectSelect")}</option>
                       {availableSubmatters.map((o) => (
@@ -299,7 +299,7 @@ export function DossierCreationWizard({
                   required
                   value={selectedType}
                   onChange={(e) => setSelectedType(e.target.value)}
-                  className="w-full h-10 px-3 rounded-[10px] border border-si-line bg-si-surface font-sans text-si-ink outline-none focus:border-si-verified focus:ring-2 focus:ring-si-verified/25 transition"
+                  className="w-full h-tap px-3 rounded-[10px] border border-si-line bg-si-surface font-sans text-si-ink outline-none focus:border-si-verified focus:ring-2 focus:ring-si-verified/25 transition"
                 >
                   {TYPE_OPTIONS.map((o) => (
                     <option key={o.value || "none"} value={o.value}>
@@ -316,7 +316,7 @@ export function DossierCreationWizard({
               <select
                 name="statut"
                 defaultValue="actif"
-                className="w-full h-10 px-3 rounded-[10px] border border-si-line bg-si-surface font-sans text-si-ink outline-none focus:border-si-verified focus:ring-2 focus:ring-si-verified/25 transition"
+                className="w-full h-tap px-3 rounded-[10px] border border-si-line bg-si-surface font-sans text-si-ink outline-none focus:border-si-verified focus:ring-2 focus:ring-si-verified/25 transition"
               >
                 {STATUT_OPTIONS.map((o) => (
                   <option key={o.value} value={o.value}>
@@ -343,7 +343,7 @@ export function DossierCreationWizard({
                 required
                 value={selectedClientId}
                 onChange={(e) => setSelectedClientId(e.target.value)}
-                className="w-full h-10 px-3 rounded-[10px] border border-si-line bg-si-surface font-sans text-si-ink outline-none focus:border-si-verified focus:ring-2 focus:ring-si-verified/25 transition"
+                className="w-full h-tap px-3 rounded-[10px] border border-si-line bg-si-surface font-sans text-si-ink outline-none focus:border-si-verified focus:ring-2 focus:ring-si-verified/25 transition"
               >
                 <option value="">{t("selectClient")}</option>
                 {clients.map((c) => (
@@ -378,7 +378,7 @@ export function DossierCreationWizard({
               </label>
               <select
                 name="avocatResponsableId"
-                className="w-full h-10 px-3 rounded-[10px] border border-si-line bg-si-surface font-sans text-si-ink outline-none focus:border-si-verified focus:ring-2 focus:ring-si-verified/25 transition"
+                className="w-full h-tap px-3 rounded-[10px] border border-si-line bg-si-surface font-sans text-si-ink outline-none focus:border-si-verified focus:ring-2 focus:ring-si-verified/25 transition"
               >
                 <option value="">{t("noMatterNone")}</option>
                 {avocats.map((a) => (
@@ -395,7 +395,7 @@ export function DossierCreationWizard({
                 </label>
                 <select
                   name="assistantJuridiqueId"
-                  className="w-full h-10 px-3 rounded-[10px] border border-si-line bg-si-surface font-sans text-si-ink outline-none focus:border-si-verified focus:ring-2 focus:ring-si-verified/25 transition"
+                  className="w-full h-tap px-3 rounded-[10px] border border-si-line bg-si-surface font-sans text-si-ink outline-none focus:border-si-verified focus:ring-2 focus:ring-si-verified/25 transition"
                 >
                   <option value="">{t("noMatterNone")}</option>
                   {assistants.map((a) => (
@@ -446,7 +446,7 @@ export function DossierCreationWizard({
                   </label>
                   <select
                     name="modeFacturation"
-                    className="w-full h-10 px-3 rounded-[10px] border border-si-line bg-si-surface font-sans text-si-ink outline-none focus:border-si-verified focus:ring-2 focus:ring-si-verified/25 transition"
+                    className="w-full h-tap px-3 rounded-[10px] border border-si-line bg-si-surface font-sans text-si-ink outline-none focus:border-si-verified focus:ring-2 focus:ring-si-verified/25 transition"
                   >
                     {MODE_FACTURATION_OPTIONS.map((o) => (
                       <option key={o.value || "none"} value={o.value}>

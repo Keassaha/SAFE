@@ -34,7 +34,7 @@ export default function LandingComboTestPage() {
 
         <Link
           href="/audit-gratuit"
-          className="safe-zoom rounded-full bg-[#153f31] px-5 py-3 text-sm font-medium text-[#fffaf0] transition-transform"
+          className="inline-flex items-center min-h-tap safe-zoom rounded-full bg-[#153f31] px-5 py-3 text-sm font-medium text-[#fffaf0] transition-transform"
         >
           Voir mon cabinet autrement
         </Link>
@@ -119,7 +119,7 @@ export default function LandingComboTestPage() {
                     </p>
                     <p className="mt-1 text-sm text-[#b8c9c0]">{label}</p>
                   </div>
-                  <span className="grid size-11 place-items-center rounded-full bg-[#dce6c7] text-[#173c30]">
+                  <span className="grid size-tap place-items-center rounded-full bg-[#dce6c7] text-[#173c30]">
                     <Icon className="size-5" aria-hidden="true" />
                   </span>
                 </div>

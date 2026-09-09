@@ -162,7 +162,7 @@ export default async function ParametresConformitePage({
                 <select
                   name="identityProofRequired"
                   defaultValue={cabinet?.identityProofRequired ? "true" : "false"}
-                  className="w-full h-10 px-3 rounded-safe border border-neutral-border bg-white/90"
+                  className="w-full h-tap px-3 rounded-safe border border-neutral-border bg-white/90"
                 >
                   <option value="true">Oui — recommandé</option>
                   <option value="false">Non — lever l'exigence</option>
@@ -177,7 +177,7 @@ export default async function ParametresConformitePage({
                   rows={2}
                   defaultValue={cabinet?.identityProofWaiverReason ?? ""}
                   placeholder="Ex. : les pièces d'identité sont conservées au dossier papier et numérisées dans notre système documentaire."
-                  className="w-full px-3 py-2 rounded-safe border border-neutral-border bg-white/90"
+                  className="min-h-tap w-full px-3 py-2 rounded-safe border border-neutral-border bg-white/90"
                 />
                 <p className="mt-1 text-xs text-neutral-muted">
                   Ce motif est horodaté, attribué à votre compte, et apparaît dans la piste

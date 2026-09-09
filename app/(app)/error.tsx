@@ -39,13 +39,13 @@ export default function AppError({
         <div className="flex items-center justify-center gap-3 pt-1">
           <button
             onClick={() => reset()}
-            className="h-10 px-4 rounded-xl bg-si-verified text-white text-sm font-medium"
+            className="h-tap px-4 rounded-xl bg-si-verified text-white text-sm font-medium"
           >
             Réessayer
           </button>
           <button
             onClick={() => window.location.reload()}
-            className="h-10 px-4 rounded-xl border border-si-line bg-si-surface text-si-ink text-sm font-medium"
+            className="h-tap px-4 rounded-xl border border-si-line bg-si-surface text-si-ink text-sm font-medium"
           >
             Recharger la page
           </button>

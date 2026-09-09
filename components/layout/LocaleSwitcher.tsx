@@ -31,7 +31,7 @@ export function LocaleSwitcher() {
       <button
         type="button"
         onClick={() => switchTo("fr")}
-        className={`rounded-safe-sm px-3 py-1.5 text-sm font-medium transition-colors ${
+        className={`min-h-tap rounded-safe-sm px-3 py-1.5 text-sm font-medium transition-colors ${
           locale === "fr"
             ? "bg-primary-100 text-primary-800"
             : "text-[var(--safe-text-secondary)] hover:bg-neutral-100"
@@ -44,7 +44,7 @@ export function LocaleSwitcher() {
       <button
         type="button"
         onClick={() => switchTo("en")}
-        className={`rounded-safe-sm px-3 py-1.5 text-sm font-medium transition-colors ${
+        className={`min-h-tap rounded-safe-sm px-3 py-1.5 text-sm font-medium transition-colors ${
           locale === "en"
             ? "bg-primary-100 text-primary-800"
             : "text-[var(--safe-text-secondary)] hover:bg-neutral-100"

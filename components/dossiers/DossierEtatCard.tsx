@@ -169,7 +169,7 @@ export function DossierEtatCard({ resume, status, nextActionHref }: Props) {
           {nextActionHref ? (
             <Link
               href={nextActionHref}
-              className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-si-ink-strong px-4 py-2.5 text-sm font-medium text-si-surface"
+              className="min-h-tap inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-si-ink-strong px-4 py-2.5 text-sm font-medium text-si-surface"
             >
               Faire maintenant
               <ArrowRight className="h-4 w-4" aria-hidden />

@@ -112,7 +112,7 @@ export function PendingHoursApproval({ employeeId, pending, approved, hourlyRate
                   type="button"
                   disabled={pendingTx}
                   onClick={() => run(() => approveHoursAction(p.id))}
-                  className="inline-flex shrink-0 items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50"
+                  className="min-h-tap inline-flex shrink-0 items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50"
                   style={{ backgroundColor: BRAND }}
                 >
                   <Check className="h-3.5 w-3.5" aria-hidden /> {t("approve")}
@@ -121,7 +121,7 @@ export function PendingHoursApproval({ employeeId, pending, approved, hourlyRate
                   type="button"
                   disabled={pendingTx}
                   onClick={() => { setRejectingId(rejectingId === p.id ? null : p.id); setReason(""); setError(null); }}
-                  className="inline-flex shrink-0 items-center gap-1 rounded-lg border px-3 py-1.5 text-xs font-medium disabled:opacity-50"
+                  className="min-h-tap inline-flex shrink-0 items-center gap-1 rounded-lg border px-3 py-1.5 text-xs font-medium disabled:opacity-50"
                   style={rejectingId === p.id ? { backgroundColor: ERR.bg, color: ERR.fg, borderColor: ERR.bg } : { borderColor: "#D4D4D8", color: "#71717A" }}
                 >
                   <X className="h-3.5 w-3.5" aria-hidden /> {t("reject")}
@@ -134,13 +134,13 @@ export function PendingHoursApproval({ employeeId, pending, approved, hourlyRate
                     value={reason}
                     onChange={(e) => setReason(e.target.value)}
                     placeholder={t("reasonPlaceholder")}
-                    className="h-[34px] flex-1 rounded-md border border-si-line bg-si-surface px-3 text-sm text-si-ink focus:border-si-verified focus:outline-none"
+                    className="h-tap flex-1 rounded-md border border-si-line bg-si-surface px-3 text-sm text-si-ink focus:border-si-verified focus:outline-none"
                   />
                   <button
                     type="button"
                     disabled={pendingTx}
                     onClick={() => confirmReject(p.id)}
-                    className="inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50"
+                    className="min-h-tap inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50"
                     style={{ backgroundColor: ERR.fg }}
                   >
                     {pendingTx ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
@@ -175,7 +175,7 @@ export function PendingHoursApproval({ employeeId, pending, approved, hourlyRate
                 ),
               )
             }
-            className="ml-auto inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+            className="min-h-tap ml-auto inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
             style={{ backgroundColor: BRAND }}
           >
             {pendingTx ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wallet className="h-4 w-4" aria-hidden />}

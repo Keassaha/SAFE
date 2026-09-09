@@ -160,7 +160,7 @@ export function ImmigrationWorkflow({ dossierId }: ImmigrationWorkflowProps) {
                   key={step.value}
                   onClick={() => updateStatut.mutate(step.value)}
                   disabled={updateStatut.isPending}
-                  className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-medium transition-all whitespace-nowrap
+                  className={`min-h-tap flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-medium transition-all whitespace-nowrap
                     ${isCompleted ? "bg-si-verified/10 text-si-verified border border-si-verified/40" :
                       isCurrent ? "bg-si-canvas text-si-ink border-2 border-si-ink-strong/40 shadow-sm" :
                       "bg-si-canvas text-si-muted/50 border border-si-line hover:bg-si-canvas"}

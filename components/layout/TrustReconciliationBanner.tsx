@@ -62,7 +62,7 @@ export function TrustReconciliationBanner({ status, province }: Props) {
           <Link
             href="/comptes/rapprochement"
             hrefLang={locale}
-            className="inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-md border border-status-error/30 px-3 text-sm font-medium text-status-error transition-colors hover:bg-status-error/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-status-error/30"
+            className="inline-flex min-h-tap shrink-0 items-center gap-1.5 rounded-md border border-status-error/30 px-3 text-sm font-medium text-status-error transition-colors hover:bg-status-error/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-status-error/30"
           >
             {t("cta")}
             <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />

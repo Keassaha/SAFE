@@ -46,7 +46,7 @@ export default function Step7Priorities({ data, setData, lang, errors }: StepPro
             const disabled = !selected && data.urgentChallenges.length >= 3;
             return (
               <button key={value} type="button" onClick={() => !disabled && toggleChallenge(value)}
-                className={`py-3 px-4 rounded-xl border text-sm font-medium transition-all duration-200 text-left
+                className={`min-h-tap py-3 px-4 rounded-xl border text-sm font-medium transition-all duration-200 text-left
                   ${selected
                     ? "bg-[var(--safe-accent)] text-white border-[var(--safe-accent)]"
                     : disabled
@@ -69,7 +69,7 @@ export default function Step7Priorities({ data, setData, lang, errors }: StepPro
         </div>
         {data.urgentChallenges.includes("other") && (
           <input type="text" value={data.urgentChallengesOther} onChange={(e) => setData({ urgentChallengesOther: e.target.value })}
-            className="w-full mt-2 px-4 py-2.5 rounded-xl border border-[var(--safe-neutral-border)] text-sm outline-none focus:border-[var(--safe-accent)] focus:ring-2 focus:ring-[var(--safe-accent)]/20"
+            className="min-h-tap w-full mt-2 px-4 py-2.5 rounded-xl border border-[var(--safe-neutral-border)] text-sm outline-none focus:border-[var(--safe-accent)] focus:ring-2 focus:ring-[var(--safe-accent)]/20"
             placeholder={T("otherPlaceholder", lang)} />
         )}
         {errors.urgentChallenges && <p className="text-xs text-red-500 mt-1">{errors.urgentChallenges}</p>}
@@ -83,7 +83,7 @@ export default function Step7Priorities({ data, setData, lang, errors }: StepPro
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
           {TIMELINES.map(({ value, key }) => (
             <button key={value} type="button" onClick={() => setData({ goLiveTimeline: value })}
-              className={`py-3 px-4 rounded-xl border text-sm font-medium transition-all duration-200
+              className={`min-h-tap py-3 px-4 rounded-xl border text-sm font-medium transition-all duration-200
                 ${data.goLiveTimeline === value
                   ? "bg-[var(--safe-accent)] text-white border-[var(--safe-accent)]"
                   : "bg-white border-[var(--safe-neutral-border)] text-[var(--safe-darkest)] hover:border-[var(--safe-sage)]"}`}>

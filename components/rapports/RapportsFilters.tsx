@@ -65,7 +65,7 @@ export function RapportsFilters({
           name="dateDebut"
           type="date"
           defaultValue={defaultDateDebut}
-          className="w-40 h-10 px-3 rounded-lg border border-si-line bg-si-surface/80 text-si-ink focus:ring-2 focus:ring-si-verified/25 outline-none"
+          className="w-40 h-tap px-3 rounded-lg border border-si-line bg-si-surface/80 text-si-ink focus:ring-2 focus:ring-si-verified/25 outline-none"
         />
       </div>
       <div>
@@ -77,7 +77,7 @@ export function RapportsFilters({
           name="dateFin"
           type="date"
           defaultValue={defaultDateFin}
-          className="w-40 h-10 px-3 rounded-lg border border-si-line bg-si-surface/80 text-si-ink focus:ring-2 focus:ring-si-verified/25 outline-none"
+          className="w-40 h-tap px-3 rounded-lg border border-si-line bg-si-surface/80 text-si-ink focus:ring-2 focus:ring-si-verified/25 outline-none"
         />
       </div>
       <div>
@@ -87,7 +87,7 @@ export function RapportsFilters({
         <select
           id="rapports-clientId"
           name="clientId"
-          className="w-48 min-w-0 h-10 px-3 rounded-lg border border-si-line bg-si-surface/80 text-si-ink focus:ring-2 focus:ring-si-verified/25 outline-none"
+          className="w-48 min-w-0 h-tap px-3 rounded-lg border border-si-line bg-si-surface/80 text-si-ink focus:ring-2 focus:ring-si-verified/25 outline-none"
           defaultValue={defaultClientId}
         >
           <option value="">{tc("all")}</option>
@@ -105,7 +105,7 @@ export function RapportsFilters({
         <select
           id="rapports-userId"
           name="userId"
-          className="w-48 min-w-0 h-10 px-3 rounded-lg border border-si-line bg-si-surface/80 text-si-ink focus:ring-2 focus:ring-si-verified/25 outline-none"
+          className="w-48 min-w-0 h-tap px-3 rounded-lg border border-si-line bg-si-surface/80 text-si-ink focus:ring-2 focus:ring-si-verified/25 outline-none"
           defaultValue={defaultUserId}
         >
           <option value="">{tc("all")}</option>
@@ -123,7 +123,7 @@ export function RapportsFilters({
         <select
           id="rapports-statut"
           name="statut"
-          className="w-44 min-w-0 h-10 px-3 rounded-lg border border-si-line bg-si-surface/80 text-si-ink focus:ring-2 focus:ring-si-verified/25 outline-none"
+          className="w-44 min-w-0 h-tap px-3 rounded-lg border border-si-line bg-si-surface/80 text-si-ink focus:ring-2 focus:ring-si-verified/25 outline-none"
           defaultValue={defaultStatut}
         >
           {STATUT_OPTIONS.map((o) => (

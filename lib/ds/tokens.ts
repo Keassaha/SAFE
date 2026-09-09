@@ -344,6 +344,28 @@ export const interfaceTokens = {
   },
   depth,
   motion,
+  /* ─────────────────────── Densité ───────────────────────
+   *
+   * Les hauteurs de SAFE_PREMIUM_DESIGN_STANDARD §2.7, en PIXELS et non en
+   * rem, et c'est le point.
+   *
+   * La racine du produit est à 15 px (`app/globals.css`). Un contrôle écrit
+   * `min-h-11`, c'est-à-dire 2,75 rem, mesurait donc 41,25 px et non 44. Tous
+   * les boutons du produit tombaient trois pixels sous le seuil du
+   * référentiel, et sous celui d'Apple, sans que rien ne le signale : la
+   * classe annonce onze quarts de rem, personne ne relit la racine.
+   *
+   * Une cible tactile est une mesure PHYSIQUE, celle d'un doigt. Elle ne doit
+   * pas suivre la taille du texte. Ces valeurs sont donc figées en pixels,
+   * volontairement, à la différence de l'échelle typographique. */
+  densite: {
+    /** Cible tactile minimale, et hauteur de tout contrôle. §2.7 */
+    tap: 44,
+    /** Ligne de tableau et barre d'outils, bureau. §2.7 */
+    rang: 44,
+    /** Ligne de tableau, tactile. §2.7 */
+    "rang-tactile": 56,
+  },
 } as const;
 
 /* ─────────────────────── Semantic tokens ─────────────────────── */

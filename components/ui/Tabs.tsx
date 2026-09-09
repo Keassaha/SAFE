@@ -39,7 +39,7 @@ export function TabsList({ children, className = "", ...props }: TabsListProps) 
   return (
     <div
       role="tablist"
-      className={`flex sm:inline-flex h-11 items-center rounded-safe-sm border border-[var(--safe-neutral-border)] bg-[var(--safe-neutral-100)] p-1 text-[var(--safe-text-secondary)] overflow-x-auto hide-scrollbar snap-x snap-mandatory ${className}`}
+      className={`flex sm:inline-flex h-rang items-center rounded-safe-sm border border-[var(--safe-neutral-border)] bg-[var(--safe-neutral-100)] p-1 text-[var(--safe-text-secondary)] overflow-x-auto hide-scrollbar snap-x snap-mandatory ${className}`}
       {...props}
     >
       {children}
@@ -69,7 +69,7 @@ export function TabsTrigger({ value, children, className = "", ...props }: TabsT
       /* Un onglet est une sélection : il porte donc le zoom souple comme tout
          le reste. Le fond clair reste réservé à l'onglet réellement actif, le
          survol ne peint plus de rectangle blanchâtre. */
-      className={`safe-zoom-menu inline-flex min-h-[36px] snap-start items-center justify-center gap-2 whitespace-nowrap rounded-safe-sm px-3 py-2 text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--safe-green-700)] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 sm:px-4 ${
+      className={`safe-zoom-menu inline-flex h-tap snap-start items-center justify-center gap-2 whitespace-nowrap rounded-safe-sm px-3 py-2 text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--safe-green-700)] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 sm:px-4 ${
         isSelected
           ? "bg-[var(--safe-neutral-bg)] text-[var(--safe-text-title)] shadow-sm"
           : "hover:text-[var(--safe-text-title)]"

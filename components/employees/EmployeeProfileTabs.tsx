@@ -46,7 +46,7 @@ export function EmployeeProfileTabs({
             key={tab.id}
             type="button"
             onClick={() => onTabChange(tab.id)}
-            className={`relative flex items-center gap-2 px-4 py-3 text-sm font-medium -mb-px transition-colors duration-200 ${
+            className={`min-h-tap relative flex items-center gap-2 px-4 py-3 text-sm font-medium -mb-px transition-colors duration-200 ${
               isActive
                 ? "text-si-ink-strong"
                 : "text-si-muted hover:text-si-ink"

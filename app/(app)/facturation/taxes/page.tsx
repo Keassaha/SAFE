@@ -76,14 +76,14 @@ export default async function TaxesPage({
             <label className="text-sm">
               <span className="block text-si-muted mb-1">Du</span>
               <input type="date" name="from" defaultValue={report.periode.from}
-                className="h-9 px-2 rounded border border-si-line bg-si-surface text-sm" />
+                className="h-tap px-2 rounded border border-si-line bg-si-surface text-sm" />
             </label>
             <label className="text-sm">
               <span className="block text-si-muted mb-1">Au</span>
               <input type="date" name="to" defaultValue={report.periode.to}
-                className="h-9 px-2 rounded border border-si-line bg-si-surface text-sm" />
+                className="h-tap px-2 rounded border border-si-line bg-si-surface text-sm" />
             </label>
-            <button type="submit" className="h-9 px-4 rounded-lg safe-action-degrade text-si-surface text-sm font-medium hover:opacity-90">
+            <button type="submit" className="inline-flex items-center h-tap px-4 rounded-lg safe-action-degrade text-si-surface text-sm font-medium hover:opacity-90">
               Appliquer
             </button>
             <span className="text-xs text-si-muted self-center">

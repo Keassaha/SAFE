@@ -316,14 +316,14 @@ export function PipelineBoard({ phases, initialLeads }: PipelineBoardProps) {
           <button
             type="button"
             onClick={() => setView("board")}
-            className={`inline-flex items-center gap-1.5 rounded px-2.5 py-1 text-xs font-medium transition ${view === "board" ? "bg-si-verified text-si-surface" : "text-si-muted hover:text-si-ink"}`}
+            className={`min-h-tap inline-flex items-center gap-1.5 rounded px-2.5 py-1 text-xs font-medium transition ${view === "board" ? "bg-si-verified text-si-surface" : "text-si-muted hover:text-si-ink"}`}
           >
             <LayoutGrid className="h-3.5 w-3.5" /> Tableau
           </button>
           <button
             type="button"
             onClick={() => setView("list")}
-            className={`inline-flex items-center gap-1.5 rounded px-2.5 py-1 text-xs font-medium transition ${view === "list" ? "bg-si-verified text-si-surface" : "text-si-muted hover:text-si-ink"}`}
+            className={`min-h-tap inline-flex items-center gap-1.5 rounded px-2.5 py-1 text-xs font-medium transition ${view === "list" ? "bg-si-verified text-si-surface" : "text-si-muted hover:text-si-ink"}`}
           >
             <List className="h-3.5 w-3.5" /> Liste
           </button>

@@ -48,7 +48,7 @@ export function ExpensesJournalTable({
         action={
           <div className="flex flex-wrap items-center gap-2">
             <select
-              className="rounded-safe-sm border border-[var(--safe-neutral-border)] bg-white/5 text-sm text-[var(--safe-text-title)] px-3 py-1.5"
+              className="min-h-tap rounded-safe-sm border border-[var(--safe-neutral-border)] bg-white/5 text-sm text-[var(--safe-text-title)] px-3 py-1.5"
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
             >
@@ -60,7 +60,7 @@ export function ExpensesJournalTable({
               ))}
             </select>
             <select
-              className="rounded-safe-sm border border-[var(--safe-neutral-border)] bg-white/5 text-sm text-[var(--safe-text-title)] px-3 py-1.5"
+              className="min-h-tap rounded-safe-sm border border-[var(--safe-neutral-border)] bg-white/5 text-sm text-[var(--safe-text-title)] px-3 py-1.5"
               value={filterCategory}
               onChange={(e) => setFilterCategory(e.target.value)}
             >

@@ -100,7 +100,7 @@ export function DossierBulkActionBar({ selectedIds, avocats, onClear }: DossierB
             type="button"
             disabled={isPending}
             onClick={() => setConfirmArchive(true)}
-            className="inline-flex items-center gap-2 h-9 px-3 rounded-lg border border-si-line bg-si-surface text-si-ink hover:bg-si-canvas text-sm font-medium transition-colors disabled:opacity-50"
+            className="inline-flex items-center gap-2 h-tap px-3 rounded-lg border border-si-line bg-si-surface text-si-ink hover:bg-si-canvas text-sm font-medium transition-colors disabled:opacity-50"
           >
             <Archive className="h-4 w-4" aria-hidden />
             {t("bulkArchive")}
@@ -109,7 +109,7 @@ export function DossierBulkActionBar({ selectedIds, avocats, onClear }: DossierB
           <button
             type="button"
             onClick={onClear}
-            className="ml-auto inline-flex items-center gap-1.5 h-9 px-3 rounded-lg text-si-muted hover:text-si-ink hover:bg-si-canvas text-sm transition-colors"
+            className="ml-auto inline-flex items-center gap-1.5 h-tap px-3 rounded-lg text-si-muted hover:text-si-ink hover:bg-si-canvas text-sm transition-colors"
           >
             <X className="h-4 w-4" aria-hidden />
             {t("bulkClear")}
@@ -122,7 +122,7 @@ export function DossierBulkActionBar({ selectedIds, avocats, onClear }: DossierB
             type="button"
             disabled={isPending}
             onClick={() => run({ ids: selectedIds, action: "archive" })}
-            className="inline-flex items-center gap-2 h-9 px-3 rounded-lg safe-action-degrade text-white hover:bg-si-ink-strong/90 text-sm font-medium transition-colors disabled:opacity-50"
+            className="inline-flex items-center gap-2 h-tap px-3 rounded-lg safe-action-degrade text-white hover:bg-si-ink-strong/90 text-sm font-medium transition-colors disabled:opacity-50"
           >
             <Check className="h-4 w-4" aria-hidden />
             {t("bulkArchiveConfirmYes")}
@@ -131,7 +131,7 @@ export function DossierBulkActionBar({ selectedIds, avocats, onClear }: DossierB
             type="button"
             disabled={isPending}
             onClick={() => setConfirmArchive(false)}
-            className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg text-si-muted hover:text-si-ink hover:bg-si-canvas text-sm transition-colors"
+            className="inline-flex items-center gap-1.5 h-tap px-3 rounded-lg text-si-muted hover:text-si-ink hover:bg-si-canvas text-sm transition-colors"
           >
             {t("bulkCancel")}
           </button>

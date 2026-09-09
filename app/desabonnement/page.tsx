@@ -60,7 +60,7 @@ export default async function DesabonnementPage({
               <input type="hidden" name="s" value={signature} />
               <button
                 type="submit"
-                className="h-[38px] rounded-md safe-action-degrade px-4 text-[13px] font-medium text-si-surface transition hover:brightness-95"
+                className="inline-flex items-center h-tap rounded-md safe-action-degrade px-4 text-[13px] font-medium text-si-surface transition hover:brightness-95"
               >
                 Confirmer le désabonnement
               </button>

@@ -97,7 +97,7 @@ export function MoveDocumentDialog({
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder={t("searchMatterPlaceholder")}
-            className="w-full text-sm border border-[var(--safe-neutral-border)] rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[var(--safe-primary)]"
+            className="min-h-tap w-full text-sm border border-[var(--safe-neutral-border)] rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[var(--safe-primary)]"
             autoFocus
           />
 
@@ -112,7 +112,7 @@ export function MoveDocumentDialog({
                 <button
                   key={d.id}
                   onClick={() => setSelectedId(d.id)}
-                  className={`w-full text-left px-3 py-2.5 rounded-lg flex items-center gap-3 transition-colors ${
+                  className={`min-h-tap w-full text-left px-3 py-2.5 rounded-lg flex items-center gap-3 transition-colors ${
                     selectedId === d.id
                       ? "bg-[var(--safe-primary)] text-white"
                       : "hover:bg-[var(--safe-neutral-bg)]"
@@ -158,7 +158,7 @@ export function MoveDocumentDialog({
         <div className="flex gap-3 p-5 border-t border-[var(--safe-neutral-border)]">
           <button
             onClick={onClose}
-            className="flex-1 py-2.5 text-sm border border-[var(--safe-neutral-border)] rounded-xl hover:bg-[var(--safe-neutral-bg)] transition-colors text-[var(--safe-text-secondary)]"
+            className="min-h-tap flex-1 py-2.5 text-sm border border-[var(--safe-neutral-border)] rounded-xl hover:bg-[var(--safe-neutral-bg)] transition-colors text-[var(--safe-text-secondary)]"
           >
             {t("cancel")}
           </button>

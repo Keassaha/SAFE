@@ -50,7 +50,7 @@ export function FacturationActions({ billingMode = "horaire" }: FacturationActio
   const closeMenu = () => setMenuOpen(false);
 
   const menuItemClass =
-    "flex min-h-11 items-center gap-3 w-full px-3 py-2 text-sm text-left text-si-ink hover:bg-si-canvas transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-si-verified";
+    "flex min-h-tap items-center gap-3 w-full px-3 py-2 text-sm text-left text-si-ink hover:bg-si-canvas transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-si-verified";
 
   return (
     <div className="flex items-center gap-2">

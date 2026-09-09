@@ -327,7 +327,7 @@ function BandeauAction({
         </div>
         <Link
           href={actionHref}
-          className="safe-zoom shrink-0 self-start rounded-xl safe-action-degrade px-[22px] py-3 text-center font-sans text-sm font-medium text-si-surface no-underline lg:self-auto"
+          className="inline-flex items-center justify-center min-h-tap safe-zoom shrink-0 self-start rounded-xl safe-action-degrade px-[22px] py-3 text-center font-sans text-sm font-medium text-si-surface no-underline lg:self-auto"
         >
           {actionLabel}
         </Link>
@@ -339,7 +339,7 @@ function BandeauAction({
             <Link
               key={a.message}
               href={a.href}
-              className="safe-zoom-menu -mx-2 flex items-center gap-2.5 rounded-lg px-2 py-1.5 no-underline"
+              className="min-h-tap safe-zoom-menu -mx-2 flex items-center gap-2.5 rounded-lg px-2 py-1.5 no-underline"
             >
               <span
                 aria-hidden

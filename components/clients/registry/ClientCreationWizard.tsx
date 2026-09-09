@@ -215,7 +215,7 @@ export function ClientCreationWizard({
               key={s.id}
               type="button"
               onClick={() => goToStep(s.id)}
-              className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
+              className={`min-h-tap flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
                 isActive
                   ? "bg-si-ink-strong/10 text-si-ink-strong"
                   : isPast
@@ -244,7 +244,7 @@ export function ClientCreationWizard({
                 name="typeClient"
                 value={typeClient}
                 onChange={(e) => setTypeClient(e.target.value as "personne_morale" | "personne_physique")}
-                className="w-full h-10 px-3 rounded-[10px] border border-si-line bg-si-surface font-sans text-si-ink outline-none focus:border-si-verified focus:ring-2 focus:ring-si-verified/25 transition"
+                className="w-full h-tap px-3 rounded-[10px] border border-si-line bg-si-surface font-sans text-si-ink outline-none focus:border-si-verified focus:ring-2 focus:ring-si-verified/25 transition"
               >
                 <option value="personne_morale">{t("company")}</option>
                 <option value="personne_physique">{t("individual")}</option>
@@ -350,7 +350,7 @@ export function ClientCreationWizard({
               </label>
               <select
                 name="preferredContactMethod"
-                className="w-full h-10 px-3 rounded-[10px] border border-si-line bg-si-surface font-sans text-si-ink outline-none focus:border-si-verified focus:ring-2 focus:ring-si-verified/25 transition"
+                className="w-full h-tap px-3 rounded-[10px] border border-si-line bg-si-surface font-sans text-si-ink outline-none focus:border-si-verified focus:ring-2 focus:ring-si-verified/25 transition"
               >
                 <option value="">—</option>
                 <option value="email">{t("contactEmail")}</option>
@@ -364,7 +364,7 @@ export function ClientCreationWizard({
               </label>
               <select
                 name="langue"
-                className="w-full h-10 px-3 rounded-[10px] border border-si-line bg-si-surface font-sans text-si-ink outline-none focus:border-si-verified focus:ring-2 focus:ring-si-verified/25 transition"
+                className="w-full h-tap px-3 rounded-[10px] border border-si-line bg-si-surface font-sans text-si-ink outline-none focus:border-si-verified focus:ring-2 focus:ring-si-verified/25 transition"
               >
                 <option value="">—</option>
                 <option value="FR">{tc("french")}</option>
@@ -387,7 +387,7 @@ export function ClientCreationWizard({
                 <select
                   name="assignedLawyerId"
                   defaultValue={initialData?.assignedLawyerId ?? ""}
-                  className="w-full h-10 px-3 rounded-[10px] border border-si-line bg-si-surface font-sans text-si-ink outline-none focus:border-si-verified focus:ring-2 focus:ring-si-verified/25 transition"
+                  className="w-full h-tap px-3 rounded-[10px] border border-si-line bg-si-surface font-sans text-si-ink outline-none focus:border-si-verified focus:ring-2 focus:ring-si-verified/25 transition"
                 >
                   <option value="">{t("noLawyer")}</option>
                   {lawyers.map((l) => (
@@ -405,7 +405,7 @@ export function ClientCreationWizard({
               <select
                 name="representationType"
                 defaultValue={initialData?.representationType ?? ""}
-                className="w-full h-10 px-3 rounded-[10px] border border-si-line bg-si-surface font-sans text-si-ink outline-none focus:border-si-verified focus:ring-2 focus:ring-si-verified/25 transition"
+                className="w-full h-tap px-3 rounded-[10px] border border-si-line bg-si-surface font-sans text-si-ink outline-none focus:border-si-verified focus:ring-2 focus:ring-si-verified/25 transition"
               >
                 <option value="">—</option>
                 <option value="plaintiff">{t("plaintiff")}</option>
@@ -465,7 +465,7 @@ export function ClientCreationWizard({
               </label>
               <select
                 name="preferredPaymentMethod"
-                className="w-full h-10 px-3 rounded-[10px] border border-si-line bg-si-surface font-sans text-si-ink outline-none focus:border-si-verified focus:ring-2 focus:ring-si-verified/25 transition"
+                className="w-full h-tap px-3 rounded-[10px] border border-si-line bg-si-surface font-sans text-si-ink outline-none focus:border-si-verified focus:ring-2 focus:ring-si-verified/25 transition"
               >
                 <option value="">—</option>
                 <option value="card">{t("paymentCard")}</option>
@@ -506,7 +506,7 @@ export function ClientCreationWizard({
               <textarea
                 name="conflictNotes"
                 rows={3}
-                className="w-full px-3 py-2 rounded-[10px] border border-si-line bg-si-surface font-sans text-si-ink outline-none focus:border-si-verified focus:ring-2 focus:ring-si-verified/25 transition"
+                className="min-h-tap w-full px-3 py-2 rounded-[10px] border border-si-line bg-si-surface font-sans text-si-ink outline-none focus:border-si-verified focus:ring-2 focus:ring-si-verified/25 transition"
                 placeholder={t("conflictNotesPlaceholder")}
               />
             </div>

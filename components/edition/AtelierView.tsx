@@ -84,7 +84,7 @@ export function AtelierView({ clients, activeSessions }: AtelierViewProps) {
           <button
             key={client.id}
             onClick={() => setSelectedClientId(client.id)}
-            className={`w-full text-left px-3 py-2.5 rounded-lg flex items-center gap-2.5 transition-all group ${
+            className={`min-h-tap w-full text-left px-3 py-2.5 rounded-lg flex items-center gap-2.5 transition-all group ${
               selectedClientId === client.id
                 ? "bg-[var(--safe-primary)] text-white shadow-sm"
                 : "hover:bg-[var(--safe-neutral-bg)] text-[var(--safe-text-title)]"

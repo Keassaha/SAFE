@@ -70,7 +70,7 @@ export function NewClientModal({ open, onClose, onSuccess }: NewClientModalProps
           <select
             value={typeClient}
             onChange={(e) => setTypeClient(e.target.value as "personne_physique" | "personne_morale")}
-            className="w-full h-10 px-3 rounded-lg border border-si-line bg-si-surface"
+            className="w-full h-tap px-3 rounded-lg border border-si-line bg-si-surface"
           >
             <option value="personne_morale">{t("legalEntity")}</option>
             <option value="personne_physique">{t("naturalPerson")}</option>

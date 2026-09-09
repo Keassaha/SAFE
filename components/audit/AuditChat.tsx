@@ -2063,7 +2063,7 @@ export default function AuditChat({ lang = "fr" }: { lang?: "fr" | "en" }) {
             </div>
             <button
               onClick={handleDownloadPDF}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-safe-sm bg-[var(--safe-text-title)] text-[var(--safe-white)] text-xs font-sans font-medium hover:bg-[var(--safe-text-secondary)] transition-colors shrink-0"
+              className="min-h-tap flex items-center gap-1.5 px-3 py-1.5 rounded-safe-sm bg-[var(--safe-text-title)] text-[var(--safe-white)] text-xs font-sans font-medium hover:bg-[var(--safe-text-secondary)] transition-colors shrink-0"
             >
               <Download className="w-3.5 h-3.5" />
               PDF
@@ -2277,7 +2277,7 @@ export default function AuditChat({ lang = "fr" }: { lang?: "fr" | "en" }) {
               </button>
               <a
                 href="/demo"
-                className="group flex items-center justify-center gap-2 w-full py-3 rounded-safe-md border border-[var(--safe-sage)] bg-white/60 text-[var(--safe-text-title)] font-medium text-sm font-sans hover:bg-[var(--safe-sage)]/20 transition-all duration-300"
+                className="min-h-tap group flex items-center justify-center gap-2 w-full py-3 rounded-safe-md border border-[var(--safe-sage)] bg-white/60 text-[var(--safe-text-title)] font-medium text-sm font-sans hover:bg-[var(--safe-sage)]/20 transition-all duration-300"
               >
                 <Calendar className="w-4 h-4" />
                 Réserver une démo personnalisée
@@ -2408,7 +2408,7 @@ export default function AuditChat({ lang = "fr" }: { lang?: "fr" | "en" }) {
                         <button
                           key={opt.value}
                           onClick={() => handleOptionSelect(msg.questionKey!, opt)}
-                          className="group w-full text-left px-4 py-3 rounded-safe border border-[var(--safe-sage)]/30 bg-white/60 hover:bg-[var(--safe-text-secondary)]/10 hover:border-[var(--safe-text-secondary)]/30 text-sm text-[var(--safe-text-secondary)] hover:text-[var(--safe-text-title)] font-sans transition-all duration-200 flex items-center gap-3"
+                          className="min-h-tap group w-full text-left px-4 py-3 rounded-safe border border-[var(--safe-sage)]/30 bg-white/60 hover:bg-[var(--safe-text-secondary)]/10 hover:border-[var(--safe-text-secondary)]/30 text-sm text-[var(--safe-text-secondary)] hover:text-[var(--safe-text-title)] font-sans transition-all duration-200 flex items-center gap-3"
                         >
                           <div className="w-5 h-5 rounded-full border border-[var(--safe-sage)] group-hover:border-[var(--safe-text-secondary)] transition-colors shrink-0 flex items-center justify-center">
                             <div className="w-2 h-2 rounded-full bg-transparent group-hover:bg-[var(--safe-text-secondary)] transition-colors" />
@@ -2425,7 +2425,7 @@ export default function AuditChat({ lang = "fr" }: { lang?: "fr" | "en" }) {
                             value={customText}
                             onChange={(e) => setCustomText(e.target.value)}
                             placeholder="Précisez..."
-                            className="flex-1 px-4 py-3 rounded-safe bg-white/70 border border-[var(--safe-sage)]/40 text-sm text-[var(--safe-text-title)] placeholder-[var(--safe-sage)] font-sans focus:outline-none focus:border-[var(--safe-text-secondary)]/50 transition-colors"
+                            className="min-h-tap flex-1 px-4 py-3 rounded-safe bg-white/70 border border-[var(--safe-sage)]/40 text-sm text-[var(--safe-text-title)] placeholder-[var(--safe-sage)] font-sans focus:outline-none focus:border-[var(--safe-text-secondary)]/50 transition-colors"
                             autoFocus
                             onKeyDown={(e) => {
                               if (e.key === "Enter") handleCustomSubmit(msg.questionKey!);
@@ -2433,7 +2433,7 @@ export default function AuditChat({ lang = "fr" }: { lang?: "fr" | "en" }) {
                           />
                           <button
                             onClick={() => handleCustomSubmit(msg.questionKey!)}
-                            className="px-4 py-3 rounded-safe bg-[var(--safe-text-title)] text-[var(--safe-white)] text-sm font-sans hover:bg-[var(--safe-text-secondary)] transition-colors"
+                            className="min-h-tap px-4 py-3 rounded-safe bg-[var(--safe-text-title)] text-[var(--safe-white)] text-sm font-sans hover:bg-[var(--safe-text-secondary)] transition-colors"
                           >
                             <Send className="w-4 h-4" />
                           </button>
@@ -2459,7 +2459,7 @@ export default function AuditChat({ lang = "fr" }: { lang?: "fr" | "en" }) {
                                 isSelected ? prev.filter((v) => v !== opt.value) : [...prev, opt.value]
                               );
                             }}
-                            className={`group w-full text-left px-4 py-3 rounded-safe border text-sm font-sans transition-all duration-200 flex items-center gap-3 ${
+                            className={`min-h-tap group w-full text-left px-4 py-3 rounded-safe border text-sm font-sans transition-all duration-200 flex items-center gap-3 ${
                               isSelected
                                 ? "border-[var(--safe-text-secondary)]/40 bg-[var(--safe-text-secondary)]/15 text-[var(--safe-text-title)]"
                                 : "border-[var(--safe-sage)]/30 bg-white/60 hover:bg-[var(--safe-text-secondary)]/10 hover:border-[var(--safe-text-secondary)]/20 text-[var(--safe-text-secondary)] hover:text-[var(--safe-text-title)]"
@@ -2480,7 +2480,7 @@ export default function AuditChat({ lang = "fr" }: { lang?: "fr" | "en" }) {
                       {multiSelect.length > 0 && (
                         <button
                           onClick={() => handleMultiConfirm(msg.questionKey!, msg.options!)}
-                          className="w-full mt-2 px-4 py-3 rounded-safe bg-[var(--safe-text-title)] text-[var(--safe-white)] text-sm font-medium font-sans hover:bg-[var(--safe-text-secondary)] transition-colors flex items-center justify-center gap-2"
+                          className="min-h-tap w-full mt-2 px-4 py-3 rounded-safe bg-[var(--safe-text-title)] text-[var(--safe-white)] text-sm font-medium font-sans hover:bg-[var(--safe-text-secondary)] transition-colors flex items-center justify-center gap-2"
                         >
                           Confirmer ({multiSelect.length})
                           <ChevronRight className="w-4 h-4" />
@@ -2505,7 +2505,7 @@ export default function AuditChat({ lang = "fr" }: { lang?: "fr" | "en" }) {
                           <button
                             key={val}
                             onClick={() => handleScaleSelect(msg.questionKey!, val)}
-                            className="group flex-1 py-3 rounded-safe border border-[var(--safe-sage)]/30 bg-white/60 hover:bg-[var(--safe-text-secondary)]/10 hover:border-[var(--safe-text-secondary)]/30 text-sm font-sans transition-all duration-200 flex flex-col items-center gap-1"
+                            className="min-h-tap group flex-1 py-3 rounded-safe border border-[var(--safe-sage)]/30 bg-white/60 hover:bg-[var(--safe-text-secondary)]/10 hover:border-[var(--safe-text-secondary)]/30 text-sm font-sans transition-all duration-200 flex flex-col items-center gap-1"
                           >
                             <Star className="w-4 h-4 text-[var(--safe-sage)] group-hover:text-[var(--safe-text-secondary)] transition-colors" />
                             <span className="text-[var(--safe-text-secondary)] group-hover:text-[var(--safe-text-title)] transition-colors">
@@ -2530,7 +2530,7 @@ export default function AuditChat({ lang = "fr" }: { lang?: "fr" | "en" }) {
                         onChange={(e) => setOpenText(e.target.value)}
                         placeholder={msg.placeholder || "Écrivez votre réponse ici..."}
                         rows={3}
-                        className="w-full px-4 py-3 rounded-safe bg-white/70 border border-[var(--safe-sage)]/40 text-sm text-[var(--safe-text-title)] placeholder-[var(--safe-sage)] font-sans focus:outline-none focus:border-[var(--safe-text-secondary)]/50 transition-colors resize-none"
+                        className="min-h-tap w-full px-4 py-3 rounded-safe bg-white/70 border border-[var(--safe-sage)]/40 text-sm text-[var(--safe-text-title)] placeholder-[var(--safe-sage)] font-sans focus:outline-none focus:border-[var(--safe-text-secondary)]/50 transition-colors resize-none"
                         autoFocus
                         onKeyDown={(e) => {
                           if (e.key === "Enter" && !e.shiftKey) {
@@ -2543,14 +2543,14 @@ export default function AuditChat({ lang = "fr" }: { lang?: "fr" | "en" }) {
                         <button
                           onClick={() => handleOpenSubmit(msg.questionKey!)}
                           disabled={!openText.trim()}
-                          className="flex-1 py-3 rounded-safe bg-[var(--safe-text-title)] text-[var(--safe-white)] text-sm font-medium font-sans hover:bg-[var(--safe-text-secondary)] transition-colors flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
+                          className="min-h-tap flex-1 py-3 rounded-safe bg-[var(--safe-text-title)] text-[var(--safe-white)] text-sm font-medium font-sans hover:bg-[var(--safe-text-secondary)] transition-colors flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
                         >
                           <Send className="w-4 h-4" />
                           Envoyer
                         </button>
                         <button
                           onClick={() => handleOpenSkip(msg.questionKey!)}
-                          className="px-4 py-3 rounded-safe border border-[var(--safe-sage)]/30 bg-white/60 text-xs text-[var(--safe-sage)] font-sans hover:bg-[var(--safe-sage)]/10 transition-colors"
+                          className="min-h-tap px-4 py-3 rounded-safe border border-[var(--safe-sage)]/30 bg-white/60 text-xs text-[var(--safe-sage)] font-sans hover:bg-[var(--safe-sage)]/10 transition-colors"
                         >
                           Passer
                         </button>
@@ -2569,7 +2569,7 @@ export default function AuditChat({ lang = "fr" }: { lang?: "fr" | "en" }) {
                           value={contactForm.name}
                           onChange={(e) => setContactForm((f) => ({ ...f, name: e.target.value }))}
                           placeholder="Nom complet *"
-                          className="flex-1 px-4 py-3 rounded-safe bg-white/70 border border-[var(--safe-sage)]/40 text-sm text-[var(--safe-text-title)] placeholder-[var(--safe-sage)] font-sans focus:outline-none focus:border-[var(--safe-text-secondary)]/50 transition-colors"
+                          className="min-h-tap flex-1 px-4 py-3 rounded-safe bg-white/70 border border-[var(--safe-sage)]/40 text-sm text-[var(--safe-text-title)] placeholder-[var(--safe-sage)] font-sans focus:outline-none focus:border-[var(--safe-text-secondary)]/50 transition-colors"
                         />
                       </div>
                       <div className="flex items-center gap-2">
@@ -2580,7 +2580,7 @@ export default function AuditChat({ lang = "fr" }: { lang?: "fr" | "en" }) {
                           value={contactForm.email}
                           onChange={(e) => setContactForm((f) => ({ ...f, email: e.target.value }))}
                           placeholder="Courriel *"
-                          className="flex-1 px-4 py-3 rounded-safe bg-white/70 border border-[var(--safe-sage)]/40 text-sm text-[var(--safe-text-title)] placeholder-[var(--safe-sage)] font-sans focus:outline-none focus:border-[var(--safe-text-secondary)]/50 transition-colors"
+                          className="min-h-tap flex-1 px-4 py-3 rounded-safe bg-white/70 border border-[var(--safe-sage)]/40 text-sm text-[var(--safe-text-title)] placeholder-[var(--safe-sage)] font-sans focus:outline-none focus:border-[var(--safe-text-secondary)]/50 transition-colors"
                         />
                       </div>
                       <div className="flex items-center gap-2">
@@ -2590,7 +2590,7 @@ export default function AuditChat({ lang = "fr" }: { lang?: "fr" | "en" }) {
                           value={contactForm.phone}
                           onChange={(e) => setContactForm((f) => ({ ...f, phone: e.target.value }))}
                           placeholder="Téléphone (optionnel)"
-                          className="flex-1 px-4 py-3 rounded-safe bg-white/70 border border-[var(--safe-sage)]/40 text-sm text-[var(--safe-text-title)] placeholder-[var(--safe-sage)] font-sans focus:outline-none focus:border-[var(--safe-text-secondary)]/50 transition-colors"
+                          className="min-h-tap flex-1 px-4 py-3 rounded-safe bg-white/70 border border-[var(--safe-sage)]/40 text-sm text-[var(--safe-text-title)] placeholder-[var(--safe-sage)] font-sans focus:outline-none focus:border-[var(--safe-text-secondary)]/50 transition-colors"
                         />
                       </div>
                       <div className="flex items-center gap-2">
@@ -2600,12 +2600,12 @@ export default function AuditChat({ lang = "fr" }: { lang?: "fr" | "en" }) {
                           value={contactForm.firm}
                           onChange={(e) => setContactForm((f) => ({ ...f, firm: e.target.value }))}
                           placeholder="Nom du cabinet (optionnel)"
-                          className="flex-1 px-4 py-3 rounded-safe bg-white/70 border border-[var(--safe-sage)]/40 text-sm text-[var(--safe-text-title)] placeholder-[var(--safe-sage)] font-sans focus:outline-none focus:border-[var(--safe-text-secondary)]/50 transition-colors"
+                          className="min-h-tap flex-1 px-4 py-3 rounded-safe bg-white/70 border border-[var(--safe-sage)]/40 text-sm text-[var(--safe-text-title)] placeholder-[var(--safe-sage)] font-sans focus:outline-none focus:border-[var(--safe-text-secondary)]/50 transition-colors"
                         />
                       </div>
                       <button
                         type="submit"
-                        className="w-full py-3 rounded-safe bg-[var(--safe-text-title)] text-[var(--safe-white)] font-medium text-sm font-sans hover:bg-[var(--safe-text-secondary)] hover:shadow-lg hover:shadow-[var(--safe-text-title)]/15 transition-all duration-300 flex items-center justify-center gap-2"
+                        className="min-h-tap w-full py-3 rounded-safe bg-[var(--safe-text-title)] text-[var(--safe-white)] font-medium text-sm font-sans hover:bg-[var(--safe-text-secondary)] hover:shadow-lg hover:shadow-[var(--safe-text-title)]/15 transition-all duration-300 flex items-center justify-center gap-2"
                       >
                         <Sparkles className="w-4 h-4" />
                         Voir mon rapport d&apos;audit
@@ -2619,7 +2619,7 @@ export default function AuditChat({ lang = "fr" }: { lang?: "fr" | "en" }) {
                           addUserMessage("Je préfère passer cette étape");
                           setShowResults(true);
                         }}
-                        className="w-full py-2 text-xs text-[var(--safe-sage)] font-sans hover:text-[var(--safe-text-secondary)] transition-colors"
+                        className="min-h-tap w-full py-2 text-xs text-[var(--safe-sage)] font-sans hover:text-[var(--safe-text-secondary)] transition-colors"
                       >
                         Passer et voir les résultats directement
                       </button>
@@ -2652,7 +2652,7 @@ export default function AuditChat({ lang = "fr" }: { lang?: "fr" | "en" }) {
             <div className="flex justify-center mt-4 audit-options-appear">
               <button
                 onClick={handleStart}
-                className="group px-8 py-3 rounded-safe-md bg-[var(--safe-text-title)] text-[var(--safe-white)] font-medium text-sm font-sans hover:bg-[var(--safe-text-secondary)] hover:shadow-lg hover:shadow-[var(--safe-text-title)]/15 transition-all duration-300 flex items-center gap-2"
+                className="min-h-tap group px-8 py-3 rounded-safe-md bg-[var(--safe-text-title)] text-[var(--safe-white)] font-medium text-sm font-sans hover:bg-[var(--safe-text-secondary)] hover:shadow-lg hover:shadow-[var(--safe-text-title)]/15 transition-all duration-300 flex items-center gap-2"
               >
                 <Zap className="w-4 h-4" />
                 Oui, commençons !

@@ -222,8 +222,8 @@ export function EventFormModal({
           </div>
 
           <div className="flex justify-end gap-3 pt-2 border-t border-si-line">
-            <button type="button" onClick={onClose} className="px-4 py-2 rounded-xl border border-si-line text-sm font-medium text-si-ink hover:bg-si-canvas transition-colors">{tc("cancel")}</button>
-            <button type="submit" disabled={isPending || !title.trim()} className="px-5 py-2 rounded-xl safe-action-degrade text-white text-sm font-medium shadow-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+            <button type="button" onClick={onClose} className="min-h-tap px-4 py-2 rounded-xl border border-si-line text-sm font-medium text-si-ink hover:bg-si-canvas transition-colors">{tc("cancel")}</button>
+            <button type="submit" disabled={isPending || !title.trim()} className="min-h-tap px-5 py-2 rounded-xl safe-action-degrade text-white text-sm font-medium shadow-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
               {isPending ? tg("inProgress") : isEdit ? tc("save") : tg("createEvent")}
             </button>
           </div>

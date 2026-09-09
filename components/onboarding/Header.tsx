@@ -37,7 +37,7 @@ export function Header({ variant = 'marketing', subtitle }: HeaderProps) {
             </span>
             <Link
               href="/login"
-              className="px-3.5 py-1.5 bg-forest-900 text-forest-50 text-[13px] font-medium rounded-md hover:bg-forest-700 transition"
+              className="inline-flex items-center min-h-tap px-3.5 py-1.5 bg-forest-900 text-forest-50 text-[13px] font-medium rounded-md hover:bg-forest-700 transition"
             >
               {t('login')}
             </Link>
@@ -66,7 +66,7 @@ function LocaleToggle({
     <div className="flex gap-1 p-[3px] bg-slate-100 rounded-md">
       <button
         onClick={() => onChange('fr')}
-        className={`px-2.5 py-1 text-xs rounded transition ${
+        className={`min-h-tap px-2.5 py-1 text-xs rounded transition ${
           locale === 'fr'
             ? 'bg-white text-forest-900 font-medium'
             : 'text-slate-600'
@@ -76,7 +76,7 @@ function LocaleToggle({
       </button>
       <button
         onClick={() => onChange('en')}
-        className={`px-2.5 py-1 text-xs rounded transition ${
+        className={`min-h-tap px-2.5 py-1 text-xs rounded transition ${
           locale === 'en'
             ? 'bg-white text-forest-900 font-medium'
             : 'text-slate-600'

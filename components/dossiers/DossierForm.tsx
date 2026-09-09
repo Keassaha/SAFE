@@ -85,7 +85,7 @@ export function DossierForm({
           required
           value={principalClientId}
           onChange={(e) => setPrincipalClientId(e.target.value)}
-          className="w-full h-10 px-3 rounded-xl border border-si-line bg-si-surface/90 focus:ring-2 focus:ring-si-verified/25"
+          className="w-full h-tap px-3 rounded-xl border border-si-line bg-si-surface/90 focus:ring-2 focus:ring-si-verified/25"
         >
           <option value="">{t("selectClient")}</option>
           {clients.map((c) => (
@@ -112,7 +112,7 @@ export function DossierForm({
           <select
             name="avocatResponsableId"
             defaultValue={dossier?.avocatResponsableId ?? ""}
-            className="w-full h-10 px-3 rounded-xl border border-si-line bg-si-surface/90 focus:ring-2 focus:ring-si-verified/25"
+            className="w-full h-tap px-3 rounded-xl border border-si-line bg-si-surface/90 focus:ring-2 focus:ring-si-verified/25"
           >
             <option value="">{t("noMatterNone")}</option>
             {avocats.map((u) => (
@@ -131,7 +131,7 @@ export function DossierForm({
           <select
             name="assistantJuridiqueId"
             defaultValue={(dossier as { assistantJuridiqueId?: string | null })?.assistantJuridiqueId ?? ""}
-            className="w-full h-10 px-3 rounded-xl border border-si-line bg-si-surface/90 focus:ring-2 focus:ring-si-verified/25"
+            className="w-full h-tap px-3 rounded-xl border border-si-line bg-si-surface/90 focus:ring-2 focus:ring-si-verified/25"
           >
             <option value="">{t("noMatterNone")}</option>
             {assistants.map((u) => (
@@ -173,7 +173,7 @@ export function DossierForm({
           <select
             name="type"
             defaultValue={dossier?.type ?? ""}
-            className="w-full h-10 px-3 rounded-xl border border-si-line bg-si-surface/90 focus:ring-2 focus:ring-si-verified/25"
+            className="w-full h-tap px-3 rounded-xl border border-si-line bg-si-surface/90 focus:ring-2 focus:ring-si-verified/25"
           >
             <option value="">{t("noMatterNone")}</option>
             <option value="droit_famille">{t("typeFamily")}</option>
@@ -202,7 +202,7 @@ export function DossierForm({
                 setSelectedSubject(e.target.value);
                 setSelectedSubmatter("");
               }}
-              className="w-full h-10 px-3 rounded-xl border border-si-line bg-si-surface/90 focus:ring-2 focus:ring-si-verified/25"
+              className="w-full h-tap px-3 rounded-xl border border-si-line bg-si-surface/90 focus:ring-2 focus:ring-si-verified/25"
             >
               <option value="">{t("selectType")}</option>
               {subjectOptions!.map((o) => (
@@ -222,7 +222,7 @@ export function DossierForm({
                 name="submatter"
                 value={selectedSubmatter}
                 onChange={(e) => setSelectedSubmatter(e.target.value)}
-                className="w-full h-10 px-3 rounded-xl border border-si-line bg-si-surface/90 focus:ring-2 focus:ring-si-verified/25"
+                className="w-full h-tap px-3 rounded-xl border border-si-line bg-si-surface/90 focus:ring-2 focus:ring-si-verified/25"
               >
                 <option value="">{t("subjectSelect")}</option>
                 {availableSubmatters.map((o) => (
@@ -276,7 +276,7 @@ export function DossierForm({
         <select
           name="statut"
           defaultValue={dossier?.statut ?? "actif"}
-          className="w-full h-10 px-3 rounded-xl border border-si-line bg-si-surface/90 focus:ring-2 focus:ring-si-verified/25"
+          className="w-full h-tap px-3 rounded-xl border border-si-line bg-si-surface/90 focus:ring-2 focus:ring-si-verified/25"
         >
           <option value="ouvert">{t("statusOpen")}</option>
           <option value="actif">{t("statusActive")}</option>
@@ -329,7 +329,7 @@ export function DossierForm({
               name="resumeDossier"
               rows={2}
               defaultValue={(dossier as { resumeDossier?: string | null })?.resumeDossier ?? ""}
-              className="w-full px-3 py-2 rounded-xl border border-si-line bg-si-surface/90 focus:ring-2 focus:ring-si-verified/25"
+              className="min-h-tap w-full px-3 py-2 rounded-xl border border-si-line bg-si-surface/90 focus:ring-2 focus:ring-si-verified/25"
             />
           </div>
           {canEditSensitive && (
@@ -339,7 +339,7 @@ export function DossierForm({
                 name="notesStrategieJuridique"
                 rows={2}
                 defaultValue={(dossier as { notesStrategieJuridique?: string | null })?.notesStrategieJuridique ?? ""}
-                className="w-full px-3 py-2 rounded-xl border border-si-line bg-si-surface/90 focus:ring-2 focus:ring-si-verified/25"
+                className="min-h-tap w-full px-3 py-2 rounded-xl border border-si-line bg-si-surface/90 focus:ring-2 focus:ring-si-verified/25"
               />
             </div>
           )}
@@ -352,7 +352,7 @@ export function DossierForm({
                 <select
                   name="modeFacturation"
                   defaultValue={(dossier as { modeFacturation?: string | null })?.modeFacturation ?? ""}
-                  className="w-full h-10 px-3 rounded-xl border border-si-line bg-si-surface/90 focus:ring-2 focus:ring-si-verified/25"
+                  className="w-full h-tap px-3 rounded-xl border border-si-line bg-si-surface/90 focus:ring-2 focus:ring-si-verified/25"
                 >
                   <option value="">{t("noMatterNone")}</option>
                   <option value="horaire">{t("billingHourly")}</option>
@@ -389,7 +389,7 @@ export function DossierForm({
                 name="descriptionConfidentielle"
                 defaultValue={dossier.descriptionConfidentielle ?? ""}
                 rows={3}
-                className="w-full px-3 py-2 rounded-xl border border-si-line bg-si-surface/90 focus:ring-2 focus:ring-si-verified/25"
+                className="min-h-tap w-full px-3 py-2 rounded-xl border border-si-line bg-si-surface/90 focus:ring-2 focus:ring-si-verified/25"
               />
             </div>
           )}
@@ -413,7 +413,7 @@ export function DossierForm({
           </label>
           <select
             name="sousType"
-            className="w-full h-10 px-3 rounded-xl border border-si-line bg-si-surface/90 text-sm focus:ring-2 focus:ring-si-verified/25"
+            className="w-full h-tap px-3 rounded-xl border border-si-line bg-si-surface/90 text-sm focus:ring-2 focus:ring-si-verified/25"
           >
             <option value="ee">Express Entry</option>
             <option value="parrainage">Sponsorship</option>

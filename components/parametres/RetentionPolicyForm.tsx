@@ -30,7 +30,7 @@ export function RetentionPolicyForm({ cabinetId }: { cabinetId: string }) {
         <input
           type="text"
           name="legalBasis"
-          className="w-full h-10 px-3 rounded-xl border border-si-line bg-si-surface/90 focus:ring-2 focus:ring-si-verified/25"
+          className="w-full h-tap px-3 rounded-xl border border-si-line bg-si-surface/90 focus:ring-2 focus:ring-si-verified/25"
           placeholder={t("legalBasisPlaceholder")}
         />
       </div>

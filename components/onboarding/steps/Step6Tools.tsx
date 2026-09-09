@@ -43,7 +43,7 @@ export default function Step6Tools({ data, setData, lang, errors }: StepProps) {
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
           {SOFTWARE_OPTIONS.map(({ value, key }) => (
             <button key={value} type="button" onClick={() => setData({ currentSoftware: value })}
-              className={`py-3 px-4 rounded-xl border text-sm font-medium transition-all duration-200
+              className={`min-h-tap py-3 px-4 rounded-xl border text-sm font-medium transition-all duration-200
                 ${data.currentSoftware === value
                   ? "bg-[var(--safe-accent)] text-white border-[var(--safe-accent)]"
                   : "bg-white border-[var(--safe-neutral-border)] text-[var(--safe-darkest)] hover:border-[var(--safe-sage)]"}`}>
@@ -53,7 +53,7 @@ export default function Step6Tools({ data, setData, lang, errors }: StepProps) {
         </div>
         {data.currentSoftware === "other" && (
           <input type="text" value={data.currentSoftwareOther} onChange={(e) => setData({ currentSoftwareOther: e.target.value })}
-            className="w-full mt-2 px-4 py-2.5 rounded-xl border border-[var(--safe-neutral-border)] text-sm outline-none focus:border-[var(--safe-accent)] focus:ring-2 focus:ring-[var(--safe-accent)]/20"
+            className="min-h-tap w-full mt-2 px-4 py-2.5 rounded-xl border border-[var(--safe-neutral-border)] text-sm outline-none focus:border-[var(--safe-accent)] focus:ring-2 focus:ring-[var(--safe-accent)]/20"
             placeholder={T("otherPlaceholder", lang)} />
         )}
         {errors.currentSoftware && <p className="text-xs text-red-500 mt-1">{errors.currentSoftware}</p>}
@@ -71,7 +71,7 @@ export default function Step6Tools({ data, setData, lang, errors }: StepProps) {
             { value: "not_sure", key: "migrateNotSure" as const },
           ]).map(({ value, key }) => (
             <button key={value} type="button" onClick={() => setData({ hasDataToMigrate: value })}
-              className={`py-3 px-4 rounded-xl border text-sm font-medium transition-all duration-200
+              className={`min-h-tap py-3 px-4 rounded-xl border text-sm font-medium transition-all duration-200
                 ${data.hasDataToMigrate === value
                   ? "bg-[var(--safe-accent)] text-white border-[var(--safe-accent)]"
                   : "bg-white border-[var(--safe-neutral-border)] text-[var(--safe-darkest)] hover:border-[var(--safe-sage)]"}`}>
@@ -91,7 +91,7 @@ export default function Step6Tools({ data, setData, lang, errors }: StepProps) {
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
             {DATA_FORMATS.map(({ value, key }) => (
               <button key={value} type="button" onClick={() => setData({ dataFormat: value })}
-                className={`py-3 px-4 rounded-xl border text-sm font-medium transition-all duration-200
+                className={`min-h-tap py-3 px-4 rounded-xl border text-sm font-medium transition-all duration-200
                   ${data.dataFormat === value
                     ? "bg-[var(--safe-accent)] text-white border-[var(--safe-accent)]"
                     : "bg-white border-[var(--safe-neutral-border)] text-[var(--safe-darkest)] hover:border-[var(--safe-sage)]"}`}>
@@ -101,7 +101,7 @@ export default function Step6Tools({ data, setData, lang, errors }: StepProps) {
           </div>
           {data.dataFormat === "other" && (
             <input type="text" value={data.dataFormatOther} onChange={(e) => setData({ dataFormatOther: e.target.value })}
-              className="w-full mt-2 px-4 py-2.5 rounded-xl border border-[var(--safe-neutral-border)] text-sm outline-none focus:border-[var(--safe-accent)] focus:ring-2 focus:ring-[var(--safe-accent)]/20"
+              className="min-h-tap w-full mt-2 px-4 py-2.5 rounded-xl border border-[var(--safe-neutral-border)] text-sm outline-none focus:border-[var(--safe-accent)] focus:ring-2 focus:ring-[var(--safe-accent)]/20"
               placeholder={T("otherPlaceholder", lang)} />
           )}
           {errors.dataFormat && <p className="text-xs text-red-500 mt-1">{errors.dataFormat}</p>}
@@ -116,7 +116,7 @@ export default function Step6Tools({ data, setData, lang, errors }: StepProps) {
         <div className="grid grid-cols-3 gap-2">
           {DEVICES.map(({ value, key }) => (
             <button key={value} type="button" onClick={() => setData({ primaryDevice: value })}
-              className={`py-3 px-4 rounded-xl border text-sm font-medium transition-all duration-200
+              className={`min-h-tap py-3 px-4 rounded-xl border text-sm font-medium transition-all duration-200
                 ${data.primaryDevice === value
                   ? "bg-[var(--safe-accent)] text-white border-[var(--safe-accent)]"
                   : "bg-white border-[var(--safe-neutral-border)] text-[var(--safe-darkest)] hover:border-[var(--safe-sage)]"}`}>

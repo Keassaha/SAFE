@@ -108,7 +108,7 @@ export function QuickCapture() {
                   <button
                     key={m.id}
                     onClick={() => setSelected(m)}
-                    className="flex w-full items-center gap-2.5 rounded-lg px-2 py-2 text-left text-sm text-neutral-800 hover:bg-neutral-50"
+                    className="min-h-tap flex w-full items-center gap-2.5 rounded-lg px-2 py-2 text-left text-sm text-neutral-800 hover:bg-neutral-50"
                   >
                     <FolderOpen className="h-4 w-4 text-neutral-400" />
                     <span className="truncate">{m.label}</span>
@@ -131,12 +131,12 @@ export function QuickCapture() {
               onChange={(e) => setTitle(e.target.value)}
               onKeyDown={(e) => { if (e.key === "Enter") submit(); }}
               placeholder={t("taskPlaceholder")}
-              className="mt-3 w-full rounded-xl border border-neutral-200 px-3 py-2.5 text-sm outline-none focus:border-[#1F3A2E]"
+              className="min-h-tap mt-3 w-full rounded-xl border border-neutral-200 px-3 py-2.5 text-sm outline-none focus:border-[#1F3A2E]"
             />
             <button
               onClick={submit}
               disabled={pending || !title.trim()}
-              className="mt-3 inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium text-white disabled:opacity-50"
+              className="min-h-tap mt-3 inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium text-white disabled:opacity-50"
               style={{ backgroundColor: "var(--si-ink-strong)" }}
             >
               {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />} {t("addTask")}

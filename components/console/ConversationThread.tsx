@@ -163,14 +163,14 @@ export function ConversationThread({
             <button
               type="submit"
               disabled={isPending}
-              className="rounded-md bg-si-verified px-3 py-1.5 text-sm font-medium text-si-surface hover:bg-si-ink-strong-soft disabled:opacity-50"
+              className="min-h-tap rounded-md bg-si-verified px-3 py-1.5 text-sm font-medium text-si-surface hover:bg-si-ink-strong-soft disabled:opacity-50"
             >
               {isPending ? "Envoi…" : "Envoyer la réponse"}
             </button>
             <button
               type="button"
               onClick={() => { setShowConvert((s) => !s); setError(null); }}
-              className="rounded-md border border-si-verified/40 px-3 py-1.5 text-sm font-medium text-si-ink-strong hover:bg-si-verified/[0.06]"
+              className="min-h-tap rounded-md border border-si-verified/40 px-3 py-1.5 text-sm font-medium text-si-ink-strong hover:bg-si-verified/[0.06]"
             >
               Transformer en billet
             </button>
@@ -178,7 +178,7 @@ export function ConversationThread({
               type="button"
               onClick={toggleArchive}
               disabled={isPending}
-              className="ml-auto rounded-md border border-si-line px-3 py-1.5 text-xs text-si-muted hover:bg-si-canvas"
+              className="min-h-tap ml-auto rounded-md border border-si-line px-3 py-1.5 text-xs text-si-muted hover:bg-si-canvas"
             >
               {statut === "ARCHIVEE" ? "Rouvrir" : "Archiver"}
             </button>
@@ -214,10 +214,10 @@ export function ConversationThread({
               <textarea name="description" required rows={4} defaultValue={suggestedDescription} className={inputCls} />
             </div>
             <div className="flex gap-2">
-              <button type="button" onClick={() => setShowConvert(false)} className="rounded-md border border-si-line px-3 py-1.5 text-sm text-si-muted hover:bg-si-canvas">
+              <button type="button" onClick={() => setShowConvert(false)} className="min-h-tap rounded-md border border-si-line px-3 py-1.5 text-sm text-si-muted hover:bg-si-canvas">
                 Annuler
               </button>
-              <button type="submit" disabled={isPending} className="rounded-md bg-si-verified px-3 py-1.5 text-sm font-medium text-si-surface hover:bg-si-ink-strong-soft disabled:opacity-50">
+              <button type="submit" disabled={isPending} className="min-h-tap rounded-md bg-si-verified px-3 py-1.5 text-sm font-medium text-si-surface hover:bg-si-ink-strong-soft disabled:opacity-50">
                 {isPending ? "Création…" : "Créer le billet"}
               </button>
             </div>

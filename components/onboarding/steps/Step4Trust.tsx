@@ -41,7 +41,7 @@ export default function Step4Trust({ data, setData, lang, errors }: StepProps) {
             <div className="grid grid-cols-3 gap-2">
               {(["1", "2", "3+"] as const).map((val) => (
                 <button key={val} type="button" onClick={() => setData({ trustAccountCount: val })}
-                  className={`py-3 rounded-xl border text-sm font-medium transition-all duration-200
+                  className={`min-h-tap py-3 rounded-xl border text-sm font-medium transition-all duration-200
                     ${data.trustAccountCount === val
                       ? "bg-[var(--safe-accent)] text-white border-[var(--safe-accent)]"
                       : "bg-white border-[var(--safe-neutral-border)] text-[var(--safe-darkest)] hover:border-[var(--safe-sage)]"}`}>
@@ -65,7 +65,7 @@ export default function Step4Trust({ data, setData, lang, errors }: StepProps) {
                 { value: "other", key: "other" as const },
               ]).map(({ value, key }) => (
                 <button key={value} type="button" onClick={() => setData({ reconciliationFrequency: value })}
-                  className={`py-3 px-4 rounded-xl border text-sm font-medium transition-all duration-200
+                  className={`min-h-tap py-3 px-4 rounded-xl border text-sm font-medium transition-all duration-200
                     ${data.reconciliationFrequency === value
                       ? "bg-[var(--safe-accent)] text-white border-[var(--safe-accent)]"
                       : "bg-white border-[var(--safe-neutral-border)] text-[var(--safe-darkest)] hover:border-[var(--safe-sage)]"}`}>
@@ -75,7 +75,7 @@ export default function Step4Trust({ data, setData, lang, errors }: StepProps) {
             </div>
             {data.reconciliationFrequency === "other" && (
               <input type="text" value={data.reconciliationFrequencyOther} onChange={(e) => setData({ reconciliationFrequencyOther: e.target.value })}
-                className="w-full mt-2 px-4 py-2.5 rounded-xl border border-[var(--safe-neutral-border)] text-sm outline-none focus:border-[var(--safe-accent)] focus:ring-2 focus:ring-[var(--safe-accent)]/20"
+                className="min-h-tap w-full mt-2 px-4 py-2.5 rounded-xl border border-[var(--safe-neutral-border)] text-sm outline-none focus:border-[var(--safe-accent)] focus:ring-2 focus:ring-[var(--safe-accent)]/20"
                 placeholder={T("otherPlaceholder", lang)} />
             )}
             {errors.reconciliationFrequency && <p className="text-xs text-red-500 mt-1">{errors.reconciliationFrequency}</p>}
@@ -95,7 +95,7 @@ export default function Step4Trust({ data, setData, lang, errors }: StepProps) {
             { value: "first", key: "auditFirst" as const },
           ]).map(({ value, key }) => (
             <button key={value} type="button" onClick={() => setData({ auditIssues: value })}
-              className={`py-3 px-4 rounded-xl border text-sm font-medium transition-all duration-200
+              className={`min-h-tap py-3 px-4 rounded-xl border text-sm font-medium transition-all duration-200
                 ${data.auditIssues === value
                   ? "bg-[var(--safe-accent)] text-white border-[var(--safe-accent)]"
                   : "bg-white border-[var(--safe-neutral-border)] text-[var(--safe-darkest)] hover:border-[var(--safe-sage)]"}`}>

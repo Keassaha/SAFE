@@ -65,7 +65,7 @@ export default async function ConversationDetailPage({
             <Link
               key={t.id}
               href={`/console/support/${t.id}`}
-              className="rounded border border-si-line bg-si-canvas px-2 py-0.5 text-xs text-si-ink hover:border-si-verified"
+              className="inline-flex items-center min-h-tap rounded border border-si-line bg-si-canvas px-2 py-0.5 text-xs text-si-ink hover:border-si-verified"
             >
               {t.titre} · {t.statut}
             </Link>
@@ -100,7 +100,7 @@ export default async function ConversationDetailPage({
                           href={`/api/support/attachments/${p.id}`}
                           target="_blank"
                           rel="noreferrer"
-                          className="flex items-center gap-2 rounded-md border border-si-line bg-si-surface px-2 py-1.5 text-xs text-si-ink hover:border-si-verified"
+                          className="min-h-tap flex items-center gap-2 rounded-md border border-si-line bg-si-surface px-2 py-1.5 text-xs text-si-ink hover:border-si-verified"
                         >
                           <FileText className="h-4 w-4 shrink-0 text-si-muted" />
                           <span className="truncate">{p.nom}</span>

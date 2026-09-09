@@ -10,7 +10,7 @@ import { SafeLogo } from "@/components/branding/SafeLogo";
 import { Button } from "@/components/ui/Button";
 
 const inputBaseClass =
-  "w-full h-11 rounded-[6px] border border-border bg-surface text-[14px] text-text-primary placeholder:text-text-muted outline-none transition-all duration-200 focus:border-si-ink-strong focus:ring-1 focus:ring-si-ink-strong/40 font-sans";
+  "w-full h-tap rounded-[6px] border border-border bg-surface text-[14px] text-text-primary placeholder:text-text-muted outline-none transition-all duration-200 focus:border-si-ink-strong focus:ring-1 focus:ring-si-ink-strong/40 font-sans";
 const inputClass = `${inputBaseClass} px-4`;
 const passwordInputClass = `${inputBaseClass} pl-4 pr-12`;
 
@@ -157,7 +157,7 @@ function AuthPageContent() {
         <button
           type="button"
           onClick={() => switchTab("signin")}
-          className={`flex-1 rounded-[6px] px-4 py-2 text-[13px] font-medium transition-all ${
+          className={`min-h-tap flex-1 rounded-[6px] px-4 py-2 text-[13px] font-medium transition-all ${
             activeTab === "signin"
               ? "bg-surface shadow-[0_1px_3px_rgba(0,0,0,0.05)] border border-border text-text-primary"
               : "text-text-muted hover:text-text-primary border border-transparent"
@@ -168,7 +168,7 @@ function AuthPageContent() {
         <button
           type="button"
           onClick={() => switchTab("signup")}
-          className={`flex-1 rounded-[6px] px-4 py-2 text-[13px] font-medium transition-all ${
+          className={`min-h-tap flex-1 rounded-[6px] px-4 py-2 text-[13px] font-medium transition-all ${
             activeTab === "signup"
                ? "bg-surface shadow-[0_1px_3px_rgba(0,0,0,0.05)] border border-border text-text-primary"
                : "text-text-muted hover:text-text-primary border border-transparent"
@@ -238,7 +238,7 @@ function AuthPageContent() {
                 onClick={() => setShowPassword((value) => !value)}
                 aria-label={showPassword ? t("hidePassword") : t("showPassword")}
                 title={showPassword ? t("hidePassword") : t("showPassword")}
-                className="absolute inset-y-0 right-0 flex w-11 items-center justify-center rounded-r-[6px] text-text-muted transition-colors hover:text-text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-si-ink-strong/40 focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
+                className="absolute inset-y-0 right-0 flex w-tap items-center justify-center rounded-r-[6px] text-text-muted transition-colors hover:text-text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-si-ink-strong/40 focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
               >
                 {showPassword ? (
                   <EyeOff className="h-4 w-4" aria-hidden />
@@ -256,7 +256,7 @@ function AuthPageContent() {
               {t("forgotLink")}
             </Link>
           </div>
-          <Button type="submit" className="mt-2 h-11 w-full">
+          <Button type="submit" className="mt-2 h-tap w-full">
             {loading ? t("signingIn") : t("signInButton")}
           </Button>
         </form>
@@ -334,7 +334,7 @@ function AuthPageContent() {
                 onClick={() => setShowSignupPassword((value) => !value)}
                 aria-label={showSignupPassword ? t("hidePassword") : t("showPassword")}
                 title={showSignupPassword ? t("hidePassword") : t("showPassword")}
-                className="absolute inset-y-0 right-0 flex w-11 items-center justify-center rounded-r-[6px] text-text-muted transition-colors hover:text-text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-si-ink-strong/40 focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
+                className="absolute inset-y-0 right-0 flex w-tap items-center justify-center rounded-r-[6px] text-text-muted transition-colors hover:text-text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-si-ink-strong/40 focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
               >
                 {showSignupPassword ? (
                   <EyeOff className="h-4 w-4" aria-hidden />
@@ -344,7 +344,7 @@ function AuthPageContent() {
               </button>
             </div>
           </div>
-          <Button type="submit" className="mt-2 h-11 w-full">
+          <Button type="submit" className="mt-2 h-tap w-full">
             {loading ? t("creating") : t("createFirmButton")}
           </Button>
         </form>
@@ -377,15 +377,15 @@ export default function ConnexionPage() {
           <div className="mx-auto mb-4 h-14 w-14 rounded-full bg-surface-2 animate-pulse" />
           <div className="mx-auto mb-2 h-8 w-32 rounded bg-surface-2 animate-pulse" />
           <div className="mx-auto mb-6 h-4 w-60 rounded bg-surface-2 animate-pulse" />
-          <div className="mb-6 h-11 rounded-full bg-surface-2 animate-pulse" />
+          <div className="mb-6 h-tap rounded-full bg-surface-2 animate-pulse" />
           <div className="space-y-4">
             <div className="h-4 w-24 rounded bg-surface-2 animate-pulse" />
-            <div className="h-11 rounded-safe bg-surface-2 animate-pulse" />
+            <div className="h-tap rounded-safe bg-surface-2 animate-pulse" />
             <div className="h-4 w-24 rounded bg-surface-2 animate-pulse" />
-            <div className="h-11 rounded-safe bg-surface-2 animate-pulse" />
+            <div className="h-tap rounded-safe bg-surface-2 animate-pulse" />
             <div className="h-4 w-28 rounded bg-surface-2 animate-pulse" />
-            <div className="h-11 rounded-safe bg-surface-2 animate-pulse" />
-            <div className="mt-2 h-11 rounded-safe bg-text-muted/20 animate-pulse" />
+            <div className="h-tap rounded-safe bg-surface-2 animate-pulse" />
+            <div className="mt-2 h-tap rounded-safe bg-text-muted/20 animate-pulse" />
           </div>
         </div>
       }

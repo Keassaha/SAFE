@@ -120,7 +120,7 @@ export function DashboardTasksAndAppointments({ tasks, events }: Props) {
               key={tab.id}
               type="button"
               onClick={() => setActiveTab(tab.id)}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-3 text-sm transition-colors"
+              className="min-h-tap flex-1 flex items-center justify-center gap-2 px-4 py-3 text-sm transition-colors"
               style={{
                 color: isActive ? "var(--zinc-950)" : "var(--sand-600)",
                 fontWeight: isActive ? 600 : 500,

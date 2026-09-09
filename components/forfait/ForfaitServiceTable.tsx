@@ -110,7 +110,7 @@ export function ForfaitServiceTable() {
                 <select
                   value={newService.categorie}
                   onChange={e => setNewService({ ...newService, categorie: e.target.value })}
-                  className="w-full h-10 px-3 rounded-safe border border-neutral-border bg-white/90 text-sm"
+                  className="w-full h-tap px-3 rounded-safe border border-neutral-border bg-white/90 text-sm"
                 >
                   <option value="">{t("categoryGeneral")}</option>
                   <option value="immobilier">{t("categoryRealEstate")}</option>
@@ -154,7 +154,7 @@ export function ForfaitServiceTable() {
                       <div className="flex items-center gap-1 justify-end">
                         <input
                           type="number" step="0.01"
-                          className="w-24 h-7 px-2 rounded border border-primary-400 bg-white text-sm text-right"
+                          className="w-24 h-tap px-2 rounded border border-primary-400 bg-white text-sm text-right"
                           value={editState.value}
                           onChange={e => setEditState({ ...editState, value: e.target.value })}
                           autoFocus

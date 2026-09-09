@@ -46,7 +46,7 @@ export function ImmobilierFields({
             <select
               name="sousType"
               defaultValue={sousType ?? "achat"}
-              className="w-full h-10 px-3 rounded-xl border border-si-line bg-si-surface/90 text-sm focus:ring-2 focus:ring-si-verified/25 focus:border-si-verified outline-none"
+              className="w-full h-tap px-3 rounded-xl border border-si-line bg-si-surface/90 text-sm focus:ring-2 focus:ring-si-verified/25 focus:border-si-verified outline-none"
             >
               {SOUS_TYPES.map((t) => (
                 <option key={t.value} value={t.value}>

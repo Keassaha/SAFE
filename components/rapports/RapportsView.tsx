@@ -102,7 +102,7 @@ export function RapportsView({
                 key={tab.id}
                 type="button"
                 onClick={() => setActiveTab(tab.id)}
-                className={`safe-zoom w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-left ${
+                className={`min-h-tap safe-zoom w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-left ${
                   isActive
                     ? "safe-action-degrade text-si-surface"
                     : "text-si-muted hover:bg-si-surface2 hover:text-si-ink"
@@ -123,7 +123,7 @@ export function RapportsView({
           <select
             value={activeTab}
             onChange={(e) => setActiveTab(e.target.value as TabId)}
-            className="w-full h-11 px-4 rounded-lg border border-si-line bg-si-surface text-si-ink font-medium"
+            className="w-full h-tap px-4 rounded-lg border border-si-line bg-si-surface text-si-ink font-medium"
           >
             {TABS.map((tab) => (
               <option key={tab.id} value={tab.id}>{tab.label}</option>
@@ -145,7 +145,7 @@ export function RapportsView({
             <button
               type="button"
               onClick={() => setFiltersOpen(!filtersOpen)}
-              className="safe-zoom inline-flex items-center gap-2 rounded-md border border-si-line bg-si-surface px-3.5 py-2 text-sm font-medium text-si-ink"
+              className="min-h-tap safe-zoom inline-flex items-center gap-2 rounded-md border border-si-line bg-si-surface px-3.5 py-2 text-sm font-medium text-si-ink"
             >
               <SlidersHorizontal className="w-4 h-4" />
               {tc("filters")}
@@ -154,7 +154,7 @@ export function RapportsView({
             <button
               type="button"
               onClick={handlePrint}
-              className="safe-zoom safe-action-degrade inline-flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium text-si-surface"
+              className="min-h-tap safe-zoom safe-action-degrade inline-flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium text-si-surface"
             >
               <Download className="w-4 h-4" />
               {tr("downloadPdf")}

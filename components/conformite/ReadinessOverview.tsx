@@ -180,7 +180,7 @@ export async function ReadinessOverview({ report }: { report: ReadinessReport })
                   </div>
                   <Link
                     href={DOMAIN_ROUTE[d.domain]}
-                    className="inline-flex min-h-11 shrink-0 items-center text-sm font-medium text-si-ink underline-offset-4 transition-colors hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-si-ink/25"
+                    className="inline-flex min-h-tap shrink-0 items-center text-sm font-medium text-si-ink underline-offset-4 transition-colors hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-si-ink/25"
                   >
                     {t("fix")}
                   </Link>
@@ -194,7 +194,7 @@ export async function ReadinessOverview({ report }: { report: ReadinessReport })
       {/* Le reste ne demande rien. Il reste consultable, il ne s'impose plus. */}
       {conformes.length > 0 ? (
         <details className="safe-feuille overflow-hidden">
-          <summary className="cursor-pointer list-none px-4 py-3 text-sm font-medium text-si-ink marker:content-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-si-verified">
+          <summary className="min-h-tap cursor-pointer list-none px-4 py-3 text-sm font-medium text-si-ink marker:content-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-si-verified">
             {t("compliantHeading", { count: conformes.length })}
           </summary>
           <ul className="divide-y divide-si-line2 border-t border-si-line">
