@@ -19,11 +19,17 @@ export default async function ComptabilitePage() {
   const canWriteJournal = canManageExpenseJournal(role);
   const canSeePayments = canManageInvoices(role);
 
-  const [journalKpis, expenseData, isSafeInc] = await Promise.all([
-    calculateJournalBalance(cabinetId),
-    loadExpenseJournalData(cabinetId),
-    isSafeIncCabinet(cabinetId),
-  ]);
+  /* Le compte de chaque journal, pour que l'onglet le porte comme « Cartable (9) »
+     sur la fiche dossier. Trois `count`, indexés, moins chers que la page. */
+  const [journalKpis, expenseData, isSafeInc, nbEcritures, nbDepenses, nbPaiements] =
+    await Promise.all([
+      calculateJournalBalance(cabinetId),
+      loadExpenseJournalData(cabinetId),
+      isSafeIncCabinet(cabinetId),
+      prisma.journalGeneralEntry.count({ where: { cabinetId } }),
+      prisma.cabinetExpense.count({ where: { cabinetId } }),
+      prisma.payment.count({ where: { cabinetId, reversedAt: null } }),
+    ]);
 
   return (
     <ComptabilitePageView
@@ -33,6 +39,7 @@ export default async function ComptabilitePage() {
       isSafeInc={isSafeInc}
       canWriteJournal={canWriteJournal}
       canSeePayments={canSeePayments}
+      comptes={{ general: nbEcritures, depenses: nbDepenses, paiements: nbPaiements }}
     />
   );
 }

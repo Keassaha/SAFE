@@ -4,22 +4,13 @@ import { useFormatteurs } from "@/lib/i18n/formatteurs";
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
-import {
-  BarChart3,
-  BookOpen,
-  ChevronDown,
-  CreditCard,
-  FileClock,
-  FileText,
-  Landmark,
-  Percent,
-  Receipt,
-  Scale,
-} from "lucide-react";
+import { tMicro } from "@/lib/motion";
+import { BookOpen, CreditCard, Receipt } from "lucide-react";
 import { routes } from "@/lib/routes";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { Figure } from "@/components/ui/Figure";
 import { MovementLegend } from "@/components/comptabilite/MovementLegend";
 // Types Prisma générés (pas d'instance prisma sur le namespace @prisma/client)
 import type { BankImportSession, BankImportTransaction, ExpenseCategory } from "@prisma/client";
@@ -57,6 +48,8 @@ interface ComptabilitePageViewProps {
   };
   /** Mode consultant SAFE Inc. : masque le fidéicommis (non pertinent). */
   isSafeInc?: boolean;
+  /** Nombre d'entrées par journal, porté par l'onglet. */
+  comptes?: { general: number; depenses: number; paiements: number };
   /** Tenir les livres (saisie, import, validation). Sinon : lecture seule. */
   canWriteJournal?: boolean;
   /** Accès au module Paiements (même droit que /facturation/paiements). */
@@ -70,6 +63,7 @@ export function ComptabilitePageView({
   isSafeInc = false,
   canWriteJournal = true,
   canSeePayments = true,
+  comptes,
 }: ComptabilitePageViewProps) {
   const t = useTranslations("accountingUi");
   const { formatCurrency } = useFormatteurs();
@@ -79,39 +73,47 @@ export function ComptabilitePageView({
   // plutôt que d'afficher une vue qui ne chargera pas.
   const availableTabs = TABS.filter((tab_) => tab_.id !== "paiements" || canSeePayments);
   const effectiveTab = availableTabs.some((tab_) => tab_.id === tab) ? tab : "general";
-  const ease = [0.16, 1, 0.3, 1] as const;
   const k = initialJournalKpis;
   const [showHelp, setShowHelp] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
 
-  // Menu de section (remplace la barre d'onglets) — façon méga-menu, thème si-*.
-  // Colonne « Journaux » = pilote la vue in-page ; « Raccourcis » = navigation liée.
+  /* Les trois journaux, en onglets.
+   *
+   * Ils vivaient dans un menu déroulant qui portait aussi une colonne
+   * « Raccourcis » de six liens vers Facturation, Fidéicommis, Rapprochement,
+   * Créances, Taxes et Rapports. C'était un second menu à l'intérieur d'une
+   * page, et les six destinations sont déjà atteignables : les trois premières
+   * par le menu principal, les trois autres depuis l'écran Facturation.
+   * Décision CEO du 2026-09-09. Trois choix ne se cachent pas derrière un clic.
+   *
+   * Le motif d'onglet est celui de la fiche dossier, validé le 2026-08-27 :
+   * filet bas, souligné plein sur l'actif, jetons si-*. */
   const journalItems = [
-    { id: "general" as const, label: t("tabGeneralJournal"), desc: "Toutes les écritures du cabinet", icon: BookOpen },
-    { id: "depenses" as const, label: t("tabExpenseJournal"), desc: "Débours et dépenses", icon: Receipt },
+    { id: "general" as const, label: t("tabGeneralJournal"), desc: t("journalGeneralDesc"), icon: BookOpen },
+    { id: "depenses" as const, label: t("tabExpenseJournal"), desc: t("journalExpensesDesc"), icon: Receipt },
     // Les paiements dépendent du droit de facturation : l'API qui les sert le
     // vérifie. Proposer l'onglet sans le droit n'afficherait qu'une erreur.
     ...(canSeePayments
-      ? [{ id: "paiements" as const, label: t("tabPayments"), desc: "Encaissements et allocations", icon: CreditCard }]
+      ? [{ id: "paiements" as const, label: t("tabPayments"), desc: t("journalPaymentsDesc"), icon: CreditCard }]
       : []),
   ];
-  /* Raccourcis : uniquement des destinations qui existent. Un lien vers une
-     route absente coûte plus cher qu'un lien manquant. Vérifiés contre
-     lib/routes.ts et l'arborescence de app/(app). */
-  const shortcutItems = [
-    { label: "Facturation", desc: "Factures et honoraires", icon: FileText, href: routes.facturation },
-    ...(isSafeInc
-      ? []
-      : [
-          { label: "Fidéicommis et comptes", desc: "Soldes en fiducie", icon: Landmark, href: routes.comptes },
-          { label: "Rapprochement", desc: "Relevé bancaire et registre", icon: Scale, href: "/comptes/rapprochement" },
-        ]),
-    { label: "Créances", desc: "Âge des comptes clients", icon: FileClock, href: routes.facturationCreancesAging },
-    { label: "Taxes", desc: "TPS et TVQ à remettre", icon: Percent, href: routes.facturationTaxes },
-    { label: "Rapports", desc: "Sorties comptables et fiscales", icon: BarChart3, href: routes.rapports },
-  ];
-  const currentJournal = journalItems.find((j) => j.id === effectiveTab) ?? journalItems[0];
-  const CurrentIcon = currentJournal.icon;
+  /* L'onglet courant est un état local, pas une navigation.
+   *
+   * Chaque onglet était un lien : changer de journal repartait au serveur, le
+   * trait sous l'onglet sautait au lieu de glisser, et la page clignotait. Les
+   * trois journaux sont pourtant déjà tous chargés dans ce composant.
+   *
+   * `history.replaceState` garde l'adresse partageable sans provoquer de
+   * navigation. Contrepartie assumée, dite au CEO le 2026-09-09 : le bouton
+   * Précédent ne revient plus à l'onglet précédent. */
+  const [ongletLocal, setOngletLocal] = useState<ComptabiliteTabId | null>(null);
+  const ongletActif = ongletLocal ?? effectiveTab;
+  const choisirOnglet = (id: ComptabiliteTabId) => {
+    setOngletLocal(id);
+    window.history.replaceState(null, "", routes.comptabiliteTab(id));
+  };
+
+  const compteDe = (id: ComptabiliteTabId) =>
+    id === "general" ? comptes?.general : id === "depenses" ? comptes?.depenses : comptes?.paiements;
 
   // Synthèse financière en liste dense plutôt qu'en cartes KPI.
   // Doctrine interface intérieure §6 et §7 : pas de boîtes à ombre pour porter un
@@ -152,23 +154,26 @@ export function ComptabilitePageView({
       explanation: t("cardExpensesExpl"),
       trust: false,
     },
-    // Fidéicommis : masqué en mode consultant SAFE Inc. (non pertinent).
-    // Hors de ce mode il reste toujours visible, sans interaction (doctrine §7).
-    ...(isSafeInc
-      ? []
-      : [
-          {
-            href: routes.comptes,
-            title: t("cardTrustTitle"),
-            amount: k.soldeFideicommis,
-            explanation: t("cardTrustExpl"),
-            trust: true,
-          },
-        ]),
   ];
+  /* Le solde de fidéicommis ne figure plus ici. Décision CEO du 2026-09-09.
+   *
+   * Les livres du fidéicommis sont des livres SÉPARÉS : compte bancaire propre,
+   * registre propre, rapprochement propre. L'écran s'intitulait « L'argent du
+   * cabinet, sans mélange » et la ligne disait « Jamais un revenu », puis posait
+   * le montant dans la même liste que les revenus. Aligné sous eux, sur le même
+   * bord droit, il invitait exactement la comparaison qu'un cabinet ne doit
+   * jamais faire.
+   *
+   * Aucune alerte de fidéicommis non plus : le rapprochement en retard se voit
+   * déjà au Fidéicommis, en Conformité et aux Points à surveiller. Une
+   * quatrième copie n'aurait averti personne de plus. */
 
   return (
-    <div className="mx-auto w-full max-w-[1180px] px-2 pb-24 pt-4 font-sans">
+    /* Plus de largeur propre. La page s'imposait 1 180 px là où toute
+       l'application en fait 1 280 : elle était la seule, et les cent pixels
+       perdus tronquaient le client et le dossier dans le journal.
+       Signalé par le CEO le 2026-09-09. */
+    <div className="w-full px-2 pb-24 pt-4 font-sans">
       {/* Plus de bannière. Un écran de comptabilité s'ouvre sur des chiffres,
           pas sur un bandeau de marque : la hauteur gagnée sert à la lecture. */}
       <PageHeader
@@ -183,175 +188,142 @@ export function ComptabilitePageView({
 
       {/* ── Bloc 1 : synthèse financière ── */}
       <section className="mt-8">
-        <div className="flex items-center justify-between gap-3">
-          <h2 className="font-serif text-[22px] leading-tight text-si-ink">{t("snapshotTitle")}</h2>
-          <button
-            type="button"
-            onClick={() => setShowHelp((v) => !v)}
-            className="shrink-0 text-[12px] font-medium text-si-ink-strong hover:underline"
-          >
-            {showHelp ? t("hideHelp") : t("showHelp")}
-          </button>
-        </div>
+        <h2 className="font-serif text-[22px] leading-tight text-si-ink">{t("snapshotTitle")}</h2>
 
-        <div className="mt-3 border-t border-si-line">
+        {/* La grammaire est celle de la page Facturation (`FacturationMainKpis`) :
+            libellé en petites capitales, montant en mono tabulaire, un mot
+            d'appoint à côté, aucun cadre, aucun filet vertical, un seul filet
+            en bas. Les deux écrans d'argent du produit se lisent donc de la
+            même façon. Demande CEO du 2026-09-09.
+
+            Les explications étaient des phrases entières. Elles deviennent le
+            mot d'appoint, à la place et au rôle que Facturation lui donne. */}
+        <dl className="mt-4 grid grid-cols-1 gap-x-8 gap-y-4 border-b border-si-line pb-5 min-[400px]:grid-cols-2 sm:gap-y-5 lg:flex lg:gap-x-12">
           {summaryRows.map((row) => {
-            const rowClass =
-              "grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-6 border-b border-si-line px-2 py-2.5";
-            const content = (
+            const mesure = (
               <>
-                <span className="min-w-0">
-                  <span className="text-[13px] font-medium text-si-ink group-hover:text-si-ink-strong">
-                    {row.title}
+                <dt className="text-[11px] font-medium uppercase tracking-[0.08em] text-si-muted">
+                  {row.title}
+                </dt>
+                <dd className="mt-1.5 flex items-baseline gap-2">
+                  <span className="font-mono text-[18px] font-medium leading-[24px] tabular-nums text-si-ink sm:text-[22px] sm:leading-[26px]">
+                    {formatCurrency(row.amount)}
                   </span>
-                  {row.trust && (
-                    <span className="ml-2 align-middle text-[11px] font-medium text-si-amber-ink">
-                      {t("cardTrustBadge")}
-                    </span>
-                  )}
-                  <span className="mt-0.5 block truncate text-[12px] text-si-muted">
-                    {row.explanation}
-                  </span>
-                </span>
-                <span className="justify-self-end text-right font-mono text-[15px] tabular-nums text-si-ink">
-                  {formatCurrency(row.amount)}
-                </span>
+                  <span className="truncate text-[12px] text-si-muted">{row.explanation}</span>
+                </dd>
               </>
             );
-            // Une ligne sans destination reste une ligne : même densité, même
-            // alignement, mais rien qui se soulève sous le curseur. Le chiffre
-            // se lit, il ne promet pas une page.
             return row.href ? (
-              <Link
-                key={row.title}
-                href={row.href}
-                className={`group ${rowClass} transition-colors duration-150 hover:bg-si-canvas`}
-              >
-                {content}
+              <Link key={row.title} href={row.href} className="group min-w-0 rounded-md">
+                {mesure}
               </Link>
             ) : (
-              <div key={row.title} className={rowClass}>
-                {content}
+              <div key={row.title} className="min-w-0">
+                {mesure}
               </div>
             );
           })}
-        </div>
+        </dl>
+      </section>
+
+      {/* ── Bloc 2 : les trois journaux ──────────────────────────────────
+          Onglets horizontaux, en EN-TÊTE DE LA CARTE. La colonne verticale
+          mangeait 224 px de largeur, et c'est ce qui poussait le registre à
+          défiler de gauche à droite. Signalé par le CEO le 2026-09-09.
+
+          Le motif est celui de la fiche dossier, avec deux ajouts : les
+          onglets et le registre forment un seul objet au lieu d'une barre
+          posée au-dessus d'une boîte, et chaque onglet porte son compte,
+          comme « Cartable (9) ». */}
+      <section className="mt-10">
+        <p className="mb-4 max-w-[65ch] text-[13px] leading-relaxed text-si-muted">
+          {t("detailsDesc")}{" "}
+          <button
+            type="button"
+            onClick={() => setShowHelp((v) => !v)}
+            aria-expanded={showHelp}
+            className="font-medium text-si-ink-strong underline decoration-si-line underline-offset-2 hover:decoration-si-ink-strong"
+          >
+            {showHelp ? t("hideHelp") : t("showHelp")}
+          </button>
+        </p>
 
         {showHelp && (
-          <div className="mt-4">
+          <div className="mb-4">
             <MovementLegend />
           </div>
         )}
-      </section>
 
-      {/* ── Bloc 2 : détails et journaux (zone expert, non dominante) ── */}
-      <section className="mt-12">
-        {/* L'action principale du journal remonte ici, sur la ligne de titre de sa
-            propre section (fond clair), plutôt que de flotter au milieu de la page.
-            Le journal y projette sa barre d'actions via #compta-journal-actions. */}
-        <div className="flex items-start justify-between gap-4">
-          <div className="min-w-0">
-            <h2 className="font-serif text-[22px] leading-tight text-si-ink">{t("detailsTitle")}</h2>
-            <p className="mt-2 max-w-[65ch] text-[13px] leading-relaxed text-si-muted">{t("detailsDesc")}</p>
-          </div>
-          <div id="compta-journal-actions" className="flex shrink-0 flex-wrap items-center justify-end gap-2" />
-        </div>
-
-        {/* Menu de section (remplace les onglets) — façon méga-menu, thème si-* */}
-        <div className="relative mt-4 mb-8" onMouseLeave={() => setMenuOpen(false)}>
-          <button
-            type="button"
-            onClick={() => setMenuOpen((v) => !v)}
-            aria-expanded={menuOpen}
+        <div className="overflow-hidden rounded-2xl border border-si-line bg-si-surface">
+          <nav
+            /* Pas de `overflow-x-auto` : trois onglets tiennent toujours, et
+               le conteneur défilant faisait apparaître une barre de défilement
+               à l'intérieur de la carte. Sous 640 px ils passent à la ligne. */
+            className="flex flex-wrap gap-1 border-b border-si-line px-2"
             aria-label={t("tabsAriaLabel")}
-            className="inline-flex items-center gap-2.5 rounded-[10px] border-[0.5px] border-si-line bg-si-surface px-4 py-2.5 text-[13px] text-si-ink transition-colors duration-200 hover:border-si-ink-strong/40"
           >
-            <CurrentIcon className="w-4 h-4 text-si-ink-strong" strokeWidth={1.75} />
-            <span className="font-medium font-sans">{currentJournal.label}</span>
-            <ChevronDown
-              className="w-4 h-4 text-si-muted transition-transform duration-200"
-              style={{ transform: menuOpen ? "rotate(180deg)" : "rotate(0deg)" }}
+            {journalItems.map((j) => {
+              const Icon = j.icon;
+              const actif = ongletActif === j.id;
+              const n = compteDe(j.id);
+              return (
+                <button
+                  key={j.id}
+                  type="button"
+                  onClick={() => choisirOnglet(j.id)}
+                  aria-current={actif ? "page" : undefined}
+                  title={j.desc}
+                  /* `safe-zoom` : la surface se soulève au survol, elle ne se
+                     peint pas en gris. Règle dure du 2026-08-11. */
+                  className={`min-h-tap safe-zoom relative -mb-px flex shrink-0 items-center gap-2.5 whitespace-nowrap px-4 py-3.5 text-sm font-medium ${
+                    actif ? "text-si-ink" : "text-si-muted hover:text-si-body"
+                  }`}
+                >
+                  {actif && (
+                    /* Le trait GLISSE d'un onglet à l'autre au lieu de sauter :
+                       l'onglet est un état local, donc le composant n'est plus
+                       démonté à chaque changement. */
+                    <motion.span
+                      layoutId="compta-onglet"
+                      className="absolute inset-x-0 bottom-0 h-0.5 rounded-t bg-si-ink"
+                      transition={tMicro}
+                      aria-hidden
+                    />
+                  )}
+                  <Icon className="relative z-10 h-4 w-4 shrink-0" strokeWidth={1.75} aria-hidden />
+                  <span className="relative z-10">{j.label}</span>
+                  {typeof n === "number" && (
+                    <span
+                      className={`relative z-10 rounded-full px-1.5 py-0.5 font-mono text-[12px] tabular-nums ${
+                        actif ? "bg-si-ink/10 text-si-ink" : "bg-si-ink/[0.055] text-si-muted"
+                      }`}
+                    >
+                      {n}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </nav>
+
+          <div className="p-5">
+            {/* Plus de titre de section : l'onglet actif nomme déjà le journal,
+                et il le nommait une deuxième fois quarante pixels plus bas, avec
+                la même icône. Signalé par le CEO le 2026-09-09. Restent les
+                boutons, qui se posent sur la ligne des filtres du journal. */}
+            <div
+              id="compta-journal-actions"
+              className="mb-4 flex flex-wrap items-center justify-end gap-2 empty:mb-0"
             />
-          </button>
 
-          <AnimatePresence>
-            {menuOpen && (
-              <motion.div
-                initial={{ opacity: 0, y: -8, scale: 0.97 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -8, scale: 0.97 }}
-                transition={{ duration: 0.24, ease }}
-                style={{ originY: 0, originX: 0 }}
-                className="absolute left-0 top-full z-30 mt-2 w-[min(640px,calc(100vw-2rem))] rounded-[16px] border-[0.5px] border-si-line bg-si-surface p-5 shadow-si-card"
-              >
-                <div className="grid grid-cols-1 gap-x-6 gap-y-1 sm:grid-cols-2">
-                  <div>
-                    <h4 className="mb-2 font-sans text-[11px] font-medium uppercase tracking-[0.07em] text-si-muted">
-                      Journaux
-                    </h4>
-                    {journalItems.map((j) => {
-                      const Icon = j.icon;
-                      const active = effectiveTab === j.id;
-                      return (
-                        <Link
-                          key={j.id}
-                          href={routes.comptabiliteTab(j.id)}
-                          onClick={() => setMenuOpen(false)}
-                          className={`safe-zoom flex items-center gap-3 rounded-[10px] px-2.5 py-2.5 ${
-                            active ? "bg-si-canvas" : "hover:bg-si-canvas"
-                          }`}
-                        >
-                          <span className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-[9px] bg-si-canvas text-si-ink-strong">
-                            <Icon className="h-[17px] w-[17px]" strokeWidth={1.75} />
-                          </span>
-                          <span className="min-w-0">
-                            <span className="block font-sans text-[13px] font-medium text-si-ink">{j.label}</span>
-                            <span className="block font-sans text-[12px] text-si-muted">{j.desc}</span>
-                          </span>
-                          {active && <span className="ml-auto h-1.5 w-1.5 shrink-0 rounded-full bg-si-ink-strong" aria-hidden />}
-                        </Link>
-                      );
-                    })}
-                  </div>
-                  <div>
-                    <h4 className="mb-2 font-sans text-[11px] font-medium uppercase tracking-[0.07em] text-si-muted">
-                      Raccourcis
-                    </h4>
-                    {shortcutItems.map((s) => {
-                      const Icon = s.icon;
-                      return (
-                        <Link
-                          key={s.href}
-                          href={s.href}
-                          onClick={() => setMenuOpen(false)}
-                          className="safe-zoom flex items-center gap-3 rounded-[10px] px-2.5 py-2.5 hover:bg-si-canvas"
-                        >
-                          <span className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-[9px] bg-si-canvas text-si-ink-strong">
-                            <Icon className="h-[17px] w-[17px]" strokeWidth={1.75} />
-                          </span>
-                          <span className="min-w-0">
-                            <span className="block font-sans text-[13px] font-medium text-si-ink">{s.label}</span>
-                            <span className="block font-sans text-[12px] text-si-muted">{s.desc}</span>
-                          </span>
-                        </Link>
-                      );
-                    })}
-                  </div>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-
-        <div>
-          {effectiveTab === "general" && (
+          {ongletActif === "general" && (
             <GeneralJournalPageView
               initialKpis={initialJournalKpis}
               embedded
               canWrite={canWriteJournal}
             />
           )}
-          {effectiveTab === "depenses" && (
+          {ongletActif === "depenses" && (
             <ExpenseJournalPageView
               embedded
               cabinetId={cabinetId}
@@ -364,9 +336,10 @@ export function ComptabilitePageView({
               canWrite={canWriteJournal}
             />
           )}
-          {effectiveTab === "paiements" && canSeePayments && (
+          {ongletActif === "paiements" && canSeePayments && (
             <FacturationPaiementsView cabinetId={cabinetId} embeddedInComptabilite />
           )}
+          </div>
         </div>
       </section>
     </div>

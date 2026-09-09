@@ -81,7 +81,37 @@ export function ExpenseJournalPageView({
         </ActionsSection>
       )}
 
-      <ExpenseJournalKpis data={kpis} />
+      {/* Les six cartes de chiffres ne s'affichent QUE sur l'écran autonome.
+          Intégrées dans Comptabilité, elles répétaient sous les yeux ce que la
+          bande du haut venait de dire : « Dépenses du mois » y figure déjà.
+          Deux fois le même montant sur un écran, c'est une invitation à
+          chercher lequel des deux est le bon.
+
+          Le journal général applique déjà cette règle (GeneralJournalPageView,
+          `{!embedded && …}`). Le journal des dépenses ne la suivait pas.
+          Décision CEO du 2026-09-09. */}
+      {!embedded && <ExpenseJournalKpis data={kpis} />}
+
+      {/* Ce qui reste à faire n'est pas un chiffre à contempler : c'est du
+          travail. Il monte donc en tête de l'onglet, sous forme d'une seule
+          phrase, et il disparaît quand tout est classé et validé. */}
+      {embedded && (kpis.uncategorizedCount > 0 || kpis.toValidateCount > 0) && (
+        <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1 rounded-lg border border-si-amber/40 bg-si-amber/[0.08] px-4 py-3">
+          <span className="text-[13px] font-medium text-si-amber-ink">{t("toDoTitle")}</span>
+          <span className="text-[12.5px] text-si-body">
+            {[
+              kpis.uncategorizedCount > 0
+                ? t("toDoUncategorized", { count: kpis.uncategorizedCount })
+                : null,
+              kpis.toValidateCount > 0
+                ? t("toDoToValidate", { count: kpis.toValidateCount })
+                : null,
+            ]
+              .filter(Boolean)
+              .join(" · ")}
+          </span>
+        </div>
+      )}
 
       {canWrite && (
         <ImportRecuModal

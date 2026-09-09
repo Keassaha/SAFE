@@ -1,12 +1,14 @@
 "use client";
 import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useLayoutEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
+import { provenanceEcriture } from "@/lib/comptabilite/provenance";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
+import { QueryErrorState } from "@/components/ui/QueryErrorState";
 import { Modal } from "@/components/ui/Modal";
 import {
   createManualJournalEntryAction,
@@ -21,7 +23,6 @@ import { JOURNAL_TRANSACTION_TYPE_LABELS, JOURNAL_MOTIVE_LABELS } from "@/types/
 import type { JournalCorrectionMotive, JournalTransactionType } from "@prisma/client";
 import { MotifAnnulationModal } from "@/components/comptabilite/MotifAnnulationModal";
 import { Download, Loader2, BookOpen, Scale, TrendingUp, TrendingDown, Landmark, Wallet, FileClock, HandCoins, Plus, Undo2 } from "lucide-react";
-import { staggerContainer, staggerContainerReduced, fadeInUp, useSafeMotion } from "@/lib/motion";
 import { ComptaKpiCard } from "@/components/comptabilite/ComptaKpiCard";
 import { MovementsTable } from "@/components/comptabilite/MovementsTable";
 import { RegistrePagination, REGISTRE_TAILLE_PAGE } from "@/components/ui/registre";
@@ -86,17 +87,26 @@ export function GeneralJournalPageView({
   const t = useTranslations("accountingUi");
   const { formatCurrency, formatCalendarDate } = useFormatteurs();
   const tc = useTranslations("common");
-  const { reduceMotion } = useSafeMotion();
   const now = new Date();
   const [kpis, setKpis] = useState<JournalKpiData>(initialKpis);
   const [dateFrom, setDateFrom] = useState<string>(() => toDateStr(startOfMonth(now)));
   const [dateTo, setDateTo] = useState<string>(() => toDateStr(endOfMonth(now)));
   const [typeTransaction, setTypeTransaction] = useState<string>("");
   const [search, setSearch] = useState("");
+  /* La recherche partait au serveur à CHAQUE frappe : « Beaulieu » déclenchait
+     huit requêtes. Elle attend maintenant 300 ms de silence. Les autres filtres
+     n'ont pas besoin de ce délai, un choix de date ou de type est un geste
+     unique. Signalé en revue le 2026-09-09. */
+  const [rechercheDifferee, setRechercheDifferee] = useState("");
+  useEffect(() => {
+    const t = setTimeout(() => setRechercheDifferee(search), 300);
+    return () => clearTimeout(t);
+  }, [search]);
   const [page, setPage] = useState(1);
   const [entries, setEntries] = useState<JournalEntryRow[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [manualModalOpen, setManualModalOpen] = useState(false);
   const [manualSubmitting, setManualSubmitting] = useState(false);
@@ -104,20 +114,44 @@ export function GeneralJournalPageView({
   const [manualContext, setManualContext] = useState<ManualJournalContext | null>(null);
   const [manualType, setManualType] = useState<JournalTransactionType>("AJUSTEMENT");
   const [manualClientId, setManualClientId] = useState("");
-  const [viewMode, setViewMode] = useState<JournalViewMode>("readable");
+  /* Le journal BRUT est la vue par défaut depuis le 2026-09-09.
+     Décision CEO, sur son propre usage : « en rouge on voit que c'est sorti et
+     en vert que c'est entré, c'est plus simple ». Trois colonnes expliquées
+     (augmente le dû, réduit le dû, trésorerie) demandaient un apprentissage que
+     deux colonnes colorées ne demandent pas. La vue expliquée reste, en lien. */
+  const [viewMode, setViewMode] = useState<JournalViewMode>("expert");
   const [annulationCible, setAnnulationCible] = useState<JournalEntryRow | null>(null);
   const [annulationSubmitting, setAnnulationSubmitting] = useState(false);
   const [annulationError, setAnnulationError] = useState<string | null>(null);
 
+  /* « Mouvements expliqués » et « Journal brut » lisent EXACTEMENT les mêmes
+     écritures : seule la présentation change (`PORTEE_PAR_VUE` les envoie tous
+     deux sur « actives »). La requête ne doit donc dépendre que de la portée,
+     jamais du mode d'affichage. Passer de l'un à l'autre est désormais
+     instantané, sans aller-retour serveur. Signalé par le CEO le 2026-09-09. */
+  const portee = PORTEE_PAR_VUE[viewMode];
+
+  /* La colonne de correction n'apparaît que si le rôle peut écrire ET qu'au
+     moins une ligne est réellement annulable. Sinon elle n'affiche qu'une suite
+     de tirets et vole la largeur du reste. Garde-fou miroir du serveur
+     (`assertAnnulable`) : seule une saisie manuelle vivante s'annule. */
+  const avecCorrection = canWrite && entries.some((e) => e.annulable);
+
   const loadEntries = useCallback(async () => {
     setLoading(true);
+    /* Un échec de chargement était SILENCIEUX : `try/finally` sans `catch`,
+       donc l'écran gardait les anciennes lignes et personne ne savait qu'elles
+       étaient périmées. Sur un journal comptable, lire des chiffres périmés en
+       croyant qu'ils sont à jour est pire que ne rien lire.
+       Relevé en évaluation le 2026-09-09. */
+    setLoadError(false);
     try {
       const result = await getJournalEntriesAction({
         dateFrom: dateFrom ? new Date(dateFrom + "T00:00:00") : undefined,
         dateTo: dateTo ? new Date(dateTo + "T23:59:59") : undefined,
         typeTransaction: (typeTransaction || undefined) as JournalTransactionType | undefined,
-        search: search.trim() || undefined,
-        portee: PORTEE_PAR_VUE[viewMode],
+        search: rechercheDifferee.trim() || undefined,
+        portee,
         page,
         pageSize: PAGE_SIZE,
         orderBy: "dateTransaction",
@@ -125,10 +159,12 @@ export function GeneralJournalPageView({
       });
       setEntries(result.entries);
       setTotalCount(result.totalCount);
+    } catch {
+      setLoadError(true);
     } finally {
       setLoading(false);
     }
-  }, [dateFrom, dateTo, typeTransaction, search, page, viewMode]);
+  }, [dateFrom, dateTo, typeTransaction, rechercheDifferee, page, portee]);
 
   useEffect(() => {
     loadEntries();
@@ -174,7 +210,7 @@ export function GeneralJournalPageView({
           dateFrom: dateFrom ? new Date(dateFrom + "T00:00:00") : undefined,
           dateTo: dateTo ? new Date(dateTo + "T23:59:59") : undefined,
           typeTransaction: (typeTransaction || undefined) as JournalTransactionType | undefined,
-          search: search.trim() || undefined,
+          search: rechercheDifferee.trim() || undefined,
           page: 1,
           pageSize: 10000,
           orderBy: "dateTransaction",
@@ -235,11 +271,15 @@ export function GeneralJournalPageView({
     }
   }
 
-  // Cible de projection des actions quand le journal est embarqué dans la page
-  // Comptabilité. Résolue après le montage, sinon le noeud n'existe pas encore.
+  /* Cible de projection des actions quand le journal est embarqué dans la page
+     Comptabilité. Résolue AVANT la peinture : avec `useEffect`, l'en-tête de
+     section se peignait sans ses boutons, puis se recomposait quand ils
+     arrivaient. Même correction que dans `ActionsSection`, signalée par le CEO
+     le 2026-09-09. */
   const [actionsHost, setActionsHost] = useState<HTMLElement | null>(null);
   const [hostLookupDone, setHostLookupDone] = useState(false);
-  useEffect(() => {
+  const useEffetAvantPeinture = typeof window === "undefined" ? useEffect : useLayoutEffect;
+  useEffetAvantPeinture(() => {
     if (!embedded) return;
     setActionsHost(document.getElementById("compta-journal-actions"));
     setHostLookupDone(true);
@@ -331,7 +371,7 @@ export function GeneralJournalPageView({
                 type="date"
                 required
                 defaultValue={toDateStr(new Date())}
-                className="w-full h-[38px] px-3 rounded-md border-[0.5px] border-si-line bg-si-surface text-si-ink focus:border-si-verified focus:shadow-focus outline-none"
+                className="w-full h-tap px-3 rounded-md border-[0.5px] border-si-line bg-si-surface text-si-ink focus:border-si-verified focus:shadow-focus outline-none"
               />
             </div>
             <div>
@@ -340,7 +380,7 @@ export function GeneralJournalPageView({
                 name="typeTransaction"
                 value={manualType}
                 onChange={(e) => setManualType(e.target.value as JournalTransactionType)}
-                className="w-full h-[38px] px-3 rounded-md border-[0.5px] border-si-line bg-si-surface text-si-ink focus:border-si-verified focus:shadow-focus outline-none"
+                className="w-full h-tap px-3 rounded-md border-[0.5px] border-si-line bg-si-surface text-si-ink focus:border-si-verified focus:shadow-focus outline-none"
               >
                 {Object.entries(JOURNAL_TRANSACTION_TYPE_LABELS)
                   .filter(([value]) => value === "AJUSTEMENT" || value === "CORRECTION")
@@ -360,7 +400,7 @@ export function GeneralJournalPageView({
                 name="clientId"
                 value={manualClientId}
                 onChange={(e) => setManualClientId(e.target.value)}
-                className="w-full h-[38px] px-3 rounded-md border-[0.5px] border-si-line bg-si-surface text-si-ink focus:border-si-verified focus:shadow-focus outline-none"
+                className="w-full h-tap px-3 rounded-md border-[0.5px] border-si-line bg-si-surface text-si-ink focus:border-si-verified focus:shadow-focus outline-none"
               >
                 <option value="">{t("noClient")}</option>
                 {manualContext?.clients.map((client) => (
@@ -374,7 +414,7 @@ export function GeneralJournalPageView({
               <label className="block text-[12px] font-medium text-si-ink mb-[6px]">{t("matter")}</label>
               <select
                 name="dossierId"
-                className="w-full h-[38px] px-3 rounded-md border-[0.5px] border-si-line bg-si-surface text-si-ink focus:border-si-verified focus:shadow-focus outline-none"
+                className="w-full h-tap px-3 rounded-md border-[0.5px] border-si-line bg-si-surface text-si-ink focus:border-si-verified focus:shadow-focus outline-none"
               >
                 <option value="">{t("noMatter")}</option>
                 {manualDossiers.map((dossier) => (
@@ -392,7 +432,7 @@ export function GeneralJournalPageView({
               <input
                 name="reference"
                 placeholder={manualType === "FACTURE" ? t("invoiceNumberPlaceholder") : t("referencePlaceholder")}
-                className="w-full h-[38px] px-3 rounded-md border-[0.5px] border-si-line bg-si-surface text-si-ink placeholder:text-si-muted focus:border-si-verified focus:shadow-focus outline-none"
+                className="w-full h-tap px-3 rounded-md border-[0.5px] border-si-line bg-si-surface text-si-ink placeholder:text-si-muted focus:border-si-verified focus:shadow-focus outline-none"
               />
             </div>
             <div>
@@ -400,7 +440,7 @@ export function GeneralJournalPageView({
               <input
                 name="categorie"
                 defaultValue={defaultCategoryFor(manualType)}
-                className="w-full h-[38px] px-3 rounded-md border-[0.5px] border-si-line bg-si-surface text-si-ink focus:border-si-verified focus:shadow-focus outline-none"
+                className="w-full h-tap px-3 rounded-md border-[0.5px] border-si-line bg-si-surface text-si-ink focus:border-si-verified focus:shadow-focus outline-none"
               />
             </div>
           </div>
@@ -411,7 +451,7 @@ export function GeneralJournalPageView({
               name="description"
               required
               defaultValue={defaultDescriptionFor(manualType)}
-              className="w-full h-[38px] px-3 rounded-md border-[0.5px] border-si-line bg-si-surface text-si-ink focus:border-si-verified focus:shadow-focus outline-none"
+              className="w-full h-tap px-3 rounded-md border-[0.5px] border-si-line bg-si-surface text-si-ink focus:border-si-verified focus:shadow-focus outline-none"
             />
           </div>
 
@@ -426,7 +466,7 @@ export function GeneralJournalPageView({
                 required={defaultDirection === "IN"}
                 defaultValue={defaultDirection === "IN" ? "" : "0"}
                 placeholder="0,00"
-                className="w-full h-[38px] px-3 rounded-md border-[0.5px] border-si-line bg-si-surface text-si-ink focus:border-si-verified focus:shadow-focus outline-none"
+                className="w-full h-tap px-3 rounded-md border-[0.5px] border-si-line bg-si-surface text-si-ink focus:border-si-verified focus:shadow-focus outline-none"
               />
             </div>
             <div>
@@ -439,7 +479,7 @@ export function GeneralJournalPageView({
                 required={defaultDirection === "OUT"}
                 defaultValue={defaultDirection === "OUT" ? "" : "0"}
                 placeholder="0,00"
-                className="w-full h-[38px] px-3 rounded-md border-[0.5px] border-si-line bg-si-surface text-si-ink focus:border-si-verified focus:shadow-focus outline-none"
+                className="w-full h-tap px-3 rounded-md border-[0.5px] border-si-line bg-si-surface text-si-ink focus:border-si-verified focus:shadow-focus outline-none"
               />
             </div>
           </div>
@@ -458,13 +498,11 @@ export function GeneralJournalPageView({
         </form>
       </Modal>
 
+      {/* Plus d'entrée en cascade, comme au journal des dépenses : six chiffres
+          qui se posent l'un après l'autre retardent la lecture sans rien
+          expliquer. */}
       {!embedded && (
-      <motion.div
-        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
-        variants={reduceMotion ? staggerContainerReduced : staggerContainer}
-        initial="hidden"
-        animate="visible"
-      >
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <ComptaKpiCard
           label={t("kpiOperatingBalance")}
           value={kpis.soldeOperationnelEstime}
@@ -522,23 +560,24 @@ export function GeneralJournalPageView({
           icon={Landmark}
           semantic="neutral"
         />
-      </motion.div>
+      </div>
       )}
 
-      <Card>
-        <CardHeader title={t("filters")} />
-        <CardContent>
+      {/* Barre d'outils, plus une carte.
+          « Filtres » était une carte à part entière, avec cadre et titre, pour
+          quatre champs : une carte dans la carte, et 190 px de hauteur avant la
+          première écriture. Les libellés empilés au-dessus de chaque champ
+          disparaissent aussi, le texte indicatif suffit sur une seule ligne.
+          Signalé par le CEO le 2026-09-09. */}
           <form
-            className="flex flex-wrap gap-4 items-end"
+            className="flex flex-wrap items-center gap-2"
             onSubmit={(e) => {
               e.preventDefault();
               setPage(1);
             }}
           >
-            <div>
-              <label className="block text-[12px] font-medium text-si-ink mb-[6px]">
-                {t("from")}
-              </label>
+            <label className="flex items-center gap-2">
+              <span className="whitespace-nowrap text-[12px] font-medium text-si-muted">{t("from")}</span>
               <input
                 type="date"
                 value={dateFrom}
@@ -546,13 +585,11 @@ export function GeneralJournalPageView({
                   setDateFrom(e.target.value);
                   setPage(1);
                 }}
-                className="w-40 h-[38px] px-3 rounded-md border-[0.5px] border-si-line bg-si-surface text-si-ink focus:border-si-verified focus:shadow-focus outline-none"
+                className="w-40 h-10 px-3 rounded-md border border-si-line bg-si-surface text-si-ink focus:border-si-verified focus:shadow-focus outline-none"
               />
-            </div>
-            <div>
-              <label className="block text-[12px] font-medium text-si-ink mb-[6px]">
-                {t("to")}
-              </label>
+            </label>
+            <label className="flex items-center gap-2">
+              <span className="whitespace-nowrap text-[12px] font-medium text-si-muted">{t("to")}</span>
               <input
                 type="date"
                 value={dateTo}
@@ -560,20 +597,29 @@ export function GeneralJournalPageView({
                   setDateTo(e.target.value);
                   setPage(1);
                 }}
-                className="w-40 h-[38px] px-3 rounded-md border-[0.5px] border-si-line bg-si-surface text-si-ink focus:border-si-verified focus:shadow-focus outline-none"
+                className="w-40 h-10 px-3 rounded-md border border-si-line bg-si-surface text-si-ink focus:border-si-verified focus:shadow-focus outline-none"
               />
-            </div>
-            <div>
-              <label className="block text-[12px] font-medium text-si-ink mb-[6px]">
-                {t("type")}
-              </label>
+            </label>
+            <label className="flex items-center gap-2">
+              <span className="whitespace-nowrap text-[12px] font-medium text-si-muted">{t("type")}</span>
+              {/* « Corrections » n'était pas une vue, c'était un filtre : il
+                  change les LIGNES affichées, pas leur présentation. Il siégeait
+                  pourtant à côté de deux boutons qui, eux, ne changeaient que la
+                  présentation. Il rejoint donc les filtres, à sa place. */}
               <select
-                value={typeTransaction}
+                value={viewMode === "corrections" ? "__corrections" : typeTransaction}
                 onChange={(e) => {
-                  setTypeTransaction(e.target.value);
+                  const v = e.target.value;
+                  if (v === "__corrections") {
+                    setViewMode("corrections");
+                    setTypeTransaction("");
+                  } else {
+                    if (viewMode === "corrections") setViewMode("expert");
+                    setTypeTransaction(v);
+                  }
                   setPage(1);
                 }}
-                className="w-48 h-[38px] px-3 rounded-md border-[0.5px] border-si-line bg-si-surface text-si-ink focus:border-si-verified focus:shadow-focus outline-none"
+                className="w-48 h-10 px-3 rounded-md border border-si-line bg-si-surface text-si-ink focus:border-si-verified focus:shadow-focus outline-none"
               >
                 <option value="">{t("allTypes")}</option>
                 {TRANSACTION_TYPE_OPTIONS.map((opt) => (
@@ -581,12 +627,11 @@ export function GeneralJournalPageView({
                     {opt.label}
                   </option>
                 ))}
+                <option value="__corrections">{t("viewCorrections")}</option>
               </select>
-            </div>
-            <div>
-              <label className="block text-[12px] font-medium text-si-ink mb-[6px]">
-                {t("search")}
-              </label>
+            </label>
+            <label className="flex items-center gap-2">
+              <span className="whitespace-nowrap text-[12px] font-medium text-si-muted">{t("search")}</span>
               <input
                 type="search"
                 placeholder={t("searchPlaceholder")}
@@ -595,92 +640,121 @@ export function GeneralJournalPageView({
                   setSearch(e.target.value);
                   setPage(1);
                 }}
-                className="w-56 h-[38px] px-3 rounded-md border-[0.5px] border-si-line bg-si-surface text-si-ink placeholder:text-si-muted focus:border-si-verified focus:shadow-focus outline-none"
+                className="w-56 h-10 px-3 rounded-md border border-si-line bg-si-surface text-si-ink placeholder:text-si-muted focus:border-si-verified focus:shadow-focus outline-none"
+              />
+            </label>
+            {/* « Appliquer » est retiré le 2026-09-09.
+                Son `onSubmit` ne faisait que `preventDefault` : les filtres se
+                rechargent déjà à chaque changement, ils sont dans les
+                dépendances de `loadEntries`. Le bouton ne servait donc à rien,
+                et il enfreignait la loi L2 du référentiel, une seule action
+                pleine par écran : il en faisait une deuxième à côté de
+                « Nouvelle écriture ». */}
+          </form>
+
+      {/* Plus de carte « Écritures ».
+          Elle était la deuxième carte à l'intérieur de la carte du journal, avec
+          son cadre et son titre, pour porter un tableau. Le sélecteur de vue et
+          le compte remontent sur la ligne des filtres. Signalé par le CEO le
+          2026-09-09. */}
+      <div>
+        <div className="mb-3 flex flex-wrap items-center justify-end gap-3 border-b border-si-line2 pb-3">
+          {/* Plus de bandeau à trois boutons. Deux d'entre eux ne changeaient que
+              la présentation des MÊMES lignes, le troisième changeait les
+              lignes : trois boutons égaux pour deux natures différentes.
+              Reste un interrupteur, entre la vue brute et la vue expliquée. */}
+          <div className="flex items-center gap-3">
+            {viewMode !== "corrections" && (
+              <button
+                type="button"
+                onClick={() => setViewMode(viewMode === "expert" ? "readable" : "expert")}
+                className="min-h-tap text-[12.5px] font-medium text-si-ink-strong underline decoration-si-line underline-offset-2 hover:decoration-si-ink-strong"
+              >
+                {t(viewMode === "expert" ? "viewReadable" : "viewExpert")}
+              </button>
+            )}
+            <span className="text-sm font-normal text-si-muted">
+              {t("entryCount", { count: totalCount })}
+            </span>
+          </div>
+        </div>
+        {/* Le tableau ne disparaît JAMAIS pendant un chargement.
+            Il était remplacé par un bloc de 100 px portant un tourniquet : la
+            page se repliait, puis se redéployait quand les écritures
+            arrivaient. C'est ce saut que le CEO a signalé le 2026-09-09.
+            Désormais les lignes restent en place, légèrement atténuées, et la
+            hauteur ne bouge pas. */}
+        <div className="relative overflow-x-auto">
+          {loading && (
+            <div
+              className="pointer-events-none absolute inset-0 z-10 flex items-start justify-center bg-si-surface/45 pt-10"
+              aria-hidden
+            >
+              <Loader2 className="h-6 w-6 animate-spin text-si-muted motion-reduce:animate-none" />
+            </div>
+          )}
+          {loadError ? (
+            <div className="p-5">
+              <QueryErrorState
+                title={t("loadErrorTitle")}
+                description={t("loadErrorHint")}
+                retryLabel={t("retry")}
+                onRetry={loadEntries}
+                retrying={loading}
               />
             </div>
-            <Button type="submit" variant="primary">
-              {t("apply")}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader
-          title={t("entries")}
-          action={
-            <div className="flex items-center gap-3">
-              <div className="inline-flex rounded-lg border border-si-line bg-si-canvas p-0.5">
-                {(["readable", "expert", "corrections"] as const).map((mode) => (
-                  <button
-                    key={mode}
-                    type="button"
-                    onClick={() => {
-                      setViewMode(mode);
-                      setPage(1);
-                    }}
-                    className={`rounded-md px-3 py-1 text-[12px] font-medium transition-colors ${
-                      viewMode === mode
-                        ? "bg-si-surface text-si-ink shadow-sm"
-                        : "text-si-muted hover:text-si-ink"
-                    }`}
-                  >
-                    {t(
-                      mode === "readable"
-                        ? "viewReadable"
-                        : mode === "expert"
-                          ? "viewExpert"
-                          : "viewCorrections",
-                    )}
-                  </button>
-                ))}
-              </div>
-              <span className="text-sm font-normal text-si-muted">
-                {t("entryCount", { count: totalCount })}
-              </span>
-            </div>
-          }
-        />
-        <CardContent className="p-0 overflow-x-auto">
-          {loading ? (
-            <div className="flex items-center justify-center py-12">
-              <Loader2 className="w-8 h-8 animate-spin text-si-verified" aria-hidden />
-            </div>
-          ) : viewMode === "corrections" ? (
+          ) : null}
+          <div
+            aria-busy={loading || undefined}
+            className={loading ? "opacity-45 transition-opacity duration-200" : "transition-opacity duration-200"}
+          >
+          {/* Sur un échec, les lignes déjà chargées RESTENT, sous le bandeau
+              qui prévient qu'elles peuvent être périmées : elles étaient justes
+              au moment où elles sont arrivées, et les cacher ferait perdre le
+              contexte sans rien protéger. En revanche, s'il n'y a rien à
+              montrer, on n'affiche pas « Aucune écriture » à côté d'une erreur :
+              les deux phrases se contrediraient. */}
+          {loadError && entries.length === 0 ? null : viewMode === "corrections" ? (
             <>
-              <motion.div
-                variants={reduceMotion ? undefined : fadeInUp}
-                initial="hidden"
-                animate="visible"
-                transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1], delay: 0.15 }}
-              >
+              {/* Plus d'entrée en fondu-glissé. Une table de journal déjà
+                  chargée n'a rien à annoncer : elle montait de 12 px en 400 ms
+                  APRÈS un délai de 150 ms, donc l'écran restait vide, puis se
+                  remplissait en bougeant. C'est ce qui donnait l'impression
+                  d'une page mal figée. Le mouvement doit guider, confirmer ou
+                  clarifier ; celui-ci ne faisait aucun des trois.
+                  Signalé par le CEO le 2026-09-09. */}
+              <div>
                 <CorrectionsTable entries={entries} emptyLabel={t("correctionsEmpty")} />
-              </motion.div>
+              </div>
               {pagination}
             </>
           ) : viewMode === "readable" ? (
             <>
-              <motion.div
-                variants={reduceMotion ? undefined : fadeInUp}
-                initial="hidden"
-                animate="visible"
-                transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1], delay: 0.15 }}
-              >
+              {/* Plus d'entrée en fondu-glissé. Une table de journal déjà
+                  chargée n'a rien à annoncer : elle montait de 12 px en 400 ms
+                  APRÈS un délai de 150 ms, donc l'écran restait vide, puis se
+                  remplissait en bougeant. C'est ce qui donnait l'impression
+                  d'une page mal figée. Le mouvement doit guider, confirmer ou
+                  clarifier ; celui-ci ne faisait aucun des trois.
+                  Signalé par le CEO le 2026-09-09. */}
+              <div>
                 <MovementsTable
                   entries={entries}
                   onAnnuler={canWrite ? setAnnulationCible : undefined}
                 />
-              </motion.div>
+              </div>
               {pagination}
             </>
           ) : (
             <>
-              <motion.div
-                variants={reduceMotion ? undefined : fadeInUp}
-                initial="hidden"
-                animate="visible"
-                transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1], delay: 0.15 }}
-              >
+              {/* Plus d'entrée en fondu-glissé. Une table de journal déjà
+                  chargée n'a rien à annoncer : elle montait de 12 px en 400 ms
+                  APRÈS un délai de 150 ms, donc l'écran restait vide, puis se
+                  remplissait en bougeant. C'est ce qui donnait l'impression
+                  d'une page mal figée. Le mouvement doit guider, confirmer ou
+                  clarifier ; celui-ci ne faisait aucun des trois.
+                  Signalé par le CEO le 2026-09-09. */}
+              <div>
               <table className="min-w-full">
                 <thead>
                   <tr className="border-b-[0.5px] border-si-line bg-si-canvas">
@@ -691,7 +765,7 @@ export function GeneralJournalPageView({
                       {t("type")}
                     </th>
                     <th className="px-4 py-3 text-left text-[11px] font-medium text-si-muted uppercase tracking-[0.05em]">
-                      {t("reference")}
+                      {t("colSource")}
                     </th>
                     <th className="px-4 py-3 text-left text-[11px] font-medium text-si-muted uppercase tracking-[0.05em]">
                       {t("client")}
@@ -700,7 +774,7 @@ export function GeneralJournalPageView({
                       {t("matter")}
                     </th>
                     <th className="px-4 py-3 text-left text-[11px] font-medium text-si-muted uppercase tracking-[0.05em]">
-                      {t("description")}
+                      {t("colVoucher")}
                     </th>
                     <th className="px-4 py-3 text-right text-[11px] font-medium text-si-muted uppercase tracking-[0.05em]">
                       {t("moneyIn")}
@@ -708,12 +782,22 @@ export function GeneralJournalPageView({
                     <th className="px-4 py-3 text-right text-[11px] font-medium text-si-muted uppercase tracking-[0.05em]">
                       {t("moneyOut")}
                     </th>
+                    {/* La correction ne vivait QUE dans la vue expliquée. En
+                        faisant du journal brut la vue par défaut le 2026-09-09,
+                        elle est devenue inatteignable : le CEO l'a signalé le
+                        jour même. Elle est ici, au même endroit et sous le même
+                        garde-fou que dans l'autre vue. */}
+                    {avecCorrection ? (
+                      <th className="px-4 py-3 text-right text-[11px] font-medium text-si-muted uppercase tracking-[0.05em]">
+                        {t("actions")}
+                      </th>
+                    ) : null}
                   </tr>
                 </thead>
                 <tbody>
                   {entries.length === 0 ? (
                     <tr>
-                      <td colSpan={8} className="py-16 text-center">
+                      <td colSpan={avecCorrection ? 9 : 8} className="py-16 text-center">
                         <div className="flex flex-col items-center justify-center">
                           <div className="flex items-center justify-center w-16 h-16 rounded-full bg-si-canvas mb-4">
                             <BookOpen className="w-8 h-8 text-si-muted" />
@@ -734,8 +818,12 @@ export function GeneralJournalPageView({
                           <td className="px-4 py-3 text-[14px] text-si-ink whitespace-nowrap">
                             {JOURNAL_TRANSACTION_TYPE_LABELS[e.typeTransaction]}
                           </td>
-                          <td className="px-4 py-3 text-[14px] font-mono text-si-ink whitespace-nowrap">
-                            {e.reference ?? "—"}
+                          {/* Provenance, à la place de la référence bancaire :
+                              comment l'argent est arrivé, ou la catégorie de la
+                              dépense. Vide sur une facture émise, où elle ne
+                              ferait que répéter la colonne Type. */}
+                          <td className="px-4 py-3 text-[14px] text-si-body whitespace-nowrap">
+                            {provenanceEcriture(e) ?? "—"}
                           </td>
                           <td className="px-4 py-3 text-[14px] text-si-ink max-w-[180px] truncate">
                             {e.clientName ?? "—"}
@@ -743,27 +831,50 @@ export function GeneralJournalPageView({
                           <td className="px-4 py-3 text-[14px] font-mono text-si-ink max-w-[180px] truncate">
                             {e.dossierLabel ?? "—"}
                           </td>
-                          <td className="px-4 py-3 text-[14px] text-si-ink max-w-[220px] truncate">
-                            {e.description}
+                          {/* La PIÈCE, à la place de la description qui répétait
+                              le type. Le numéro de facture, identique sur la
+                              facture et sur le paiement qui la règle. */}
+                          <td
+                            className="px-4 py-3 text-[14px] font-mono text-si-ink max-w-[220px] truncate"
+                            title={(e.documentIdentifier ?? e.reference) ?? undefined}
+                          >
+                            {e.documentIdentifier ?? e.reference ?? "—"}
                           </td>
                           <td className="px-4 py-3 text-[14px] text-right font-mono tabular-nums text-si-verified">
                             {display.inAmount > 0 ? formatCurrency(display.inAmount) : "—"}
                           </td>
-                          <td className="px-4 py-3 text-[14px] text-right font-mono tabular-nums text-[#B84A3E]">
+                          <td className="px-4 py-3 text-[14px] text-right font-mono tabular-nums text-si-danger-ink">
                             {display.outAmount > 0 ? formatCurrency(display.outAmount) : "—"}
                           </td>
+                          {avecCorrection ? (
+                            <td className="px-4 py-3 text-right whitespace-nowrap">
+                              {e.annulable ? (
+                                <button
+                                  type="button"
+                                  onClick={() => setAnnulationCible(e)}
+                                  className="min-h-tap inline-flex items-center gap-1.5 rounded-md px-2 py-1.5 text-[13px] text-si-muted transition-colors hover:bg-si-canvas hover:text-si-ink-strong"
+                                >
+                                  <Undo2 className="h-4 w-4 shrink-0" aria-hidden />
+                                  {t("cancelEntry")}
+                                </button>
+                              ) : (
+                                <span className="text-[12px] text-si-muted">—</span>
+                              )}
+                            </td>
+                          ) : null}
                         </tr>
                       );
                     })
                   )}
                 </tbody>
               </table>
-              </motion.div>
+              </div>
               {pagination}
             </>
           )}
-        </CardContent>
-      </Card>
+          </div>
+        </div>
+      </div>
 
       <MotifAnnulationModal
         open={annulationCible !== null}

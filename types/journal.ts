@@ -26,6 +26,16 @@ export interface JournalEntryCreateInput {
   sourceId?: string | null;
   utilisateurId?: string | null;
   /**
+   * La PIÈCE sur laquelle l'écriture repose : le numéro de la facture pour une
+   * facture émise ET pour le paiement qui la règle, le fournisseur pour une
+   * dépense. C'est ce qui relie deux lignes du journal à l'œil.
+   *
+   * Le champ existait en base sans être écrit par la facturation. Il l'est
+   * depuis le 2026-09-09, demande CEO : « le numéro de facture serait
+   * pertinent ». Aucune migration.
+   */
+  documentIdentifier?: string | null;
+  /**
    * Réservé aux CONTREPASSATIONS : identifiant de l'écriture que celle-ci annule.
    * Doctrine: docs/accounting/DOCTRINE_ANNULATION_CORRECTION.md §1.1.
    */
@@ -82,6 +92,8 @@ export interface JournalEntryRow {
   dossierLabel: string | null;
   description: string;
   categorie: string | null;
+  /** La pièce justificative. Voir `JournalEntryCreateInput.documentIdentifier`. */
+  documentIdentifier: string | null;
   montantEntree: number;
   montantSortie: number;
   // `solde` a été RETIRÉ de cette ligne. La colonne existe encore en base, mais elle

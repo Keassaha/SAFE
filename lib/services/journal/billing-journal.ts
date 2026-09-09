@@ -86,6 +86,8 @@ export async function writeJournalForIssuedInvoice(
         dossierId: invoice.dossierId,
         description: invoiceDescription(invoice),
         categorie: "Facturation client",
+        // La pièce d'une facture, c'est son numéro.
+        documentIdentifier: invoice.numero ?? null,
         montantEntree: amount,
         montantSortie: 0,
         sourceModule: INVOICE_JOURNAL_SOURCE_MODULE,
@@ -143,6 +145,10 @@ export async function writeJournalForPayment(
         dossierId: payment.invoice?.dossierId ?? null,
         description: paymentDescription(payment),
         categorie: payment.paymentMethod ? `Paiement ${payment.paymentMethod}` : "Paiement client",
+        /* La pièce d'un paiement, c'est la FACTURE qu'il règle, pas sa propre
+           référence bancaire : celle-ci vit déjà dans `reference`. Les deux
+           lignes portent ainsi le même numéro, et l'œil voit ce qui règle quoi. */
+        documentIdentifier: payment.invoice?.numero ?? null,
         montantEntree: amount,
         montantSortie: 0,
         sourceModule: PAYMENT_JOURNAL_SOURCE_MODULE,

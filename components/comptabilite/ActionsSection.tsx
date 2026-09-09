@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 
 /** Cible que la page Comptabilité réserve aux actions de la section courante. */
@@ -32,7 +32,19 @@ export function ActionsSection({
   const [hote, setHote] = useState<HTMLElement | null>(null);
   const [rechercheFaite, setRechercheFaite] = useState(false);
 
-  useEffect(() => {
+  /* AVANT la peinture, pas après.
+   *
+   * Avec `useEffect`, la cible n'était trouvée qu'une fois l'écran déjà
+   * affiché : l'en-tête de section se peignait sans ses boutons, puis les
+   * boutons apparaissaient et l'en-tête se recomposait. C'est ce saut que le
+   * CEO a signalé le 2026-09-09 sous « la page n'est pas bien figée ».
+   *
+   * `useLayoutEffect` s'exécute entre le rendu et la peinture, donc les boutons
+   * sont à leur place du premier coup. Il n'existe pas côté serveur : on
+   * retombe sur `useEffect` au rendu serveur, où il ne s'exécute pas non plus. */
+  const useEffetAvantPeinture = typeof window === "undefined" ? useEffect : useLayoutEffect;
+
+  useEffetAvantPeinture(() => {
     if (!embarque) return;
     setHote(document.getElementById(HOTE_ACTIONS_COMPTA));
     setRechercheFaite(true);

@@ -1,23 +1,19 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { ArrowDownCircle, CalendarRange, Tag, CheckCircle2, FolderOpen, Upload } from "lucide-react";
-import { staggerContainer, staggerContainerReduced, useSafeMotion } from "@/lib/motion";
 import { ComptaKpiCard } from "@/components/comptabilite/ComptaKpiCard";
 import type { ExpenseJournalKpisData } from "@/app/(app)/journal/depenses/ExpenseJournalPageView";
 
 export function ExpenseJournalKpis({ data }: { data: ExpenseJournalKpisData }) {
   const t = useTranslations("billingCompUi");
-  const { reduceMotion } = useSafeMotion();
 
+  /* Plus d'entrée en cascade. Six chiffres qui apparaissent l'un après l'autre
+     au chargement, c'est du mouvement décoratif : il ne guide rien, ne confirme
+     rien et n'éclaircit rien. Il retarde seulement la lecture de chiffres qui
+     sont déjà là. Décision CEO du 2026-09-09. */
   return (
-    <motion.div
-      className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4"
-      variants={reduceMotion ? staggerContainerReduced : staggerContainer}
-      initial="hidden"
-      animate="visible"
-    >
+    <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
       <ComptaKpiCard
         label={t("expensesThisMonth")}
         value={data.totalMonth}
@@ -72,6 +68,6 @@ export function ExpenseJournalKpis({ data }: { data: ExpenseJournalKpisData }) {
         semantic="neutral"
         subText={t("transactions")}
       />
-    </motion.div>
+    </div>
   );
 }

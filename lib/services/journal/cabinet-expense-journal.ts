@@ -101,6 +101,8 @@ export async function writeJournalForCabinetExpense(
         dossierId: expense.dossierId ?? null,
         description: pickDescription(expense),
         categorie: expense.categoryName ?? null,
+        // La pièce d'une dépense, c'est le fournisseur du reçu.
+        documentIdentifier: expense.fournisseurNormalise ?? null,
         montantEntree: mapping.direction === "IN" ? mapping.amount : 0,
         montantSortie: mapping.direction === "OUT" ? mapping.amount : 0,
         sourceModule: CABINET_EXPENSE_JOURNAL_SOURCE_MODULE,

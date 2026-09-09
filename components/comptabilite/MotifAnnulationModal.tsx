@@ -113,7 +113,7 @@ export function MotifAnnulationModal({
                   // oups », le « oups » venant d'un AUTRE abandonne.
                   if (code !== "AUTRE") setMotifTexte("");
                 }}
-                className="h-4 w-4 shrink-0 accent-si-ink-strong"
+                className="h-tap w-4 shrink-0 accent-si-ink-strong"
               />
               {t(MOTIF_KEY[code])}
             </label>
@@ -130,7 +130,7 @@ export function MotifAnnulationModal({
               onChange={(e) => setMotifTexte(e.target.value)}
               rows={3}
               autoFocus
-              className="w-full rounded-md border-[0.5px] border-si-line bg-si-surface px-3 py-2 text-[14px] text-si-ink outline-none focus:border-si-verified focus:shadow-focus"
+              className="min-h-tap w-full rounded-md border-[0.5px] border-si-line bg-si-surface px-3 py-2 text-[14px] text-si-ink outline-none focus:border-si-verified focus:shadow-focus"
             />
             {!texteValide && motifTexte.length > 0 ? (
               <p className="mt-1 text-[12px] text-si-muted">
