@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Modal } from "@/components/ui/Modal";
@@ -11,6 +11,7 @@ import { TIME_ACTIVITY_TYPES, TIME_ENTRY_STATUT } from "@/lib/constants";
 import { useCreateTimeEntry, useUpdateTimeEntry } from "@/lib/hooks/useTemps";
 import type { TimeEntryStatut } from "@prisma/client";
 import { toCalendarDayUTC, toIsoDay } from "@/lib/utils/calendar-date";
+import { resoudreTauxHoraire, type SourceDuTaux } from "@/lib/temps/taux-horaire";
 import {
   formatDureeHM,
   minutesVersChampHeures,
@@ -38,6 +39,8 @@ interface TimeEntryFormModalProps {
   clients: ClientOption[];
   dossiers: DossierOption[];
   users: UserOption[];
+  /** Taux horaire par défaut du cabinet — dernier échelon de la cascade. */
+  tauxHoraireDefaut?: number | null;
   initial?: Partial<TimeEntryCreateInput> & {
     id?: string;
     clientId?: string;
@@ -55,11 +58,21 @@ export function TimeEntryFormModal({
   clients,
   dossiers,
   users,
+  tauxHoraireDefaut = null,
   initial,
   onSuccess,
 }: TimeEntryFormModalProps) {
   const t = useTranslations("timer.form");
+  const tTemps = useTranslations("temps");
   const locale = useLocale();
+
+  /** Nomme la source du taux pré-rempli, pour le dire sous le champ. */
+  const tSource = (source: SourceDuTaux): string =>
+    source === "dossier"
+      ? tTemps("rateFromMatter")
+      : source === "avocat"
+        ? tTemps("rateFromLawyer")
+        : tTemps("rateFromFirm");
   const isEdit = !!initial?.id;
   const [clientId, setClientId] = useState("");
   const [dossierId, setDossierId] = useState(initial?.dossierId ?? "");
@@ -130,15 +143,24 @@ export function TimeEntryFormModal({
     setError(null);
   }, [open, initial, currentUserId, dossiers, locale]);
 
-  // Pré-remplissage automatique du taux : taux du dossier (négocié) sinon taux de l'avocat sélectionné.
-  // Ne s'applique que tant que l'utilisateur n'a pas saisi de taux à la main.
+  /* Pré-remplissage du taux : dossier, puis avocat, puis cabinet. La règle
+     vit dans `lib/temps/taux-horaire.ts`, partagée avec la facturation et la
+     fin d'un document, qui répondaient chacune autre chose pour la même heure.
+     Ne s'applique que tant que l'utilisateur n'a pas saisi de taux à la main. */
+  const sourceDuTaux = useMemo(
+    () =>
+      resoudreTauxHoraire({
+        dossier: dossiers.find((d) => d.id === dossierId)?.tauxHoraire,
+        avocat: users.find((u) => u.id === userId)?.defaultHourlyRate,
+        cabinet: tauxHoraireDefaut,
+      }),
+    [dossierId, userId, users, dossiers, tauxHoraireDefaut],
+  );
+
   useEffect(() => {
     if (!open || rateManuallyEdited) return;
-    const dossierRate = dossiers.find((d) => d.id === dossierId)?.tauxHoraire;
-    const userRate = users.find((u) => u.id === userId)?.defaultHourlyRate;
-    const resolved = dossierRate ?? userRate ?? 0;
-    setTauxHoraire(resolved);
-  }, [open, rateManuallyEdited, userId, dossierId, users, dossiers]);
+    setTauxHoraire(sourceDuTaux.taux);
+  }, [open, rateManuallyEdited, sourceDuTaux]);
 
   const createMutation = useCreateTimeEntry(cabinetId);
   const updateMutation = useUpdateTimeEntry(cabinetId);
@@ -375,8 +397,12 @@ export function TimeEntryFormModal({
             })}
           </p>
         )}
+        {/* Dire d'où vient le chiffre : « pré-rempli » ne suffit pas quand
+            trois réglages différents peuvent l'avoir produit. */}
         {!rateManuallyEdited && tauxHoraire > 0 && (
-          <p className="text-xs text-si-muted -mt-2">{t("rateAutofillHint")}</p>
+          <p className="text-xs text-si-muted -mt-2">
+            {t("rateAutofillFrom", { source: tSource(sourceDuTaux.source) })}
+          </p>
         )}
         {error && <p className="text-sm text-[#B84A3E]">{error}</p>}
         <div className="flex gap-2 pt-2">

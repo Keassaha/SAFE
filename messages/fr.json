@@ -403,7 +403,8 @@
         "draft": "Brouillon",
         "validated": "Validé",
         "invoiced": "Facturé"
-      }
+      },
+      "rateAutofillFrom": "Pré-rempli à partir du {source}, modifiable."
     },
     "hoursShort": "{heures} h"
   },
@@ -1022,7 +1023,11 @@
       "delete": "Supprimer",
       "approve": "Approuver",
       "export": "Exporter"
-    }
+    },
+    "billableRate": "Taux facturé au client ($/h)",
+    "billableRateHint": "Ce que le client paie pour une heure de cette personne. Pré-rempli à la saisie du temps et sur la facture, toujours modifiable.",
+    "payRateHint": "Ce que cette personne est payée. Sert à la paie, jamais à la facturation.",
+    "billableRateNeedsAccount": "Cette personne n’a pas de compte SAFE : le taux facturé se règle sur son compte. Activez l’accès d’abord."
   },
   "conformite": {
     "readyTitle": "Prêt pour l'inspection",
@@ -2255,7 +2260,10 @@
     "naturalPerson": "Personne physique",
     "registering": "Enregistrement…",
     "registerInRegistry": "Enregistrer dans le registre",
-    "hoursShort": "{heures} h"
+    "hoursShort": "{heures} h",
+    "rateFromMatter": "taux du dossier",
+    "rateFromLawyer": "taux de l’avocat",
+    "rateFromFirm": "taux du cabinet"
   },
   "parametres": {
     "title": "Paramètres",
@@ -2504,7 +2512,11 @@
     "paymentsConnectButton": "Configurer les paiements",
     "paymentsContinueButton": "Terminer la configuration",
     "paymentsRefreshButton": "Actualiser le statut",
-    "paymentsSetupError": "La configuration des paiements a échoué. Vérifiez que Connect est activé sur votre compte Stripe, puis réessayez."
+    "paymentsSetupError": "La configuration des paiements a échoué. Vérifiez que Connect est activé sur votre compte Stripe, puis réessayez.",
+    "cabinetBillingSection": "Facturation du temps",
+    "cabinetBillingHint": "Sert quand ni le dossier ni l’avocat n’a de taux. Ne change jamais une heure déjà enregistrée.",
+    "cabinetDefaultHourlyRate": "Taux horaire par défaut ($/h)",
+    "cabinetDefaultHourlyRateHint": "Laissez vide pour n’en avoir aucun. Le taux du dossier, puis celui de l’avocat, passent avant."
   },
   "validation": {
     "close": "Fermer"

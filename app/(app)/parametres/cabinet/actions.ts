@@ -41,6 +41,11 @@ const cabinetIdentitySchema = z.object({
   gstNumber: z.string().trim().optional().nullable(),
   qstNumber: z.string().trim().optional().nullable(),
   businessNumber: z.string().trim().optional().nullable(),
+  /* Vide = pas de repli. Un taux ne peut pas être négatif ; 0 vaut « non
+     réglé » et se range dans le même cas que vide. */
+  tauxHoraireDefaut: z
+    .union([z.literal(""), z.coerce.number().min(0, "Le taux horaire ne peut pas être négatif.")])
+    .optional(),
 });
 
 export async function updateCabinetIdentity(formData: FormData) {
@@ -60,6 +65,7 @@ export async function updateCabinetIdentity(formData: FormData) {
     gstNumber: (formData.get("gstNumber") as string) || null,
     qstNumber: (formData.get("qstNumber") as string) || null,
     businessNumber: (formData.get("businessNumber") as string) || null,
+    tauxHoraireDefaut: (formData.get("tauxHoraireDefaut") as string) ?? "",
   };
 
   const parsed = cabinetIdentitySchema.safeParse(raw);
@@ -83,6 +89,12 @@ export async function updateCabinetIdentity(formData: FormData) {
       qstNumber: data.qstNumber ? sanitizeInput(data.qstNumber) : undefined,
       businessNumber: data.businessNumber ? sanitizeInput(data.businessNumber) : undefined,
     },
+    /* `undefined` laisse la clé telle quelle (mergeCabinetConfig), donc on
+       distingue « champ vidé » (0 → on efface) de « champ absent ». */
+    tauxHoraireDefaut:
+      data.tauxHoraireDefaut === "" || data.tauxHoraireDefaut === undefined
+        ? 0
+        : Number(data.tauxHoraireDefaut),
   });
 
   await prisma.cabinet.update({
@@ -113,6 +125,7 @@ export async function updateCabinetIdentity(formData: FormData) {
         "barreauNumero",
         "logoUrl",
         "taxNumbers",
+        "tauxHoraireDefaut",
       ],
     },
   });

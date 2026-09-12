@@ -21,6 +21,7 @@ export type EmployeeFormData = Partial<CreateEmployeeInput> & {
   status: EmployeeStatus;
   role: EmployeeRole;
   hourlyRate: number;
+  billableRate?: number | null;
   enableLogin?: boolean;
   password?: string;
 };
@@ -30,6 +31,8 @@ interface EmployeeFormProps {
   employeeId?: string;
   initialData: EmployeeFormData;
   supervisorOptions?: { id: string; fullName: string }[];
+  /** La personne a-t-elle un compte SAFE ? Le taux facturable y vit. */
+  hasLoginAccess?: boolean;
 }
 
 export function EmployeeForm({
@@ -37,6 +40,7 @@ export function EmployeeForm({
   employeeId,
   initialData,
   supervisorOptions = [],
+  hasLoginAccess = false,
 }: EmployeeFormProps) {
   const router = useRouter();
   const t = useTranslations("employees");
@@ -46,6 +50,10 @@ export function EmployeeForm({
   const [form, setForm] = useState<EmployeeFormData>(initialData);
   const roleCanSignIn = canEmployeeRoleSignIn(form.role);
   const enableLogin = Boolean(form.enableLogin);
+  /* Le taux facturé au client vit sur le compte SAFE (`User.defaultHourlyRate`).
+     Sans compte, il n'a nulle part où être écrit : mieux vaut le dire que
+     laisser saisir un chiffre qui disparaîtrait en silence. */
+  const peutPorterUnTauxFacturable = mode === "edit" ? hasLoginAccess : enableLogin;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -64,6 +72,7 @@ export function EmployeeForm({
           role: form.role,
           jobTitle: form.jobTitle,
           hourlyRate: form.hourlyRate,
+          billableRate: form.billableRate ?? null,
           supervisorId: form.supervisorId,
           responsibilities: form.responsibilities,
           enableLogin,
@@ -267,6 +276,12 @@ export function EmployeeForm({
         </div>
       </div>
 
+      {/* DEUX taux, jamais le même nombre.
+          « Taux horaire » écrivait le taux de PAIE. Le taux FACTURÉ au client
+          vivait sur le compte de connexion et n'était réglable par aucun
+          écran : il restait vide pour tout le monde, alors que la saisie de
+          temps le lisait déjà. Les deux sont ici, côte à côte, chacun avec sa
+          phrase, pour qu'on ne puisse plus les confondre. */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label htmlFor="hourlyRate" className="block text-sm font-medium text-si-ink mb-1">
@@ -282,7 +297,37 @@ export function EmployeeForm({
             onChange={(e) => setForm((p) => ({ ...p, hourlyRate: Number(e.target.value) || 0 }))}
             className="min-h-tap w-full rounded-lg border border-si-line px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-si-verified/25"
           />
+          <p className="mt-1.5 text-xs text-si-muted">{t("payRateHint")}</p>
         </div>
+        <div>
+          <label htmlFor="billableRate" className="block text-sm font-medium text-si-ink mb-1">
+            {t("billableRate")}
+          </label>
+          <input
+            id="billableRate"
+            type="number"
+            step="0.01"
+            min="0"
+            disabled={!peutPorterUnTauxFacturable}
+            value={form.billableRate ?? ""}
+            onChange={(e) =>
+              setForm((p) => ({
+                ...p,
+                /* Champ vidé : `null`, pas 0. Zéro serait pris pour un taux
+                   réglé et bloquerait le repli sur le taux du cabinet. */
+                billableRate: e.target.value === "" ? null : Number(e.target.value),
+              }))
+            }
+            placeholder="250"
+            className="min-h-tap w-full rounded-lg border border-si-line px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-si-verified/25 disabled:cursor-not-allowed disabled:bg-si-canvas disabled:text-si-muted"
+          />
+          <p className="mt-1.5 text-xs text-si-muted">
+            {peutPorterUnTauxFacturable ? t("billableRateHint") : t("billableRateNeedsAccount")}
+          </p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {supervisorOptions.length > 0 && (
           <div>
             <label htmlFor="supervisorId" className="block text-sm font-medium text-si-ink mb-1">

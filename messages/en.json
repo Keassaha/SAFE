@@ -403,7 +403,8 @@
         "draft": "Draft",
         "validated": "Validated",
         "invoiced": "Invoiced"
-      }
+      },
+      "rateAutofillFrom": "Pre-filled from the {source}, editable."
     },
     "hoursShort": "{heures} h"
   },
@@ -1022,7 +1023,11 @@
       "delete": "Delete",
       "approve": "Approve",
       "export": "Export"
-    }
+    },
+    "billableRate": "Rate billed to client ($/h)",
+    "billableRateHint": "What the client pays for an hour of this person's time. Pre-filled on time entry and on invoices, always editable.",
+    "payRateHint": "What this person is paid. Used for payroll, never for billing.",
+    "billableRateNeedsAccount": "This person has no SAFE account: the billed rate lives on their account. Enable access first."
   },
   "conformite": {
     "readyTitle": "Inspection readiness",
@@ -2255,7 +2260,10 @@
     "naturalPerson": "Natural person",
     "registering": "Registering…",
     "registerInRegistry": "Register in registry",
-    "hoursShort": "{heures} h"
+    "hoursShort": "{heures} h",
+    "rateFromMatter": "matter rate",
+    "rateFromLawyer": "lawyer rate",
+    "rateFromFirm": "firm rate"
   },
   "parametres": {
     "title": "Settings",
@@ -2504,7 +2512,11 @@
     "paymentsConnectButton": "Set up payments",
     "paymentsContinueButton": "Finish setup",
     "paymentsRefreshButton": "Refresh status",
-    "paymentsSetupError": "Payment setup failed. Make sure Connect is enabled on your Stripe account, then try again."
+    "paymentsSetupError": "Payment setup failed. Make sure Connect is enabled on your Stripe account, then try again.",
+    "cabinetBillingSection": "Time billing",
+    "cabinetBillingHint": "Used when neither the matter nor the lawyer has a rate. Never changes an hour already recorded.",
+    "cabinetDefaultHourlyRate": "Default hourly rate ($/h)",
+    "cabinetDefaultHourlyRateHint": "Leave empty for none. The matter rate, then the lawyer rate, take precedence."
   },
   "validation": {
     "close": "Close"

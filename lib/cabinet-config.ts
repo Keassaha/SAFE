@@ -122,6 +122,16 @@ export type ProrataVehiculeAnnee = {
 export type CabinetConfig = {
   devise?: string;
   tauxInteret?: number;
+  /**
+   * Taux horaire par défaut du cabinet, en dollars.
+   *
+   * Dernier recours de la cascade (dossier → avocat → cabinet, voir
+   * `lib/temps/taux-horaire.ts`). Sert à ce qu'un cabinet qui vient d'ouvrir
+   * ne saisisse pas ses heures à zéro. Ne remplace jamais un taux plus
+   * précis, et n'est jamais appliqué rétroactivement à une heure déjà
+   * enregistrée.
+   */
+  tauxHoraireDefaut?: number;
   formatFacture?: string;
   /** Province du cabinet (ex. "QC", "ON") — pilote la réglementation citée. */
   province?: string;
@@ -142,6 +152,17 @@ export function parseCabinetConfig(rawConfig: string | null): CabinetConfig {
   } catch {
     return {};
   }
+}
+
+/**
+ * Le taux horaire par défaut du cabinet, ou `null` s'il n'est pas réglé.
+ *
+ * Un zéro stocké vaut « pas de taux » : le produit refuse déjà d'enregistrer
+ * une heure facturable à 0, et le rendre ici ferait croire à un réglage.
+ */
+export function getTauxHoraireDefaut(config: CabinetConfig): number | null {
+  const v = config.tauxHoraireDefaut;
+  return typeof v === "number" && Number.isFinite(v) && v > 0 ? v : null;
 }
 
 export function getEnvoiFactureClientConfig(config: CabinetConfig): EnvoiFactureClientConfig {

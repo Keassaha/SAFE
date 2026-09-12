@@ -5,6 +5,7 @@ import { getNextIssuedInvoiceNumero } from "@/lib/facturation/numero-facture";
 import { getCabinetInterfaceDerived } from "@/lib/services/cabinet-interface";
 import { buildBillableTimeEntryWhere } from "@/lib/billing/queries";
 import { CreateInvoiceView } from "./CreateInvoiceView";
+import { parseCabinetConfig, getTauxHoraireDefaut } from "@/lib/cabinet-config";
 
 export default async function NouvelleFacturePage({
   searchParams,
@@ -66,7 +67,14 @@ export default async function NouvelleFacturePage({
         email: true,
         dossiers: {
           where: { statut: { in: ["ouvert", "actif", "en_attente"] } },
-          select: { id: true, intitule: true, numeroDossier: true, reference: true },
+          select: {
+            id: true,
+            intitule: true,
+            numeroDossier: true,
+            reference: true,
+            /* Le taux négocié du mandat prime sur celui de l'avocat. */
+            tauxHoraire: true,
+          },
           orderBy: { dateOuverture: "desc" },
           take: 5,
         },
@@ -99,7 +107,10 @@ export default async function NouvelleFacturePage({
     // Billable users (avocates + admin_cabinet) — for line-item "Responsable" picker
     prisma.user.findMany({
       where: { cabinetId, isBillable: true },
-      select: { id: true, nom: true },
+      /* `defaultHourlyRate` : ce que cet avocat est facturé au client. Sert à
+         pré-remplir le taux d'une ligne d'honoraires tapée à la main, qui
+         partait toujours à zéro. */
+      select: { id: true, nom: true, defaultHourlyRate: true },
       orderBy: { nom: "asc" },
     }),
     getNextIssuedInvoiceNumero(cabinetId),
@@ -277,6 +288,7 @@ export default async function NouvelleFacturePage({
       initialClientId={resolvedSearchParams.clientId ?? ""}
       clientBillables={filteredBillables}
       cabinetTaxConfig={cabinetTaxConfig}
+      tauxHoraireDefaut={getTauxHoraireDefaut(parseCabinetConfig(cabinet.config ?? null))}
     />
   );
 }

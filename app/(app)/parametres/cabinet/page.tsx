@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/Input";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { routes } from "@/lib/routes";
 import { getTranslations } from "next-intl/server";
-import { parseCabinetConfig, getCabinetTaxNumbers } from "@/lib/cabinet-config";
+import { parseCabinetConfig, getCabinetTaxNumbers, getTauxHoraireDefaut } from "@/lib/cabinet-config";
 import { ProrataVehiculeCard } from "@/components/parametres/ProrataVehiculeCard";
 import { toCalendarDayUTC } from "@/lib/utils/calendar-date";
 import { updateCabinetIdentity } from "./actions";
@@ -44,6 +44,7 @@ export default async function CabinetSettingsPage({
   }
   const config = parseCabinetConfig(cabinet.config);
   const taxes = getCabinetTaxNumbers(config);
+  const tauxHoraireDefaut = getTauxHoraireDefaut(config);
   // Exercice courant du cabinet, pris sur le jour calendaire et non sur l'instant.
   const anneeCourante = toCalendarDayUTC(new Date()).getUTCFullYear();
 
@@ -150,6 +151,32 @@ export default async function CabinetSettingsPage({
                   defaultValue={taxes.businessNumber ?? ""}
                   placeholder="123456789"
                 />
+              </div>
+            </div>
+
+            {/* Le taux horaire du cabinet ferme la cascade dossier → avocat →
+                cabinet (lib/temps/taux-horaire.ts). Il vit ici parce qu'il vaut
+                pour tout le cabinet, comme les numéros de taxes juste au-dessus. */}
+            <div className="pt-4 border-t border-si-line/60">
+              <div className="mb-3">
+                <h4 className="text-sm font-medium text-si-ink">{t("cabinetBillingSection")}</h4>
+                <p className="text-xs text-si-muted mt-1">{t("cabinetBillingHint")}</p>
+              </div>
+              <div className="grid gap-5 sm:grid-cols-2">
+                <div>
+                  <Input
+                    label={t("cabinetDefaultHourlyRate")}
+                    name="tauxHoraireDefaut"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    defaultValue={tauxHoraireDefaut ?? ""}
+                    placeholder="250"
+                  />
+                  <p className="mt-1.5 text-xs text-si-muted">
+                    {t("cabinetDefaultHourlyRateHint")}
+                  </p>
+                </div>
               </div>
             </div>
 

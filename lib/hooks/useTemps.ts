@@ -136,6 +136,8 @@ export function useTempsContext(cabinetId: string | null) {
         dossiers: Array<{ id: string; intitule: string; numeroDossier: string | null; reference: string | null; clientId: string; tauxHoraire: number | null; client: { typeClient: string; raisonSociale: string | null; prenom: string | null; nom: string | null } }>;
         users: Array<{ id: string; nom: string; defaultHourlyRate: number | null }>;
         roundingMinutes: number;
+        /** Taux horaire par défaut du cabinet, dernier échelon de la cascade. */
+        tauxHoraireDefaut: number | null;
       }>;
     },
     enabled: !!cabinetId,

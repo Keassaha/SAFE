@@ -20,6 +20,7 @@ import {
   getCabinetTaxNumbers,
   getCabinetInvoiceConfig,
 } from "@/lib/cabinet-config";
+import { resoudreTauxHoraire } from "@/lib/temps/taux-horaire";
 import {
   calculerSousTotaux,
   estDebours,
@@ -79,6 +80,8 @@ interface LineItem {
 export interface UserLite {
   id: string;
   nom: string;
+  /** Ce que le client paie pour une heure de cette personne. */
+  defaultHourlyRate?: number | null;
 }
 
 /** Extracts initials from a lawyer's name, stripping "Me" prefix. Ex: "Me M.-A. Derisier" → "MD" */
@@ -121,6 +124,8 @@ interface ClientDossierLite {
   intitule: string;
   numeroDossier: string | null;
   reference: string | null;
+  /** Taux négocié pour ce mandat ; prime sur celui de l'avocat. */
+  tauxHoraire?: number | null;
 }
 
 interface ClientInfo {
@@ -185,6 +190,8 @@ interface CreateInvoiceViewProps {
   /** Régime de taxes résolu côté serveur, identique à celui qui sera appliqué
    *  à la création. Sans lui, l'aperçu retomberait sur la province du client. */
   cabinetTaxConfig?: CabinetTaxConfig;
+  /** Taux horaire par défaut du cabinet — dernier échelon de la cascade. */
+  tauxHoraireDefaut?: number | null;
 }
 
 /* ------------------------------------------------------------------ */
@@ -237,6 +244,7 @@ export function CreateInvoiceView({
   initialClientId = "",
   clientBillables,
   cabinetTaxConfig,
+  tauxHoraireDefaut = null,
 }: CreateInvoiceViewProps) {
   const router = useRouter();
   const { formatCurrency } = useFormatteurs();
@@ -298,7 +306,11 @@ export function CreateInvoiceView({
       description: "",
       date: toISODate(new Date()),
       hours: 0,
-      rate: 0,
+      /* Aucun dossier n'est encore choisi au montage : avocat, puis cabinet. */
+      rate: resoudreTauxHoraire({
+        avocat: lawyers.find((u) => u.id === currentUser.id)?.defaultHourlyRate,
+        cabinet: tauxHoraireDefaut,
+      }).taux,
       amount: 0,
       type: isForfait ? "forfait" : "honoraires",
       forfaitServiceId: null,
@@ -580,6 +592,24 @@ export function CreateInvoiceView({
     [isForfait],
   );
 
+  /**
+   * Le taux à proposer pour une ligne d'honoraires neuve.
+   *
+   * Elle partait systématiquement à 0 : l'avocate retapait le même nombre à
+   * chaque ligne, et un zéro oublié passait en facture. Même cascade que la
+   * saisie de temps — dossier, puis avocat, puis cabinet — et le champ reste
+   * modifiable ligne par ligne.
+   */
+  const tauxProposePour = useCallback(
+    (responsableUserId: string | null): number =>
+      resoudreTauxHoraire({
+        dossier: dossierChoisi?.tauxHoraire,
+        avocat: lawyers.find((u) => u.id === responsableUserId)?.defaultHourlyRate,
+        cabinet: tauxHoraireDefaut,
+      }).taux,
+    [dossierChoisi, lawyers, tauxHoraireDefaut],
+  );
+
   /* Changer de client remet le dossier à zéro : garder l'ancien rattacherait
      la facture au dossier de quelqu'un d'autre. */
   useEffect(() => {
@@ -606,7 +636,7 @@ export function CreateInvoiceView({
           description: "",
           date: toISODate(new Date()),
           hours: 0,
-          rate: 0,
+          rate: tauxProposePour(defaultResponsableId),
           amount: 0,
           type: isForfait ? "forfait" : "honoraires",
           forfaitServiceId: null,
@@ -629,6 +659,7 @@ export function CreateInvoiceView({
     defaultResponsableNom,
     isForfait,
     selectedClientId,
+    tauxProposePour,
   ]);
 
   /** Les éléments à facturer du client qui ne sont pas (ou plus) sur la facture. */
@@ -730,6 +761,7 @@ export function CreateInvoiceView({
     );
   }
 
+
   function addLine() {
     setLines((prev) => [
       ...prev,
@@ -740,7 +772,7 @@ export function CreateInvoiceView({
         description: "",
         date: toISODate(new Date()),
         hours: 0,
-        rate: 0,
+        rate: tauxProposePour(defaultResponsableId),
         amount: 0,
         type: isForfait ? "forfait" : "honoraires",
         forfaitServiceId: null,
@@ -1187,9 +1219,19 @@ export function CreateInvoiceView({
 
   function selectResponsable(lineId: string, userId: string) {
     const user = lawyers.find((u) => u.id === userId) ?? null;
+    const ligne = lines.find((l) => l.id === lineId);
+    /* Le taux suit l'intervenant TANT QU'IL N'A PAS ÉTÉ TOUCHÉ : s'il vaut
+       encore exactement ce qui avait été proposé pour l'ancien intervenant,
+       il n'a pas été retouché à la main et peut suivre. Sinon on n'y touche
+       pas : un taux corrigé exprès ne doit pas se faire écraser. */
+    const taux =
+      ligne && ligne.rate === tauxProposePour(ligne.responsableUserId)
+        ? tauxProposePour(user?.id ?? null)
+        : undefined;
     updateLine(lineId, {
       responsableUserId: user?.id ?? null,
       responsableNom: user?.nom ?? null,
+      ...(taux !== undefined ? { rate: taux } : {}),
     });
   }
 

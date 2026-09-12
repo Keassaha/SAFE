@@ -62,6 +62,7 @@ export function TimeEntriesTable({
   clients,
   dossiers,
   users,
+  tauxHoraireDefaut = null,
   canEditAll,
   onRefresh,
 }: {
@@ -71,6 +72,8 @@ export function TimeEntriesTable({
   clients: Array<{ id: string; raisonSociale: string | null }>;
   dossiers: Array<{ id: string; intitule: string; numeroDossier: string | null; reference: string | null; clientId: string; client: { raisonSociale: string | null } }>;
   users: Array<{ id: string; nom: string }>;
+  /** Repli du cabinet, pour une entrée dont le taux serait resté à zéro. */
+  tauxHoraireDefaut?: number | null;
   canEditAll: boolean;
   onRefresh: () => void;
 }) {
@@ -251,6 +254,7 @@ export function TimeEntriesTable({
           clients={clients}
           dossiers={dossiers}
           users={users}
+          tauxHoraireDefaut={tauxHoraireDefaut}
           initial={{
             id: entryToEdit.id,
             dossierId: entryToEdit.dossierId ?? undefined,

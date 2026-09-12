@@ -90,6 +90,7 @@ export function TempsPageClient({
   const clients = context?.clients ?? [];
   const dossiers = context?.dossiers ?? [];
   const users = context?.users ?? [];
+  const tauxHoraireDefaut = context?.tauxHoraireDefaut ?? null;
 
   const canViewAll = canViewAllTimeEntries(role);
   const hasLoadingError = isEntriesError || isContextError;
@@ -279,6 +280,7 @@ export function TempsPageClient({
                 clients={clients}
                 dossiers={dossiers}
                 users={users}
+                tauxHoraireDefaut={tauxHoraireDefaut}
                 canEditAll={canViewAll}
                 onRefresh={() => refetch()}
               />
@@ -308,6 +310,7 @@ export function TempsPageClient({
             clients={clients}
             dossiers={dossiers}
             users={users}
+            tauxHoraireDefaut={tauxHoraireDefaut}
             onSuccess={() => {
               setAddModalOpen(false);
               refetch();

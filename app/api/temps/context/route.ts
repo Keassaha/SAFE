@@ -5,6 +5,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { DEFAULT_ROUNDING_MINUTES } from "@/lib/constants";
+import { parseCabinetConfig, getTauxHoraireDefaut } from "@/lib/cabinet-config";
 
 export async function GET() {
   const session = await getServerSession(authOptions);
@@ -53,6 +54,10 @@ export async function GET() {
   ]);
 
   let roundingMinutes = DEFAULT_ROUNDING_MINUTES;
+  /* Dernier échelon de la cascade dossier → avocat → cabinet : un cabinet qui
+     vient d'ouvrir ne saisit pas ses heures à zéro. Voir
+     `lib/temps/taux-horaire.ts`. */
+  let tauxHoraireDefaut: number | null = null;
   if (cabinet?.config) {
     try {
       const config = JSON.parse(cabinet.config) as { roundingMinutes?: number };
@@ -62,7 +67,8 @@ export async function GET() {
     } catch {
       // garder la valeur par défaut
     }
+    tauxHoraireDefaut = getTauxHoraireDefaut(parseCabinetConfig(cabinet.config));
   }
 
-  return NextResponse.json({ clients, dossiers, users, roundingMinutes });
+  return NextResponse.json({ clients, dossiers, users, roundingMinutes, tauxHoraireDefaut });
 }

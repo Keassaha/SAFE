@@ -23,7 +23,20 @@ export type CreateEmployeeInput = {
   status: EmployeeStatus;
   role: EmployeeRole;
   jobTitle?: string;
+  /** Ce que la personne est PAYÉE. Sert à la paie (`Employee.hourlyRate`). */
   hourlyRate: number;
+  /**
+   * Ce que le client PAIE pour une heure de cette personne
+   * (`User.defaultHourlyRate`).
+   *
+   * Deux nombres distincts, longtemps confondus parce qu'un seul champ
+   * « Taux horaire » existait à l'écran : il écrivait le taux de paie, et le
+   * taux facturable restait vide pour tout le monde. La saisie de temps le
+   * lisait pourtant déjà, donc la branche « avocat » de la cascade était
+   * morte. Nul quand la personne n'a pas de compte de connexion : le taux
+   * vit sur le compte, pas sur la fiche RH.
+   */
+  billableRate?: number | null;
   supervisorId?: string;
   responsibilities?: string;
   enableLogin?: boolean;
@@ -31,6 +44,17 @@ export type CreateEmployeeInput = {
 };
 
 export type UpdateEmployeeInput = Partial<CreateEmployeeInput>;
+
+/**
+ * Un champ de taux vidé rend `""`, que `Number("")` transforme en 0 sans
+ * prévenir. Zéro n'est pas un taux : c'est « pas de taux », et la cascade
+ * doit pouvoir passer au suivant. On stocke donc `null`.
+ */
+function normaliserTauxFacturable(v: number | null | undefined): number | null {
+  if (v === null || v === undefined) return null;
+  const n = Number(v);
+  return Number.isFinite(n) && n > 0 ? n : null;
+}
 
 export async function createEmployee(input: CreateEmployeeInput) {
   const { cabinetId, userId, role } = await requireCabinetAndUser();
@@ -105,6 +129,7 @@ export async function createEmployee(input: CreateEmployeeInput) {
           passwordHash,
           nom: fullName,
           role: legacyRole,
+          defaultHourlyRate: normaliserTauxFacturable(input.billableRate),
         },
       });
       createdUserId = createdUser.id;
@@ -173,6 +198,9 @@ export async function updateEmployee(employeeId: string, input: UpdateEmployeeIn
 
   const existing = await prisma.employee.findFirst({
     where: { id: employeeId, cabinetId },
+    /* Le taux facturable vit sur le compte, pas sur la fiche RH : sans lui,
+       le journal ne pourrait pas dire de quoi on est parti. */
+    include: { user: { select: { defaultHourlyRate: true } } },
   });
   if (!existing) {
     throw new Error("Employé introuvable");
@@ -224,6 +252,11 @@ export async function updateEmployee(employeeId: string, input: UpdateEmployeeIn
           nom: nextFullName,
           ...(nextRole ? { role: nextRole } : {}),
           ...(rightsChanged ? { sessionsValidFrom: new Date() } : {}),
+          /* Le taux facturable n'est touché QUE s'il est envoyé : une mise à
+             jour partielle (changer un téléphone) ne doit pas l'effacer. */
+          ...(input.billableRate !== undefined
+            ? { defaultHourlyRate: normaliserTauxFacturable(input.billableRate) }
+            : {}),
         },
       });
     }
@@ -239,6 +272,9 @@ export async function updateEmployee(employeeId: string, input: UpdateEmployeeIn
   }
   if (input.status !== undefined && input.status !== existing.status) {
     changed.status = { from: existing.status, to: input.status };
+  }
+  if (input.billableRate !== undefined) {
+    changed.billableRate = { from: existing.user?.defaultHourlyRate ?? null, to: normaliserTauxFacturable(input.billableRate) };
   }
   if (input.email !== undefined && input.email.trim().toLowerCase() !== existing.email) {
     changed.email = { from: existing.email, to: input.email.trim().toLowerCase() };

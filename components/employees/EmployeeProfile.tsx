@@ -26,7 +26,10 @@ export type EmployeeProfileData = {
   status: EmployeeStatus;
   role: EmployeeRole;
   jobTitle: string | null;
+  /** Ce que la personne est payée (paie). */
   hourlyRate: number;
+  /** Ce que le client paie pour une heure de cette personne (facturation). */
+  billableRate: number | null;
   employmentType: EmploymentType;
   sinMasked: string | null;
   supervisorId: string | null;

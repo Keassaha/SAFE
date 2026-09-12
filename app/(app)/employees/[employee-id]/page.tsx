@@ -35,6 +35,9 @@ export default async function EmployeeDetailPage({
     where: { id: employeeId, cabinetId },
     include: {
       supervisor: { select: { fullName: true } },
+      /* Le taux facturé au client vit sur le compte de connexion
+         (`User.defaultHourlyRate`), pas sur la fiche RH. */
+      user: { select: { defaultHourlyRate: true } },
     },
   });
 
@@ -75,6 +78,7 @@ export default async function EmployeeDetailPage({
     role: employee.role,
     jobTitle: employee.jobTitle,
     hourlyRate: employee.hourlyRate,
+    billableRate: employee.user?.defaultHourlyRate ?? null,
     employmentType: employee.employmentType,
     sinMasked: employee.sinNumero
       ? `***-***-${employee.sinNumero.replace(/\D/g, "").slice(6)}`

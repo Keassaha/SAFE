@@ -4,6 +4,8 @@ import { canViewDocuments } from "@/lib/auth/permissions";
 import type { UserRole } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { z } from "zod";
+import { resoudreTauxHoraire } from "@/lib/temps/taux-horaire";
+import { parseCabinetConfig, getTauxHoraireDefaut } from "@/lib/cabinet-config";
 
 const TerminerSchema = z.object({
   sessionId: z.string().min(1),
@@ -49,7 +51,28 @@ export async function POST(
   });
   if (!workSession) return NextResponse.json({ error: "Session introuvable" }, { status: 404 });
 
-  const taux = tauxHoraire ?? doc.dossier.tauxHoraire ?? 150;
+  /* Le taux suivait ici sa propre règle, qui finissait par « 150 $ » écrit en
+     dur : un cabinet à 300 $/h voyait ses heures de rédaction enregistrées à
+     moitié prix, sans rien pour le signaler. Même cascade que partout
+     ailleurs — dossier, avocat, cabinet — et ce que le client envoie prime,
+     puisqu'il a pu le corriger à l'écran. */
+  const [avocat, cabinet] = await Promise.all([
+    prisma.user.findUnique({
+      where: { id: session.userId },
+      select: { defaultHourlyRate: true },
+    }),
+    prisma.cabinet.findUnique({
+      where: { id: session.cabinetId },
+      select: { config: true },
+    }),
+  ]);
+  const taux =
+    tauxHoraire ??
+    resoudreTauxHoraire({
+      dossier: doc.dossier.tauxHoraire,
+      avocat: avocat?.defaultHourlyRate,
+      cabinet: getTauxHoraireDefaut(parseCabinetConfig(cabinet?.config ?? null)),
+    }).taux;
   const montant = (dureeMinutes / 60) * taux;
   const now = new Date();
 

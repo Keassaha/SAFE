@@ -293,6 +293,7 @@ export function GlobalTimer({ cabinetId, currentUserId }: GlobalTimerProps) {
         clients={context?.clients ?? []}
         dossiers={context?.dossiers ?? []}
         users={context?.users ?? []}
+        tauxHoraireDefaut={context?.tauxHoraireDefaut ?? null}
         initial={pendingInitial ?? undefined}
         onSuccess={handleConfirmClose}
       />

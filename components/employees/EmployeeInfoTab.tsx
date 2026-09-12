@@ -24,6 +24,8 @@ interface EmployeeInfoTabProps {
     role: EmployeeRole;
     jobTitle: string | null;
     hourlyRate: number;
+    billableRate: number | null;
+    hasLoginAccess: boolean;
     supervisorId: string | null;
     responsibilities: string | null;
     supervisor?: { fullName: string } | null;
@@ -62,6 +64,7 @@ export function EmployeeInfoTab({
     role: employee.role,
     jobTitle: employee.jobTitle ?? undefined,
     hourlyRate: employee.hourlyRate,
+    billableRate: employee.billableRate,
     supervisorId: employee.supervisorId ?? undefined,
     responsibilities: employee.responsibilities ?? undefined,
   };
@@ -83,6 +86,7 @@ export function EmployeeInfoTab({
             employeeId={employee.id}
             initialData={formData}
             supervisorOptions={supervisorOptions}
+            hasLoginAccess={employee.hasLoginAccess}
           />
         </CardContent>
       </Card>
@@ -143,6 +147,14 @@ export function EmployeeInfoTab({
               {t("hourlyRate")}
             </dt>
             <dd className="mt-1 text-sm">{formatCurrency(employee.hourlyRate)}</dd>
+          </div>
+          <div>
+            <dt className="text-xs font-medium text-si-muted uppercase tracking-wider">
+              {t("billableRate")}
+            </dt>
+            <dd className="mt-1 text-sm">
+              {employee.billableRate !== null ? formatCurrency(employee.billableRate) : "—"}
+            </dd>
           </div>
           <div>
             <dt className="text-xs font-medium text-si-muted uppercase tracking-wider">
