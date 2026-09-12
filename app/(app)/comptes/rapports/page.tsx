@@ -16,7 +16,7 @@ export default async function TrustReportsPage() {
   if (!canViewBillingTrust(userRole)) {
     return (
       <div className="p-6">
-        <p className="text-[#B84A3E]">You do not have access to this section.</p>
+        <p className="text-si-danger-ink">You do not have access to this section.</p>
       </div>
     );
   }
@@ -25,7 +25,10 @@ export default async function TrustReportsPage() {
 
   return (
     <div className="space-y-6">
+      {/* Le titre porte la phrase du geste ; le retour ne nomme que l'écran
+          d'où l'on vient. Demande CEO du 2026-09-12. */}
       <PageHeader
+        variant="dashboard"
         title={copy.trustReportsTitle}
         description={copy.trustReportsDesc}
         backHref="/comptes"

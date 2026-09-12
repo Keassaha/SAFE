@@ -228,6 +228,7 @@ Une ligne par écran ouvert. **C'est ce tableau qui dit où en est le chantier.*
 | `/temps`, `/employees/[id]`, `/parametres/cabinet` (taux horaire) | 2026-09-12 | taux qui partait à zéro | à retrouver | `bcb8a11` | ? → 43 / 23 / 6 | **manquant** |
 | `/facturation` | 2026-09-10 | 4 consignes du 2026-09-10 : rangée de liens au lieu de cinq cartes ; « Honoraires à facturer » ouvre la page ; colonne « envoyée le » ; filtres masqués quand intégré | pas d'image (lot antérieur au cadre, exception unique) | `ab5d88f` 2026-09-12 | 20 → 20 (lot structurel, exception à R7 consignée) · 5 cartes → 1 ligne | `2026-09-12_facturation_registre_simplifie.md` + capture |
 | `/facturation/paiements` | 2026-09-12 | « ouvre les Paiements » ; « Oui, on met à exécution » | oui le 2026-09-12 (`captures/2026-09-12_paiements_proposition.png`) | 2026-09-12, code + docs en un commit | **29 → 3** · 8 → 7 colonnes · 5 icônes/ligne → 1 menu · lien du Suivi honoré · `/comptabilite` 73 → 50 par ricochet | `2026-09-12_paiements_ouverture.md` + capture après |
+| `/comptes` + `/comptes/rapports` | 2026-09-12 | « ouvre le Fidéicommis » ; « Oui, on met à exécution » | oui le 2026-09-12 (`captures/2026-09-12_fideicommis_proposition.png`, `…_rapports_proposition.png`) | 2026-09-12, code + docs en un commit | **39 → 4, 38 → 4** · 8 blocs → 2 · 2 actions pleines → 1 · 9 → 7 colonnes · `?clientId` honoré · 0 statut dans les mots du code · 4 composants morts retirés | `2026-09-12_fideicommis_ouverture.md` + capture après |
 
 Les cases « manquant » sont une dette de traçabilité : quatre lots ont été livrés du
 2026-09-09 au 2026-09-12 sans entrée de journal ni mesure avant. Ce n'est pas
@@ -291,6 +292,10 @@ une image, et attendre le oui.
 
 ## Journal du document
 
+- 2026-09-12, 19 h 50 : `/comptes` + `/comptes/rapports` livrés (39 → 4, 38 → 4). Troisième
+  ligne complète du registre. Prochain rang : `/temps`.
+- 2026-09-12, 19 h 40 : `/comptes` + `/comptes/rapports` ouverts, mesures avant et images
+  proposées, validées à 19 h 25.
 - 2026-09-12, 19 h 20 : `/facturation/paiements` livré (29 → 3 écarts). Deuxième ligne
   complète du registre. Prochain rang : `/comptes` + `/comptes/rapports`.
 - 2026-09-12, 19 h 00 : `/facturation/paiements` ouvert, mesures avant et image proposée,

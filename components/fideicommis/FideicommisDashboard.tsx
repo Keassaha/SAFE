@@ -1,18 +1,18 @@
 "use client";
 
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { SoldeCards } from "./SoldeCards";
-import { TransactionsTable } from "./TransactionsTable";
-import { ReleveGenerator } from "./ReleveGenerator";
-import { ReconciliationAlert } from "./ReconciliationAlert";
-import { TrustAlertsPanel } from "./TrustAlertsPanel";
-import { Card, CardContent } from "@/components/ui/Card";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { Button } from "@/components/ui/Button";
 import { routes } from "@/lib/routes";
-import { Scale, FileText, ShieldAlert } from "lucide-react";
 import { useCabinetProvince } from "@/components/providers/CabinetProvinceProvider";
 import { getTrustRegulatorCopy } from "@/lib/trust/regulator";
+import { AddTransactionButton } from "./AddTransactionButton";
+import { TrustSummaryBar } from "./TrustSummaryBar";
+import { TransactionsTable, type FiltresOperations } from "./TransactionsTable";
+import { ReleveModal, type ReleveInitial } from "./ReleveModal";
 
 interface ClientOption {
   id: string;
@@ -33,75 +33,110 @@ export interface FideicommisDashboardProps {
   canEdit: boolean;
   clients: ClientOption[];
   dossiers: DossierOption[];
-  seuilBas?: number;
 }
 
-export function FideicommisDashboard({
-  cabinetId,
-  canEdit,
-  clients,
-  dossiers,
-  seuilBas = 500,
-}: FideicommisDashboardProps) {
+const lienClasse =
+  "min-h-tap inline-flex items-center rounded px-1 text-[13px] text-si-body underline decoration-si-line underline-offset-2 transition-colors hover:text-si-ink hover:decoration-si-ink-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-si-verified";
+
+/**
+ * L'écran du fidéicommis.
+ *
+ * Huit blocs précédaient le tableau : un lien de retour, l'en-tête, une carte
+ * vers l'Inspection, un bandeau de rapprochement, un panneau de surveillance,
+ * quatre cartes de chiffres, trois boutons et une carte d'information. Quand
+ * tout allait bien, deux cartes vertes le disaient chacune de leur côté.
+ *
+ * Il reste l'en-tête, une barre de chiffres, une rangée de liens, puis le
+ * registre sur toute la largeur. Le relevé PDF, qui prenait un tiers de
+ * l'écran avec deux listes que les filtres proposaient déjà, devient une
+ * fenêtre pré-remplie. Demande CEO du 2026-09-12.
+ */
+export function FideicommisDashboard({ cabinetId, canEdit, clients, dossiers }: FideicommisDashboardProps) {
   const tf = useTranslations("fideicommis");
   const copy = getTrustRegulatorCopy(useCabinetProvince());
+  const searchParams = useSearchParams();
+
+  /* La fiche client envoie ici avec `?clientId=` depuis toujours, et l'écran
+     l'ignorait : on re-choisissait le client dans le filtre. */
+  const clientDemande = searchParams.get("clientId") ?? "";
+  const [filtres, setFiltres] = useState<FiltresOperations>({
+    clientId: clients.some((c) => c.id === clientDemande) ? clientDemande : "",
+    dossierId: "",
+    dateFrom: "",
+    dateTo: "",
+  });
+  useEffect(() => {
+    if (clientDemande && clients.some((c) => c.id === clientDemande)) {
+      setFiltres((f) => (f.clientId === clientDemande ? f : { ...f, clientId: clientDemande, dossierId: "" }));
+    }
+  }, [clientDemande, clients]);
+
+  const [releveOuvert, setReleveOuvert] = useState(false);
+  const releveInitial = useMemo<ReleveInitial>(() => {
+    const base = filtres.dateFrom ? new Date(`${filtres.dateFrom}T12:00:00`) : new Date();
+    return {
+      mois: base.getMonth() + 1,
+      annee: base.getFullYear(),
+      clientId: filtres.clientId,
+      dossierId: filtres.dossierId,
+    };
+  }, [filtres]);
 
   return (
     <div className="space-y-6">
-      <ReconciliationAlert />
-      <TrustAlertsPanel />
-      <SoldeCards cabinetId={cabinetId} seuilBas={seuilBas} />
-
-      <div className="flex flex-wrap gap-3">
-        {/* Le bouton « Briefing du jour » est retiré le 2026-09-09.
-            L'écran qu'il ouvrait ne compose que trois choses qui ont déjà leur
-            propre destination : les alertes de sécurité (bouton voisin), le
-            temps non facturé et les créances en retard. C'était le seul vrai
-            doublon du produit, et un cinquième endroit où commencer sa journée.
-            La route reste servie pour les signets, elle n'est simplement plus
-            annoncée. Voir docs/product/VOCABULAIRE_SAFE.md §7. */}
-        <Link href="/comptes/rapprochement">
-          <Button variant="secondary">
-            <Scale className="w-4 h-4" />
-            {copy.reconciliationButton}
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+        <PageHeader variant="dashboard" title={tf("pageTitle")} description={tf("pageIntro")} />
+        <div className="flex flex-wrap items-center gap-2 pb-4">
+          <Button type="button" variant="secondary" onClick={() => setReleveOuvert(true)} disabled={!cabinetId}>
+            {tf("statementPdf")}
           </Button>
-        </Link>
-        <Link href="/comptes/rapports">
-          <Button variant="secondary">
-            <FileText className="w-4 h-4" />
-            {copy.complianceReportsButton}
-          </Button>
-        </Link>
-        <Link href={routes.securite}>
-          <Button variant="secondary">
-            <ShieldAlert className="w-4 h-4" />
-            Points à surveiller
-          </Button>
-        </Link>
-      </div>
-
-      <Card>
-        <CardContent className="p-4">
-          <p className="text-sm text-[var(--safe-text-secondary)]">
-            {tf.rich("trustInfo", {
-              link: (chunks) => (
-                <Link href={routes.facturation} className="text-primary-600 hover:underline font-medium">
-                  {chunks}
-                </Link>
-              ),
-            })}
-          </p>
-        </CardContent>
-      </Card>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
-          <TransactionsTable cabinetId={cabinetId} clients={clients} dossiers={dossiers} />
-        </div>
-        <div>
-          <ReleveGenerator clients={clients} dossiers={dossiers} disabled={!cabinetId} />
+          <AddTransactionButton canEdit={canEdit} cabinetId={cabinetId} clients={clients} dossiers={dossiers} />
         </div>
       </div>
+
+      <TrustSummaryBar cabinetId={cabinetId} />
+
+      {/* Une rangée de liens, plus une carte, trois boutons et un encart :
+          ce sont des destinations qu'on consulte, pas des étapes du geste. */}
+      <nav aria-label={tf("trustLinksLabel")} className="flex flex-wrap items-center gap-x-1 gap-y-1 text-[13px]">
+        <Link href="/comptes/rapprochement" className={lienClasse}>
+          {copy.reconciliationButton}
+        </Link>
+        <span className="text-si-muted" aria-hidden>·</span>
+        <Link href="/comptes/rapports" className={lienClasse}>
+          {copy.complianceReportsButton}
+        </Link>
+        <span className="text-si-muted" aria-hidden>·</span>
+        <Link href={routes.inspection} className={lienClasse}>
+          {tf("linkInspection")}
+        </Link>
+        <span className="text-si-muted" aria-hidden>·</span>
+        <Link href={routes.securite} className={lienClasse}>
+          {tf("linkWatch")}
+        </Link>
+        <span className="ml-3 text-si-muted">
+          {tf("allocateHint")}{" "}
+          <Link href={routes.facturation} className="underline decoration-si-line underline-offset-2 hover:text-si-ink">
+            {tf("billingSection")}
+          </Link>
+        </span>
+      </nav>
+
+      <TransactionsTable
+        cabinetId={cabinetId}
+        clients={clients}
+        dossiers={dossiers}
+        filtres={filtres}
+        onFiltres={setFiltres}
+      />
+
+      <ReleveModal
+        open={releveOuvert}
+        onClose={() => setReleveOuvert(false)}
+        clients={clients}
+        dossiers={dossiers}
+        initial={releveInitial}
+      />
     </div>
   );
 }

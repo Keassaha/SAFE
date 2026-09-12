@@ -1,15 +1,37 @@
 "use client";
 import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Card, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
+import { Modal } from "@/components/ui/Modal";
 import { StatusBadge } from "@/components/ui/StatusBadge";
-import { FileText, Download, Eye } from "lucide-react";
 import { useCabinetProvince } from "@/components/providers/CabinetProvinceProvider";
 import { getTrustRegulatorCopy } from "@/lib/trust/regulator";
+import {
+  RegistreFeuille,
+  registreCellClass,
+  registreCellMutedClass,
+  registreCellNumClass,
+  registreHeadCellClass,
+  registreHeadRowClass,
+  registreRowClass,
+  registreSelectClass,
+  RegistrePlainHeader,
+} from "@/components/ui/registre";
+
+type ReportType = "monthly" | "quarterly" | "annual";
+
+/** Le mois précédent, au format que l'API attend (« AAAA-MM »). */
+function moisPrecedent(): string {
+  const d = new Date();
+  d.setDate(1);
+  d.setMonth(d.getMonth() - 1);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+}
+
+const dtClasse = "text-[11px] font-medium uppercase tracking-[0.08em] text-si-muted";
+const chiffreClasse = "font-mono text-[18px] font-medium leading-[24px] tabular-nums text-si-ink sm:text-[20px] sm:leading-[26px]";
 
 interface ReportData {
   cabinetName: string;
@@ -69,10 +91,63 @@ export function LSOReportGenerator({
   const queryClient = useQueryClient();
   const { formatCurrency } = useFormatteurs();
   const copy = getTrustRegulatorCopy(useCabinetProvince());
-  const [periode, setPeriode] = useState("");
-  const [reportType, setReportType] = useState<"monthly" | "quarterly" | "annual">("monthly");
+  const [periode, setPeriode] = useState(moisPrecedent);
+  const [reportType, setReportType] = useState<ReportType>("monthly");
   const [preview, setPreview] = useState<ReportData | null>(null);
   const [certifyError, setCertifyError] = useState<string | null>(null);
+  /* Rapport dont on demande la signature : ouvre la fenêtre de SAFE, plus la
+     boîte grise du navigateur. */
+  const [aSigner, setASigner] = useState<SavedReport | null>(null);
+
+  /* La période se choisit, elle ne se tape plus : « 2026-04 » à la main donnait
+     un rapport vide à la première faute de frappe. Vingt-quatre mois pour le
+     mensuel et le trimestriel (le trimestre est celui du mois choisi), cinq
+     exercices pour l'annuel. */
+  const periodes = useMemo(() => {
+    const locale = copy.isQuebec ? "fr-CA" : "en-CA";
+    const fmt = new Intl.DateTimeFormat(locale, { month: "long", year: "numeric" });
+    const now = new Date();
+    if (reportType === "annual") {
+      return Array.from({ length: 5 }, (_, i) => {
+        const y = now.getFullYear() - i;
+        return { value: `${y}-01`, label: String(y) };
+      });
+    }
+    return Array.from({ length: 24 }, (_, i) => {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const label = fmt.format(d);
+      return {
+        value: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`,
+        label: label.charAt(0).toUpperCase() + label.slice(1),
+      };
+    });
+  }, [reportType, copy.isQuebec]);
+
+  const changerType = (t: ReportType) => {
+    setReportType(t);
+    setPreview(null);
+    if (t === "annual") setPeriode(`${new Date().getFullYear()}-01`);
+    else if (periode.endsWith("-01") && reportType === "annual") setPeriode(moisPrecedent());
+  };
+
+  const libelleType = (t: string) =>
+    t === "monthly"
+      ? copy.reportTypeMonthly
+      : t === "quarterly"
+        ? copy.reportTypeQuarterly
+        : t === "annual"
+          ? copy.reportTypeAnnual
+          : t;
+  const libellePeriode = (p: string, t: string) => {
+    if (t === "annual") return p.slice(0, 4);
+    const trouve = periodes.find((x) => x.value === p);
+    if (trouve) return trouve.label;
+    const [a, m] = p.split("-").map(Number);
+    if (!a || !m) return p;
+    const s = new Intl.DateTimeFormat(copy.isQuebec ? "fr-CA" : "en-CA", { month: "long", year: "numeric" }).format(new Date(a, m - 1, 1));
+    return s.charAt(0).toUpperCase() + s.slice(1);
+  };
+  const dateCourte = (iso: string) => new Date(iso).toLocaleDateString(copy.isQuebec ? "fr-CA" : "en-CA");
 
   const { data: savedReports } = useQuery({
     queryKey: ["lso-reports"],
@@ -128,316 +203,268 @@ export function LSOReportGenerator({
     },
     onSuccess: () => {
       setCertifyError(null);
+      setASigner(null);
       queryClient.invalidateQueries({ queryKey: ["lso-reports"] });
     },
     onError: (err: Error) => setCertifyError(err.message),
   });
 
+  const rapports = savedReports?.reports ?? [];
+
   return (
     <div className="space-y-6">
-      {/* Generate form — réservé à qui peut générer (comptabilité / admin) */}
+      {/* Le choix de la période et du type, à côté du titre : une action pleine
+          tant qu'il n'y a pas d'aperçu, « Préparer l'aperçu ». */}
       {canGenerate && (
-      <Card>
-        <CardContent className="p-6">
-          <h3 className="text-lg font-medium mb-4 flex items-center gap-2">
-            <FileText className="w-5 h-5" />
-            {copy.reportGeneratorTitle}
-          </h3>
-          <p className="text-sm text-neutral-500 mb-4">
-            {copy.reportGeneratorDesc}
-          </p>
-
-          <div className="flex flex-wrap items-end gap-4">
-            <Input
-              label={copy.reportFieldPeriod}
+        <div className="flex flex-wrap items-end gap-3">
+          <label className="flex flex-col gap-1 text-[12px] text-si-muted">
+            {reportType === "annual" ? copy.reportPeriodYear : copy.reportFieldPeriod.replace(" (AAAA-MM)", "").replace(" (YYYY-MM)", "")}
+            <select
               value={periode}
-              onChange={(e) => setPeriode(e.target.value)}
-              placeholder="2026-04"
-              className="w-36"
-            />
-            <div>
-              <label className="block text-sm font-medium text-neutral-text-secondary mb-1">
-                {copy.reportFieldType}
-              </label>
-              <select
-                className="h-tap px-3 rounded-safe border border-neutral-border bg-white/90 text-sm"
-                value={reportType}
-                onChange={(e) => setReportType(e.target.value as "monthly" | "quarterly" | "annual")}
-              >
-                <option value="monthly">{copy.reportTypeMonthly}</option>
-                <option value="quarterly">{copy.reportTypeQuarterly}</option>
-                <option value="annual">{copy.reportTypeAnnual}</option>
-              </select>
-            </div>
-            <Button
-              variant="secondary"
-              onClick={() => previewMutation.mutate()}
-              disabled={!periode || previewMutation.isPending}
+              onChange={(e) => {
+                setPeriode(e.target.value);
+                setPreview(null);
+              }}
+              className={registreSelectClass}
             >
-              <Eye className="w-4 h-4" />
-              {previewMutation.isPending ? copy.reportLoading : copy.reportPreview}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+              {periodes.map((p) => (
+                <option key={p.value} value={p.value}>
+                  {p.label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="flex flex-col gap-1 text-[12px] text-si-muted">
+            {copy.reportFieldType}
+            <select
+              value={reportType}
+              onChange={(e) => changerType(e.target.value as ReportType)}
+              className={registreSelectClass}
+            >
+              <option value="monthly">{copy.reportTypeMonthly}</option>
+              <option value="quarterly">{copy.reportTypeQuarterly}</option>
+              <option value="annual">{copy.reportTypeAnnual}</option>
+            </select>
+          </label>
+          <Button
+            type="button"
+            variant={preview ? "secondary" : "primary"}
+            onClick={() => previewMutation.mutate()}
+            disabled={!periode || previewMutation.isPending}
+          >
+            {previewMutation.isPending ? copy.reportLoading : copy.reportPreparePreview}
+          </Button>
+        </div>
       )}
 
-      {/* Preview */}
+      {/* L'aperçu : une barre de chiffres, puis le journal dans la grammaire du
+          registre. Quatre boîtes de couleur disaient quatre montants. */}
       {preview && (
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h3 className="text-lg font-medium">
-                  {copy.reportStatementTitle} — {preview.cabinetName}
-                </h3>
-                <p className="text-sm text-neutral-500">
-                  {copy.reportMetaLine(preview.periode, preview.type, preview.generatedBy)}
-                </p>
-              </div>
-              {canGenerate && (
-                <Button
-                  variant="primary"
-                  onClick={() => saveMutation.mutate()}
-                  disabled={saveMutation.isPending}
-                >
-                  <Download className="w-4 h-4" />
-                  {saveMutation.isPending ? copy.reportSaving : copy.reportSave}
-                </Button>
-              )}
+        <section className="safe-feuille overflow-hidden" aria-label={copy.reportStatementTitle}>
+          <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-si-line px-5 py-3.5">
+            <h2 className="text-[16px] font-medium text-si-ink">
+              {copy.reportStatementTitle} · {libellePeriode(preview.periode, preview.type)}
+            </h2>
+            <span className="text-[12px] text-si-muted">{copy.reportPreviewUnsaved}</span>
+          </div>
+          <dl className="grid grid-cols-1 gap-x-8 gap-y-4 border-b border-si-line px-5 py-4 min-[400px]:grid-cols-2 lg:flex lg:flex-wrap lg:gap-x-10">
+            <div className="min-w-0">
+              <dt className={dtClasse}>{copy.reportOpeningBalance}</dt>
+              <dd className={`mt-1.5 ${chiffreClasse}`}>{formatCurrency(preview.soldeOuverture)}</dd>
             </div>
-
-            {/* Summary */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-              <div className="p-3 rounded-safe bg-neutral-50 border">
-                <p className="text-xs text-neutral-500">{copy.reportOpeningBalance}</p>
-                <p className="text-lg font-medium tabular-nums">
-                  {formatCurrency(preview.soldeOuverture)}
-                </p>
-              </div>
-              <div className="p-3 rounded-safe bg-green-50 border border-green-200">
-                <p className="text-xs text-green-600">{copy.reportTotalDeposits}</p>
-                <p className="text-lg font-medium tabular-nums text-green-700">
-                  {formatCurrency(preview.totalDeposits)}
-                </p>
-              </div>
-              <div className="p-3 rounded-safe bg-amber-50 border border-amber-200">
-                <p className="text-xs text-amber-600">{copy.reportTotalWithdrawals}</p>
-                <p className="text-lg font-medium tabular-nums text-amber-700">
-                  {formatCurrency(preview.totalWithdrawals)}
-                </p>
-              </div>
-              <div className="p-3 rounded-safe bg-blue-50 border border-blue-200">
-                <p className="text-xs text-blue-600">{copy.reportClosingBalance}</p>
-                <p className="text-lg font-medium tabular-nums text-blue-700">
-                  {formatCurrency(preview.soldeFermeture)}
-                </p>
-              </div>
+            <div className="min-w-0">
+              <dt className={dtClasse}>{copy.reportTotalDeposits}</dt>
+              <dd className={`mt-1.5 ${chiffreClasse}`}>{formatCurrency(preview.totalDeposits)}</dd>
             </div>
-
-            {/* Active trust accounts (Barreau annual requirement) */}
-            <div className="mb-6 p-3 rounded-safe bg-neutral-50 border inline-block">
-              <p className="text-xs text-neutral-500">Comptes fidéicommis actifs</p>
-              <p className="text-lg font-medium tabular-nums">{preview.nbActiveTrustAccounts}</p>
+            <div className="min-w-0">
+              <dt className={dtClasse}>{copy.reportTotalWithdrawals}</dt>
+              <dd className={`mt-1.5 ${chiffreClasse}`}>{formatCurrency(preview.totalWithdrawals)}</dd>
             </div>
+            <div className="min-w-0">
+              <dt className={dtClasse}>{copy.reportClosingBalance}</dt>
+              <dd className={`mt-1.5 ${chiffreClasse}`}>{formatCurrency(preview.soldeFermeture)}</dd>
+            </div>
+            <div className="min-w-0">
+              <dt className={dtClasse}>{copy.reportActiveAccounts}</dt>
+              <dd className={`mt-1.5 ${chiffreClasse}`}>{preview.nbActiveTrustAccounts}</dd>
+            </div>
+            {preview.reconciliation && (
+              <div className="min-w-0">
+                <dt className={dtClasse}>{copy.threeWayReconciliation}</dt>
+                <dd className="mt-1.5 text-[14px] leading-[22px] text-si-ink">
+                  {copy.reportBankBalance} <span className="font-mono tabular-nums">{formatCurrency(preview.reconciliation.soldeBancaire)}</span>
+                  {" · "}
+                  {copy.reportRegisterBalance} <span className="font-mono tabular-nums">{formatCurrency(preview.reconciliation.soldeRegistre)}</span>
+                  <br />
+                  {copy.reportDiscrepancy}{" "}
+                  <span
+                    className={`font-mono tabular-nums ${
+                      preview.reconciliation.ecart === 0 ? "text-si-verified" : "text-si-danger-ink"
+                    }`}
+                  >
+                    {formatCurrency(preview.reconciliation.ecart)}
+                  </span>
+                  {preview.reconciliation.certifiedBy && (
+                    <span className="block text-[12px] text-si-muted">
+                      {copy.reportCertifiedBy(preview.reconciliation.certifiedBy)}
+                      {preview.reconciliation.certifiedAt && copy.reportCertifiedOn(dateCourte(preview.reconciliation.certifiedAt))}
+                    </span>
+                  )}
+                </dd>
+              </div>
+            )}
+            {preview.interetsLFO > 0 && (
+              <div className="min-w-0">
+                <dt className={dtClasse}>{copy.foundationInterestLabel.replace(/\s*:\s*$/, "")}</dt>
+                <dd className={`mt-1.5 ${chiffreClasse}`}>{formatCurrency(preview.interetsLFO)}</dd>
+              </div>
+            )}
+          </dl>
 
-            {/* Annual: 12 monthly reconciliations confirmation */}
-            {preview.annualReconciliations && (
-              <div
-                className={`mb-6 p-4 rounded-safe border ${
-                  preview.annualReconciliations.allCertified
-                    ? "bg-green-50 border-green-200"
-                    : "bg-red-50 border-red-200"
+          {/* Annuel : les douze rapprochements de l'exercice. */}
+          {preview.annualReconciliations && (
+            <div className="border-b border-si-line px-5 py-4">
+              <h3 className="text-[13px] font-medium text-si-ink">{copy.reportAnnualTitle}</h3>
+              <p
+                className={`mt-1 text-[13px] ${
+                  preview.annualReconciliations.allCertified ? "text-si-verified" : "text-si-danger-ink"
                 }`}
               >
-                <h4 className="text-sm font-medium mb-2">
-                  Rapprochements mensuels de l&apos;exercice (12 mois)
-                </h4>
-                {preview.annualReconciliations.allCertified ? (
-                  <p className="text-sm text-green-700 mb-3">
-                    Les 12 rapprochements mensuels sont certifiés. Écart total : {formatCurrency(preview.annualReconciliations.totalEcart)}.
-                  </p>
-                ) : (
-                  <p className="text-sm text-red-700 mb-3">
-                    Rapport annuel incomplet : {preview.annualReconciliations.missingOrUncertifiedMonths.length} mois
-                    sans rapprochement certifié ({preview.annualReconciliations.missingOrUncertifiedMonths.join(", ")}).
-                    Ces mois doivent être rapprochés et certifiés avant le dépôt au Barreau.
-                  </p>
-                )}
-                <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
-                  {preview.annualReconciliations.months.map((m) => (
-                    <div
-                      key={m.periode}
-                      className={`p-2 rounded text-xs text-center border ${
-                        m.certified
-                          ? "bg-white border-green-200 text-green-700"
-                          : "bg-white border-red-200 text-red-600"
-                      }`}
-                      title={m.certifiedAt ? `Certifié le ${new Date(m.certifiedAt).toLocaleDateString("fr-CA")}` : m.status}
-                    >
-                      <div className="font-medium">{m.periode.slice(5)}</div>
-                      <div>{m.certified ? "✓ certifié" : m.status === "missing" ? "absent" : m.status}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Reconciliation status */}
-            {preview.reconciliation && (
-              <div className="mb-6 p-4 rounded-safe bg-neutral-50 border">
-                <h4 className="text-sm font-medium mb-2">{copy.threeWayReconciliation}</h4>
-                <div className="grid grid-cols-3 gap-4 text-sm">
-                  <div>
-                    <p className="text-neutral-500">{copy.reportBankBalance}</p>
-                    <p className="font-medium tabular-nums">
-                      {formatCurrency(preview.reconciliation.soldeBancaire)}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-neutral-500">{copy.reportRegisterBalance}</p>
-                    <p className="font-medium tabular-nums">
-                      {formatCurrency(preview.reconciliation.soldeRegistre)}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-neutral-500">{copy.reportDiscrepancy}</p>
-                    <p className={`font-medium tabular-nums ${
-                      preview.reconciliation.ecart === 0 ? "text-green-600" : "text-red-600"
-                    }`}>
-                      {formatCurrency(preview.reconciliation.ecart)}
-                    </p>
-                  </div>
-                </div>
-                {preview.reconciliation.certifiedBy && (
-                  <p className="text-xs text-green-600 mt-2">
-                    {copy.reportCertifiedBy(preview.reconciliation.certifiedBy)}
-                    {preview.reconciliation.certifiedAt &&
-                      copy.reportCertifiedOn(new Date(preview.reconciliation.certifiedAt).toLocaleDateString("en-CA"))}
-                  </p>
-                )}
-              </div>
-            )}
-
-            {preview.interetsLFO > 0 && (
-              <p className="text-sm text-neutral-500 mb-4">
-                {copy.foundationInterestLabel} {formatCurrency(preview.interetsLFO)}
+                {preview.annualReconciliations.allCertified
+                  ? copy.reportAnnualComplete(formatCurrency(preview.annualReconciliations.totalEcart))
+                  : copy.reportAnnualIncomplete(
+                      preview.annualReconciliations.missingOrUncertifiedMonths.length,
+                      preview.annualReconciliations.missingOrUncertifiedMonths.join(", "),
+                    )}
               </p>
-            )}
-
-            {/* Transaction journal */}
-            <h4 className="text-sm font-medium mb-2">
-              {copy.reportTransactionJournal(preview.nbTransactions)}
-            </h4>
-            <div className="overflow-x-auto max-h-96">
-              <table className="w-full text-sm">
-                <thead className="sticky top-0 bg-white">
-                  <tr className="border-b text-left">
-                    <th className="pb-2 font-medium">{copy.reportColDate}</th>
-                    <th className="pb-2 font-medium">{copy.reportColType}</th>
-                    <th className="pb-2 font-medium">{copy.reportColClientMatter}</th>
-                    <th className="pb-2 font-medium">{copy.reportColDescription}</th>
-                    <th className="pb-2 font-medium text-right">{copy.reportColAmount}</th>
-                    <th className="pb-2 font-medium text-right">{copy.reportColBalance}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {preview.transactions.map((tx, i) => (
-                    <tr key={i} className="border-b last:border-0">
-                      <td className="py-1.5">{tx.date}</td>
-                      <td className="py-1.5">
-                        <StatusBadge
-                          label={tx.type}
-                          variant={tx.amount > 0 ? "success" : tx.type === "correction" ? "warning" : "error"}
-                        />
-                      </td>
-                      <td className="py-1.5 text-xs">
-                        {tx.client && <span className="font-medium">{tx.client}</span>}
-                        {tx.dossier && <span className="text-neutral-500 block">{tx.dossier}</span>}
-                      </td>
-                      <td className="py-1.5 text-neutral-600 max-w-48 truncate">
-                        {tx.description || "—"}
-                      </td>
-                      <td className={`py-1.5 text-right tabular-nums font-medium ${
-                        tx.amount > 0 ? "text-green-600" : "text-red-600"
-                      }`}>
-                        {formatCurrency(tx.amount)}
-                      </td>
-                      <td className="py-1.5 text-right tabular-nums">
-                        {formatCurrency(tx.balance)}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <ul className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-6 lg:grid-cols-12">
+                {preview.annualReconciliations.months.map((m) => (
+                  <li
+                    key={m.periode}
+                    title={m.certifiedAt ? `${copy.reportMonthCertified} · ${dateCourte(m.certifiedAt)}` : m.status}
+                    className={`rounded-md border px-2 py-1.5 text-center text-[12px] ${
+                      m.certified ? "border-si-line text-si-verified" : "border-si-danger/40 text-si-danger-ink"
+                    }`}
+                  >
+                    <span className="block font-mono font-medium">{m.periode.slice(5)}</span>
+                    <span className="block">
+                      {m.certified ? copy.reportMonthCertified : m.status === "missing" ? copy.reportMonthMissing : m.status}
+                    </span>
+                  </li>
+                ))}
+              </ul>
             </div>
-          </CardContent>
-        </Card>
+          )}
+
+          <div className="flex flex-wrap items-center justify-between gap-2 px-5 py-3">
+            <h3 className="text-[13px] font-medium text-si-ink">
+              {copy.reportTransactionJournal(preview.nbTransactions)}
+            </h3>
+            {canGenerate && (
+              <Button type="button" variant="primary" onClick={() => saveMutation.mutate()} disabled={saveMutation.isPending}>
+                {saveMutation.isPending ? copy.reportSaving : copy.reportSave}
+              </Button>
+            )}
+          </div>
+          <div className="max-h-[480px] overflow-auto">
+            <table className="w-full border-collapse">
+              <thead className="sticky top-0 bg-si-surface">
+                <tr className={registreHeadRowClass}>
+                  <th scope="col" className={`w-[112px] ${registreHeadCellClass}`}><RegistrePlainHeader label={copy.reportColDate} /></th>
+                  <th scope="col" className={`w-[110px] ${registreHeadCellClass}`}><RegistrePlainHeader label={copy.reportColType} /></th>
+                  <th scope="col" className={registreHeadCellClass}><RegistrePlainHeader label={copy.reportColClientMatter} /></th>
+                  <th scope="col" className={registreHeadCellClass}><RegistrePlainHeader label={copy.reportColDescription} /></th>
+                  <th scope="col" className={`w-[140px] ${registreHeadCellClass} text-right`}><RegistrePlainHeader label={copy.reportColAmount} align="right" /></th>
+                  <th scope="col" className={`w-[150px] ${registreHeadCellClass} text-right`}><RegistrePlainHeader label={copy.reportColBalance} align="right" /></th>
+                </tr>
+              </thead>
+              <tbody>
+                {preview.transactions.map((tx, i) => (
+                  <tr key={i} className={registreRowClass}>
+                    <td className={`whitespace-nowrap ${registreCellMutedClass}`}>{tx.date}</td>
+                    <td className={`whitespace-nowrap ${registreCellMutedClass} ${tx.type === "correction" ? "font-medium text-si-amber-ink" : ""}`}>
+                      {tx.type === "deposit" ? copy.reportTotalDeposits.replace(/^Total (des |of )?/i, "") : tx.type === "withdrawal" ? copy.reportTotalWithdrawals.replace(/^Total (des |of )?/i, "") : tx.type}
+                    </td>
+                    <td className={registreCellClass}>
+                      {tx.client && <span className="block text-[14px] font-medium leading-5">{tx.client}</span>}
+                      {tx.dossier && <span className="block text-[12px] leading-4 text-si-muted">{tx.dossier}</span>}
+                    </td>
+                    <td className={registreCellMutedClass}>
+                      <span className="block max-w-[36ch] truncate" title={tx.description ?? ""}>{tx.description || "—"}</span>
+                    </td>
+                    <td className={`whitespace-nowrap ${registreCellNumClass}`}>{formatCurrency(tx.amount)}</td>
+                    <td className={`whitespace-nowrap ${registreCellNumClass}`}>{formatCurrency(tx.balance)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
       )}
 
-      {/* Saved reports history */}
-      {savedReports?.reports && savedReports.reports.length > 0 && (
-        <Card>
-          <CardContent className="p-6">
-            <h3 className="text-lg font-medium mb-4">{copy.reportSavedTitle}</h3>
-            {certifyError && (
-              <p className="mb-3 text-sm text-status-error">{certifyError}</p>
-            )}
+      {/* Les rapports enregistrés, dans la grammaire du registre, avec des
+          statuts en français : « final » et « certified » étaient les mots du code. */}
+      <div className="space-y-2">
+        <div className="flex items-baseline justify-between gap-3">
+          <h2 className="text-lg font-medium text-si-ink">{copy.reportSavedTitle}</h2>
+          <span className="text-[13px] text-si-muted">{copy.reportsCount(rapports.length)}</span>
+        </div>
+        {certifyError && (
+          <p className="text-sm text-si-danger-ink" role="alert">
+            {certifyError}
+          </p>
+        )}
+        <RegistreFeuille ariaLabel={copy.reportSavedTitle}>
+          {rapports.length === 0 ? (
+            <p className="px-6 py-10 text-center text-sm text-si-muted">{copy.reportNoReports}</p>
+          ) : (
             <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+              <table className="w-full border-collapse">
                 <thead>
-                  <tr className="border-b text-left">
-                    <th className="pb-2 font-medium">{copy.reportColPeriod}</th>
-                    <th className="pb-2 font-medium">{copy.reportColType}</th>
-                    <th className="pb-2 font-medium">{copy.reportColGenerated}</th>
-                    <th className="pb-2 font-medium">{copy.reportColBy}</th>
-                    <th className="pb-2 font-medium">{copy.reportColReconciliation}</th>
-                    <th className="pb-2 font-medium">{copy.reportColStatus}</th>
-                    {canCertify && <th className="pb-2 font-medium text-right">{copy.reportColAction}</th>}
+                  <tr className={registreHeadRowClass}>
+                    <th scope="col" className={registreHeadCellClass}><RegistrePlainHeader label={copy.reportColPeriod} /></th>
+                    <th scope="col" className={registreHeadCellClass}><RegistrePlainHeader label={copy.reportColType} /></th>
+                    <th scope="col" className={registreHeadCellClass}><RegistrePlainHeader label={copy.reportColGenerated} /></th>
+                    <th scope="col" className={registreHeadCellClass}><RegistrePlainHeader label={copy.reportColBy} /></th>
+                    <th scope="col" className={registreHeadCellClass}><RegistrePlainHeader label={copy.reportColReconciliation} /></th>
+                    <th scope="col" className={registreHeadCellClass}><RegistrePlainHeader label={copy.reportColStatus} /></th>
+                    {canCertify && (
+                      <th scope="col" className={`${registreHeadCellClass} text-right`}>
+                        <span className="sr-only">{copy.reportColAction}</span>
+                      </th>
+                    )}
                   </tr>
                 </thead>
                 <tbody>
-                  {savedReports.reports.map((r) => (
-                    <tr key={r.id} className="border-b last:border-0">
-                      <td className="py-2 font-medium">{r.periode}</td>
-                      <td className="py-2">{r.type}</td>
-                      <td className="py-2">
-                        {new Date(r.generatedAt).toLocaleDateString("en-CA")}
-                      </td>
-                      <td className="py-2">{r.generatedBy.nom}</td>
-                      <td className="py-2">
+                  {rapports.map((r) => (
+                    <tr key={r.id} className={registreRowClass}>
+                      <td className={`${registreCellClass} font-medium`}>{libellePeriode(r.periode, r.type)}</td>
+                      <td className={registreCellMutedClass}>{libelleType(r.type)}</td>
+                      <td className={`whitespace-nowrap ${registreCellMutedClass}`}>{dateCourte(r.generatedAt)}</td>
+                      <td className={registreCellMutedClass}>{r.generatedBy.nom}</td>
+                      <td className={registreCellClass}>
                         {r.reconciliation ? (
                           <StatusBadge
-                            label={r.reconciliation.status}
+                            label={r.reconciliation.status === "certified" ? copy.reportReconcCertified : copy.reportReconcToCertify}
                             variant={r.reconciliation.status === "certified" ? "success" : "warning"}
                           />
                         ) : (
-                          <span className="text-neutral-400">{copy.reportReconciliationNone}</span>
+                          <span className="text-si-muted">{copy.reportReconciliationNone}</span>
                         )}
                       </td>
-                      <td className="py-2">
-                        <StatusBadge label={r.status} variant={r.status === "final" ? "success" : "neutral"} />
+                      <td className={registreCellClass}>
+                        <StatusBadge
+                          label={r.status === "final" ? copy.reportStatusFinal : copy.reportStatusDraft}
+                          variant={r.status === "final" ? "success" : "neutral"}
+                        />
                       </td>
                       {canCertify && (
-                        <td className="py-2 text-right">
+                        <td className={`text-right ${registreCellClass}`}>
                           {r.status === "final" ? (
-                            <span className="text-xs text-green-600">Signé</span>
+                            <span className="text-si-muted">—</span>
                           ) : (
-                            <Button
-                              variant="secondary"
-                              size="sm"
-                              onClick={() => {
-                                if (
-                                  window.confirm(
-                                    "Signer la déclaration de conformité de ce rapport, à titre d'avocat responsable ? Cette action est définitive."
-                                  )
-                                ) {
-                                  certifyMutation.mutate(r.id);
-                                }
-                              }}
-                              disabled={certifyMutation.isPending}
-                            >
-                              Certifier
+                            <Button type="button" variant="secondary" size="sm" onClick={() => setASigner(r)} disabled={certifyMutation.isPending}>
+                              {copy.reportSign}
                             </Button>
                           )}
                         </td>
@@ -447,9 +474,34 @@ export function LSOReportGenerator({
                 </tbody>
               </table>
             </div>
-          </CardContent>
-        </Card>
-      )}
+          )}
+        </RegistreFeuille>
+      </div>
+
+      <Modal open={aSigner !== null} onClose={() => setASigner(null)} title={copy.reportSignTitle}>
+        <div className="space-y-4">
+          {aSigner && (
+            <p className="text-sm text-si-ink">
+              {libellePeriode(aSigner.periode, aSigner.type)} · {libelleType(aSigner.type)}
+            </p>
+          )}
+          <p className="text-sm text-si-muted">{copy.certificationStatement}</p>
+          <p className="text-xs text-si-muted">{copy.reportSignIntro}</p>
+          <div className="flex justify-end gap-2 pt-2">
+            <Button type="button" variant="tertiary" onClick={() => setASigner(null)} disabled={certifyMutation.isPending}>
+              {copy.isQuebec ? "Annuler" : "Cancel"}
+            </Button>
+            <Button
+              type="button"
+              variant="primary"
+              onClick={() => aSigner && certifyMutation.mutate(aSigner.id)}
+              disabled={certifyMutation.isPending}
+            >
+              {certifyMutation.isPending ? copy.reportSigning : copy.reportSignConfirm}
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }

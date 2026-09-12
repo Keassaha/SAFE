@@ -112,6 +112,26 @@ export type TrustRegulatorCopy = {
 
   // ── LSOReportGenerator : rapports sauvegardés ────────────────
   reportSavedTitle: string; // "Saved Reports"
+  reportPreparePreview: string;
+  reportPreviewUnsaved: string;
+  reportActiveAccounts: string;
+  reportAnnualTitle: string;
+  reportAnnualComplete: (totalEcart: string) => string;
+  reportAnnualIncomplete: (count: number, months: string) => string;
+  reportMonthCertified: string;
+  reportMonthMissing: string;
+  reportStatusFinal: string;
+  reportStatusDraft: string;
+  reportReconcCertified: string;
+  reportReconcToCertify: string;
+  reportSign: string;
+  reportSignTitle: string;
+  reportSignIntro: string;
+  reportSignConfirm: string;
+  reportSigning: string;
+  reportNoReports: string;
+  reportsCount: (count: number) => string;
+  reportPeriodYear: string;
   reportColPeriod: string; // "Period"
   reportColStatus: string; // "Status"
   reportColGenerated: string; // "Generated"
@@ -144,10 +164,9 @@ const QC: TrustRegulatorCopy = {
   trustReconciliationTitle: "Rapprochement du fidéicommis",
   trustReconciliationDesc:
     "Rapprochement mensuel à trois voies (Barreau du Québec, B-1, r. 5). Comparez le relevé bancaire, le registre SAFE et les soldes par dossier.",
-  trustReportsTitle: "Rapports de conformité — fidéicommis",
-  trustReportsDesc:
-    "Générez des rapports de conformité (Barreau du Québec, B-1, r. 5) prêts pour une inspection. Inclut le journal des opérations, le rapprochement à trois voies et le sommaire des intérêts.",
-  backToTrustAccounts: "Retour aux comptes en fidéicommis",
+  trustReportsTitle: "Rapports de conformité",
+  trustReportsDesc: "Le rapport qu'un inspecteur demande, prêt à signer.",
+  backToTrustAccounts: "Fidéicommis",
   complianceTitle: "Tableau de conformité",
   complianceDesc:
     "État de conformité en temps réel : compte en fidéicommis (Barreau du Québec, B-1, r. 5), obligations professionnelles et protection des renseignements (Loi 25).",
@@ -229,6 +248,27 @@ const QC: TrustRegulatorCopy = {
   reportColBalance: "Solde",
 
   reportSavedTitle: "Rapports enregistrés",
+  reportPreparePreview: "Préparer l'aperçu",
+  reportPreviewUnsaved: "Aperçu, non enregistré",
+  reportActiveAccounts: "Comptes",
+  reportAnnualTitle: "Rapprochements mensuels de l'exercice",
+  reportAnnualComplete: (e) => `Les douze rapprochements mensuels sont certifiés. Écart total : ${e}.`,
+  reportAnnualIncomplete: (n, m) =>
+    `Rapport annuel incomplet : ${n} mois sans rapprochement certifié (${m}). Ces mois doivent être rapprochés et certifiés avant le dépôt au Barreau.`,
+  reportMonthCertified: "certifié",
+  reportMonthMissing: "absent",
+  reportStatusFinal: "Signé",
+  reportStatusDraft: "Brouillon",
+  reportReconcCertified: "Certifié",
+  reportReconcToCertify: "À certifier",
+  reportSign: "Signer la déclaration",
+  reportSignTitle: "Signer la déclaration de conformité",
+  reportSignIntro: "À titre d'avocat responsable. Cette signature est définitive.",
+  reportSignConfirm: "Signer",
+  reportSigning: "Signature…",
+  reportNoReports: "Aucun rapport enregistré.",
+  reportsCount: (n) => (n === 1 ? "1 rapport" : `${n} rapports`),
+  reportPeriodYear: "Exercice",
   reportColPeriod: "Période",
   reportColStatus: "Statut",
   reportColGenerated: "Généré le",
@@ -260,10 +300,9 @@ const ON: TrustRegulatorCopy = {
   trustReconciliationTitle: "Trust Reconciliation",
   trustReconciliationDesc:
     "Monthly 3-way reconciliation per By-Law 9, LSO. Compare bank statement, SAFE register, and per-matter balances.",
-  trustReportsTitle: "Trust Compliance Reports",
-  trustReportsDesc:
-    "Generate LSO By-Law 9 compliance reports for spot audit readiness. Includes transaction journal, 3-way reconciliation, and LFO interest summary.",
-  backToTrustAccounts: "Back to Trust Accounts",
+  trustReportsTitle: "Compliance reports",
+  trustReportsDesc: "The report an inspector asks for, ready to sign.",
+  backToTrustAccounts: "Trust",
   complianceTitle: "Compliance Dashboard",
   complianceDesc:
     "Real-time compliance status for By-Law 9 (LSO), FINTRAC, PIPEDA, and professional obligations.",
@@ -343,7 +382,28 @@ const ON: TrustRegulatorCopy = {
   reportColAmount: "Amount",
   reportColBalance: "Balance",
 
-  reportSavedTitle: "Saved Reports",
+  reportSavedTitle: "Saved reports",
+  reportPreparePreview: "Prepare preview",
+  reportPreviewUnsaved: "Preview, not saved",
+  reportActiveAccounts: "Accounts",
+  reportAnnualTitle: "Monthly reconciliations of the year",
+  reportAnnualComplete: (e) => `All twelve monthly reconciliations are certified. Total discrepancy: ${e}.`,
+  reportAnnualIncomplete: (n, m) =>
+    `Annual report incomplete: ${n} month(s) without a certified reconciliation (${m}). They must be reconciled and certified before filing.`,
+  reportMonthCertified: "certified",
+  reportMonthMissing: "missing",
+  reportStatusFinal: "Signed",
+  reportStatusDraft: "Draft",
+  reportReconcCertified: "Certified",
+  reportReconcToCertify: "To certify",
+  reportSign: "Sign the declaration",
+  reportSignTitle: "Sign the compliance declaration",
+  reportSignIntro: "As the responsible lawyer. This signature is final.",
+  reportSignConfirm: "Sign",
+  reportSigning: "Signing…",
+  reportNoReports: "No saved report.",
+  reportsCount: (n) => (n === 1 ? "1 report" : `${n} reports`),
+  reportPeriodYear: "Year",
   reportColPeriod: "Period",
   reportColStatus: "Status",
   reportColGenerated: "Generated",
