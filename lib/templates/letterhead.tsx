@@ -17,7 +17,7 @@
 
 import * as React from "react";
 import { View, Text, Image, StyleSheet } from "@react-pdf/renderer";
-import { colors, fontSize, font, spacing } from "@/lib/invoice-template/tokens";
+import { colors, echelle, font, spacing } from "@/lib/invoice-template/tokens";
 
 export interface LetterheadCabinet {
   nom?: string | null;
@@ -40,13 +40,15 @@ const styles = StyleSheet.create({
   headerLeft: { flexDirection: "column", flex: 1 },
   logo: { width: 110, height: 50, objectFit: "contain", marginBottom: 6 },
   cabinetName: {
-    fontSize: fontSize.blockTitle,
+    // Même corps que le reste : c'est le GRAS et la couleur de marque qui
+    // font le titre, pas une taille de plus (échelle à trois rangs).
+    fontSize: echelle.corps,
     fontFamily: font.bold,
     color: colors.brand,
     marginBottom: 2,
   },
   cabinetMeta: {
-    fontSize: fontSize.bodySmall,
+    fontSize: echelle.petit,
     color: colors.textMuted,
     lineHeight: 1.4,
   },

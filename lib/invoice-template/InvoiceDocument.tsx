@@ -7,35 +7,43 @@
  *
  * Doctrine :
  *   - Rendu pixel-perfect entre preview et PDF garanti (même composant).
- *   - Aucune logique métier ici : reçoit un `PresentedInvoice` du presenter
- *     (tous les totaux et conversions de lignes sont déjà calculés).
- *   - Conforme aux exigences de facture professionnelle au Canada :
- *     en-tête identité (cabinet + n° HST/GST/QST), n° facture
- *     séquentiel, dates émission/échéance, client + adresse, dossier de
- *     référence, lignes claires (date · description · responsable · montant),
- *     débours séparés, rabais explicite, taxes détaillées, total + solde dû,
- *     modalités de paiement, mention de conservation des documents.
+ *   - Aucune logique métier ici : reçoit un `PresentedInvoice` du presenter,
+ *     et le partage en groupes via `grouperLignes` (module pur, testé).
+ *   - Conforme aux exigences d'une facture professionnelle au Canada :
+ *     identité de l'émetteur, numéros d'inscription aux taxes, numéro
+ *     séquentiel, dates d'émission et d'échéance, destinataire et adresse,
+ *     dossier de référence, détail des prestations, débours séparés,
+ *     taxes ventilées, total, sommes reçues, solde dû, modalités de paiement.
+ *
+ * REFONTE DU 2026-09-10 (demande CEO)
+ *
+ *   1. Le solde dû monte en haut. C'est la seule chose que le client cherche
+ *      en ouvrant le document ; il ne devait plus la chercher en bas de page.
+ *   2. Deux groupes au lieu d'un tableau indistinct : « Honoraires
+ *      professionnels » et « Débours et frais », chacun avec son sous-total
+ *      posé sur son titre, et ses propres en-têtes de colonnes.
+ *   3. Trois tailles de caractère, pas une de plus (`echelle` dans tokens.ts).
+ *      La hiérarchie se fait au gras et à la couleur.
  */
 
 import * as React from "react";
 import { displayInvoiceNumero } from "@/lib/facturation/invoice-numero-format";
-import {
-  Document,
-  Page,
-  Text,
-  View,
-  StyleSheet,
-} from "@react-pdf/renderer";
-import type { PresentedInvoice, PresentedLine } from "@/lib/services/billing/invoice-presenter";
+import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
+import type {
+  PresentedInvoice,
+  PresentedLine,
+} from "@/lib/services/billing/invoice-presenter";
 import { presentClientDisplayName } from "@/lib/services/billing/invoice-presenter";
 import { Letterhead } from "@/lib/templates/letterhead";
 import { DerisierInvoiceDocument } from "./DerisierInvoiceDocument";
+import { grouperLignes, deboursEstTaxable } from "./groupes";
 import {
   colors,
-  fontSize,
+  echelle,
   spacing,
   font,
-  tableColumns,
+  colonnesHonoraires,
+  colonnesDebours,
   legalNotices,
 } from "./tokens";
 
@@ -44,345 +52,387 @@ export type InvoiceLanguage = "fr" | "en";
 const labels = {
   fr: {
     invoice: "FACTURE",
-    invoiceNo: "N°",
-    issueDate: "Date d'émission",
-    dueDate: "Date d'échéance",
+    issueDate: "Émise le",
+    dueDate: "Échéance",
     issuedBy: "ÉMETTEUR",
     billedTo: "ADRESSÉE À",
     matter: "DOSSIER",
-    matterRef: "Référence",
-    matterTitle: "Intitulé",
-    hst: "N° HST",
-    gst: "N° TPS",
-    qst: "N° TVQ",
-    bn: "N° d'entreprise",
+    hst: "TVH",
+    gst: "TPS",
+    qst: "TVQ",
+    bn: "Entreprise",
+    taxNumbers: "NUMÉROS D'INSCRIPTION",
+    groupFees: "HONORAIRES PROFESSIONNELS",
+    groupExpenses: "DÉBOURS ET FRAIS",
+    groupOther: "AJUSTEMENTS",
     colDate: "DATE",
-    colDescription: "DESCRIPTION",
+    colService: "PRESTATION",
+    colWho: "INTERVENANT",
+    colHours: "HEURES",
+    colRate: "TAUX",
     colAmount: "MONTANT",
-    by: "Par",
-    subtotalFees: "Sous-total honoraires",
-    subtotalExpenses: "Débours (taxables)",
-    subtotalNonTaxable: "Débours (non taxables)",
-    discount: "Rabais",
+    colNature: "NATURE",
+    colTaxable: "TAXABLE",
+    yes: "Oui",
+    no: "Non",
+    summary: "RÉCAPITULATIF",
+    subtotalFees: "Honoraires",
+    subtotalExpensesTaxable: "Débours taxables",
+    subtotalExpensesNonTaxable: "Débours non taxables",
     discountApplied: "Rabais accordé",
-    subtotal: "Sous-total taxable",
+    subtotalTaxable: "Sous-total taxable",
     taxHst: "TVH (13 %)",
     taxGst: "TPS (5 %)",
     taxQst: "TVQ (9,975 %)",
-    total: "TOTAL",
-    paid: "Déjà payé",
+    total: "Total de la facture",
+    paid: "Sommes reçues",
     balanceDue: "SOLDE DÛ",
+    payBefore: "à payer avant le",
     paymentTitle: "MODALITÉS DE PAIEMENT",
     paymentTo: "À l'ordre de",
-    note: "Note au client",
-    fees: "Frais",
+    note: "NOTE AU CLIENT",
     page: "Page",
     of: "sur",
-    rabaisLabel: "Rabais",
-    feesLabel: "Frais",
   },
   en: {
     invoice: "INVOICE",
-    invoiceNo: "No.",
-    issueDate: "Issue date",
-    dueDate: "Due date",
+    issueDate: "Issued",
+    dueDate: "Due",
     issuedBy: "FROM",
     billedTo: "BILLED TO",
     matter: "MATTER",
-    matterRef: "Reference",
-    matterTitle: "Title",
-    hst: "HST No.",
-    gst: "GST No.",
-    qst: "QST No.",
-    bn: "Business No.",
+    hst: "HST",
+    gst: "GST",
+    qst: "QST",
+    bn: "Business",
+    taxNumbers: "REGISTRATION NUMBERS",
+    groupFees: "PROFESSIONAL FEES",
+    groupExpenses: "DISBURSEMENTS AND CHARGES",
+    groupOther: "ADJUSTMENTS",
     colDate: "DATE",
-    colDescription: "DESCRIPTION",
+    colService: "SERVICE",
+    colWho: "FEE EARNER",
+    colHours: "HOURS",
+    colRate: "RATE",
     colAmount: "AMOUNT",
-    by: "By",
-    subtotalFees: "Fees subtotal",
-    subtotalExpenses: "Disbursements (taxable)",
-    subtotalNonTaxable: "Disbursements (non-taxable)",
-    discount: "Discount",
+    colNature: "NATURE",
+    colTaxable: "TAXABLE",
+    yes: "Yes",
+    no: "No",
+    summary: "SUMMARY",
+    subtotalFees: "Fees",
+    subtotalExpensesTaxable: "Taxable disbursements",
+    subtotalExpensesNonTaxable: "Non-taxable disbursements",
     discountApplied: "Discount applied",
-    subtotal: "Taxable subtotal",
+    subtotalTaxable: "Taxable subtotal",
     taxHst: "HST (13%)",
     taxGst: "GST (5%)",
     taxQst: "QST (9.975%)",
-    total: "TOTAL",
-    paid: "Already paid",
+    total: "Invoice total",
+    paid: "Amounts received",
     balanceDue: "BALANCE DUE",
+    payBefore: "payable by",
     paymentTitle: "PAYMENT TERMS",
     paymentTo: "Payable to",
-    note: "Note to client",
-    fees: "Fees",
+    note: "NOTE TO CLIENT",
     page: "Page",
     of: "of",
-    rabaisLabel: "Discount",
-    feesLabel: "Fee",
   },
 } as const;
 
 const styles = StyleSheet.create({
   page: {
     padding: spacing.pagePadding,
-    fontSize: fontSize.body,
+    // Le pied de page est en position absolue : sans cette réserve, la
+    // dernière ligne du contenu passait DERRIÈRE les modalités de paiement.
+    paddingBottom: spacing.pagePadding + 52,
+    fontSize: echelle.corps,
     fontFamily: font.family,
     color: colors.text,
     backgroundColor: colors.white,
   },
 
-  // ── En-tête : identité cabinet via <Letterhead> ─────────────────
-  // (le bloc identité + bordure vit dans lib/templates/letterhead.tsx)
-  invoiceKicker: {
-    fontSize: fontSize.sectionHeader,
+  /* ── Bloc droit de l'en-tête ──────────────────────────────────── */
+  kicker: {
+    fontSize: echelle.petit,
     color: colors.brand,
     fontFamily: font.bold,
     letterSpacing: 1.6,
-    marginBottom: 4,
+    marginBottom: 3,
   },
-  invoiceNumber: {
-    fontSize: fontSize.hero,
+  numero: {
+    fontSize: echelle.corps,
     fontFamily: font.bold,
     color: colors.text,
-    marginBottom: 6,
+    marginBottom: 5,
   },
-  invoiceDates: { alignItems: "flex-end" },
-  invoiceDateRow: { flexDirection: "row", marginTop: 2 },
-  invoiceDateLabel: {
-    fontSize: fontSize.bodySmall,
+  dateRow: { flexDirection: "row", justifyContent: "flex-end", marginTop: 1 },
+  dateLabel: {
+    fontSize: echelle.petit,
     color: colors.textMuted,
-    marginRight: 6,
+    marginRight: 5,
   },
-  invoiceDateValue: {
-    fontSize: fontSize.bodySmall,
+  dateValue: {
+    fontSize: echelle.petit,
     fontFamily: font.bold,
     color: colors.text,
   },
 
-  // ── Tax registration banner ─────────────────────────────────────
-  taxBanner: {
+  /* ── Encadré du solde dû, en haut ─────────────────────────────── */
+  soldeBox: {
     flexDirection: "row",
-    flexWrap: "wrap",
+    justifyContent: "space-between",
+    alignItems: "center",
     backgroundColor: colors.brandSoft,
-    paddingHorizontal: 8,
-    paddingVertical: 5,
-    borderRadius: 2,
+    borderLeftWidth: 3,
+    borderLeftColor: colors.brand,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
     marginBottom: spacing.sectionGap,
   },
-  taxBannerItem: {
-    fontSize: fontSize.bodySmall,
-    color: colors.text,
-    marginRight: 12,
-  },
-  taxBannerLabel: {
-    color: colors.textMuted,
+  soldeLabel: {
+    fontSize: echelle.petit,
     fontFamily: font.bold,
-    marginRight: 3,
+    color: colors.brand,
+    letterSpacing: 1.2,
+  },
+  soldeEcheance: {
+    fontSize: echelle.petit,
+    color: colors.textMuted,
+    marginTop: 3,
+  },
+  soldeMontant: {
+    fontSize: echelle.montant,
+    fontFamily: font.bold,
+    color: colors.text,
   },
 
-  // ── Bloc émetteur / destinataire ────────────────────────────────
+  /* ── Émetteur / destinataire ──────────────────────────────────── */
   twoCol: {
     flexDirection: "row",
     justifyContent: "space-between",
     marginBottom: spacing.sectionGap,
-    gap: 12,
+    gap: 14,
   },
-  block: {
-    flex: 1,
-    padding: spacing.blockPadding,
-    backgroundColor: colors.rowAlt,
-    borderRadius: 3,
-  },
+  block: { flex: 1 },
   blockHeader: {
-    fontSize: fontSize.sectionHeader,
+    fontSize: echelle.petit,
+    fontFamily: font.bold,
+    color: colors.textMuted,
+    letterSpacing: 1.2,
+    marginBottom: 4,
+    paddingBottom: 3,
+    borderBottomWidth: 0.5,
+    borderBottomColor: colors.border,
+  },
+  blockName: {
+    fontSize: echelle.corps,
+    fontFamily: font.bold,
+    color: colors.text,
+    marginBottom: 2,
+  },
+  blockLine: {
+    fontSize: echelle.petit,
+    color: colors.textMuted,
+    lineHeight: 1.45,
+  },
+
+  /* ── Dossier ──────────────────────────────────────────────────── */
+  matterRow: { flexDirection: "row", marginBottom: spacing.sectionGap },
+  matterLabel: {
+    fontSize: echelle.petit,
+    fontFamily: font.bold,
+    color: colors.textMuted,
+    letterSpacing: 1.2,
+    marginRight: 8,
+  },
+  matterValue: { fontSize: echelle.petit, color: colors.text, flex: 1 },
+
+  /* ── Groupes de lignes ────────────────────────────────────────── */
+  group: { marginBottom: 10 },
+  groupTitleRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "baseline",
+    borderBottomWidth: 1,
+    borderBottomColor: colors.brand,
+    paddingBottom: 4,
+  },
+  groupTitle: {
+    fontSize: echelle.petit,
     fontFamily: font.bold,
     color: colors.brand,
     letterSpacing: 1.2,
-    marginBottom: 4,
   },
-  blockName: {
-    fontSize: fontSize.blockTitle,
+  groupSubtotal: {
+    fontSize: echelle.corps,
     fontFamily: font.bold,
     color: colors.text,
-    marginBottom: 3,
   },
-  blockLine: {
-    fontSize: fontSize.bodySmall,
+  headRow: {
+    flexDirection: "row",
+    paddingTop: 5,
+    paddingBottom: 4,
+    borderBottomWidth: 0.5,
+    borderBottomColor: colors.border,
+  },
+  headCell: {
+    fontSize: echelle.petit,
+    fontFamily: font.bold,
     color: colors.textMuted,
-    lineHeight: 1.4,
+    letterSpacing: 0.7,
   },
-
-  // ── Référence dossier ───────────────────────────────────────────
-  matterRef: {
+  row: {
     flexDirection: "row",
-    paddingVertical: 6,
-    paddingHorizontal: spacing.blockPadding,
-    backgroundColor: colors.brandSoft,
-    borderLeftWidth: 3,
-    borderLeftColor: colors.brand,
-    marginBottom: spacing.sectionGap,
-  },
-  matterRefLabel: {
-    fontSize: fontSize.sectionHeader,
-    fontFamily: font.bold,
-    color: colors.brand,
-    letterSpacing: 1,
-    marginRight: 8,
-  },
-  matterRefValue: {
-    fontSize: fontSize.body,
-    fontFamily: font.bold,
-    color: colors.text,
-    flex: 1,
-  },
-
-  // ── Tableau des lignes ──────────────────────────────────────────
-  table: { marginBottom: spacing.sectionGap },
-  tableHead: {
-    flexDirection: "row",
-    backgroundColor: colors.brand,
-    paddingVertical: 6,
-    paddingHorizontal: spacing.rowPadding,
-  },
-  tableHeadText: {
-    color: colors.white,
-    fontSize: fontSize.sectionHeader,
-    fontFamily: font.bold,
-    letterSpacing: 1,
-  },
-  colDate: { width: `${tableColumns.date}%` },
-  colDescription: { width: `${tableColumns.description}%`, paddingRight: 8 },
-  colAmount: { width: `${tableColumns.amount}%`, textAlign: "right" },
-  tableRow: {
-    flexDirection: "row",
-    paddingVertical: spacing.rowPadding,
-    paddingHorizontal: spacing.rowPadding,
+    paddingVertical: 4,
     borderBottomWidth: 0.5,
     borderBottomColor: colors.border,
     alignItems: "flex-start",
   },
-  tableRowAlt: { backgroundColor: colors.rowAlt },
-  tableRowDiscount: { backgroundColor: colors.discountSoft },
-  tableRowFees: { backgroundColor: colors.feesSoft },
-  cellText: { fontSize: fontSize.body, color: colors.text },
-  cellMuted: { fontSize: fontSize.bodySmall, color: colors.textMuted, marginTop: 2 },
-  cellAmount: { fontSize: fontSize.body, fontFamily: font.bold, color: colors.text, textAlign: "right" },
-  cellAmountDiscount: { color: colors.discount },
-  badgeKind: {
-    fontSize: 7,
+  cell: { fontSize: echelle.corps, color: colors.text },
+  cellMuted: { fontSize: echelle.corps, color: colors.textMuted },
+  cellAmount: {
+    fontSize: echelle.corps,
     fontFamily: font.bold,
-    color: colors.brand,
-    backgroundColor: colors.brandSoft,
-    paddingHorizontal: 4,
-    paddingVertical: 1,
-    marginRight: 4,
-    borderRadius: 2,
-    letterSpacing: 0.6,
+    color: colors.text,
+    textAlign: "right",
   },
-  badgeDiscount: { color: colors.discount, backgroundColor: colors.white },
-  badgeFees: { color: colors.fees, backgroundColor: colors.white },
+  right: { textAlign: "right" },
+  center: { textAlign: "center" },
+  pr: { paddingRight: 6 },
 
-  // ── Totaux ──────────────────────────────────────────────────────
-  totalsBlock: {
-    alignSelf: "flex-end",
-    width: "55%",
-    marginTop: 4,
+  /* ── Récapitulatif ────────────────────────────────────────────── */
+  bandeBas: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    alignItems: "flex-start",
+    gap: 16,
+    marginTop: 2,
   },
-  totalLine: {
+  summary: { width: "58%" },
+  summaryTitle: {
+    fontSize: echelle.petit,
+    fontFamily: font.bold,
+    color: colors.textMuted,
+    letterSpacing: 1.2,
+    paddingBottom: 4,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.brand,
+  },
+  summaryLine: {
     flexDirection: "row",
     justifyContent: "space-between",
-    paddingVertical: 4,
-    paddingHorizontal: 8,
+    paddingVertical: 2.5,
     borderBottomWidth: 0.5,
     borderBottomColor: colors.border,
   },
-  totalLabel: { fontSize: fontSize.body, color: colors.textMuted },
-  totalValue: { fontSize: fontSize.body, color: colors.text, fontFamily: font.bold },
-  totalLineDiscount: { color: colors.discount },
-  totalLineHero: {
+  summaryLabel: { fontSize: echelle.corps, color: colors.textMuted },
+  summaryValue: { fontSize: echelle.corps, color: colors.text },
+  summaryStrong: { fontFamily: font.bold, color: colors.text },
+  summaryTotal: {
     flexDirection: "row",
     justifyContent: "space-between",
+    paddingVertical: 5,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.borderStrong,
+  },
+  summaryDue: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     backgroundColor: colors.brand,
-    paddingVertical: 8,
+    paddingVertical: 7,
     paddingHorizontal: 10,
     marginTop: 4,
-    borderRadius: 3,
   },
-  totalLabelHero: {
-    fontSize: fontSize.body,
-    color: colors.white,
+  summaryDueLabel: {
+    fontSize: echelle.petit,
     fontFamily: font.bold,
+    color: colors.white,
     letterSpacing: 1.2,
   },
-  totalValueHero: {
-    fontSize: fontSize.totalLarge,
+  summaryDueValue: {
+    fontSize: echelle.corps,
+    fontFamily: font.bold,
     color: colors.white,
-    fontFamily: font.bold,
   },
 
-  // ── Note client ─────────────────────────────────────────────────
-  clientNote: {
-    marginTop: spacing.sectionGap,
-    padding: spacing.blockPadding,
-    backgroundColor: colors.rowAlt,
-    borderLeftWidth: 3,
-    borderLeftColor: colors.brand,
+  /* ── Note client ──────────────────────────────────────────────── */
+  note: {
+    flex: 1,
+    paddingLeft: 10,
+    borderLeftWidth: 2,
+    borderLeftColor: colors.border,
   },
-  clientNoteLabel: {
-    fontSize: fontSize.sectionHeader,
+  noteLabel: {
+    fontSize: echelle.petit,
     fontFamily: font.bold,
-    color: colors.brand,
-    letterSpacing: 1,
-    marginBottom: 4,
-  },
-  clientNoteText: {
-    fontSize: fontSize.bodySmall,
     color: colors.textMuted,
-    lineHeight: 1.5,
-  },
-
-  // ── Footer : modalités + mentions ───────────────────────────────
-  footer: {
-    position: "absolute",
-    bottom: spacing.pagePadding,
-    left: spacing.pagePadding,
-    right: spacing.pagePadding,
-    paddingTop: 8,
-    borderTopWidth: 1,
-    borderTopColor: colors.borderStrong,
-  },
-  footerTitle: {
-    fontSize: fontSize.sectionHeader,
-    fontFamily: font.bold,
-    color: colors.brand,
-    letterSpacing: 1,
+    letterSpacing: 1.2,
     marginBottom: 3,
   },
-  footerText: {
-    fontSize: fontSize.footer,
+  noteText: {
+    fontSize: echelle.petit,
     color: colors.textMuted,
     lineHeight: 1.5,
   },
+
+  /* ── Pied de page ─────────────────────────────────────────────── */
+  footer: {
+    position: "absolute",
+    bottom: spacing.pagePadding - 12,
+    left: spacing.pagePadding,
+    right: spacing.pagePadding,
+    paddingTop: 6,
+    borderTopWidth: 0.5,
+    borderTopColor: colors.borderStrong,
+  },
+  footerRow: { flexDirection: "row", justifyContent: "space-between", gap: 16 },
+  footerCol: { flex: 1 },
+  footerLabel: {
+    fontSize: echelle.petit,
+    fontFamily: font.bold,
+    color: colors.textMuted,
+    letterSpacing: 1.1,
+    marginBottom: 2,
+  },
+  footerText: {
+    fontSize: echelle.petit,
+    color: colors.textMuted,
+    lineHeight: 1.45,
+  },
   footerLegal: {
-    fontSize: fontSize.footer,
+    fontSize: echelle.petit,
     color: colors.textFaint,
     fontFamily: font.oblique,
     marginTop: 4,
   },
   pageNum: {
     position: "absolute",
-    bottom: 16,
+    bottom: 14,
     right: spacing.pagePadding,
-    fontSize: fontSize.footer,
+    fontSize: echelle.petit,
     color: colors.textFaint,
   },
 });
 
-function fmtMoney(n: number, locale: InvoiceLanguage, currency: string): string {
+function fmtMoney(
+  n: number,
+  locale: InvoiceLanguage,
+  currency: string,
+): string {
   const intl = locale === "en" ? "en-CA" : "fr-CA";
   return new Intl.NumberFormat(intl, {
     style: "currency",
     currency,
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(n);
+}
+
+function fmtHeures(n: number, locale: InvoiceLanguage): string {
+  const intl = locale === "en" ? "en-CA" : "fr-CA";
+  return new Intl.NumberFormat(intl, {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(n);
@@ -406,10 +456,16 @@ function fmtDateShort(d: Date | string, locale: InvoiceLanguage): string {
   }).format(typeof d === "string" ? new Date(d) : d);
 }
 
-function clientAddressLines(client: NonNullable<PresentedInvoice["client"]>): string[] {
+function clientAddressLines(
+  client: NonNullable<PresentedInvoice["client"]>,
+): string[] {
   const lines: string[] = [];
   if (client.billingAddress) lines.push(client.billingAddress);
-  const cityLine = [client.billingCity, client.billingProvince, client.billingPostalCode]
+  const cityLine = [
+    client.billingCity,
+    client.billingProvince,
+    client.billingPostalCode,
+  ]
     .filter(Boolean)
     .join(", ");
   if (cityLine) lines.push(cityLine);
@@ -420,13 +476,6 @@ function clientAddressLines(client: NonNullable<PresentedInvoice["client"]>): st
 interface InvoiceDocumentProps {
   invoice: PresentedInvoice;
   language?: InvoiceLanguage;
-  /** Sommes des sous-totaux. Si non fourni, calculé à partir des lignes. */
-  subtotals?: {
-    fees: number;
-    expensesTaxable: number;
-    expensesNonTaxable: number;
-    discounts: number;
-  };
   /**
    * Affiche la signature reproduite (option par facture). Propagée aux
    * variantes propres au cabinet (ex. Derisier). Sans effet sur le gabarit
@@ -444,7 +493,6 @@ interface InvoiceDocumentProps {
 export function InvoiceDocument({
   invoice,
   language = "fr",
-  subtotals,
   showSignature = false,
 }: InvoiceDocumentProps) {
   // Dispatch vers une variante propre au cabinet le cas échéant. L'aperçu et le
@@ -469,16 +517,58 @@ export function InvoiceDocument({
 
   // Régime de taxe = celui du CABINET (exposé par le presenter), et non la
   // province du client. Une facture d'un cabinet QC affiche TPS/TVQ même pour
-  // un client hors-QC ; un cabinet dont le client n'a pas de `billingProvince`
-  // n'affiche plus la TVH par défaut.
+  // un client hors-QC.
   const taxRegime = totals.taxRegime;
 
-  // Sous-totaux dérivés des lignes si non fournis explicitement.
-  const computed = computeLineSubtotals(invoice.lines);
-  const sums = subtotals ?? computed;
+  const groupes = grouperLignes(invoice.lines);
+
+  // Les colonnes « Heures » et « Taux » n'ont de sens qu'en mode horaire. Au
+  // forfait, elles affichaient deux tirets par ligne sur toute la facture ;
+  // on les retire et la prestation récupère la place.
+  const montrerHeures =
+    !invoice.isForfait &&
+    groupes.honoraires.some(
+      (l) => l.hours != null && l.hours > 0 && l.rate != null,
+    );
+  const cH = montrerHeures
+    ? colonnesHonoraires
+    : {
+        ...colonnesHonoraires,
+        prestation:
+          colonnesHonoraires.prestation +
+          colonnesHonoraires.heures +
+          colonnesHonoraires.taux,
+        heures: 0,
+        taux: 0,
+      };
+
+  const numerosTaxe = [
+    cabinet?.taxNumbers.hstNumber
+      ? `${t.hst} ${cabinet.taxNumbers.hstNumber}`
+      : null,
+    cabinet?.taxNumbers.gstNumber && !cabinet?.taxNumbers.hstNumber
+      ? `${t.gst} ${cabinet.taxNumbers.gstNumber}`
+      : null,
+    cabinet?.taxNumbers.qstNumber
+      ? `${t.qst} ${cabinet.taxNumbers.qstNumber}`
+      : null,
+    cabinet?.taxNumbers.businessNumber &&
+    !cabinet.taxNumbers.hstNumber &&
+    !cabinet.taxNumbers.gstNumber
+      ? `${t.bn} ${cabinet.taxNumbers.businessNumber}`
+      : null,
+  ].filter(Boolean) as string[];
 
   const clientName = client ? presentClientDisplayName(client) : "—";
   const clientLines = client ? clientAddressLines(client) : [];
+
+  // Le solde dû est le chiffre qu'on cherche. S'il n'y a eu aucun paiement,
+  // il vaut le total : on l'affiche quand même, c'est bien ce qui est dû.
+  const solde = totals.balanceDue;
+
+  /* Un nom de cabinet finit souvent par un point (« Roy Avocats inc. ») : la
+     phrase du pied de page en ajoutait un second. */
+  const nomPourSignature = (cabinet?.nom ?? "—").trim();
 
   return (
     <Document
@@ -488,7 +578,7 @@ export function InvoiceDocument({
       producer="@react-pdf/renderer"
     >
       <Page size="A4" style={styles.page} wrap>
-        {/* En-tête : identité cabinet (Letterhead partagé) + n° facture + dates.
+        {/* En-tête : identité du cabinet (Letterhead partagé) + n° + dates.
             N.B. le n° de Barreau / LSO n'apparaît JAMAIS sur une facture
             (règle dure CEO 2026-05-12 — donnée confidentielle). */}
         <Letterhead
@@ -496,59 +586,40 @@ export function InvoiceDocument({
           fixed
           right={
             <>
-              <Text style={styles.invoiceKicker}>{t.invoice}</Text>
-              <Text style={styles.invoiceNumber}>{displayInvoiceNumero(invoice.numero)}</Text>
-              <View style={styles.invoiceDates}>
-                <View style={styles.invoiceDateRow}>
-                  <Text style={styles.invoiceDateLabel}>{t.issueDate} :</Text>
-                  <Text style={styles.invoiceDateValue}>{fmtDate(invoice.dateEmission, language)}</Text>
-                </View>
-                <View style={styles.invoiceDateRow}>
-                  <Text style={styles.invoiceDateLabel}>{t.dueDate} :</Text>
-                  <Text style={styles.invoiceDateValue}>{fmtDate(invoice.dateEcheance, language)}</Text>
-                </View>
+              <Text style={styles.kicker}>{t.invoice}</Text>
+              <Text style={styles.numero}>
+                {displayInvoiceNumero(invoice.numero)}
+              </Text>
+              <View style={styles.dateRow}>
+                <Text style={styles.dateLabel}>{t.issueDate}</Text>
+                <Text style={styles.dateValue}>
+                  {fmtDate(invoice.dateEmission, language)}
+                </Text>
+              </View>
+              <View style={styles.dateRow}>
+                <Text style={styles.dateLabel}>{t.dueDate}</Text>
+                <Text style={styles.dateValue}>
+                  {fmtDate(invoice.dateEcheance, language)}
+                </Text>
               </View>
             </>
           }
         />
 
-        {/* Bandeau de numéros d'identification fiscale — ARC uniquement
-            (HST / GST / QST / n° d'entreprise). Aucun n° de Barreau ici. */}
-        {(cabinet?.taxNumbers.hstNumber ||
-          cabinet?.taxNumbers.gstNumber ||
-          cabinet?.taxNumbers.qstNumber ||
-          cabinet?.taxNumbers.businessNumber) && (
-          <View style={styles.taxBanner}>
-            {cabinet?.taxNumbers.hstNumber ? (
-              <Text style={styles.taxBannerItem}>
-                <Text style={styles.taxBannerLabel}>{t.hst} : </Text>
-                {cabinet.taxNumbers.hstNumber}
-              </Text>
-            ) : null}
-            {cabinet?.taxNumbers.gstNumber && !cabinet?.taxNumbers.hstNumber ? (
-              <Text style={styles.taxBannerItem}>
-                <Text style={styles.taxBannerLabel}>{t.gst} : </Text>
-                {cabinet.taxNumbers.gstNumber}
-              </Text>
-            ) : null}
-            {cabinet?.taxNumbers.qstNumber ? (
-              <Text style={styles.taxBannerItem}>
-                <Text style={styles.taxBannerLabel}>{t.qst} : </Text>
-                {cabinet.taxNumbers.qstNumber}
-              </Text>
-            ) : null}
-            {cabinet?.taxNumbers.businessNumber &&
-            !cabinet.taxNumbers.hstNumber &&
-            !cabinet.taxNumbers.gstNumber ? (
-              <Text style={styles.taxBannerItem}>
-                <Text style={styles.taxBannerLabel}>{t.bn} : </Text>
-                {cabinet.taxNumbers.businessNumber}
-              </Text>
-            ) : null}
+        {/* Le solde dû, en haut. Le client ne doit pas le chercher. */}
+        <View style={styles.soldeBox}>
+          <View>
+            <Text style={styles.soldeLabel}>{t.balanceDue}</Text>
+            <Text style={styles.soldeEcheance}>
+              {t.payBefore} {fmtDate(invoice.dateEcheance, language)}
+            </Text>
           </View>
-        )}
+          <Text style={styles.soldeMontant}>
+            {fmtMoney(solde, language, currency)}
+          </Text>
+        </View>
 
-        {/* Émetteur / Destinataire */}
+        {/* Émetteur / destinataire */}
         <View style={styles.twoCol}>
           <View style={styles.block}>
             <Text style={styles.blockHeader}>{t.issuedBy}</Text>
@@ -556,8 +627,12 @@ export function InvoiceDocument({
             {cabinet?.adresse ? (
               <Text style={styles.blockLine}>{cabinet.adresse}</Text>
             ) : null}
-            {cabinet?.telephone ? <Text style={styles.blockLine}>{cabinet.telephone}</Text> : null}
-            {cabinet?.email ? <Text style={styles.blockLine}>{cabinet.email}</Text> : null}
+            {cabinet?.telephone ? (
+              <Text style={styles.blockLine}>{cabinet.telephone}</Text>
+            ) : null}
+            {cabinet?.email ? (
+              <Text style={styles.blockLine}>{cabinet.email}</Text>
+            ) : null}
           </View>
           <View style={styles.block}>
             <Text style={styles.blockHeader}>{t.billedTo}</Text>
@@ -567,199 +642,458 @@ export function InvoiceDocument({
                 {line}
               </Text>
             ))}
-            {client?.email ? <Text style={styles.blockLine}>{client.email}</Text> : null}
+            {client?.email ? (
+              <Text style={styles.blockLine}>{client.email}</Text>
+            ) : null}
           </View>
         </View>
 
-        {/* Référence dossier */}
+        {/* Dossier de référence */}
         {dossier ? (
-          <View style={styles.matterRef}>
-            <Text style={styles.matterRefLabel}>{t.matter}</Text>
-            <Text style={styles.matterRefValue}>
+          <View style={styles.matterRow}>
+            <Text style={styles.matterLabel}>{t.matter}</Text>
+            <Text style={styles.matterValue}>
               {dossier.numeroDossier ? `${dossier.numeroDossier} — ` : ""}
               {dossier.intitule}
             </Text>
           </View>
         ) : null}
 
-        {/* Tableau des lignes */}
-        <View style={styles.table}>
-          <View style={styles.tableHead} fixed>
-            <Text style={[styles.tableHeadText, styles.colDate]}>{t.colDate}</Text>
-            <Text style={[styles.tableHeadText, styles.colDescription]}>{t.colDescription}</Text>
-            <Text style={[styles.tableHeadText, styles.colAmount]}>{t.colAmount}</Text>
-          </View>
-
-          {invoice.lines.map((line, i) => {
-            const isDiscount = line.type === "rabais";
-            const isExpense =
-              line.type === "debours_taxable" || line.type === "debours_non_taxable";
-            const rowStyle = {
-              ...styles.tableRow,
-              ...(isDiscount ? styles.tableRowDiscount : i % 2 === 1 ? styles.tableRowAlt : {}),
-            };
-
-            return (
-              <View key={line.id} style={rowStyle} wrap={false}>
-                <Text style={[styles.cellText, styles.colDate]}>
-                  {line.date ? fmtDateShort(line.date, language) : "—"}
-                </Text>
-                <View style={styles.colDescription}>
-                  <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
-                    {isDiscount ? (
-                      <Text style={[styles.badgeKind, styles.badgeDiscount]}>{t.rabaisLabel}</Text>
-                    ) : isExpense ? (
-                      <Text style={[styles.badgeKind, styles.badgeFees]}>{t.feesLabel}</Text>
-                    ) : null}
-                    <Text style={styles.cellText}>{line.description || "—"}</Text>
-                  </View>
-                  {(line.userNom || (line.hours != null && line.hours > 0)) && (
-                    <Text style={styles.cellMuted}>
-                      {line.hours != null && line.hours > 0 && line.rate != null
-                        ? `${line.hours} h × ${fmtMoney(line.rate, language, currency)}/h`
-                        : ""}
-                      {line.hours != null && line.hours > 0 && line.userNom ? " · " : ""}
-                      {line.userNom ? `${t.by} ${line.userNom}` : ""}
-                    </Text>
-                  )}
-                </View>
+        {/* ── Groupe 1 : le travail ──────────────────────────────── */}
+        {groupes.honoraires.length > 0 ? (
+          <View style={styles.group}>
+            <View style={styles.groupTitleRow} minPresenceAhead={40}>
+              <Text style={styles.groupTitle}>{t.groupFees}</Text>
+              <Text style={styles.groupSubtotal}>
+                {fmtMoney(groupes.sousTotaux.honoraires, language, currency)}
+              </Text>
+            </View>
+            <View style={styles.headRow}>
+              <Text
+                style={[styles.headCell, styles.pr, { width: `${cH.date}%` }]}
+              >
+                {t.colDate}
+              </Text>
+              <Text
+                style={[
+                  styles.headCell,
+                  styles.pr,
+                  { width: `${cH.prestation}%` },
+                ]}
+              >
+                {t.colService}
+              </Text>
+              <Text
+                style={[
+                  styles.headCell,
+                  styles.pr,
+                  { width: `${cH.intervenant}%` },
+                ]}
+              >
+                {t.colWho}
+              </Text>
+              {montrerHeures ? (
+                <>
+                  <Text
+                    style={[
+                      styles.headCell,
+                      styles.right,
+                      styles.pr,
+                      { width: `${cH.heures}%` },
+                    ]}
+                  >
+                    {t.colHours}
+                  </Text>
+                  <Text
+                    style={[
+                      styles.headCell,
+                      styles.right,
+                      styles.pr,
+                      { width: `${cH.taux}%` },
+                    ]}
+                  >
+                    {t.colRate}
+                  </Text>
+                </>
+              ) : null}
+              <Text
+                style={[
+                  styles.headCell,
+                  styles.right,
+                  { width: `${cH.montant}%` },
+                ]}
+              >
+                {t.colAmount}
+              </Text>
+            </View>
+            {groupes.honoraires.map((l) => (
+              <View key={l.id} style={styles.row} wrap={false}>
                 <Text
                   style={[
-                    styles.cellAmount,
-                    styles.colAmount,
-                    isDiscount ? styles.cellAmountDiscount : {},
+                    styles.cellMuted,
+                    styles.pr,
+                    { width: `${cH.date}%` },
                   ]}
                 >
-                  {fmtMoney(line.amount, language, currency)}
+                  {l.date ? fmtDateShort(l.date, language) : "—"}
+                </Text>
+                <Text
+                  style={[
+                    styles.cell,
+                    styles.pr,
+                    { width: `${cH.prestation}%` },
+                  ]}
+                >
+                  {l.description || "—"}
+                </Text>
+                <Text
+                  style={[
+                    styles.cellMuted,
+                    styles.pr,
+                    { width: `${cH.intervenant}%` },
+                  ]}
+                >
+                  {l.userNom || "—"}
+                </Text>
+                {montrerHeures ? (
+                  <>
+                    <Text
+                      style={[
+                        styles.cellMuted,
+                        styles.right,
+                        styles.pr,
+                        { width: `${cH.heures}%` },
+                      ]}
+                    >
+                      {l.hours != null && l.hours > 0
+                        ? fmtHeures(l.hours, language)
+                        : "—"}
+                    </Text>
+                    <Text
+                      style={[
+                        styles.cellMuted,
+                        styles.right,
+                        styles.pr,
+                        { width: `${cH.taux}%` },
+                      ]}
+                    >
+                      {l.rate != null && l.rate > 0
+                        ? fmtMoney(l.rate, language, currency)
+                        : "—"}
+                    </Text>
+                  </>
+                ) : null}
+                <Text style={[styles.cellAmount, { width: `${cH.montant}%` }]}>
+                  {fmtMoney(l.amount, language, currency)}
                 </Text>
               </View>
-            );
-          })}
-        </View>
-
-        {/* Totaux */}
-        <View style={styles.totalsBlock}>
-          {sums.fees > 0 ? (
-            <View style={styles.totalLine}>
-              <Text style={styles.totalLabel}>{t.subtotalFees}</Text>
-              <Text style={styles.totalValue}>{fmtMoney(sums.fees, language, currency)}</Text>
-            </View>
-          ) : null}
-          {sums.expensesTaxable > 0 ? (
-            <View style={styles.totalLine}>
-              <Text style={styles.totalLabel}>{t.subtotalExpenses}</Text>
-              <Text style={styles.totalValue}>{fmtMoney(sums.expensesTaxable, language, currency)}</Text>
-            </View>
-          ) : null}
-          {sums.expensesNonTaxable > 0 || totals.deboursNonTaxableTotal > 0 ? (
-            <View style={styles.totalLine}>
-              <Text style={styles.totalLabel}>{t.subtotalNonTaxable}</Text>
-              <Text style={styles.totalValue}>
-                {fmtMoney(totals.deboursNonTaxableTotal || sums.expensesNonTaxable, language, currency)}
-              </Text>
-            </View>
-          ) : null}
-          {totals.totalRabais > 0 ? (
-            <View style={styles.totalLine}>
-              <Text style={[styles.totalLabel, styles.totalLineDiscount]}>{t.discountApplied}</Text>
-              <Text style={[styles.totalValue, styles.totalLineDiscount]}>
-                −{fmtMoney(totals.totalRabais, language, currency)}
-              </Text>
-            </View>
-          ) : null}
-          <View style={styles.totalLine}>
-            <Text style={styles.totalLabel}>{t.subtotal}</Text>
-            <Text style={styles.totalValue}>{fmtMoney(totals.subtotalTaxable, language, currency)}</Text>
-          </View>
-
-          {/* Taxes — affichage selon régime du client */}
-          {taxRegime === "HST" && totals.hst > 0 ? (
-            <View style={styles.totalLine}>
-              <Text style={styles.totalLabel}>{t.taxHst}</Text>
-              <Text style={styles.totalValue}>
-                {fmtMoney(totals.hst, language, currency)}
-              </Text>
-            </View>
-          ) : null}
-          {taxRegime !== "HST" && totals.tps > 0 ? (
-            <View style={styles.totalLine}>
-              <Text style={styles.totalLabel}>{t.taxGst}</Text>
-              <Text style={styles.totalValue}>{fmtMoney(totals.tps, language, currency)}</Text>
-            </View>
-          ) : null}
-          {taxRegime === "GST_QST" && totals.tvq > 0 ? (
-            <View style={styles.totalLine}>
-              <Text style={styles.totalLabel}>{t.taxQst}</Text>
-              <Text style={styles.totalValue}>{fmtMoney(totals.tvq, language, currency)}</Text>
-            </View>
-          ) : null}
-
-          {/* Total hero */}
-          <View style={styles.totalLineHero}>
-            <Text style={styles.totalLabelHero}>{t.total}</Text>
-            <Text style={styles.totalValueHero}>{fmtMoney(totals.montantTotal, language, currency)}</Text>
-          </View>
-
-          {totals.montantPaye > 0 ? (
-            <>
-              <View style={styles.totalLine}>
-                <Text style={styles.totalLabel}>{t.paid}</Text>
-                <Text style={styles.totalValue}>−{fmtMoney(totals.montantPaye, language, currency)}</Text>
-              </View>
-              <View style={styles.totalLineHero}>
-                <Text style={styles.totalLabelHero}>{t.balanceDue}</Text>
-                <Text style={styles.totalValueHero}>
-                  {fmtMoney(totals.balanceDue, language, currency)}
-                </Text>
-              </View>
-            </>
-          ) : null}
-        </View>
-
-        {/* Note client */}
-        {invoice.clientNote ? (
-          <View style={styles.clientNote}>
-            <Text style={styles.clientNoteLabel}>{t.note}</Text>
-            <Text style={styles.clientNoteText}>{invoice.clientNote}</Text>
+            ))}
           </View>
         ) : null}
 
-        {/* Footer fixe : modalités + mention conservation */}
+        {/* ── Groupe 2 : les sommes avancées pour le client ──────── */}
+        {groupes.debours.length > 0 ? (
+          <View style={styles.group}>
+            <View style={styles.groupTitleRow} minPresenceAhead={40}>
+              <Text style={styles.groupTitle}>{t.groupExpenses}</Text>
+              <Text style={styles.groupSubtotal}>
+                {fmtMoney(groupes.sousTotaux.debours, language, currency)}
+              </Text>
+            </View>
+            <View style={styles.headRow}>
+              <Text
+                style={[
+                  styles.headCell,
+                  styles.pr,
+                  { width: `${colonnesDebours.date}%` },
+                ]}
+              >
+                {t.colDate}
+              </Text>
+              <Text
+                style={[
+                  styles.headCell,
+                  styles.pr,
+                  { width: `${colonnesDebours.nature}%` },
+                ]}
+              >
+                {t.colNature}
+              </Text>
+              <Text
+                style={[
+                  styles.headCell,
+                  styles.center,
+                  styles.pr,
+                  { width: `${colonnesDebours.taxable}%` },
+                ]}
+              >
+                {t.colTaxable}
+              </Text>
+              <Text
+                style={[
+                  styles.headCell,
+                  styles.right,
+                  { width: `${colonnesDebours.montant}%` },
+                ]}
+              >
+                {t.colAmount}
+              </Text>
+            </View>
+            {groupes.debours.map((l) => (
+              <View key={l.id} style={styles.row} wrap={false}>
+                <Text
+                  style={[
+                    styles.cellMuted,
+                    styles.pr,
+                    { width: `${colonnesDebours.date}%` },
+                  ]}
+                >
+                  {l.date ? fmtDateShort(l.date, language) : "—"}
+                </Text>
+                <Text
+                  style={[
+                    styles.cell,
+                    styles.pr,
+                    { width: `${colonnesDebours.nature}%` },
+                  ]}
+                >
+                  {l.description || "—"}
+                </Text>
+                <Text
+                  style={[
+                    styles.cellMuted,
+                    styles.center,
+                    styles.pr,
+                    { width: `${colonnesDebours.taxable}%` },
+                  ]}
+                >
+                  {deboursEstTaxable(l) ? t.yes : t.no}
+                </Text>
+                <Text
+                  style={[
+                    styles.cellAmount,
+                    { width: `${colonnesDebours.montant}%` },
+                  ]}
+                >
+                  {fmtMoney(l.amount, language, currency)}
+                </Text>
+              </View>
+            ))}
+          </View>
+        ) : null}
+
+        {/* ── Rabais et autres ajustements ───────────────────────── */}
+        {groupes.rabais.length + groupes.autres.length > 0 ? (
+          <View style={styles.group}>
+            <View style={styles.groupTitleRow} minPresenceAhead={40}>
+              <Text style={styles.groupTitle}>{t.groupOther}</Text>
+              <Text style={styles.groupSubtotal} />
+            </View>
+            {[...groupes.rabais, ...groupes.autres].map((l) => (
+              <View key={l.id} style={styles.row} wrap={false}>
+                <Text
+                  style={[
+                    styles.cellMuted,
+                    styles.pr,
+                    { width: `${colonnesDebours.date}%` },
+                  ]}
+                >
+                  {l.date ? fmtDateShort(l.date, language) : "—"}
+                </Text>
+                <Text
+                  style={[
+                    styles.cell,
+                    styles.pr,
+                    {
+                      width: `${colonnesDebours.nature + colonnesDebours.taxable}%`,
+                    },
+                  ]}
+                >
+                  {l.description || "—"}
+                </Text>
+                <Text
+                  style={[
+                    styles.cellAmount,
+                    { width: `${colonnesDebours.montant}%` },
+                  ]}
+                >
+                  {fmtMoney(l.amount, language, currency)}
+                </Text>
+              </View>
+            ))}
+          </View>
+        ) : null}
+
+        {/* ── Note au client et récapitulatif, côte à côte ───────── */}
+        {/* La note occupe la colonne gauche, restée vide sous le détail :
+            placée en dessous, une seule phrase ouvrait une page de plus. */}
+        <View style={styles.bandeBas}>
+          {invoice.clientNote ? (
+            <View style={styles.note} wrap={false}>
+              <Text style={styles.noteLabel}>{t.note}</Text>
+              <Text style={styles.noteText}>{invoice.clientNote}</Text>
+            </View>
+          ) : null}
+
+          <View style={styles.summary}>
+            <Text style={styles.summaryTitle}>{t.summary}</Text>
+
+            {groupes.sousTotaux.honoraires > 0 ? (
+              <View style={styles.summaryLine}>
+                <Text style={styles.summaryLabel}>{t.subtotalFees}</Text>
+                <Text style={styles.summaryValue}>
+                  {fmtMoney(groupes.sousTotaux.honoraires, language, currency)}
+                </Text>
+              </View>
+            ) : null}
+            {groupes.sousTotaux.deboursTaxables > 0 ? (
+              <View style={styles.summaryLine}>
+                <Text style={styles.summaryLabel}>
+                  {t.subtotalExpensesTaxable}
+                </Text>
+                <Text style={styles.summaryValue}>
+                  {fmtMoney(
+                    groupes.sousTotaux.deboursTaxables,
+                    language,
+                    currency,
+                  )}
+                </Text>
+              </View>
+            ) : null}
+            {totals.totalRabais > 0 ? (
+              <View style={styles.summaryLine}>
+                <Text style={styles.summaryLabel}>{t.discountApplied}</Text>
+                <Text style={styles.summaryValue}>
+                  -{fmtMoney(totals.totalRabais, language, currency)}
+                </Text>
+              </View>
+            ) : null}
+
+            {/* L'assiette de la taxe. C'est ce nombre qui rend la TPS vérifiable. */}
+            <View style={styles.summaryLine}>
+              <Text style={[styles.summaryLabel, styles.summaryStrong]}>
+                {t.subtotalTaxable}
+              </Text>
+              <Text style={[styles.summaryValue, styles.summaryStrong]}>
+                {fmtMoney(totals.subtotalTaxable, language, currency)}
+              </Text>
+            </View>
+
+            {taxRegime === "HST" && totals.hst > 0 ? (
+              <View style={styles.summaryLine}>
+                <Text style={styles.summaryLabel}>{t.taxHst}</Text>
+                <Text style={styles.summaryValue}>
+                  {fmtMoney(totals.hst, language, currency)}
+                </Text>
+              </View>
+            ) : null}
+            {taxRegime !== "HST" && totals.tps > 0 ? (
+              <View style={styles.summaryLine}>
+                <Text style={styles.summaryLabel}>{t.taxGst}</Text>
+                <Text style={styles.summaryValue}>
+                  {fmtMoney(totals.tps, language, currency)}
+                </Text>
+              </View>
+            ) : null}
+            {taxRegime === "GST_QST" && totals.tvq > 0 ? (
+              <View style={styles.summaryLine}>
+                <Text style={styles.summaryLabel}>{t.taxQst}</Text>
+                <Text style={styles.summaryValue}>
+                  {fmtMoney(totals.tvq, language, currency)}
+                </Text>
+              </View>
+            ) : null}
+
+            {/* Les débours non taxables entrent APRÈS la taxe, jamais avant :
+              les porter au sous-total taxable gonflerait la TPS. */}
+            {totals.deboursNonTaxableTotal > 0 ||
+            groupes.sousTotaux.deboursNonTaxables > 0 ? (
+              <View style={styles.summaryLine}>
+                <Text style={styles.summaryLabel}>
+                  {t.subtotalExpensesNonTaxable}
+                </Text>
+                <Text style={styles.summaryValue}>
+                  {fmtMoney(
+                    totals.deboursNonTaxableTotal ||
+                      groupes.sousTotaux.deboursNonTaxables,
+                    language,
+                    currency,
+                  )}
+                </Text>
+              </View>
+            ) : null}
+
+            {/* La queue du récapitulatif ne se coupe JAMAIS : un total en bas
+              d'une page et son solde dû en haut de la suivante est le genre de
+              découpe qui fait rappeler le cabinet. Le haut, lui, peut couler :
+              c'est ce qui évite de laisser un grand trou blanc. */}
+            <View wrap={false}>
+              <View style={styles.summaryTotal}>
+                <Text style={[styles.summaryLabel, styles.summaryStrong]}>
+                  {t.total}
+                </Text>
+                <Text style={[styles.summaryValue, styles.summaryStrong]}>
+                  {fmtMoney(totals.montantTotal, language, currency)}
+                </Text>
+              </View>
+
+              {totals.montantPaye > 0 ? (
+                <View style={styles.summaryLine}>
+                  <Text style={styles.summaryLabel}>{t.paid}</Text>
+                  <Text style={styles.summaryValue}>
+                    -{fmtMoney(totals.montantPaye, language, currency)}
+                  </Text>
+                </View>
+              ) : null}
+
+              <View style={styles.summaryDue}>
+                <Text style={styles.summaryDueLabel}>{t.balanceDue}</Text>
+                <Text style={styles.summaryDueValue}>
+                  {fmtMoney(solde, language, currency)}
+                </Text>
+              </View>
+            </View>
+          </View>
+        </View>
+
+        {/* Pied de page fixe : modalités à gauche, numéros d'inscription aux
+            taxes à droite (exigence ARC dès que le cabinet perçoit la taxe). */}
         <View style={styles.footer} fixed>
-          <Text style={styles.footerTitle}>{t.paymentTitle}</Text>
-          <Text style={styles.footerText}>
-            {legalNotices[language].paymentTerms} {t.paymentTo}{" "}
-            <Text style={{ fontFamily: font.bold }}>{cabinet?.nom ?? "—"}</Text>.
+          <View style={styles.footerRow}>
+            <View style={styles.footerCol}>
+              <Text style={styles.footerLabel}>{t.paymentTitle}</Text>
+              <Text style={styles.footerText}>
+                {legalNotices[language].paymentTerms} {t.paymentTo}{" "}
+                <Text style={{ fontFamily: font.bold }}>
+                  {nomPourSignature}
+                </Text>
+                {nomPourSignature.endsWith(".") ? "" : "."}
+              </Text>
+            </View>
+            {numerosTaxe.length > 0 ? (
+              <View style={styles.footerCol}>
+                <Text style={styles.footerLabel}>{t.taxNumbers}</Text>
+                {numerosTaxe.map((n) => (
+                  <Text key={n} style={styles.footerText}>
+                    {n}
+                  </Text>
+                ))}
+              </View>
+            ) : null}
+          </View>
+          <Text style={styles.footerLegal}>
+            {legalNotices[language].keepForRecords}
           </Text>
-          <Text style={styles.footerLegal}>{legalNotices[language].keepForRecords}</Text>
         </View>
 
         <Text
           style={styles.pageNum}
-          render={({ pageNumber, totalPages }) => `${t.page} ${pageNumber} ${t.of} ${totalPages}`}
+          render={({ pageNumber, totalPages }) =>
+            `${t.page} ${pageNumber} ${t.of} ${totalPages}`
+          }
           fixed
         />
       </Page>
     </Document>
   );
-}
-
-/** Calcule les sous-totaux par catégorie depuis les lignes présentées. */
-function computeLineSubtotals(lines: PresentedLine[]): {
-  fees: number;
-  expensesTaxable: number;
-  expensesNonTaxable: number;
-  discounts: number;
-} {
-  let fees = 0;
-  let expensesTaxable = 0;
-  let expensesNonTaxable = 0;
-  let discounts = 0;
-  for (const l of lines) {
-    if (l.type === "honoraires") fees += l.amount;
-    else if (l.type === "debours_taxable") expensesTaxable += l.amount;
-    else if (l.type === "debours_non_taxable") expensesNonTaxable += l.amount;
-    else if (l.type === "rabais") discounts += Math.abs(l.amount);
-  }
-  return { fees, expensesTaxable, expensesNonTaxable, discounts };
 }

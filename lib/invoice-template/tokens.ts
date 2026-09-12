@@ -50,6 +50,27 @@ export const colors = {
   white: "#FFFFFF",
 } as const;
 
+/**
+ * L'ÉCHELLE — trois tailles, pas une de plus.
+ *
+ * Demande CEO du 2026-09-10 : « je vois qu'il y a plusieurs polices de taille
+ * différentes ce que je n'aime pas trop ». Une facture n'a besoin que de trois
+ * rangs : le montant qu'on cherche des yeux, le texte qu'on lit, l'étiquette
+ * qu'on survole. Tout le reste de la hiérarchie se fait au GRAS et à la
+ * couleur, jamais en ajoutant un quatrième corps (loi T2 de DESIGN_HUMAIN).
+ *
+ * `fontSize` ci-dessous est conservé pour les gabarits qui ne sont pas encore
+ * passés à l'échelle ; le gabarit standard n'emploie plus que `echelle`.
+ */
+export const echelle = {
+  /** Le solde dû, et lui seul. Un seul grand chiffre par page. */
+  montant: 19,
+  /** Tout le texte courant : lignes, coordonnées, totaux. */
+  corps: 9.5,
+  /** En-têtes de section, en-têtes de colonnes, mentions de pied. */
+  petit: 7.5,
+} as const;
+
 /** Tailles typographiques en points (1pt = 1.333px web). */
 export const fontSize = {
   /** Numéro de facture, total final. */
@@ -88,6 +109,29 @@ export const tableColumns = {
   date: 16,
   description: 64,
   amount: 20,
+} as const;
+
+/**
+ * Colonnes du groupe « Honoraires professionnels ».
+ * Un client qui vérifie une facture d'avocat cherche trois choses : quand,
+ * par qui, combien d'heures. Elles ont donc chacune leur colonne, au lieu
+ * d'être repliées en petit sous la description.
+ */
+export const colonnesHonoraires = {
+  date: 11,
+  prestation: 43,
+  intervenant: 16,
+  heures: 9,
+  taux: 9,
+  montant: 12,
+} as const;
+
+/** Colonnes du groupe « Débours et frais ». */
+export const colonnesDebours = {
+  date: 11,
+  nature: 60,
+  taxable: 13,
+  montant: 16,
 } as const;
 
 /** Mention légale standard à afficher en pied de facture (CA). */
