@@ -1,19 +1,18 @@
 "use client";
 import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { Loader2 } from "lucide-react";
 import { MotifAnnulationModal } from "@/components/comptabilite/MotifAnnulationModal";
 import type { JournalCorrectionMotive } from "@prisma/client";
 import { toCalendarDayUTC, toIsoDay } from "@/lib/utils/calendar-date";
 
 const selectClass =
-  "w-full h-10 px-3 rounded-xl border border-si-line bg-si-canvas/80 text-sm text-si-ink placeholder:text-si-muted/50 focus:bg-si-surface focus:ring-2 focus:ring-si-verified/20 focus:border-si-verified outline-none transition-all";
+  "w-full h-10 px-3 rounded-lg border border-si-line bg-si-canvas/80 text-sm text-si-ink placeholder:text-si-muted/50 focus:bg-si-surface focus:ring-2 focus:ring-si-verified/20 focus:border-si-verified outline-none transition-all";
 
 function clientLabel(client: { raisonSociale: string | null; prenom?: string | null; nom?: string | null }) {
   const company = client.raisonSociale?.trim();
@@ -71,6 +70,13 @@ export interface PaiementFormModalProps {
     totalPaidAmount: number;
   }[];
   onSuccess?: () => void;
+  /**
+   * Facture sur laquelle ouvrir le formulaire (mode création). Le client, la
+   * facture, le montant et l'allocation sont pré-remplis avec son solde ; tout
+   * reste modifiable. Sert au lien « Ajouter un paiement » du Suivi, qui passait
+   * ce numéro depuis toujours sans que personne ne le lise.
+   */
+  initialInvoiceId?: string | null;
 }
 
 export function PaiementFormModal({
@@ -81,6 +87,7 @@ export function PaiementFormModal({
   clients,
   invoices,
   onSuccess,
+  initialInvoiceId = null,
 }: PaiementFormModalProps) {
   const tp = useTranslations("payments");
   const { formatCurrency } = useFormatteurs();
@@ -146,13 +153,32 @@ export function PaiementFormModal({
       .finally(() => setLoadingPayment(false));
   }, [open, isEdit, paymentId, tp]);
 
+  /* Remise à zéro à l'ouverture, une seule fois par ouverture : les factures
+     arrivent après la modale (leur requête ne part qu'à l'ouverture), et un
+     rechargement de cette liste ne doit jamais effacer ce qu'on est en train
+     de taper. */
+  const preremplissageFait = useRef(false);
   useEffect(() => {
-    if (!open || mode !== "create") return;
+    if (!open || mode !== "create") {
+      preremplissageFait.current = false;
+      return;
+    }
+    if (preremplissageFait.current) return;
     setSelectedClientId("");
     setSelectedInvoiceId("");
     setPaymentAmount("");
     setAllocatedAmount("0");
-  }, [open, mode]);
+    if (initialInvoiceId) {
+      const inv = invoices.find((i) => i.id === initialInvoiceId);
+      if (!inv) return; // les factures ne sont pas encore là : on repassera
+      const solde = Math.max(0, inv.balanceDue);
+      setSelectedClientId(inv.clientId ?? "");
+      setSelectedInvoiceId(inv.id);
+      setPaymentAmount(solde.toFixed(2));
+      setAllocatedAmount(solde.toFixed(2));
+    }
+    preremplissageFait.current = true;
+  }, [open, mode, initialInvoiceId, invoices]);
 
   function handleClientChange(nextClientId: string) {
     setSelectedClientId(nextClientId);
@@ -298,9 +324,9 @@ export function PaiementFormModal({
         title={mode === "create" ? tp("newPayment") : tp("editPayment")}
       >
       {isEdit && loadingPayment ? (
-        <div className="flex justify-center py-12">
-          <Loader2 className="w-8 h-8 animate-spin text-si-muted/50" />
-        </div>
+        <p className="py-12 text-center text-sm text-si-muted" role="status">
+          {tc("loading")}
+        </p>
       ) : isEdit && !payment ? (
         <p className="text-si-muted py-4">{tp("paymentNotFound")}</p>
       ) : (
@@ -430,7 +456,7 @@ export function PaiementFormModal({
             </>
           )}
 
-          {error && <p className="text-sm text-[#B84A3E]">{error}</p>}
+          {error && <p className="text-sm text-si-danger-ink">{error}</p>}
 
           <div className="flex justify-end gap-2 pt-2">
             <Button type="button" variant="secondary" onClick={handleClose} disabled={submitting}>

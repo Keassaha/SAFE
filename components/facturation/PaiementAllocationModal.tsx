@@ -6,10 +6,9 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
-import { Loader2 } from "lucide-react";
 
 const selectClass =
-  "w-full h-10 px-3 rounded-xl border border-si-line bg-si-canvas/80 text-sm text-si-ink focus:bg-si-surface focus:ring-2 focus:ring-si-verified/20 focus:border-si-verified outline-none transition-all";
+  "w-full h-10 px-3 rounded-lg border border-si-line bg-si-canvas/80 text-sm text-si-ink focus:bg-si-surface focus:ring-2 focus:ring-si-verified/20 focus:border-si-verified outline-none transition-all";
 
 export interface PaiementAllocationModalProps {
   open: boolean;
@@ -129,9 +128,9 @@ export function PaiementAllocationModal({
   return (
     <Modal open={open} onClose={handleClose} title={tp("allocatePayment")}>
       {loading ? (
-        <div className="flex justify-center py-12">
-          <Loader2 className="w-8 h-8 animate-spin text-si-muted/50" />
-        </div>
+        <p className="py-12 text-center text-sm text-si-muted" role="status">
+          {tc("loading")}
+        </p>
       ) : !payment ? (
         <p className="text-si-muted py-4">{tp("paymentNotFound")}</p>
       ) : (
@@ -181,7 +180,7 @@ export function PaiementAllocationModal({
             </>
           )}
 
-          {error && <p className="text-sm text-[#B84A3E]">{error}</p>}
+          {error && <p className="text-sm text-si-danger-ink">{error}</p>}
 
           <div className="flex justify-end gap-2 pt-2">
             <Button type="button" variant="secondary" onClick={handleClose} disabled={submitting}>

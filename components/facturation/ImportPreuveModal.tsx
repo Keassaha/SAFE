@@ -7,13 +7,13 @@ import { useTranslations } from "next-intl";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { Loader2, UploadCloud, CheckCircle2, AlertTriangle, HelpCircle, Users } from "lucide-react";
+import { UploadCloud, CheckCircle2, AlertTriangle, HelpCircle, Users } from "lucide-react";
 import type { PaymentProofExtraction } from "@/lib/ai/extract-payment-proof";
 import type { PaymentMatch } from "@/lib/services/finance/match-payment";
 import { toCalendarDayUTC, toIsoDay } from "@/lib/utils/calendar-date";
 
 const selectClass =
-  "w-full h-10 px-3 rounded-xl border border-si-line bg-si-canvas/80 text-sm text-si-ink placeholder:text-si-muted/50 focus:bg-si-surface focus:ring-2 focus:ring-si-verified/20 focus:border-si-verified outline-none transition-all";
+  "w-full h-10 px-3 rounded-lg border border-si-line bg-si-canvas/80 text-sm text-si-ink placeholder:text-si-muted/50 focus:bg-si-surface focus:ring-2 focus:ring-si-verified/20 focus:border-si-verified outline-none transition-all";
 
 type ClientOpt = { id: string; raisonSociale: string | null; prenom?: string | null; nom?: string | null };
 type InvoiceOpt = { id: string; numero: string; clientId: string | null; balanceDue: number };
@@ -180,7 +180,7 @@ export function ImportPreuveModal({ open, onClose, clients, invoices, onSuccess 
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="flex w-full flex-col items-center gap-3 rounded-2xl border-2 border-dashed border-si-line bg-si-canvas/50 px-6 py-12 text-center transition-colors hover:border-si-verified hover:bg-si-verified/[0.03]"
+            className="flex w-full flex-col items-center gap-3 rounded-lg border-2 border-dashed border-si-line bg-si-canvas/50 px-6 py-12 text-center transition-colors hover:border-si-verified hover:bg-si-verified/[0.03]"
           >
             <UploadCloud className="h-10 w-10 text-si-muted" aria-hidden />
             <span className="text-sm font-medium text-si-ink">{t("dropHint")}</span>
@@ -196,23 +196,22 @@ export function ImportPreuveModal({ open, onClose, clients, invoices, onSuccess 
               if (f) handleFile(f);
             }}
           />
-          {error && <p className="text-sm text-[#B84A3E]">{error}</p>}
+          {error && <p className="text-sm text-si-danger-ink">{error}</p>}
         </div>
       )}
 
       {phase === "loading" && (
         <div className="flex flex-col items-center gap-3 py-16">
-          <Loader2 className="h-8 w-8 animate-spin text-si-verified" />
           <p className="text-sm text-si-muted">{t("analyzing")}</p>
         </div>
       )}
 
       {phase === "duplicate" && (
         <div className="space-y-5">
-          <div className="flex items-start gap-3 rounded-xl border border-[#B84A3E]/30 bg-[#B84A3E]/[0.06] px-4 py-4">
-            <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-[#B84A3E]" aria-hidden />
+          <div className="flex items-start gap-3 rounded-lg border border-si-danger/30 bg-si-danger/[0.06] px-4 py-4">
+            <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-si-danger-ink" aria-hidden />
             <div>
-              <p className="text-sm font-medium text-[#B84A3E]">{t("duplicateTitle")}</p>
+              <p className="text-sm font-medium text-si-danger-ink">{t("duplicateTitle")}</p>
               <p className="mt-1 text-sm text-si-ink">
                 {duplicate?.matchedBy === "hash" ? t("duplicateByFile") : t("duplicateByReference")}
               </p>
@@ -238,7 +237,7 @@ export function ImportPreuveModal({ open, onClose, clients, invoices, onSuccess 
       {(phase === "review" || phase === "submitting") && match && extraction && (
         <div className="space-y-5">
           {/* Bandeau de confiance */}
-          <div className={`flex items-start gap-3 rounded-xl border px-4 py-3 ${conf?.badge}`}>
+          <div className={`flex items-start gap-3 rounded-lg border px-4 py-3 ${conf?.badge}`}>
             <ConfIcon className="mt-0.5 h-5 w-5 shrink-0" aria-hidden />
             <div className="min-w-0">
               <p className="text-sm font-medium">{conf ? t(conf.key) : ""}</p>
@@ -267,7 +266,7 @@ export function ImportPreuveModal({ open, onClose, clients, invoices, onSuccess 
             {/* Colonne preuve */}
             <div>
               <p className="mb-1.5 text-sm font-medium text-si-muted">{t("proofPreview")}</p>
-              <div className="overflow-hidden rounded-xl border border-si-line bg-si-canvas">
+              <div className="overflow-hidden rounded-lg border border-si-line bg-si-canvas">
                 {previewUrl && !isPdf && (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={previewUrl} alt={t("proofPreview")} className="max-h-[420px] w-full object-contain" />
@@ -346,7 +345,7 @@ export function ImportPreuveModal({ open, onClose, clients, invoices, onSuccess 
 
           {/* Apprentissage : mémoriser le payeur tiers → ce client */}
           {clientId && !match.matchedByRule && (extraction.expediteurNom || extraction.expediteurCourriel) && (
-            <label className="flex items-start gap-2.5 rounded-xl border border-si-line bg-si-canvas/50 px-3.5 py-3 cursor-pointer">
+            <label className="flex items-start gap-2.5 rounded-lg border border-si-line bg-si-canvas/50 px-3.5 py-3 cursor-pointer">
               <input
                 type="checkbox"
                 checked={rememberPayer}
@@ -360,14 +359,14 @@ export function ImportPreuveModal({ open, onClose, clients, invoices, onSuccess 
             </label>
           )}
 
-          {error && <p className="text-sm text-[#B84A3E]">{error}</p>}
+          {error && <p className="text-sm text-si-danger-ink">{error}</p>}
 
           <div className="flex justify-end gap-2 pt-1">
             <Button type="button" variant="secondary" onClick={onClose} disabled={phase === "submitting"}>
               {tc("cancel")}
             </Button>
             <Button type="button" onClick={handleConfirm} disabled={!canConfirm || phase === "submitting"}>
-              {phase === "submitting" ? <Loader2 className="h-4 w-4 animate-spin" /> : t("confirm")}
+              {phase === "submitting" ? tc("saving") : t("confirm")}
             </Button>
           </div>
         </div>

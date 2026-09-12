@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Loader2 } from "lucide-react";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import type { JournalCorrectionMotive } from "@prisma/client";
@@ -161,7 +160,6 @@ export function MotifAnnulationModal({
             disabled={submitting || !texteValide}
             onClick={() => onConfirm(motifCode, motifTexte.trim() || null)}
           >
-            {submitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden /> : null}
             {t("motifConfirmer")}
           </Button>
         </div>

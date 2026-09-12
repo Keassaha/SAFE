@@ -1,40 +1,39 @@
 "use client";
 import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
-import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { ActionsSection } from "@/components/comptabilite/ActionsSection";
-import { StatusBadge } from "@/components/ui/StatusBadge";
 import { routes } from "@/lib/routes";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
-import { Loader2, Plus, Pencil, Link2, ArrowLeft, AlertCircle, FileText, Coins, UploadCloud, Paperclip, Users, Undo2 } from "lucide-react";
 import { Modal } from "@/components/ui/Modal";
 import { MotifAnnulationModal } from "@/components/comptabilite/MotifAnnulationModal";
 import type { JournalCorrectionMotive } from "@prisma/client";
 import { PaiementFormModal } from "@/components/facturation/PaiementFormModal";
 import { ImportPreuveModal } from "@/components/facturation/ImportPreuveModal";
 import { PaiementAllocationModal } from "@/components/facturation/PaiementAllocationModal";
+import {
+  PaiementsTable,
+  libelleClientPaiement,
+  type PaiementRangee,
+} from "@/components/facturation/PaiementsTable";
 import type { ClientCreditBalance } from "@/lib/services/billing/overpayment-service";
-import { RegistrePagination, usePaginationLocale } from "@/components/ui/registre";
+import {
+  RegistreAucunResultat,
+  RegistreBarreOutils,
+  RegistreFeuille,
+  RegistrePagination,
+  registreChampClass,
+  registreSelectClass,
+  usePaginationLocale,
+} from "@/components/ui/registre";
 
-type AllocationStatusKey = "UNALLOCATED" | "PARTIALLY_ALLOCATED" | "ALLOCATED" | "REVERSED";
-
-const ALLOCATION_STATUS_LABEL_KEYS: Record<AllocationStatusKey, string> = {
-  UNALLOCATED: "allocUnallocated",
-  PARTIALLY_ALLOCATED: "allocPartiallyAllocated",
-  ALLOCATED: "allocAllocated",
-  REVERSED: "allocReversed",
-};
-
-const ALLOCATION_STATUS_VARIANTS: Record<AllocationStatusKey, "success" | "warning" | "neutral" | "error"> = {
-  ALLOCATED: "success",
-  PARTIALLY_ALLOCATED: "warning",
-  UNALLOCATED: "neutral",
-  REVERSED: "error",
-};
+/** Ce que la liste déroulante du registre laisse passer. */
+type FiltrePaiements = "tous" | "a_allouer" | "alloues" | "annules";
 
 interface FacturationPaiementsViewProps {
   cabinetId: string;
@@ -49,18 +48,7 @@ interface FacturationPaiementsViewProps {
   canWrite?: boolean;
 }
 
-type PaymentRow = {
-  id: string;
-  clientId: string | null;
-  datePaiement: string;
-	  client: { id: string; raisonSociale: string | null; prenom?: string | null; nom?: string | null } | null;
-  invoice: { id: string; numero: string } | null;
-  montant: number;
-  allocatedAmount: number;
-  unallocatedAmount: number;
-  allocationStatus: string;
-  preuveStorageKey?: string | null;
-};
+type PaymentRow = PaiementRangee;
 
 export function FacturationPaiementsView({
   cabinetId,
@@ -68,10 +56,17 @@ export function FacturationPaiementsView({
   canWrite = true,
 }: FacturationPaiementsViewProps) {
   const t = useTranslations("billingUi");
+  const tf = useTranslations("facturation");
   const { formatCurrency, formatCalendarDate } = useFormatteurs();
   const tc = useTranslations("common");
   const locale = useLocale();
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [formModalOpen, setFormModalOpen] = useState(false);
+  /* Facture sur laquelle ouvrir le formulaire, quand on arrive du Suivi. */
+  const [factureInitiale, setFactureInitiale] = useState<string | null>(null);
+  const [recherche, setRecherche] = useState("");
+  const [filtre, setFiltre] = useState<FiltrePaiements>("tous");
   const [importModalOpen, setImportModalOpen] = useState(false);
   const [formMode, setFormMode] = useState<"create" | "edit">("create");
   const [editingPaymentId, setEditingPaymentId] = useState<string | null>(null);
@@ -123,8 +118,25 @@ export function FacturationPaiementsView({
   const displayDate = (date: string) => formatCalendarDate(date, locale);
 
   const payments = (data?.payments ?? []) as PaymentRow[];
+
+  /* Recherche et filtre se font ici, sur la liste déjà chargée : elle est
+     bornée à 200 lignes par l'API, et un aller-retour serveur pour taper trois
+     lettres ferait clignoter le registre. */
+  const paymentsFiltres = useMemo(() => {
+    const q = recherche.trim().toLowerCase();
+    return payments.filter((p) => {
+      if (filtre === "a_allouer" && !(p.unallocatedAmount > 0 && p.allocationStatus !== "REVERSED")) return false;
+      if (filtre === "alloues" && p.allocationStatus !== "ALLOCATED") return false;
+      if (filtre === "annules" && p.allocationStatus !== "REVERSED") return false;
+      if (!q) return true;
+      return (
+        libelleClientPaiement(p.client).toLowerCase().includes(q) ||
+        (p.invoice?.numero ?? "").toLowerCase().includes(q)
+      );
+    });
+  }, [payments, recherche, filtre]);
   // Paginé par 20, comme tous les registres du produit.
-  const pagePaiements = usePaginationLocale(payments);
+  const pagePaiements = usePaginationLocale(paymentsFiltres);
   // Paiements orphelins : argent reçu mais non encore alloué à une facture.
   const unallocatedPayments = payments.filter(
     (p) => p.unallocatedAmount > 0 && p.allocationStatus !== "REVERSED",
@@ -133,19 +145,26 @@ export function FacturationPaiementsView({
   const clients = contextData?.clients ?? [];
 	  const invoices = contextData?.invoices ?? [];
 
-	  const clientLabel = (client: PaymentRow["client"]) => {
-	    if (!client) return "—";
-	    const company = client.raisonSociale?.trim();
-	    if (company) return company;
-	    const person = [client.prenom, client.nom].filter(Boolean).join(" ").trim();
-	    return person || "Client sans nom";
-	  };
+  const clientLabel = libelleClientPaiement;
 
-  const openCreate = () => {
+  const openCreate = (invoiceId: string | null = null) => {
     setFormMode("create");
     setEditingPaymentId(null);
+    setFactureInitiale(invoiceId);
     setFormModalOpen(true);
   };
+
+  /* Le Suivi des factures envoie ici avec `?invoiceId=` depuis le 2026-06 et
+     l'écran l'ignorait : l'adjointe retapait le client et la facture qu'elle
+     venait de quitter. Le formulaire s'ouvre maintenant dessus, une fois, puis
+     l'adresse est nettoyée pour qu'un rechargement ne le rouvre pas. */
+  const invoiceIdDemande = searchParams.get("invoiceId");
+  useEffect(() => {
+    if (!invoiceIdDemande || !canWrite) return;
+    openCreate(invoiceIdDemande);
+    router.replace(routes.facturationPaiements);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [invoiceIdDemande, canWrite]);
 
   const openEdit = (id: string) => {
     setFormMode("edit");
@@ -163,10 +182,6 @@ export function FacturationPaiementsView({
     });
     setAllocationModalOpen(true);
   };
-
-  const canAllocate = (p: PaymentRow) =>
-    p.unallocatedAmount > 0 &&
-    (p.allocationStatus === "UNALLOCATED" || p.allocationStatus === "PARTIALLY_ALLOCATED");
 
   async function handleAnnulerPaiement(
     motifCode: JournalCorrectionMotive,
@@ -216,63 +231,42 @@ export function FacturationPaiementsView({
     }
   }
 
+  const actions = canWrite ? (
+    <ActionsSection embarque={embeddedInComptabilite} className="flex flex-wrap items-center gap-2">
+      {/* Le lien « payeurs tiers » mène à une page gardée par
+          `canManageInvoices` : il rebondirait sans le filtre `canWrite`. */}
+      <Link
+        href={routes.parametresPayeursTiers}
+        className="min-h-tap inline-flex items-center px-2 text-[13px] text-si-muted hover:text-si-ink-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-si-verified"
+      >
+        {t("managePayers")}
+      </Link>
+      <Button type="button" variant="secondary" onClick={() => setImportModalOpen(true)} className="shrink-0">
+        {t("importProof")}
+      </Button>
+      <Button type="button" variant="primary" onClick={() => openCreate()} className="shrink-0">
+        {t("newPayment")}
+      </Button>
+    </ActionsSection>
+  ) : null;
+
   return (
     <div className="space-y-6">
-      {!embeddedInComptabilite && (
-        <Link
-          href={routes.facturation}
-          className="inline-flex items-center gap-2 text-si-muted hover:text-si-ink text-sm"
-        >
-          <ArrowLeft className="w-4 h-4 shrink-0" aria-hidden />
-          {t("backToOverview")}
-        </Link>
-      )}
-      {/* Barre d'actions entière : le lien « payeurs tiers » mène lui aussi à une
-          page gardée par `canManageInvoices`, il rebondirait sans ce filtre. */}
-      {canWrite && (
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <Link
-          href={routes.parametresPayeursTiers}
-          className="inline-flex items-center gap-1.5 text-sm text-si-muted hover:text-si-ink-strong"
-        >
-          <Users className="w-4 h-4 shrink-0" aria-hidden />
-          {t("managePayers")}
-        </Link>
-        <ActionsSection embarque={embeddedInComptabilite} className="flex items-center gap-2">
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={() => setImportModalOpen(true)}
-            className="shrink-0"
-          >
-            <UploadCloud className="w-4 h-4 mr-2" aria-hidden />
-            {t("importProof")}
-          </Button>
-          <Button
-            type="button"
-            variant="primary"
-            onClick={openCreate}
-            className="shrink-0"
-          >
-            <Plus className="w-4 h-4 mr-2" aria-hidden />
-            {t("newPayment")}
-          </Button>
-        </ActionsSection>
-      </div>
-      )}
-
-      {unallocatedPayments.length > 0 && (
-        <div className="flex items-start gap-3 border-l-2 border-status-warning bg-status-warning-bg p-4" role="status">
-          <AlertCircle className="h-5 w-5 shrink-0 text-si-amber-ink mt-0.5" aria-hidden />
-          <div>
-            <p className="text-sm font-medium text-si-amber-ink">{t("unallocatedAlertTitle")}</p>
-            <p className="mt-0.5 text-xs text-si-muted">
-              {t("unallocatedAlertSub", {
-                count: unallocatedPayments.length,
-                amount: money(unallocatedTotal),
-              })}
-            </p>
-          </div>
+      {/* Un titre et sa phrase. L'écran s'ouvrait sur un lien de retour et une
+          barre de boutons : rien ne disait où on était. Intégré dans la
+          Comptabilité, l'onglet porte déjà le titre. Demande CEO du 2026-09-12. */}
+      {embeddedInComptabilite ? (
+        actions ? <div className="flex justify-end">{actions}</div> : null
+      ) : (
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+          <PageHeader
+            variant="dashboard"
+            title={t("paymentsTitle")}
+            description={t("paymentsIntro")}
+            backHref={routes.facturation}
+            backLabel={tf("returnTo", { label: tf("billingAndFollowUp") })}
+          />
+          {actions ? <div className="pb-4">{actions}</div> : null}
         </div>
       )}
 
@@ -282,188 +276,134 @@ export function FacturationPaiementsView({
         </p>
       ) : null}
 
-      {creditClients.length > 0 && (
-        <Card>
-          <CardHeader title={t("overpaymentSectionTitle")} />
-          <CardContent>
-            <p className="mb-3 text-sm text-si-muted">{t("overpaymentSectionSub")}</p>
-            <ul className="divide-y divide-si-line">
-              {creditClients.map((c) => (
-                <li key={c.clientId} className="flex items-center justify-between gap-3 py-2.5">
-                  <div className="flex min-w-0 items-center gap-3">
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center text-si-amber-ink">
-                      <Coins className="h-4 w-4" aria-hidden />
-                    </span>
-                    <div className="min-w-0">
-                      <p className="truncate text-[13px] font-medium text-si-ink">{c.label}</p>
-                      <p className="text-xs text-si-muted">
-                        {t("creditBalanceLabel")} :{" "}
-                        <span className="font-mono tabular-nums text-si-amber-ink">
-                          {money(c.creditBalance)}
-                        </span>
-                      </p>
-                    </div>
-                  </div>
-                  {c.refundRequested ? (
-                    <span className="shrink-0 border-l-2 border-status-warning pl-2 text-xs font-medium text-status-warning">
-                      {t("refundRequestedBadge")}
-                    </span>
-                  ) : canWrite ? (
-                    <Button
-                      type="button"
-                      variant="tertiary"
-                      className="shrink-0"
-                      onClick={() => {
-                        setRefundError(null);
-                        setRefundNote("");
-                        setRefundClient(c);
-                      }}
-                    >
-                      {t("requestRefund")}
-                    </Button>
-                  ) : null}
-                </li>
-              ))}
-            </ul>
-          </CardContent>
-        </Card>
-      )}
+      {/* Le registre passe premier : c'est lui qu'on vient voir. Le bandeau
+          ambre « paiements non alloués » devient un compteur-filtre dans sa
+          barre, à côté du compte total. */}
+      <RegistreFeuille ariaLabel={t("recentPayments")}>
+        <RegistreBarreOutils
+          recherche={
+            <input
+              type="search"
+              value={recherche}
+              onChange={(e) => setRecherche(e.target.value)}
+              placeholder={t("searchPayments")}
+              aria-label={t("searchPayments")}
+              className={`${registreChampClass} w-full px-3`}
+            />
+          }
+          filtres={
+            <div className="flex flex-wrap items-center gap-2">
+              <select
+                value={filtre}
+                onChange={(e) => setFiltre(e.target.value as FiltrePaiements)}
+                aria-label={t("status")}
+                className={registreSelectClass}
+              >
+                <option value="tous">{t("filterAllPayments")}</option>
+                <option value="a_allouer">{t("filterToAllocate")}</option>
+                <option value="alloues">{t("filterAllocated")}</option>
+                <option value="annules">{t("filterReversed")}</option>
+              </select>
+              {unallocatedPayments.length > 0 ? (
+                <button
+                  type="button"
+                  aria-pressed={filtre === "a_allouer"}
+                  onClick={() => setFiltre(filtre === "a_allouer" ? "tous" : "a_allouer")}
+                  className="safe-zoom-menu inline-flex h-9 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-md border border-si-amber/40 bg-status-warning-bg px-2.5 text-[13px] font-medium text-si-amber-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-si-verified"
+                >
+                  {t("toAllocateChip", { count: unallocatedPayments.length, amount: money(unallocatedTotal) })}
+                </button>
+              ) : null}
+              <span className="text-[13px] text-si-muted">{t("paymentsCount", { count: paymentsFiltres.length })}</span>
+            </div>
+          }
+        />
+        {isLoading ? (
+          <p className="px-6 py-10 text-center text-sm text-si-muted" role="status">
+            {t("loading")}
+          </p>
+        ) : paymentsError ? (
+          <div className="py-10 text-center" role="alert">
+            <p className="text-sm text-status-error">{t("paymentsLoadError")}</p>
+            <Button type="button" variant="secondary" className="mt-3" onClick={() => void refetchPayments()}>
+              {t("retry")}
+            </Button>
+          </div>
+        ) : payments.length === 0 ? (
+          <RegistreAucunResultat message={t("noPayments")} />
+        ) : paymentsFiltres.length === 0 ? (
+          <RegistreAucunResultat message={t("noPaymentsMatch")} />
+        ) : (
+          <>
+            <PaiementsTable
+              rangees={pagePaiements.tranche}
+              canWrite={canWrite}
+              onModifier={openEdit}
+              onAllouer={openAllocation}
+              onAnnuler={(p) => {
+                setAnnulationError(null);
+                setAnnulationCible(p);
+              }}
+            />
+            <RegistrePagination
+              totalCount={pagePaiements.total}
+              currentPage={pagePaiements.page}
+              resume={tc("paginationRange", {
+                start: pagePaiements.debut + 1,
+                end: pagePaiements.fin,
+                total: pagePaiements.total,
+              })}
+              labelPage={tc("paginationPage", {
+                current: pagePaiements.page,
+                total: pagePaiements.totalPages,
+              })}
+              labelPrecedent={tc("previous")}
+              labelSuivant={tc("next")}
+              onPageChange={pagePaiements.setPage}
+            />
+          </>
+        )}
+      </RegistreFeuille>
 
-      <Card>
-        <CardHeader title={t("recentPayments")} />
-        <CardContent>
-          {isLoading ? (
-            <div className="flex justify-center gap-2 py-12 text-sm text-si-muted" role="status">
-              <Loader2 className="h-5 w-5 animate-spin" aria-hidden />
-              {t("loading")}
-            </div>
-          ) : paymentsError ? (
-            <div className="py-10 text-center" role="alert">
-              <p className="text-sm text-status-error">{t("paymentsLoadError")}</p>
-              <Button type="button" variant="secondary" className="mt-3" onClick={() => void refetchPayments()}>
-                {t("retry")}
-              </Button>
-            </div>
-          ) : payments.length === 0 ? (
-            <p className="text-si-muted py-8 text-center">{t("noPayments")}</p>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm border-collapse">
-                <thead>
-                  <tr className="border-b border-si-line bg-si-canvas">
-                    <th className="text-left py-3 px-3 text-[11px] font-medium uppercase tracking-[0.06em] text-si-muted">{t("date")}</th>
-                    <th className="text-left py-3 px-3 text-[11px] font-medium uppercase tracking-[0.06em] text-si-muted">{t("client")}</th>
-                    <th className="text-left py-3 px-3 text-[11px] font-medium uppercase tracking-[0.06em] text-si-muted">{t("invoice")}</th>
-                    <th className="text-right py-3 px-3 text-[11px] font-medium uppercase tracking-[0.06em] text-si-muted">{t("amount")}</th>
-                    <th className="text-right py-3 px-3 text-[11px] font-medium uppercase tracking-[0.06em] text-si-muted">{t("allocated")}</th>
-                    <th className="text-right py-3 px-3 text-[11px] font-medium uppercase tracking-[0.06em] text-si-muted">{t("unallocated")}</th>
-                    <th className="text-left py-3 px-3 text-[11px] font-medium uppercase tracking-[0.06em] text-si-muted">{t("status")}</th>
-                    <th className="text-right py-3 px-3 text-[11px] font-medium uppercase tracking-[0.06em] text-si-muted w-32">{t("actions")}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {pagePaiements.tranche.map((p) => (
-                    <tr key={p.id} className="safe-zoom-rang border-b border-si-line transition-colors">
-                      <td className="py-2.5 px-3 text-[13px] text-si-ink">{displayDate(p.datePaiement)}</td>
-	                      <td className="py-2.5 px-3 text-[13px] text-si-ink">{clientLabel(p.client)}</td>
-                      <td className="py-2.5 px-3 text-[13px] font-mono text-si-ink">{p.invoice?.numero ?? "—"}</td>
-                      <td className="py-2.5 px-3 text-right font-mono tabular-nums text-[13px] text-si-ink">{money(p.montant)}</td>
-                      <td className="py-2.5 px-3 text-right font-mono tabular-nums text-[13px] text-si-verified">{money(p.allocatedAmount)}</td>
-                      <td className="py-2.5 px-3 text-right font-mono tabular-nums text-[13px] text-si-ink">{money(p.unallocatedAmount)}</td>
-                      <td className="py-2.5 px-3">
-                        <StatusBadge
-                          label={t(ALLOCATION_STATUS_LABEL_KEYS[p.allocationStatus as AllocationStatusKey])}
-                          variant={ALLOCATION_STATUS_VARIANTS[p.allocationStatus as AllocationStatusKey]}
-                        />
-                      </td>
-                      <td className="py-2.5 px-3 text-right">
-                        <div className="flex justify-end gap-1">
-                          {p.preuveStorageKey && (
-                            <a
-                              href={`/api/facturation/paiements/${p.id}/preuve`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex h-tap w-tap items-center justify-center rounded-md text-si-muted transition-colors hover:bg-si-canvas hover:text-si-ink-strong"
-                              aria-label={t("viewProof")}
-                              title={t("viewProof")}
-                            >
-                              <Paperclip className="w-4 h-4" aria-hidden />
-                            </a>
-                          )}
-                          <a
-                            href={`/api/documents/payment-receipt/${p.id}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex h-tap w-tap items-center justify-center rounded-md text-si-muted transition-colors hover:bg-si-canvas hover:text-si-ink-strong"
-                            aria-label={t("viewReceipt")}
-                            title={t("viewReceipt")}
-                          >
-                            <FileText className="w-4 h-4" aria-hidden />
-                          </a>
-                          {canWrite && (
-                          <Button
-                            type="button"
-                            variant="tertiary"
-                            className="inline-flex items-center min-h-tap !px-2 !py-1.5 min-w-0"
-                            onClick={() => openEdit(p.id)}
-                            aria-label={t("editPayment")}
-                          >
-                            <Pencil className="w-4 h-4" />
-                          </Button>
-                          )}
-                          {canWrite && canAllocate(p) && (
-                            <Button
-                              type="button"
-                              variant="tertiary"
-                              className="inline-flex items-center min-h-tap !px-2 !py-1.5 min-w-0"
-                              onClick={() => openAllocation(p)}
-                            aria-label={t("allocatePaymentToInvoice")}
-                          >
-                            <Link2 className="w-4 h-4" />
-                          </Button>
-                          )}
-                          {/* Un encaissement déjà annulé ne se réannule pas : le
-                              service le refuserait, on ne propose pas le geste. */}
-                          {canWrite && p.allocationStatus !== "REVERSED" && (
-                            <Button
-                              type="button"
-                              variant="tertiary"
-                              className="inline-flex items-center min-h-tap !px-2 !py-1.5 min-w-0"
-                              onClick={() => {
-                                setAnnulationError(null);
-                                setAnnulationCible(p);
-                              }}
-                              aria-label={t("reversePayment")}
-                            >
-                              <Undo2 className="w-4 h-4" />
-                            </Button>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              <RegistrePagination
-                totalCount={pagePaiements.total}
-                currentPage={pagePaiements.page}
-                resume={tc("paginationRange", {
-                  start: pagePaiements.debut + 1,
-                  end: pagePaiements.fin,
-                  total: pagePaiements.total,
-                })}
-                labelPage={tc("paginationPage", {
-                  current: pagePaiements.page,
-                  total: pagePaiements.totalPages,
-                })}
-                labelPrecedent={tc("previous")}
-                labelSuivant={tc("next")}
-                onPageChange={pagePaiements.setPage}
-              />
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      {/* Les soldes créditeurs : rares, donc sous le registre, en une ligne par
+          client. Ils occupaient une carte entière au-dessus du tableau. */}
+      {creditClients.length > 0 && (
+        <section aria-label={t("creditsLineTitle")} className="border-t border-si-line pt-4">
+          <p className="text-[13px] text-si-ink">
+            <span className="font-medium">{t("creditsLineTitle")}</span>
+            <span className="text-si-muted"> · {t("creditsLineSub", { count: creditClients.length })}</span>
+          </p>
+          <ul className="mt-1 divide-y divide-si-line2">
+            {creditClients.map((c) => (
+              <li key={c.clientId} className="flex flex-wrap items-center justify-between gap-3 py-2">
+                <span className="text-[13px] text-si-muted">
+                  <span className="text-si-ink">{c.label}</span>
+                  {" · "}
+                  <span className="font-mono tabular-nums text-si-amber-ink">{money(c.creditBalance)}</span>
+                  {" "}
+                  {t("creditsApplies")}
+                </span>
+                {c.refundRequested ? (
+                  <span className="text-xs font-medium text-si-amber-ink">{t("refundRequestedBadge")}</span>
+                ) : canWrite ? (
+                  <Button
+                    type="button"
+                    variant="tertiary"
+                    className="shrink-0"
+                    onClick={() => {
+                      setRefundError(null);
+                      setRefundNote("");
+                      setRefundClient(c);
+                    }}
+                  >
+                    {t("requestRefund")}
+                  </Button>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {/* Sans droit d'écriture, plus rien ne peut ouvrir ces modales : on ne les
           monte pas. Effet de bord voulu, la requête de contexte
@@ -476,9 +416,11 @@ export function FacturationPaiementsView({
         onClose={() => {
           setFormModalOpen(false);
           setEditingPaymentId(null);
+          setFactureInitiale(null);
         }}
         mode={formMode}
         paymentId={editingPaymentId}
+        initialInvoiceId={factureInitiale}
         clients={clients}
         invoices={invoices}
         onSuccess={() => setFormModalOpen(false)}
@@ -556,7 +498,7 @@ export function FacturationPaiementsView({
             />
           </div>
           <p className="text-xs text-si-muted">{t("refundManualNotice")}</p>
-          {refundError && <p className="text-sm text-[var(--safe-status-error)]">{refundError}</p>}
+          {refundError && <p className="text-sm text-status-error">{refundError}</p>}
           <div className="flex justify-end gap-2">
             <Button type="button" variant="tertiary" onClick={() => setRefundClient(null)}>
               {t("refundCancel")}
@@ -567,8 +509,7 @@ export function FacturationPaiementsView({
               disabled={refundSubmitting}
               onClick={handleRequestRefund}
             >
-              {refundSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden />}
-              {t("refundConfirm")}
+              {refundSubmitting ? tc("saving") : t("refundConfirm")}
             </Button>
           </div>
         </div>

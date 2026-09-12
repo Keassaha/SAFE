@@ -227,6 +227,7 @@ Une ligne par écran ouvert. **C'est ce tableau qui dit où en est le chantier.*
 | `/facturation/nouvelle` (document) | 2026-09-12 | tailles de police du gabarit (2026-09-10) | à retrouver | `e24316e`, `3210cde` | ? → 3 | **manquant** |
 | `/temps`, `/employees/[id]`, `/parametres/cabinet` (taux horaire) | 2026-09-12 | taux qui partait à zéro | à retrouver | `bcb8a11` | ? → 43 / 23 / 6 | **manquant** |
 | `/facturation` | 2026-09-10 | 4 consignes du 2026-09-10 : rangée de liens au lieu de cinq cartes ; « Honoraires à facturer » ouvre la page ; colonne « envoyée le » ; filtres masqués quand intégré | pas d'image (lot antérieur au cadre, exception unique) | `ab5d88f` 2026-09-12 | 20 → 20 (lot structurel, exception à R7 consignée) · 5 cartes → 1 ligne | `2026-09-12_facturation_registre_simplifie.md` + capture |
+| `/facturation/paiements` | 2026-09-12 | « ouvre les Paiements » ; « Oui, on met à exécution » | oui le 2026-09-12 (`captures/2026-09-12_paiements_proposition.png`) | 2026-09-12, code + docs en un commit | **29 → 3** · 8 → 7 colonnes · 5 icônes/ligne → 1 menu · lien du Suivi honoré · `/comptabilite` 73 → 50 par ricochet | `2026-09-12_paiements_ouverture.md` + capture après |
 
 Les cases « manquant » sont une dette de traçabilité : quatre lots ont été livrés du
 2026-09-09 au 2026-09-12 sans entrée de journal ni mesure avant. Ce n'est pas
@@ -290,6 +291,10 @@ une image, et attendre le oui.
 
 ## Journal du document
 
+- 2026-09-12, 19 h 20 : `/facturation/paiements` livré (29 → 3 écarts). Deuxième ligne
+  complète du registre. Prochain rang : `/comptes` + `/comptes/rapports`.
+- 2026-09-12, 19 h 00 : `/facturation/paiements` ouvert, mesures avant et image proposée,
+  validée à 19 h 05. Activité concurrente encore vue à 18 h 54 (journal des dépenses).
 - 2026-09-12, 18 h 50 : `/facturation` fermé (`ab5d88f`), première ligne complète du registre.
   Exception à R7 consignée : écarts 20 → 20 sur un lot structurel. Activité concurrente
   encore vue à 18 h 48.
