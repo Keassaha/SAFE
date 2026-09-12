@@ -7,7 +7,35 @@ import {
   createInvoiceFromClientBillables,
   createInvoiceFromDossier,
   createFreeformInvoice,
+  type LigneManuelleInput,
 } from "@/lib/services/forfait-billing-service";
+
+/**
+ * Lit les lignes saisies à la main, DATE DU TRAVAIL COMPRISE.
+ *
+ * Le formulaire envoyait `{ description, montant, taxable }` et rien d'autre :
+ * la date que l'avocate saisissait par ligne, et que l'aperçu affichait,
+ * n'arrivait jamais en base. Corrigé le 2026-09-10.
+ *
+ * L'intervenant reste absent : `InvoiceLine` n'a pas de champ pour lui, et
+ * l'ajouter demande une migration. Voir la note du §6 de
+ * docs/product/REGLE_DE_BUILD.md : on documente avant de migrer.
+ */
+function lignesManuelles(brut: unknown): LigneManuelleInput[] {
+  if (!Array.isArray(brut)) return [];
+  return brut.map((l) => {
+    const o = l as Record<string, unknown>;
+    const d = typeof o.serviceDate === "string" ? new Date(o.serviceDate) : null;
+    return {
+      description: String(o.description ?? ""),
+      montant: Number(o.montant ?? 0),
+      taxable: o.taxable !== false,
+      serviceDate: d && !Number.isNaN(d.getTime()) ? d : null,
+      // Un débours saisi à la main est un débours, pas un honoraire.
+      lineType: o.lineType === "expense" ? ("expense" as const) : ("fee" as const),
+    };
+  });
+}
 
 export async function POST(request: Request) {
   const session = await getServerSession(authOptions);
@@ -28,6 +56,7 @@ export async function POST(request: Request) {
         cabinetId,
         clientId: body.clientId,
         userId,
+        dossierId: typeof body.dossierId === "string" ? body.dossierId : null,
         dateEmission: typeof body.dateEmission === "string" ? new Date(body.dateEmission) : undefined,
         dateEcheance: typeof body.dateEcheance === "string" ? new Date(body.dateEcheance) : undefined,
         currency: typeof body.currency === "string" ? body.currency : undefined,
@@ -37,7 +66,7 @@ export async function POST(request: Request) {
         registreTacheIds: Array.isArray(body.registreTacheIds)
           ? body.registreTacheIds.filter((id): id is string => typeof id === "string")
           : [],
-        lignesManuelles: (body.lignesManuelles as { description: string; montant: number; taxable: boolean }[]) ?? [],
+        lignesManuelles: lignesManuelles(body.lignesManuelles),
       });
       return NextResponse.json({
         success: true,
@@ -50,7 +79,7 @@ export async function POST(request: Request) {
     if (body.mode === "libre" && typeof body.clientId === "string") {
       const result = await createFreeformInvoice({
         cabinetId, clientId: body.clientId, userId,
-        lignes: body.lignes as { description: string; montant: number; taxable: boolean }[],
+        lignes: lignesManuelles(body.lignes),
       });
       return NextResponse.json({
         success: true,
@@ -66,7 +95,7 @@ export async function POST(request: Request) {
 
     const result = await createInvoiceFromDossier({
       dossierId: body.dossierId, cabinetId, userId,
-      lignesManuelles: (body.lignesManuelles as { description: string; montant: number; taxable: boolean }[]) ?? [],
+      lignesManuelles: lignesManuelles(body.lignesManuelles),
     });
     return NextResponse.json({
       success: true,

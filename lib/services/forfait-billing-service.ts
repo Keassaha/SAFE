@@ -244,11 +244,43 @@ export async function deleteTache(id: string, cabinetId: string) {
 
 // ─── GÉNÉRATION DE FACTURE DEPUIS REGISTRE ───
 
+/**
+ * Une ligne saisie à la main dans le formulaire de facture.
+ *
+ * `serviceDate` et `responsableUserId` ont été ajoutés le 2026-09-10. Le
+ * formulaire les faisait saisir depuis toujours et l'aperçu en direct les
+ * affichait, mais ils n'étaient PAS transmis : la ligne arrivait en base avec
+ * la seule description. L'avocate voyait donc à l'écran une facture que le
+ * produit n'enregistrait pas.
+ *
+ * La date du travail est la première chose qu'un client conteste, et la seule
+ * qu'un inspecteur peut recouper avec la feuille de temps.
+ */
+export interface LigneManuelleInput {
+  description: string;
+  montant: number;
+  taxable: boolean;
+  /** Date à laquelle le travail a été fait, distincte de la date de facture. */
+  serviceDate?: Date | null;
+  /** Qui a fait le travail. Une adjointe et une avocate n'ont pas le même taux. */
+  responsableUserId?: string | null;
+  /**
+   * Honoraire ou DÉBOURS.
+   *
+   * Toute ligne saisie à la main arrivait en base avec `lineType: "fee"`. Un
+   * débours saisi au clavier, des frais de greffe par exemple, se retrouvait
+   * donc compté comme du travail du cabinet : le sous-total des honoraires
+   * était faux, et la facture ne distinguait plus ce que le cabinet a fait de
+   * ce qu'il a avancé pour le client. Ajouté le 2026-09-10.
+   */
+  lineType?: "fee" | "expense";
+}
+
 export async function createInvoiceFromDossier(params: {
   dossierId: string;
   cabinetId: string;
   userId: string;
-  lignesManuelles?: { description: string; montant: number; taxable: boolean }[];
+  lignesManuelles?: LigneManuelleInput[];
 }) {
   const { dossierId, cabinetId, userId, lignesManuelles = [] } = params;
 
@@ -419,9 +451,12 @@ export async function createInvoiceFromDossier(params: {
       await tx.invoiceLine.create({
         data: {
           invoiceId: invoice.id,
-          lineType: "fee",
+          lineType: l.lineType ?? "fee",
           sourceType: "manual",
           description: l.description,
+          // La date du TRAVAIL, distincte de la date de facture. Le formulaire
+          // la faisait saisir depuis toujours sans jamais la transmettre.
+          serviceDate: l.serviceDate ?? null,
           quantite: 1,
           tauxUnitaire: l.montant,
           montant: l.montant,
@@ -473,7 +508,7 @@ export async function createFreeformInvoice(params: {
   cabinetId: string;
   clientId: string;
   userId: string;
-  lignes: { description: string; montant: number; taxable: boolean }[];
+  lignes: LigneManuelleInput[];
 }) {
   const { cabinetId, clientId, userId, lignes } = params;
 
@@ -513,9 +548,12 @@ export async function createFreeformInvoice(params: {
       await tx.invoiceLine.create({
         data: {
           invoiceId: invoice.id,
-          lineType: "fee",
+          lineType: l.lineType ?? "fee",
           sourceType: "manual",
           description: l.description,
+          // La date du TRAVAIL, distincte de la date de facture. Le formulaire
+          // la faisait saisir depuis toujours sans jamais la transmettre.
+          serviceDate: l.serviceDate ?? null,
           quantite: 1,
           tauxUnitaire: l.montant,
           montant: l.montant,
@@ -546,6 +584,17 @@ export async function createInvoiceFromClientBillables(params: {
   cabinetId: string;
   clientId: string;
   userId: string;
+  /**
+   * Dossier auquel rattacher la facture.
+   *
+   * Sans lui, le dossier était DEVINÉ : on prenait celui du premier élément
+   * repris. Un client qui a trois dossiers ouverts recevait donc sa facture
+   * rattachée à celui du hasard, et une facture composée de lignes tapées à
+   * la main n'était rattachée à rien du tout. L'écran de préparation le
+   * demande maintenant explicitement ; s'il n'est pas fourni, l'ancien
+   * comportement reste en filet.
+   */
+  dossierId?: string | null;
   dateEmission?: Date;
   dateEcheance?: Date;
   currency?: string;
@@ -553,12 +602,13 @@ export async function createInvoiceFromClientBillables(params: {
   timeEntryIds?: string[];
   expenseIds?: string[];
   registreTacheIds?: string[];
-  lignesManuelles?: { description: string; montant: number; taxable: boolean }[];
+  lignesManuelles?: LigneManuelleInput[];
 }) {
   const {
     cabinetId,
     clientId,
     userId,
+    dossierId = null,
     dateEmission,
     dateEcheance,
     currency = "CAD",
@@ -583,6 +633,18 @@ export async function createInvoiceFromClientBillables(params: {
     select: { id: true },
   });
   if (!client) throw new Error("Client introuvable");
+
+  /* Le dossier demandé doit appartenir à CE client et à CE cabinet. Un id
+     glissé dans la requête ne suffit pas à rattacher la facture ailleurs. */
+  let dossierRattache: string | null = null;
+  if (dossierId) {
+    const dossier = await prisma.dossier.findFirst({
+      where: { id: dossierId, cabinetId, clientId },
+      select: { id: true },
+    });
+    if (!dossier) throw new Error("Dossier introuvable pour ce client");
+    dossierRattache = dossier.id;
+  }
 
   const [timeEntries, expenses, taches] = await Promise.all([
     timeEntryIds.length
@@ -662,7 +724,12 @@ export async function createInvoiceFromClientBillables(params: {
       data: {
         cabinetId,
         clientId,
-        dossierId: taches[0]?.dossierId ?? timeEntries[0]?.dossierId ?? expenses[0]?.matterId ?? null,
+        dossierId:
+          dossierRattache ??
+          taches[0]?.dossierId ??
+          timeEntries[0]?.dossierId ??
+          expenses[0]?.matterId ??
+          null,
         numero,
         dateEmission: invoiceDate,
         dateEcheance: dueDate,
@@ -816,9 +883,12 @@ export async function createInvoiceFromClientBillables(params: {
       await tx.invoiceLine.create({
         data: {
           invoiceId: created.id,
-          lineType: "fee",
+          lineType: l.lineType ?? "fee",
           sourceType: "manual",
           description: l.description,
+          // La date du TRAVAIL, distincte de la date de facture. Le formulaire
+          // la faisait saisir depuis toujours sans jamais la transmettre.
+          serviceDate: l.serviceDate ?? null,
           quantite: 1,
           tauxUnitaire: l.montant,
           montant: l.montant,
