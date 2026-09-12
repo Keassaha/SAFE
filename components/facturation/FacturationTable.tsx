@@ -65,6 +65,13 @@ export interface FacturationTableRow {
   dossier: string;
   dossierId: string | null;
   dateEmission: Date;
+  /**
+   * Date à laquelle la facture est PARTIE au client. `null` tant qu'elle ne
+   * l'est pas, et c'est précisément l'anomalie qu'un inspecteur cherche :
+   * une facture émise, parfois même payée, qui n'a jamais été transmise.
+   * Ajoutée le 2026-09-10.
+   */
+  sentAt: Date | null;
   dateEcheance: Date;
   montantTotal: number;
   balanceDue: number;
@@ -147,6 +154,13 @@ export function FacturationTable({
                 {...entete}
               />
             </th>
+            {/* La date d'ENVOI, entre l'émission et l'échéance : les trois
+                dates de la vie d'une facture se lisent alors dans l'ordre.
+                Une facture émise et jamais transmise se repère d'un coup
+                d'œil, c'est ce qu'un inspecteur cherche. */}
+            <th scope="col" className="w-[112px] px-3 py-2.5 text-right">
+              <RegistrePlainHeader label={tf("sentOnShort")} align="right" />
+            </th>
             <th scope="col" className="w-[104px] px-3 py-2.5 text-right">
               <RegistreSortHeader
                 label={t("dueDateShort")}
@@ -219,6 +233,17 @@ export function FacturationTable({
                 </td>
                 <td className={`whitespace-nowrap text-right ${registreCellMutedClass}`}>
                   {formatCalendarDate(inv.dateEmission)}
+                </td>
+                {/* Jamais envoyée : en ambre, et dit en toutes lettres. La
+                    couleur ne travaille pas seule (WCAG 1.4.1). L'ambre plutôt
+                    que le rouge : c'est un oubli à rattraper, pas une erreur
+                    bloquante. */}
+                <td
+                  className={`whitespace-nowrap px-3 py-2.5 text-right align-middle text-[13px] ${
+                    inv.sentAt ? "text-si-muted" : "font-medium text-si-amber-ink"
+                  }`}
+                >
+                  {inv.sentAt ? formatCalendarDate(inv.sentAt) : tf("neverSent")}
                 </td>
                 <td
                   className={`whitespace-nowrap px-3 py-2.5 text-right align-middle text-[13px] ${

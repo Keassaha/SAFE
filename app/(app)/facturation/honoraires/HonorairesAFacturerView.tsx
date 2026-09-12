@@ -98,6 +98,13 @@ export function HonorairesAFacturerView({ cabinetId, role, embedded = false }: H
         </header>
       )}
 
+      {/* La carte « Filtres » ne s'affiche plus quand la section est intégrée
+          dans la page Facturation. Elle y prenait plus de hauteur que le
+          tableau qu'elle filtre, pour une liste qui tient souvent en trois
+          lignes : cinq contrôles et un titre encadré au-dessus d'un client.
+          Sur l'écran autonome elle reste, il n'a rien d'autre.
+          Demande CEO du 2026-09-10. */}
+      {!embedded && (
       <Card>
         <CardHeader title={t("filters")} />
         <CardContent className="space-y-4">
@@ -184,10 +191,13 @@ export function HonorairesAFacturerView({ cabinetId, role, embedded = false }: H
           </div>
         </CardContent>
       </Card>
+      )}
 
+      {/* Le tableau passe devant : c'est lui qu'on vient voir. Intégré, il
+          quitte sa carte, qui en faisait une carte dans la carte de la page. */}
       <Card>
-        <CardHeader title={t("byClient")} />
-        <CardContent>
+        {!embedded && <CardHeader title={t("byClient")} />}
+        <CardContent className={embedded ? "p-0" : undefined}>
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
               <Loader2 className="w-8 h-8 animate-spin text-si-muted/50" />

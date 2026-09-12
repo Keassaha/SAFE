@@ -69,6 +69,7 @@ export default async function FacturationPage({
   }>;
 }) {
   const t = await getTranslations("facturation");
+  const tb = await getTranslations("billingUi");
   const { cabinetId, role } = await requireCabinetAndUser();
 
   // Detect billing mode — shares the layout's cached CabinetInterface fetch
@@ -239,6 +240,7 @@ export default async function FacturationPage({
     cabinetNom: inv.cabinet?.nom ?? "",
     joursDeRetard: joursDeRetard(inv.dateEcheance, now),
     lastReminderSentAt: inv.reminderLogs[0]?.sentAt ?? null,
+    sentAt: inv.sentAt ?? null,
   }));
 
   const secondaryTools = [
@@ -254,29 +256,36 @@ export default async function FacturationPage({
       <FacturationPageHero />
       <FacturationMainKpis kpis={kpis} />
 
-      {/* Cinq outils, cinq cartes posees. Rayon 10 px, palier « panneau » du
-          referentiel (§2.4) : elles n'en avaient aucun. Le survol souleve la
-          carte au lieu de la peindre en gris (`safe-zoom`, dec. CEO du
-          2026-08-11) ; l'aplat gris disait « selectionnable » avec la meme
-          marque que la selection elle-meme. Une gouttiere remplace la grille
-          pleine : des filets verticaux entre cinq liens font tableur (A14). */}
-      <nav aria-label={t("secondaryToolsLabel")}>
-        <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
-          {secondaryTools.map((tool) => (
-            <li key={tool.href}>
-              <Link
-                href={tool.href}
-                className="safe-zoom flex h-full flex-col justify-center rounded-[10px] border border-si-line bg-si-surface px-4 py-3.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-si-verified"
-              >
-                <span className="text-[14px] font-medium leading-5 text-si-ink">{tool.title}</span>
-                <span className="mt-0.5 text-[12px] leading-[17px] text-si-muted">{tool.hint}</span>
-              </Link>
-            </li>
-          ))}
-        </ul>
+      {/* Une rangée de liens, plus cinq cartes.
+          Cinq boîtes formaient un second menu au milieu de la page, entre les
+          chiffres et le registre. Les destinations restent : deux d'entre elles,
+          TPS/TVQ et Rentabilité, n'ont AUCUNE autre porte dans le produit.
+          Ce sont des rapports qu'on consulte, pas des étapes du travail : un
+          lien suffit. Demande CEO du 2026-09-10. */}
+      <nav aria-label={t("secondaryToolsLabel")} className="flex flex-wrap items-center gap-x-1 gap-y-1 text-[13px]">
+        {secondaryTools.map((tool, i) => (
+          <span key={tool.href} className="flex items-center gap-1">
+            {i > 0 ? <span className="text-si-muted" aria-hidden>·</span> : null}
+            <Link
+              href={tool.href}
+              title={tool.hint}
+              className="min-h-tap inline-flex items-center rounded px-1 text-si-body underline decoration-si-line underline-offset-2 transition-colors hover:text-si-ink hover:decoration-si-ink-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-si-verified"
+            >
+              {tool.title}
+            </Link>
+          </span>
+        ))}
       </nav>
 
-      <section id="facturables" className="scroll-mt-24">
+      {/* « Honoraires à facturer » ouvre la section de travail.
+          Ce n'est pas une facture, c'est du travail terminé qui en attend une,
+          et c'est la première chose à traiter : ce qui reste à facturer passe
+          avant ce qui l'est déjà. Demande CEO du 2026-09-10. */}
+      <section id="facturables" className="scroll-mt-24 space-y-2">
+        <div>
+          <h2 className="text-lg font-medium text-si-ink">{tb("feesToBill")}</h2>
+          <p className="max-w-[65ch] text-[13px] text-si-muted">{t("unbilledIntro")}</p>
+        </div>
         <HonorairesAFacturerView cabinetId={cabinetId} role={role} embedded />
       </section>
 
@@ -284,8 +293,13 @@ export default async function FacturationPage({
           longue. Le canvas gris la porte au lieu de la contenir, et la barre
           d'outils appartient visiblement au même objet que le tableau. */}
       <div className="space-y-3">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <h2 className="text-lg font-medium text-si-ink">{t("listTitle")}</h2>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-baseline sm:justify-between">
+          <div className="flex items-baseline gap-3">
+            <h2 className="text-lg font-medium text-si-ink">{t("listTitle")}</h2>
+            {/* Le compte total, visible sans filtrer. C'est le premier chiffre
+                qu'un inspecteur vérifie. */}
+            <span className="text-[13px] text-si-muted">{t("invoiceCount", { count: invoicesTotal })}</span>
+          </div>
           <FacturationActions billingMode={billingMode} />
         </div>
         <RegistreFeuille ariaLabel={t("listTitle")}>
@@ -330,6 +344,7 @@ export default async function FacturationPage({
           )}
         </RegistreFeuille>
       </div>
+
     </div>
   );
 }
