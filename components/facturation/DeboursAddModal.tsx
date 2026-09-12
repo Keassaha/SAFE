@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Modal } from "@/components/ui/Modal";
@@ -12,8 +12,16 @@ import { toCalendarDayUTC, toIsoDay } from "@/lib/utils/calendar-date";
 export interface DeboursAddModalProps {
   open: boolean;
   onClose: () => void;
-	  clients: { id: string; raisonSociale: string | null; prenom?: string | null; nom?: string | null }[];
+  clients: { id: string; raisonSociale: string | null; prenom?: string | null; nom?: string | null }[];
   dossiers: { id: string; intitule: string; numeroDossier: string | null; clientId: string }[];
+  /**
+   * Client et dossier déjà connus, quand la modale est ouverte depuis un
+   * contexte qui les porte — une saisie de temps, par exemple. Ils sont
+   * proposés, pas imposés : on peut encore les changer.
+   */
+  clientIdInitial?: string;
+  dossierIdInitial?: string;
+  onSuccess?: () => void;
 }
 
 const selectClass =
@@ -30,12 +38,15 @@ export function DeboursAddModal({
   onClose,
   clients,
   dossiers,
+  clientIdInitial = "",
+  dossierIdInitial = "",
+  onSuccess,
 }: DeboursAddModalProps) {
   const td = useTranslations("debours");
   const tc = useTranslations("common");
   const t = useTranslations("billingCompUi");
   const router = useRouter();
-  const [clientId, setClientId] = useState("");
+  const [clientId, setClientId] = useState(clientIdInitial);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -49,9 +60,10 @@ export function DeboursAddModal({
     const formData = new FormData(form);
     const result = await createDeboursDossier(formData);
     if (result.ok) {
-      setClientId("");
+      setClientId(clientIdInitial);
       form.reset();
       onClose();
+      onSuccess?.();
       router.refresh();
     } else {
       setError(result.error === "invalid" ? td("checkFields") : td("checkFields"));
@@ -62,10 +74,17 @@ export function DeboursAddModal({
   const handleClose = () => {
     if (!submitting) {
       setError(null);
-      setClientId("");
+      setClientId(clientIdInitial);
       onClose();
     }
   };
+
+  /* Rouvrir la modale depuis un AUTRE dossier doit repartir de ce
+     dossier-là, pas du précédent. Sans ça, le débours partirait au mauvais
+     client sans que rien ne le signale. */
+  useEffect(() => {
+    if (open) setClientId(clientIdInitial);
+  }, [open, clientIdInitial]);
 
   return (
     <Modal open={open} onClose={handleClose} title={td("newDisbursement")}>
@@ -90,7 +109,11 @@ export function DeboursAddModal({
             <label className="block text-sm font-medium text-si-muted mb-1.5">{tc("dossier")} *</label>
             <select
               name="dossierId"
+              key={`${clientId}-${dossierIdInitial}`}
               required
+              defaultValue={
+                dossiersForClient.some((d) => d.id === dossierIdInitial) ? dossierIdInitial : ""
+              }
               disabled={!clientId || dossiersForClient.length === 0}
               className={`${selectClass} disabled:opacity-60`}
             >

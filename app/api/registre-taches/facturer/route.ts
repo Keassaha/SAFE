@@ -66,6 +66,9 @@ export async function POST(request: Request) {
         registreTacheIds: Array.isArray(body.registreTacheIds)
           ? body.registreTacheIds.filter((id): id is string => typeof id === "string")
           : [],
+        deboursIds: Array.isArray(body.deboursIds)
+          ? body.deboursIds.filter((id): id is string => typeof id === "string")
+          : [],
         lignesManuelles: lignesManuelles(body.lignesManuelles),
       });
       return NextResponse.json({

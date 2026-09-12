@@ -32,6 +32,7 @@ export default async function NouvelleFacturePage({
     nextInvoiceNumber,
     timeEntries,
     expenses,
+    deboursDossiers,
     registreTaches,
     cabinetTaxConfig,
   ] = await Promise.all([
@@ -154,6 +155,31 @@ export default async function NouvelleFacturePage({
       },
       orderBy: { expenseDate: "asc" },
     }),
+    /* LES VRAIS DÉBOURS. Cet écran ne lisait que `Expense`, une table que
+       RIEN dans l'application ne remplit : le bloc « Débours et frais » était
+       donc structurellement vide quoi qu'on saisisse. Les débours réellement
+       enregistrés (`DeboursDossier`) n'atteignaient une facture que par
+       « facturer tout le dossier », qui les embarque tous d'un coup sans les
+       montrer. Corrigé le 2026-09-12. */
+    prisma.deboursDossier.findMany({
+      where: {
+        cabinetId,
+        factureId: null,
+        refacturable: true,
+        statutDebours: "NON_FACTURE",
+      },
+      select: {
+        id: true,
+        clientId: true,
+        dossierId: true,
+        date: true,
+        description: true,
+        montant: true,
+        taxable: true,
+        dossier: { select: { intitule: true, numeroDossier: true } },
+      },
+      orderBy: { date: "asc" },
+    }),
     prisma.registreTache.findMany({
       where: {
         cabinetId,
@@ -227,6 +253,25 @@ export default async function NouvelleFacturePage({
       montantBase: expense.amount,
       ajustement: 0,
       taxable: expense.taxable,
+      responsableUserId: null,
+      responsableNom: null,
+      rabais: 0,
+      rabaisRaison: null,
+    })),
+    ...deboursDossiers.map((d) => ({
+      id: d.id,
+      sourceType: "debours" as const,
+      clientId: d.clientId,
+      dossierId: d.dossierId,
+      dossierLabel: [d.dossier.numeroDossier, d.dossier.intitule].filter(Boolean).join(" — "),
+      description: d.description,
+      date: d.date.toISOString().split("T")[0],
+      hours: 0,
+      rate: 0,
+      amount: d.montant,
+      montantBase: d.montant,
+      ajustement: 0,
+      taxable: d.taxable,
       responsableUserId: null,
       responsableNom: null,
       rabais: 0,

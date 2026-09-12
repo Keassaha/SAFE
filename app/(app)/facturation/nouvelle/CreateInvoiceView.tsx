@@ -57,7 +57,7 @@ type DueDatePreset = "3" | "7" | "14" | "30" | "custom";
 interface LineItem {
   id: string;
   sourceId?: string | null;
-  sourceType?: "manual" | "time_entry" | "expense" | "registre_tache";
+  sourceType?: "manual" | "time_entry" | "expense" | "registre_tache" | "debours";
   description: string;
   date: string;
   hours: number;
@@ -159,7 +159,8 @@ function clientDisplayName(
 
 type ClientBillable = {
   id: string;
-  sourceType: "time_entry" | "expense" | "registre_tache";
+  /** `debours` : une somme avancée pour le client, portée par `DeboursDossier`. */
+  sourceType: "time_entry" | "expense" | "registre_tache" | "debours";
   clientId: string;
   dossierId: string | null;
   dossierLabel: string | null;
@@ -574,11 +575,15 @@ export function CreateInvoiceView({
       rate: item.rate,
       amount: item.amount,
       type:
-        item.sourceType === "expense"
-          ? "debours_taxable"
-          : isForfait || item.sourceType === "registre_tache"
-            ? "forfait"
-            : "honoraires",
+        /* Un débours garde sa nature : c'est sa case « taxable » qui décide
+           s'il entre dans l'assiette de la TPS, pas son origine. */
+        item.sourceType === "debours"
+          ? "debours"
+          : item.sourceType === "expense"
+            ? "debours_taxable"
+            : isForfait || item.sourceType === "registre_tache"
+              ? "forfait"
+              : "honoraires",
       forfaitServiceId: null,
       responsableUserId: item.responsableUserId,
       responsableNom: item.responsableNom,
@@ -1294,6 +1299,10 @@ export function CreateInvoiceView({
             .filter((l) => l.sourceType === "expense")
             .map((l) => l.sourceId)
             .filter((id): id is string => typeof id === "string"),
+          deboursIds: selectedSourceLines
+            .filter((l) => l.sourceType === "debours")
+            .map((l) => l.sourceId)
+            .filter((id): id is string => typeof id === "string"),
           registreTacheIds: selectedSourceLines
             .filter((l) => l.sourceType === "registre_tache")
             .map((l) => l.sourceId)
@@ -1388,6 +1397,10 @@ export function CreateInvoiceView({
   return (
     <div className="min-h-screen bg-transparent">
       {/* ── Barre du haut : qui, combien, quoi faire ──────────────── */}
+      {/* `top-0` colle au bord visible de `main` parce que le rembourrage
+          vertical du gabarit est sur la colonne, pas sur le conteneur de
+          défilement (voir AppChrome). Sinon la barre s'arrête 24 px trop bas
+          et la ligne des réglages passe au-dessus d'elle. */}
       <div className="safe-glass-subtle sticky top-0 z-30 border-b">
         <div className="mx-auto flex max-w-[1400px] flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:px-6 lg:px-8">
           <div className="flex min-w-0 items-center gap-3">

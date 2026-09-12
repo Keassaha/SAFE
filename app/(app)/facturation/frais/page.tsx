@@ -2,42 +2,47 @@ import { getTranslations } from "next-intl/server";
 import { requirePageAccess } from "@/lib/auth/page-guard";
 import { canManageInvoices, canViewBilling } from "@/lib/auth/permissions";
 import { prisma } from "@/lib/db";
-import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { routes } from "@/lib/routes";
-import Link from "next/link";
 import { FacturationFraisActions } from "@/components/facturation/FacturationFraisActions";
-import type { DeboursStatut } from "@prisma/client";
-import { getFormatteurs } from "@/lib/i18n/formatteurs-serveur";
+import { DeboursPageView } from "@/components/facturation/DeboursPageView";
+import type { DeboursLigne } from "@/lib/debours/vue";
 
+function nomDuClient(c: {
+  raisonSociale: string | null;
+  prenom?: string | null;
+  nom?: string | null;
+}): string {
+  const societe = c.raisonSociale?.trim();
+  if (societe) return societe;
+  return [c.prenom, c.nom].filter(Boolean).join(" ").trim() || "Client sans nom";
+}
+
+/**
+ * La page des débours — ce que le cabinet a avancé pour ses clients.
+ *
+ * Elle listait cent lignes à plat, sans filtre, sans tri, sans action, et
+ * n'était dans aucun menu. Elle se lit maintenant par client, comme demandé
+ * le 2026-09-12.
+ *
+ * Le plafond passe de 100 à 500 : à 100, un cabinet actif perdait de vue ses
+ * plus vieux débours sans que rien ne le lui dise.
+ */
 export default async function FacturationFraisPage() {
-  const { formatCurrency, formatCalendarDate } = await getFormatteurs();
-  const t = await getTranslations("billingUi");
+  const t = await getTranslations("debours");
   const { cabinetId, role } = await requirePageAccess(canViewBilling);
   const canWrite = canManageInvoices(role);
 
-  const [debours, deboursARefacturer, deboursNonRembourses, clients, dossiers] = await Promise.all([
+  const [debours, clients, dossiers] = await Promise.all([
     prisma.deboursDossier.findMany({
       where: { cabinetId },
       orderBy: { date: "desc" },
-      take: 100,
+      take: 500,
       include: {
         dossier: { select: { id: true, intitule: true, numeroDossier: true } },
         client: { select: { id: true, raisonSociale: true, prenom: true, nom: true } },
         facture: { select: { id: true, numero: true } },
       },
-    }),
-    prisma.deboursDossier.aggregate({
-      where: { cabinetId, refacturable: true, statutDebours: { in: ["NON_FACTURE", "FACTURE"] } },
-      _sum: { montant: true },
-    }),
-    prisma.deboursDossier.aggregate({
-      where: {
-        cabinetId,
-        payeParCabinet: true,
-        statutDebours: { in: ["NON_FACTURE", "FACTURE"] },
-      },
-      _sum: { montant: true },
     }),
     prisma.client.findMany({
       where: { cabinetId },
@@ -51,131 +56,50 @@ export default async function FacturationFraisPage() {
     }),
   ]);
 
-  const totalARefacturer = deboursARefacturer._sum.montant ?? 0;
-  const totalNonRembourses = deboursNonRembourses._sum.montant ?? 0;
-  const clientLabel = (client: { raisonSociale: string | null; prenom?: string | null; nom?: string | null }) => {
-    const company = client.raisonSociale?.trim();
-    if (company) return company;
-    return [client.prenom, client.nom].filter(Boolean).join(" ").trim() || "Client sans nom";
-  };
-  const deboursStatusLabel = (status: DeboursStatut) => {
-    switch (status) {
-      case "NON_FACTURE":
-        return "Non facturé";
-      case "FACTURE":
-        return "Facturé";
-      case "RECOUVRE":
-        return "Recouvré";
-      case "RADIE":
-        return "Radié";
-      default:
-        return status;
-    }
-  };
+  const lignes: DeboursLigne[] = debours.map((d) => ({
+    id: d.id,
+    date: d.date.toISOString(),
+    description: d.description,
+    quantite: d.quantite,
+    montant: d.montant,
+    taxable: d.taxable,
+    payeParCabinet: d.payeParCabinet,
+    refacturable: d.refacturable,
+    statutDebours: d.statutDebours,
+    clientId: d.clientId,
+    clientNom: nomDuClient(d.client),
+    dossierId: d.dossierId,
+    dossierLabel: d.dossier.numeroDossier
+      ? `${d.dossier.numeroDossier} — ${d.dossier.intitule}`
+      : d.dossier.intitule,
+    factureId: d.facture?.id ?? null,
+    factureNumero: d.facture?.numero ?? null,
+  }));
+
+  /* Seuls les clients qui ont des débours peuplent le filtre : proposer les
+     deux cents clients du cabinet dont cent quatre-vingt-dix-huit n'ont rien
+     avancé, c'est un filtre qui ne filtre pas. */
+  const clientsAvecDebours = new Set(lignes.map((l) => l.clientId));
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title={t("disbursementsOverview")}
-        description={t("disbursementsOverviewDescription")}
+        title={t("pageTitle")}
+        description={t("pageIntro")}
         backHref={routes.facturation}
         backLabel={t("backToBilling")}
         action={
-          canWrite ? (
-            <FacturationFraisActions
-              clients={clients}
-              dossiers={dossiers}
-            />
-          ) : undefined
+          canWrite ? <FacturationFraisActions clients={clients} dossiers={dossiers} /> : undefined
         }
       />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card>
-          <CardHeader title={t("disbursementsToRebill")} />
-          <CardContent>
-            <p className="text-2xl font-medium text-si-ink-strong">
-              {formatCurrency(totalARefacturer)}
-            </p>
-            <p className="text-sm text-si-muted mt-1">
-              {t("disbursementsToRebillHint")}
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader title={t("disbursementsUnreimbursed")} />
-          <CardContent>
-            <p className="text-2xl font-medium text-si-ink-strong">
-              {formatCurrency(totalNonRembourses)}
-            </p>
-            <p className="text-sm text-si-muted mt-1">
-              {t("disbursementsUnreimbursedHint")}
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-      <Card>
-        <CardHeader title={t("chargesList")} />
-        <CardContent>
-          {debours.length === 0 ? (
-            <p className="text-sm text-si-muted py-4">
-              {/* Sans le bouton, le message qui invite à cliquer dessus ment. */}
-              {canWrite ? t("noDisbursements") : t("noDisbursementsReadOnly")}
-            </p>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-si-line text-left text-si-muted">
-                    <th className="py-2 pr-2">{t("date")}</th>
-                    <th className="py-2 pr-2">{t("clientMatter")}</th>
-                    <th className="py-2 pr-2">{t("description")}</th>
-                    <th className="py-2 pr-2 text-right">{t("quantity")}</th>
-                    <th className="py-2 pr-2 text-right">{t("amount")}</th>
-                    <th className="py-2 pr-2">{t("status")}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {debours.map((d) => (
-                    <tr key={d.id} className="border-b border-si-line/70">
-                      <td className="py-2 pr-2">{formatCalendarDate(d.date)}</td>
-                      <td className="py-2 pr-2">
-                        <span className="text-si-ink block">{clientLabel(d.client)}</span>
-                        <Link
-                          href={routes.dossier(d.dossierId)}
-                          className="text-si-ink-strong hover:underline text-xs"
-                        >
-                          {d.dossier.numeroDossier ?? d.dossier.intitule}
-                        </Link>
-                      </td>
-                      <td className="py-2 pr-2">{d.description}</td>
-                      <td className="py-2 pr-2 text-right">
-                        {Number(d.quantite) === 1 ? "1" : d.quantite}
-                      </td>
-                      <td className="py-2 pr-2 text-right font-medium">
-                        {formatCurrency(d.montant)}
-                      </td>
-                      <td className="py-2 pr-2">
-                        <span className="block text-si-ink">{deboursStatusLabel(d.statutDebours)}</span>
-                        {d.facture ? (
-                          <Link
-                            href={routes.facturationFactureEdit(d.facture.id)}
-                            className="text-si-ink-strong hover:underline text-xs"
-                          >
-                            {d.facture.numero}
-                          </Link>
-                        ) : (
-                          <span className="text-si-muted text-xs">{t("notBilled")}</span>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      <DeboursPageView
+        lignes={lignes}
+        clients={clients
+          .filter((c) => clientsAvecDebours.has(c.id))
+          .map((c) => ({ id: c.id, nom: nomDuClient(c) }))}
+        canWrite={canWrite}
+      />
     </div>
   );
 }

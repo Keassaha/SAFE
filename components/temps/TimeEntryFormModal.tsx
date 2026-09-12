@@ -12,6 +12,8 @@ import { useCreateTimeEntry, useUpdateTimeEntry } from "@/lib/hooks/useTemps";
 import type { TimeEntryStatut } from "@prisma/client";
 import { toCalendarDayUTC, toIsoDay } from "@/lib/utils/calendar-date";
 import { resoudreTauxHoraire, type SourceDuTaux } from "@/lib/temps/taux-horaire";
+import { DeboursAddModal } from "@/components/facturation/DeboursAddModal";
+import { Plus } from "lucide-react";
 import {
   formatDureeHM,
   minutesVersChampHeures,
@@ -64,6 +66,7 @@ export function TimeEntryFormModal({
 }: TimeEntryFormModalProps) {
   const t = useTranslations("timer.form");
   const tTemps = useTranslations("temps");
+  const tDebours = useTranslations("debours");
   const locale = useLocale();
 
   /** Nomme la source du taux pré-rempli, pour le dire sous le champ. */
@@ -94,6 +97,11 @@ export function TimeEntryFormModal({
   // Verrou : une fois le taux saisi/modifié à la main, on ne le réécrase plus automatiquement.
   const [rateManuallyEdited, setRateManuallyEdited] = useState((initial?.tauxHoraire ?? 0) > 0);
   const [error, setError] = useState<string | null>(null);
+  /* Le moment où l'on se souvient d'avoir payé le greffe, c'est en inscrivant
+     l'heure passée sur le dossier. La porte est donc ici, et elle ouvre le
+     même formulaire, déjà rempli avec ce client et ce dossier. Demande CEO du
+     2026-09-12. */
+  const [deboursOuvert, setDeboursOuvert] = useState(false);
   const [roundingHint, setRoundingHint] = useState<{ raw: number; rounded: number; roundingMinutes: number } | undefined>(undefined);
 
   const dossiersForClient = clientId ? dossiers.filter((d) => d.clientId === clientId) : [];
@@ -404,6 +412,19 @@ export function TimeEntryFormModal({
             {t("rateAutofillFrom", { source: tSource(sourceDuTaux.source) })}
           </p>
         )}
+        {dossierId && (
+          <div className="-mt-1">
+            <button
+              type="button"
+              onClick={() => setDeboursOuvert(true)}
+              className="safe-zoom inline-flex min-h-tap items-center gap-1.5 rounded-md border border-si-line bg-si-surface px-3 text-xs font-medium text-si-ink transition-colors hover:border-si-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-si-accent/30"
+            >
+              <Plus size={13} />
+              {tDebours("addToThisMatter")}
+            </button>
+          </div>
+        )}
+
         {error && <p className="text-sm text-[#B84A3E]">{error}</p>}
         <div className="flex gap-2 pt-2">
           <Button type="submit" disabled={pending}>
@@ -414,6 +435,17 @@ export function TimeEntryFormModal({
           </Button>
         </div>
       </form>
+
+      {/* La modale des débours vit à côté du formulaire, pas dedans : un
+          <form> imbriqué dans un <form> ne se soumet pas. */}
+      <DeboursAddModal
+        open={deboursOuvert}
+        onClose={() => setDeboursOuvert(false)}
+        clients={clients}
+        dossiers={dossiers}
+        clientIdInitial={clientId}
+        dossierIdInitial={dossierId}
+      />
     </Modal>
   );
 }

@@ -601,6 +601,14 @@ export async function createInvoiceFromClientBillables(params: {
   clientNote?: string | null;
   timeEntryIds?: string[];
   expenseIds?: string[];
+  /**
+   * Débours du dossier à porter sur cette facture (`DeboursDossier`).
+   *
+   * Ils n'y arrivaient que par « facturer tout le dossier », qui les embarque
+   * tous d'un coup sans les montrer. Ici, l'avocate les coche un par un,
+   * comme les heures.
+   */
+  deboursIds?: string[];
   registreTacheIds?: string[];
   lignesManuelles?: LigneManuelleInput[];
 }) {
@@ -615,6 +623,7 @@ export async function createInvoiceFromClientBillables(params: {
     clientNote,
     timeEntryIds = [],
     expenseIds = [],
+    deboursIds = [],
     registreTacheIds = [],
     lignesManuelles = [],
   } = params;
@@ -622,6 +631,7 @@ export async function createInvoiceFromClientBillables(params: {
   if (
     timeEntryIds.length === 0 &&
     expenseIds.length === 0 &&
+    deboursIds.length === 0 &&
     registreTacheIds.length === 0 &&
     lignesManuelles.length === 0
   ) {
@@ -646,7 +656,7 @@ export async function createInvoiceFromClientBillables(params: {
     dossierRattache = dossier.id;
   }
 
-  const [timeEntries, expenses, taches] = await Promise.all([
+  const [timeEntries, expenses, taches, deboursDossiers] = await Promise.all([
     timeEntryIds.length
       ? prisma.timeEntry.findMany({
           where: {
@@ -679,6 +689,20 @@ export async function createInvoiceFromClientBillables(params: {
           },
         })
       : Promise.resolve([]),
+    /* Le filtre porte sur cabinet ET client ET « pas déjà facturé » : un id
+       glissé dans la requête ne peut pas faire porter le débours d'un autre
+       client sur cette facture, ni facturer deux fois le même. */
+    deboursIds.length
+      ? prisma.deboursDossier.findMany({
+          where: {
+            id: { in: deboursIds },
+            cabinetId,
+            clientId,
+            factureId: null,
+            statutDebours: "NON_FACTURE",
+          },
+        })
+      : Promise.resolve([]),
   ]);
 
   if (timeEntries.length !== timeEntryIds.length) {
@@ -690,6 +714,9 @@ export async function createInvoiceFromClientBillables(params: {
   if (taches.length !== registreTacheIds.length) {
     throw new Error("Certaines tâches sont introuvables ou déjà facturées");
   }
+  if (deboursDossiers.length !== deboursIds.length) {
+    throw new Error("Certains débours sont introuvables ou déjà facturés");
+  }
 
   let subtotalTaxable = 0;
   let subtotalNonTaxable = 0;
@@ -700,6 +727,7 @@ export async function createInvoiceFromClientBillables(params: {
 
   for (const te of timeEntries) addSubtotal(te.feeAmount ?? te.montant, te.taxable ?? true);
   for (const exp of expenses) addSubtotal(exp.amount, exp.taxable);
+  for (const d of deboursDossiers) addSubtotal(d.montant, d.taxable);
   for (const t of taches) addSubtotal(t.montantFinal, t.taxable);
   for (const l of lignesManuelles) addSubtotal(l.montant, l.taxable);
 
@@ -814,6 +842,41 @@ export async function createInvoiceFromClientBillables(params: {
       await tx.expense.update({
         where: { id: exp.id },
         data: { billingStatus: "IN_DRAFT_INVOICE", invoiceId: created.id, invoiceLineId: line.id },
+      });
+    }
+
+    for (const d of deboursDossiers) {
+      const { gstAmount, qstAmount } = computeLineTaxes(d.montant, d.taxable, taxConfig);
+      const line = await tx.invoiceLine.create({
+        data: {
+          invoiceId: created.id,
+          lineType: "expense",
+          sourceType: "expense",
+          sourceId: d.id,
+          matterId: d.dossierId,
+          serviceDate: d.date,
+          description: d.description,
+          quantite: d.quantite,
+          tauxUnitaire: d.quantite > 0 ? d.montant / d.quantite : d.montant,
+          montant: d.montant,
+          taxable: d.taxable,
+          lineSubtotal: d.montant,
+          gstAmount,
+          qstAmount,
+          lineTotal: d.montant + gstAmount + qstAmount,
+          sortOrder: sortOrder++,
+        },
+      });
+      /* `invoiceLineId` existait sur le modèle et n'était renseigné par aucun
+         code : on ne pouvait pas remonter d'une ligne de facture au débours
+         qui l'a produite. Il l'est ici. */
+      await tx.deboursDossier.update({
+        where: { id: d.id },
+        data: {
+          factureId: created.id,
+          invoiceLineId: line.id,
+          statutDebours: "FACTURE",
+        },
       });
     }
 
