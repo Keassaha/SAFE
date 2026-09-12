@@ -16,6 +16,7 @@ import { MovementLegend } from "@/components/comptabilite/MovementLegend";
 import type { BankImportSession, BankImportTransaction, ExpenseCategory } from "@prisma/client";
 import type { JournalKpiData } from "@/types/journal";
 import type { ExpenseJournalKpisData } from "@/app/(app)/journal/depenses/ExpenseJournalPageView";
+import type { DepenseListe } from "@/lib/expense-journal/charger";
 import { GeneralJournalPageView } from "@/app/(app)/journal/general/GeneralJournalPageView";
 import { ExpenseJournalPageView } from "@/app/(app)/journal/depenses/ExpenseJournalPageView";
 import type { DepenseATaxeEstimee } from "@/components/expense-journal/TaxesAConfirmerSection";
@@ -43,6 +44,7 @@ interface ComptabilitePageViewProps {
     sessions: SessionWithCount[];
     categories: ExpenseCategory[];
     transactions: BankImportTransaction[];
+    depenses: DepenseListe[];
     taxesAConfirmer: DepenseATaxeEstimee[];
     taxesSansOrigine: number;
   };
@@ -331,6 +333,7 @@ export function ComptabilitePageView({
               sessions={expenseData.sessions}
               categories={expenseData.categories}
               transactions={expenseData.transactions}
+              depenses={expenseData.depenses}
               taxesAConfirmer={expenseData.taxesAConfirmer}
               taxesSansOrigine={expenseData.taxesSansOrigine}
               canWrite={canWriteJournal}

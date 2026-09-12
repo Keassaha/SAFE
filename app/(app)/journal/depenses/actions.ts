@@ -296,6 +296,130 @@ export async function validateImportedTransaction(
   return { success: true, cabinetExpenseId: cabinetExpense.id };
 }
 
+/* ──────────────────── Saisie manuelle d'une dépense ──────────────────── */
+
+export type CreerDepenseInput = {
+  date: string;
+  /** Le fournisseur, tel qu'on le reconnaît : « Bureau en Gros ». */
+  libelle: string;
+  categoryId: string | null;
+  /** Le montant payé, taxes comprises. */
+  montant: number;
+  /** Taxes LUES SUR LA PIÈCE. Fournies, elles valent vérité. */
+  tps?: number | null;
+  tvq?: number | null;
+  /** Le cabinet affirme, pièce en main, que cette dépense ne porte aucune taxe. */
+  sansTaxe?: boolean;
+};
+
+/**
+ * Inscrit une dépense tapée à la main.
+ *
+ * LA PORTE QUI MANQUAIT. Une dépense ne pouvait entrer que par l'import d'un
+ * relevé bancaire ou la photo d'un reçu. Payée comptant sans reçu à scanner, ou
+ * reçue par courriel, elle n'entrait pas du tout : le cabinet n'avait aucun
+ * moyen de l'inscrire, et la taxe payée dessus était perdue.
+ *
+ * La dépense naît VALIDE : quelqu'un vient de la saisir en connaissance de
+ * cause, il n'y a personne d'autre pour la valider ensuite. Elle produit son
+ * écriture au journal général dans la même transaction, comme toute dépense
+ * validée (doctrine §4).
+ */
+export async function creerDepenseManuelle(
+  input: CreerDepenseInput,
+): Promise<{ success: true; id: string } | { success: false; error: string }> {
+  const { cabinetId, userId } = await requireExpenseJournalWriter();
+
+  const libelle = input.libelle.trim();
+  if (!libelle) return { success: false, error: "Le fournisseur est requis." };
+
+  const montant = Number(input.montant);
+  if (!Number.isFinite(montant) || montant <= 0) {
+    return { success: false, error: "Le montant doit être supérieur à zéro." };
+  }
+
+  const date = new Date(input.date);
+  if (Number.isNaN(date.getTime())) return { success: false, error: "Date invalide." };
+
+  /* La catégorie doit appartenir à CE cabinet : un identifiant venu d'ailleurs
+     rangerait la dépense dans la ventilation d'un autre. */
+  let categoryId: string | null = null;
+  let categoryName: string | null = null;
+  if (input.categoryId) {
+    const cat = await prisma.expenseCategory.findFirst({
+      where: { id: input.categoryId, cabinetId },
+      select: { id: true, name: true },
+    });
+    if (!cat) return { success: false, error: "Catégorie introuvable." };
+    categoryId = cat.id;
+    categoryName = cat.name;
+  }
+
+  /* Trois cas de taxe, et ils ne se valent pas :
+       - montants saisis      → DECLAREE, réclamable ;
+       - « sans taxe » coché  → AUCUNE, affirmé pièce en main ;
+       - rien                 → ESTIMEE, calculée, PAS réclamable.
+     Confondre le troisième avec le deuxième ferait renoncer en silence à une
+     taxe récupérable. */
+  const tpsSaisie = typeof input.tps === "number" && Number.isFinite(input.tps) ? input.tps : null;
+  const tvqSaisie = typeof input.tvq === "number" && Number.isFinite(input.tvq) ? input.tvq : null;
+
+  let tps: number;
+  let tvq: number;
+  let montantHt: number;
+  let origine: "DECLAREE" | "ESTIMEE" | "AUCUNE";
+
+  if (input.sansTaxe) {
+    tps = 0;
+    tvq = 0;
+    montantHt = montant;
+    origine = "AUCUNE";
+  } else if (tpsSaisie !== null || tvqSaisie !== null) {
+    tps = tpsSaisie ?? 0;
+    tvq = tvqSaisie ?? 0;
+    montantHt = Math.round((montant - tps - tvq) * 100) / 100;
+    origine = "DECLAREE";
+  } else {
+    const taxConfig = await getCabinetTaxConfigById(cabinetId);
+    const categoryCode = await lireCodeCategorieDuCabinet({ cabinetId, categoryId });
+    const estime = decomposeExpenseTax({ montantTtc: montant, categoryCode, taxConfig });
+    tps = estime.tps;
+    tvq = estime.tvq;
+    montantHt = estime.montantHt;
+    origine = estime.origine;
+  }
+
+  const depense = await prisma.$transaction(async (txClient) => {
+    const creee = await txClient.cabinetExpense.create({
+      data: {
+        cabinetId,
+        date,
+        descriptionBancaire: libelle,
+        fournisseurNormalise: normalizeSupplier(libelle) || libelle,
+        categoryId: categoryId ?? undefined,
+        categoryName: categoryName ?? undefined,
+        montant,
+        montantHt,
+        tps,
+        tvq,
+        montantTtc: montant,
+        taxOrigin: origine,
+        typeTransaction: ExpenseJournalTransactionType.DEPENSE,
+        statutValidation: ExpenseJournalValidationStatus.VALIDE,
+        createdById: userId,
+      },
+    });
+
+    await writeJournalForCabinetExpense(creee, { client: txClient, utilisateurId: userId });
+    return creee;
+  });
+
+  revalidatePath("/journal/depenses");
+  revalidatePath("/journal/general");
+  revalidatePath("/comptabilite");
+  return { success: true, id: depense.id };
+}
+
 /* ───────────────────── Édition d'une CabinetExpense ───────────────────── */
 
 export type EditCabinetExpenseInput = {
@@ -494,9 +618,12 @@ export async function bulkApplyCategory(input: BulkApplyInput): Promise<{
 export async function ignoreTransactions(
   transactionIds: string[]
 ): Promise<{ success: boolean; count: number }> {
-  await requireExpenseJournalWriter();
+  const { cabinetId } = await requireExpenseJournalWriter();
   const result = await prisma.bankImportTransaction.updateMany({
-    where: { id: { in: transactionIds } },
+    /* `cabinetId` manquait : la requête ne filtrait que sur les identifiants
+       reçus, donc un id appartenant à un AUTRE cabinet passait. Toutes les
+       autres écritures du fichier portent ce filtre ; celle-ci l'avait perdu. */
+    where: { id: { in: transactionIds }, cabinetId },
     data: { status: "ignored" },
   });
   revalidatePath("/journal/depenses");
