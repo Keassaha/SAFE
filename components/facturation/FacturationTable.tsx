@@ -66,12 +66,18 @@ export interface FacturationTableRow {
   dossierId: string | null;
   dateEmission: Date;
   /**
-   * Date à laquelle la facture est PARTIE au client. `null` tant qu'elle ne
-   * l'est pas, et c'est précisément l'anomalie qu'un inspecteur cherche :
-   * une facture émise, parfois même payée, qui n'a jamais été transmise.
-   * Ajoutée le 2026-09-10.
+   * Date à laquelle la facture a été TRANSMISE au client, par n'importe quel
+   * canal : courriel parti de SAFE, courriel du cabinet, poste, main propre,
+   * portail. C'est `Invoice.deliveredAt`, et c'est ce que le règlement regarde
+   * (B-1 r.5, art. 56(2) · By-Law 9, s. 9(1)3).
+   *
+   * ⚠️ Ce n'est PAS `Invoice.sentAt`, que cette colonne lisait du 2026-09-10 au
+   * 2026-09-13. `sentAt` n'est posé que par l'envoi courriel de SAFE : une
+   * facture postée ou remise en main propre, pourtant régulièrement transmise,
+   * s'affichait « jamais envoyée ». C'est ce que le CEO a vu le 2026-09-13, sur
+   * une facture payée.
    */
-  sentAt: Date | null;
+  deliveredAt: Date | null;
   dateEcheance: Date;
   montantTotal: number;
   balanceDue: number;
@@ -84,6 +90,18 @@ export interface FacturationTableRow {
   cabinetNom: string;
   /** Jours entiers depuis l'échéance. 0 si elle n'est pas passée. */
   joursDeRetard: number;
+}
+
+/**
+ * De l'argent est-il entré sur cette facture ?
+ *
+ * Sert à distinguer l'oubli (rien d'encaissé, rien de transmis) de
+ * l'incohérence (encaissé sans transmission). Le demi-cent de tolérance évite
+ * qu'un arrondi de virgule flottante fasse passer une facture soldée pour une
+ * facture qui aurait reçu un paiement.
+ */
+function encaisseQuelqueChose(inv: { montantTotal: number; balanceDue: number }): boolean {
+  return inv.montantTotal - inv.balanceDue > 0.005;
 }
 
 /**
@@ -158,8 +176,17 @@ export function FacturationTable({
                 dates de la vie d'une facture se lisent alors dans l'ordre.
                 Une facture émise et jamais transmise se repère d'un coup
                 d'œil, c'est ce qu'un inspecteur cherche. */}
-            <th scope="col" className="w-[112px] px-3 py-2.5 text-right">
-              <RegistrePlainHeader label={tf("sentOnShort")} align="right" />
+            {/* Triable, comme l'émission et l'échéance qui l'encadrent : les
+                trois dates de la vie d'une facture se trient de la même façon.
+                Trier dessus remonte les factures jamais transmises.
+                Demande CEO du 2026-09-13. */}
+            <th scope="col" className="w-[136px] whitespace-nowrap px-3 py-2.5 text-right">
+              <RegistreSortHeader
+                label={tf("deliveredOnShort")}
+                field="deliveredAt"
+                align="right"
+                {...entete}
+              />
             </th>
             <th scope="col" className="w-[104px] px-3 py-2.5 text-right">
               <RegistreSortHeader
@@ -234,16 +261,34 @@ export function FacturationTable({
                 <td className={`whitespace-nowrap text-right ${registreCellMutedClass}`}>
                   {formatCalendarDate(inv.dateEmission)}
                 </td>
-                {/* Jamais envoyée : en ambre, et dit en toutes lettres. La
-                    couleur ne travaille pas seule (WCAG 1.4.1). L'ambre plutôt
-                    que le rouge : c'est un oubli à rattraper, pas une erreur
-                    bloquante. */}
+                {/* Trois cas, pas deux.
+                    Transmise : la date, en gris.
+                    Jamais transmise et rien d'encaissé : en ambre, un oubli à
+                    rattraper.
+                    Jamais transmise MAIS de l'argent est entré : en rouge.
+                    C'est une incohérence comptable, pas un oubli — le
+                    règlement n'ouvre le retrait du fidéicommis que pour la
+                    facturation « qui a été envoyée » (B-1 r.5, art. 56(2)).
+                    Dans les trois cas le mot dit l'état, la couleur ne
+                    travaille jamais seule (WCAG 1.4.1), et l'infobulle dit
+                    quoi faire. Demande CEO du 2026-09-13. */}
                 <td
                   className={`whitespace-nowrap px-3 py-2.5 text-right align-middle text-[13px] ${
-                    inv.sentAt ? "text-si-muted" : "font-medium text-si-amber-ink"
+                    inv.deliveredAt
+                      ? "text-si-muted"
+                      : encaisseQuelqueChose(inv)
+                        ? "font-medium text-si-danger-ink"
+                        : "font-medium text-si-amber-ink"
                   }`}
+                  title={
+                    inv.deliveredAt
+                      ? undefined
+                      : encaisseQuelqueChose(inv)
+                        ? tf("paidButNeverDelivered")
+                        : tf("neverDeliveredTitle")
+                  }
                 >
-                  {inv.sentAt ? formatCalendarDate(inv.sentAt) : tf("neverSent")}
+                  {inv.deliveredAt ? formatCalendarDate(inv.deliveredAt) : tf("neverDelivered")}
                 </td>
                 <td
                   className={`whitespace-nowrap px-3 py-2.5 text-right align-middle text-[13px] ${

@@ -372,3 +372,17 @@ Images livrees le 2026-08-24 :
 Rien n'est mis en execution. Le document de reference reste
 `docs/design/ANALYSE_CURSOR_VS_SAFE_2026-08-24.md` et l'artefact
 « Refonte de l'accueil SAFE ».
+
+### 2026-09-13 · Ecran Facturation, quatre consignes
+
+Donnees sur l'ecran `/facturation` en production locale, captures a l'appui.
+
+1. **« pas besoin de mettre un sous-titre c'est redondant »** — la phrase « Du travail
+   termine qui attend une facture. Un dossier, une facture. » sous « Honoraires a
+   facturer ». Elle avait ete ajoutee le 2026-09-10 ; elle part.
+2. **« quand je clique sur le filtre de total, la page se recharge et retourne vers le
+   haut, je veux que ce soit fige en fait »** — le tri d'une colonne ne doit plus
+   ramener en haut de page.
+3. **« il manque une logique comptable, je vois qu'une facture qui n'a jamais ete
+   envoyee est payee dans les statuts, gere cette incoherence comptable »**
+4. **« Les titres doivent etre mieux ajustes »**

@@ -2348,7 +2348,11 @@
 .safe-feuille {
   background: var(--si-surface);
   border: 1px solid var(--si-line);
-  border-radius: 14px;
+  /* 10 px : le palier « panneau » du referentiel (§2.4), celui de toutes les
+     autres surfaces. A 14 px, le coin arrondi rentrait si loin que le titre
+     pose au-dessus paraissait decale de quatre pixels vers la gauche.
+     Demande CEO du 2026-09-13. */
+  border-radius: 10px;
   box-shadow:
     0 1px 2px rgb(var(--si-line-ink-rgb) / 0.04),
     0 18px 40px -28px rgb(var(--si-line-ink-rgb) / 0.30);

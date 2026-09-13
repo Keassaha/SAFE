@@ -246,7 +246,7 @@ export default async function FacturationPage({
     cabinetNom: inv.cabinet?.nom ?? "",
     joursDeRetard: joursDeRetard(inv.dateEcheance, now),
     lastReminderSentAt: inv.reminderLogs[0]?.sentAt ?? null,
-    sentAt: inv.sentAt ?? null,
+    deliveredAt: inv.deliveredAt ?? null,
   }));
 
   const secondaryTools = [
@@ -289,8 +289,9 @@ export default async function FacturationPage({
           avant ce qui l'est déjà. Demande CEO du 2026-09-10. */}
       <section id="facturables" className="scroll-mt-24 space-y-2">
         <div>
+          {/* Plus de sous-titre : « Du travail terminé qui attend une facture »
+              redisait le titre. Demande CEO du 2026-09-13. */}
           <h2 className="text-lg font-medium text-si-ink">{tb("feesToBill")}</h2>
-          <p className="max-w-[65ch] text-[13px] text-si-muted">{t("unbilledIntro")}</p>
           {/* Le seuil se lit là où il agit. Il vivait gravé dans le code ;
               il se règle désormais dans Paramètres › Facturation. */}
           <p className="max-w-[65ch] text-[13px] text-si-muted">

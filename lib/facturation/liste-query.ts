@@ -23,6 +23,10 @@ export const FACTURE_LISTE_TAILLE_PAGE = 20;
 export const FACTURE_CHAMPS_TRI = [
   "client",
   "dateEmission",
+  /* La TRANSMISSION au client (`deliveredAt`), pas l'envoi courriel de SAFE.
+     Trier dessus remonte les factures jamais transmises, que le règlement
+     interdit d'appuyer d'un retrait de fidéicommis. Ajouté le 2026-09-13. */
+  "deliveredAt",
   "dateEcheance",
   "montantTotal",
   "balanceDue",

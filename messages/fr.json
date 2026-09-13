@@ -846,9 +846,10 @@
     "reminderAlreadyPaid": "Cette facture est déjà payée.",
     "reminderFailed": "Le rappel n'est pas parti. Réessayez dans un moment.",
     "invoiceCount": "{count} facture(s)",
-    "unbilledIntro": "Du travail terminé qui attend une facture. Un dossier, une facture.",
-    "sentOnShort": "Envoyée le",
-    "neverSent": "jamais envoyée",
+    "deliveredOnShort": "Transmise le",
+    "neverDelivered": "jamais transmise",
+    "neverDeliveredTitle": "Aucune transmission au client n'est enregistrée pour cette facture. Déclarez-la dans Inspection › Transmission des factures.",
+    "paidButNeverDelivered": "Incohérence : de l'argent a été encaissé sur cette facture, mais aucune transmission au client n'est enregistrée. Le règlement (B-1 r.5, art. 56(2)) n'ouvre le retrait du fidéicommis que pour la facturation « qui a été envoyée ». Déclarez la transmission dans Inspection › Transmission des factures.",
     "disbursement": "Débours",
     "addDisbursementTitle": "Ajouter un débours — somme avancée pour le client"
   },

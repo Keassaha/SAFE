@@ -110,10 +110,19 @@ export function RegistreSortHeader<F extends string>({
   return (
     <Link
       href={getSortUrl(field, actif ? ordreSuivant : "asc")}
+      /* Trier ne doit pas ramener en haut de page. Le tri est une navigation
+         serveur (l'adresse porte `sortBy`), et Next remonte en haut à chaque
+         navigation : on cliquait sur « Total » au bas d'un registre et on
+         perdait sa place. Signalé par le CEO le 2026-09-13. */
+      scroll={false}
       aria-sort={actif ? (currentSortOrder === "asc" ? "ascending" : "descending") : undefined}
+      /* La flèche suit TOUJOURS le libellé, à droite, quelle que soit
+         l'alignement de la colonne. Elle passait à gauche sur les colonnes
+         alignées à droite (`flex-row-reverse`) : la même rangée d'en-têtes
+         portait donc deux conventions. Demande CEO du 2026-09-13. */
       className={`group/sort inline-flex items-center gap-1 text-[12px] font-medium uppercase tracking-[0.06em] transition-colors ${
         actif ? "text-si-ink" : "text-si-muted hover:text-si-ink"
-      } ${align === "right" ? "flex-row-reverse" : ""}`}
+      }`}
     >
       {label}
       <Icon

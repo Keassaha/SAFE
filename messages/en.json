@@ -846,9 +846,10 @@
     "reminderAlreadyPaid": "This invoice is already paid.",
     "reminderFailed": "The reminder did not go out. Try again in a moment.",
     "invoiceCount": "{count} invoice(s)",
-    "unbilledIntro": "Work that is done and waiting for an invoice. One matter, one invoice.",
-    "sentOnShort": "Sent on",
-    "neverSent": "never sent",
+    "deliveredOnShort": "Delivered on",
+    "neverDelivered": "never delivered",
+    "neverDeliveredTitle": "No delivery to the client is recorded for this invoice. Declare it in Inspection › Invoice delivery.",
+    "paidButNeverDelivered": "Inconsistency: money was received on this invoice, but no delivery to the client is recorded. By-Law 9, s. 9(1)3 only allows a trust withdrawal for a billing that has been delivered. Declare the delivery in Inspection › Invoice delivery.",
     "disbursement": "Disbursement",
     "addDisbursementTitle": "Add a disbursement — money advanced for the client"
   },
