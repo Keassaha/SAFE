@@ -132,6 +132,16 @@ export type CabinetConfig = {
    * enregistrée.
    */
   tauxHoraireDefaut?: number;
+  /**
+   * Seuil de facturation, en dollars, taxes comprises.
+   *
+   * Un dossier est proposé à la facturation dès que son total l'atteint. Vivait
+   * gravé dans le code (`MIN_AMOUNT_TO_BILL`, 100 $) : aucun cabinet ne pouvait
+   * le changer ni le mettre à zéro. Zéro vaut « tout proposer ». Absent, le
+   * produit garde 100 $ pour ne rien changer aux cabinets existants.
+   * Décision CEO du 2026-09-12.
+   */
+  seuilFacturation?: number;
   formatFacture?: string;
   /** Province du cabinet (ex. "QC", "ON") — pilote la réglementation citée. */
   province?: string;
@@ -163,6 +173,20 @@ export function parseCabinetConfig(rawConfig: string | null): CabinetConfig {
 export function getTauxHoraireDefaut(config: CabinetConfig): number | null {
   const v = config.tauxHoraireDefaut;
   return typeof v === "number" && Number.isFinite(v) && v > 0 ? v : null;
+}
+
+/** Valeur par défaut du seuil de facturation quand le cabinet n'en a pas réglé. */
+export const SEUIL_FACTURATION_DEFAUT = 100;
+
+/**
+ * Le seuil de facturation du cabinet, en dollars taxes comprises.
+ *
+ * Zéro est une valeur légitime : « proposer tout dossier, quel que soit son
+ * total ». Un nombre négatif ou illisible retombe sur le défaut.
+ */
+export function getSeuilFacturation(config: CabinetConfig): number {
+  const v = config.seuilFacturation;
+  return typeof v === "number" && Number.isFinite(v) && v >= 0 ? v : SEUIL_FACTURATION_DEFAUT;
 }
 
 export function getEnvoiFactureClientConfig(config: CabinetConfig): EnvoiFactureClientConfig {

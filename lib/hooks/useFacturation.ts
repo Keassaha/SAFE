@@ -3,7 +3,12 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import type { FacturationHonorairesQueryInput } from "@/lib/validations/facturation";
 
+/** Une ligne par dossier. Forme rendue par `regrouperHonorairesParDossier`. */
 export type HonorairesRow = {
+  key: string;
+  dossierId: string | null;
+  dossierNumero: string | null;
+  dossierIntitule: string | null;
   clientId: string;
   clientName: string;
   count: number;
@@ -13,11 +18,17 @@ export type HonorairesRow = {
   totalForfaits: number;
   taxesEstimees: number;
   totalAFacturer: number;
+  totalLibre: number;
+  sousSeuil: boolean;
   lastDate: string;
+  plusAncienneDate: string;
+  ageMaxJours: number;
+  avocats: string[];
   timeEntryIds: string[];
   expenseIds: string[];
+  deboursIds: string[];
   registreTacheIds: string[];
-  draftInvoiceIds?: string[];
+  draftInvoiceIds: string[];
 };
 
 export type HonorairesDetailEntry = {
@@ -96,7 +107,7 @@ export function useFacturationHonoraires(
   const qs = buildQueryString(filters);
   return useQuery({
     queryKey: ["facturation", "honoraires", filters],
-    queryFn: async (): Promise<{ rows: HonorairesRow[] }> => {
+    queryFn: async (): Promise<{ rows: HonorairesRow[]; seuil: number }> => {
       const res = await fetch(`/api/facturation/honoraires?${qs}`);
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
@@ -114,6 +125,7 @@ export function useFacturationHonorairesDetail(clientId: string | null) {
     queryFn: async (): Promise<{
       clientId: string;
       clientName: string | null;
+      seuil?: number;
       taxConfig?: {
         province: string;
         mode: "tps_tvq" | "hst" | "tps_only" | "tps_pst" | "tps_rst" | "none";

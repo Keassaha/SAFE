@@ -123,9 +123,16 @@ export default async function TempsNonFacturePage() {
                         {formatCurrency(d.montant)}
                       </td>
                       <td className="py-2.5 px-4 text-right">
+                        {/* Le lien ouvrait une facture vierge, quel que soit le
+                            dossier cliqué. Il emporte désormais le client et les
+                            fiches du dossier, déjà cochées. 2026-09-12. */}
                         <Link
-                          href={routes.facturationFactureNouvelle}
-                          className="text-emerald-700 hover:underline font-medium"
+                          href={
+                            d.clientId
+                              ? `${routes.facturationFactureNouvelle}?clientId=${encodeURIComponent(d.clientId)}&timeEntryIds=${encodeURIComponent(d.timeEntryIds.join(","))}`
+                              : routes.facturationFactureNouvelle
+                          }
+                          className="font-medium text-si-ink underline decoration-si-line underline-offset-2 transition-colors hover:decoration-si-ink-strong"
                         >
                           Facturer
                         </Link>

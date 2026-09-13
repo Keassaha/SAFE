@@ -14,6 +14,7 @@ export default async function NouvelleFacturePage({
     clientId?: string;
     timeEntryIds?: string;
     expenseIds?: string;
+    deboursIds?: string;
     registreTacheIds?: string;
   }>;
 }) {
@@ -308,14 +309,22 @@ export default async function NouvelleFacturePage({
   const selectedRegistreTacheIds = new Set(
     (resolvedSearchParams.registreTacheIds ?? "").split(",").filter(Boolean)
   );
+  /* Les débours de dossier se présélectionnent aussi : la ligne « Préparer la
+     facture » d'un dossier les envoie avec ses fiches. Sans cette entrée, une
+     sélection explicite les faisait tomber en silence. */
+  const selectedDeboursIds = new Set(
+    (resolvedSearchParams.deboursIds ?? "").split(",").filter(Boolean)
+  );
   const hasExplicitSelection =
     selectedTimeEntryIds.size > 0 ||
     selectedExpenseIds.size > 0 ||
+    selectedDeboursIds.size > 0 ||
     selectedRegistreTacheIds.size > 0;
   const filteredBillables = hasExplicitSelection
     ? billables.filter((item) => {
         if (item.sourceType === "time_entry") return selectedTimeEntryIds.has(item.id);
         if (item.sourceType === "expense") return selectedExpenseIds.has(item.id);
+        if (item.sourceType === "debours") return selectedDeboursIds.has(item.id);
         if (item.sourceType === "registre_tache") return selectedRegistreTacheIds.has(item.id);
         return false;
       })

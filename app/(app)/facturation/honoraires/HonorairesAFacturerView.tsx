@@ -1,321 +1,363 @@
 "use client";
-import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
-import { useState, useMemo } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Card, CardContent, CardHeader } from "@/components/ui/Card";
+import { Eye, FileText } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { RowMenu, rowMenuItemClass } from "@/components/ui/RowMenu";
+import {
+  RegistreAucunResultat,
+  RegistreBarreOutils,
+  RegistreFeuille,
+  RegistrePagination,
+  RegistrePlainHeader,
+  registreCellClass,
+  registreCellMutedClass,
+  registreCellNumClass,
+  registreChampClass,
+  registreHeadCellClass,
+  registreHeadRowClass,
+  registreRowClass,
+  registreSelectClass,
+  usePaginationLocale,
+} from "@/components/ui/registre";
 import { routes } from "@/lib/routes";
-import { useFacturationHonoraires } from "@/lib/hooks/useFacturation";
+import { useFormatteurs } from "@/lib/i18n/formatteurs";
+import { useFacturationHonoraires, type HonorairesRow } from "@/lib/hooks/useFacturation";
 import { useTempsContext } from "@/lib/hooks/useTemps";
-import { MIN_AMOUNT_TO_BILL } from "@/lib/invoice-calculations";
-import type { FacturationHonorairesQueryInput } from "@/lib/validations/facturation";
-import { RegistrePagination, usePaginationLocale } from "@/components/ui/registre";
-import { Search, Eye, FileText, FilePlus2, Loader2, ArrowLeft } from "lucide-react";
+import { SEUIL_FACTURATION_DEFAUT } from "@/lib/cabinet-config";
+import { DORMANT_DAYS } from "@/lib/services/finance/unbilled-time";
 
-const ICON_BTN_BASE =
-  "inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-md transition-base focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-si-verified focus-visible:ring-offset-1 disabled:opacity-40 disabled:cursor-not-allowed";
-const ICON_BTN_OUTLINE =
-  "border border-si-ink-strong/30 text-si-verified bg-si-surface hover:bg-si-canvas";
-const ICON_BTN_GHOST =
-  "border border-transparent text-si-verified hover:bg-si-canvas";
-const ICON_BTN_PRIMARY = "safe-action-degrade text-si-surface hover:opacity-90";
+/**
+ * Honoraires à facturer : une ligne par dossier, un bouton par ligne.
+ *
+ * La section fondait tous les dossiers d'un client dans une seule ligne, avec
+ * un seul bouton : quinze fiches sur trois dossiers ne donnaient qu'une option.
+ * Désormais chaque dossier porte son « Préparer la facture ». Le client reste
+ * lisible : une rangée le nomme, additionne ses dossiers, et offre en un lien
+ * la facture unique pour tous, qui est l'ancien comportement.
+ *
+ * Le seuil vient du cabinet (Paramètres › Facturation), plus d'une constante.
+ * Un dossier sous le seuil reste visible, en gris, au lieu d'être bloqué sans
+ * explication. Décision CEO du 2026-09-12, image validée le même jour.
+ */
+
+type Periode = "" | "mois" | "trois_mois" | "annee";
+
+function debutPeriode(p: Periode, now = new Date()): Date | undefined {
+  if (p === "mois") return new Date(now.getFullYear(), now.getMonth(), 1);
+  if (p === "trois_mois") return new Date(now.getFullYear(), now.getMonth() - 3, now.getDate());
+  if (p === "annee") return new Date(now.getFullYear(), 0, 1);
+  return undefined;
+}
+
+function urlNouvelleFacture(row: HonorairesRow): string {
+  const params = new URLSearchParams({ clientId: row.clientId });
+  if (row.timeEntryIds.length) params.set("timeEntryIds", row.timeEntryIds.join(","));
+  if (row.expenseIds.length) params.set("expenseIds", row.expenseIds.join(","));
+  if (row.deboursIds.length) params.set("deboursIds", row.deboursIds.join(","));
+  if (row.registreTacheIds.length) params.set("registreTacheIds", row.registreTacheIds.join(","));
+  return `${routes.facturationFactureNouvelle}?${params.toString()}`;
+}
 
 interface HonorairesAFacturerViewProps {
   cabinetId: string;
-  role: string;
-  /** En mode embedded, le hero gradient et le lien retour sont masqués pour intégration dans /facturation. */
-  embedded?: boolean;
 }
 
-export function HonorairesAFacturerView({ cabinetId, role, embedded = false }: HonorairesAFacturerViewProps) {
+export function HonorairesAFacturerView({ cabinetId }: HonorairesAFacturerViewProps) {
   const router = useRouter();
-  const { formatCurrency, formatCalendarDate } = useFormatteurs();
+  const { formatCurrency } = useFormatteurs();
   const t = useTranslations("billingUi");
   const tc = useTranslations("common");
-  const [filters, setFilters] = useState<FacturationHonorairesQueryInput>({});
-  const [searchQ, setSearchQ] = useState("");
 
-  const effectiveFilters = useMemo(
-    () => ({ ...filters, ...(searchQ.trim() ? { q: searchQ.trim() } : {}) }),
-    [filters, searchQ]
+  const [recherche, setRecherche] = useState("");
+  const [clientId, setClientId] = useState("");
+  const [userId, setUserId] = useState("");
+  const [periode, setPeriode] = useState<Periode>("");
+
+  const filtres = useMemo(
+    () => ({
+      ...(userId ? { userId } : {}),
+      ...(debutPeriode(periode) ? { dateFrom: debutPeriode(periode) } : {}),
+    }),
+    [userId, periode],
   );
 
-  const { data, isLoading } = useFacturationHonoraires(effectiveFilters);
-  const { data: context } = useTempsContext(cabinetId);
-  void role;
+  const { data, isLoading } = useFacturationHonoraires(filtres);
+  const { data: contexte } = useTempsContext(cabinetId);
+  const seuil = data?.seuil ?? SEUIL_FACTURATION_DEFAUT;
+  const users = contexte?.users ?? [];
 
-  const rows = data?.rows ?? [];
-  const dossiers = context?.dossiers ?? [];
-  const users = context?.users ?? [];
+  // Le filtre client se fait ici : côté API, `clientId` bascule la réponse
+  // en détail d'un seul client, ce n'est pas un filtre de liste.
+  const clients = useMemo(() => {
+    const m = new Map<string, string>();
+    for (const r of data?.rows ?? []) m.set(r.clientId, r.clientName);
+    return Array.from(m, ([id, nom]) => ({ id, nom })).sort((a, b) => a.nom.localeCompare(b.nom, "fr"));
+  }, [data?.rows]);
 
-  // Paginé par 20, comme tous les registres du produit. Tout changement de
-  // filtre ramène en page 1 : rester en page 3 d'une liste qui vient de se
-  // raccourcir ne montre rien d'utile.
+  const rows = useMemo(() => {
+    const q = recherche.trim().toLowerCase();
+    return (data?.rows ?? []).filter((r) => {
+      if (clientId && r.clientId !== clientId) return false;
+      if (!q) return true;
+      return [r.clientName, r.dossierNumero, r.dossierIntitule]
+        .filter(Boolean)
+        .some((s) => (s as string).toLowerCase().includes(q));
+    });
+  }, [data?.rows, clientId, recherche]);
+
   const pageRows = usePaginationLocale(rows);
+  const nbClients = new Set(rows.map((r) => r.clientId)).size;
+  const nbFiches = rows.reduce((s, r) => s + r.count, 0);
+  const totalGeneral = rows.reduce((s, r) => s + r.totalAFacturer, 0);
 
-  const handlePreparerFacture = (clientId: string) => {
-    router.push(`${routes.facturationFactureNouvelle}?clientId=${encodeURIComponent(clientId)}`);
-  };
+  // Groupes client sur la page courante : la rangée de tête porte le nom, le
+  // nombre de dossiers dans TOUTE la liste (pas seulement la page), et le total.
+  const parClient = useMemo(() => {
+    const m = new Map<string, { nb: number; total: number }>();
+    for (const r of rows) {
+      const g = m.get(r.clientId) ?? { nb: 0, total: 0 };
+      g.nb += 1;
+      g.total += r.totalAFacturer;
+      m.set(r.clientId, g);
+    }
+    return m;
+  }, [rows]);
+
+  const remettreEnPageUn = () => pageRows.setPage(1);
 
   return (
-    <div className="space-y-6">
-      {/* En-tête posé sur la surface de travail. Il portait un dégradé sombre
-          peint à la main, hors palette : c'est exactement la « grande carte
-          employée comme en-tête de page » que la direction retire. */}
-      {!embedded && (
-        <header className="pb-1">
-          <Link
-            href={routes.facturation}
-            className="min-h-tap mb-3 inline-flex items-center gap-2 text-sm text-si-muted transition-colors hover:text-si-ink"
-          >
-            <ArrowLeft className="w-4 h-4 shrink-0" aria-hidden />
-            {t("backToOverview")}
-          </Link>
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-              <h1 className="font-serif text-[32px] leading-tight tracking-tight text-si-ink">{t("feesToBill")}</h1>
-              <p className="mt-2 max-w-[65ch] text-sm text-si-muted">
-                {t("feesToBillSubtitle")}
-              </p>
-              <p className="mt-1 max-w-[65ch] text-xs text-si-subtle">
-                {t("minAmountToBillHint", { amount: MIN_AMOUNT_TO_BILL })}
-              </p>
-            </div>
-            <div className="flex items-center gap-2 shrink-0">
-              <Link href={routes.temps}>
-                <Button
-                  variant="secondary"
-                  className="bg-si-surface text-si-ink border-white/30 hover:bg-si-surface/30"
-                >
-                  {t("timesheet")}
-                </Button>
-              </Link>
-            </div>
+    <RegistreFeuille ariaLabel={t("feesToBill")}>
+      <RegistreBarreOutils
+        recherche={
+          <input
+            type="search"
+            value={recherche}
+            onChange={(e) => {
+              setRecherche(e.target.value);
+              remettreEnPageUn();
+            }}
+            placeholder={t("searchDossierOrClient")}
+            aria-label={t("searchDossierOrClient")}
+            className={`${registreChampClass} w-full px-3`}
+          />
+        }
+        filtres={
+          <div className="flex flex-wrap items-center gap-2">
+            <select
+              value={clientId}
+              onChange={(e) => {
+                setClientId(e.target.value);
+                remettreEnPageUn();
+              }}
+              aria-label={t("client")}
+              className={registreSelectClass}
+            >
+              <option value="">{t("allClients")}</option>
+              {clients.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.nom}
+                </option>
+              ))}
+            </select>
+            <select
+              value={userId}
+              onChange={(e) => {
+                setUserId(e.target.value);
+                remettreEnPageUn();
+              }}
+              aria-label={t("lawyer")}
+              className={registreSelectClass}
+            >
+              <option value="">{t("allLawyers")}</option>
+              {users.map((u) => (
+                <option key={u.id} value={u.id}>
+                  {u.nom}
+                </option>
+              ))}
+            </select>
+            <select
+              value={periode}
+              onChange={(e) => {
+                setPeriode(e.target.value as Periode);
+                remettreEnPageUn();
+              }}
+              aria-label={t("period")}
+              className={registreSelectClass}
+            >
+              <option value="">{t("anyPeriod")}</option>
+              <option value="mois">{t("periodThisMonth")}</option>
+              <option value="trois_mois">{t("periodThreeMonths")}</option>
+              <option value="annee">{t("periodThisYear")}</option>
+            </select>
+            <span className="text-[13px] text-si-muted">
+              {t("dossiersClientsCount", { dossiers: rows.length, clients: nbClients })}
+            </span>
           </div>
-        </header>
-      )}
+        }
+      />
 
-      {/* La carte « Filtres » ne s'affiche plus quand la section est intégrée
-          dans la page Facturation. Elle y prenait plus de hauteur que le
-          tableau qu'elle filtre, pour une liste qui tient souvent en trois
-          lignes : cinq contrôles et un titre encadré au-dessus d'un client.
-          Sur l'écran autonome elle reste, il n'a rien d'autre.
-          Demande CEO du 2026-09-10. */}
-      {!embedded && (
-      <Card>
-        <CardHeader title={t("filters")} />
-        <CardContent className="space-y-4">
-          <div className="flex flex-wrap gap-4 items-center">
-            <div className="flex items-center gap-2 min-w-[200px]">
-              <Search className="w-4 h-4 text-si-muted" />
-              <input
-                type="search"
-                placeholder={t("searchClientPlaceholder")}
-                value={searchQ}
-                onChange={(e) => {
-                  setSearchQ(e.target.value);
-                  pageRows.setPage(1);
-                }}
-                className="min-h-tap flex-1 rounded-lg border border-si-line px-3 py-2 text-sm"
-              />
-            </div>
-            <div className="flex items-center gap-2">
-              <label className="text-sm text-si-muted">{t("lawyer")}</label>
-              <select
-                value={filters.userId ?? ""}
-                onChange={(e) => {
-                  setFilters((f) => ({ ...f, userId: e.target.value || undefined }));
-                  pageRows.setPage(1);
-                }}
-                className="min-h-tap rounded-lg border border-si-line px-3 py-2 text-sm min-w-[160px]"
-              >
-                <option value="">{t("all")}</option>
-                {users.map((u) => (
-                  <option key={u.id} value={u.id}>
-                    {u.nom}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="flex items-center gap-2">
-              <label className="text-sm text-si-muted">{t("matter")}</label>
-              <select
-                value={filters.dossierId ?? ""}
-                onChange={(e) => {
-                  setFilters((f) => ({ ...f, dossierId: e.target.value || undefined }));
-                  pageRows.setPage(1);
-                }}
-                className="min-h-tap rounded-lg border border-si-line px-3 py-2 text-sm min-w-[200px]"
-              >
-                <option value="">{t("all")}</option>
-                {dossiers.map((d) => (
-                  <option key={d.id} value={d.id}>
-                    {d.numeroDossier ?? d.reference ?? "—"} — {d.intitule}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="flex items-center gap-2">
-              <label className="text-sm text-si-muted">{t("from")}</label>
-              <input
-                type="date"
-                value={filters.dateFrom ? String(filters.dateFrom).slice(0, 10) : ""}
-                onChange={(e) => {
-                  setFilters((f) => ({
-                    ...f,
-                    dateFrom: e.target.value ? new Date(e.target.value) : undefined,
-                  }));
-                  pageRows.setPage(1);
-                }}
-                className="min-h-tap rounded-lg border border-si-line px-3 py-2 text-sm"
-              />
-            </div>
-            <div className="flex items-center gap-2">
-              <label className="text-sm text-si-muted">{t("to")}</label>
-              <input
-                type="date"
-                value={filters.dateTo ? String(filters.dateTo).slice(0, 10) : ""}
-                onChange={(e) => {
-                  setFilters((f) => ({
-                    ...f,
-                    dateTo: e.target.value ? new Date(e.target.value) : undefined,
-                  }));
-                  pageRows.setPage(1);
-                }}
-                className="min-h-tap rounded-lg border border-si-line px-3 py-2 text-sm"
-              />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-      )}
-
-      {/* Le tableau passe devant : c'est lui qu'on vient voir. Intégré, il
-          quitte sa carte, qui en faisait une carte dans la carte de la page. */}
-      <Card>
-        {!embedded && <CardHeader title={t("byClient")} />}
-        <CardContent className={embedded ? "p-0" : undefined}>
-          {isLoading ? (
-            <div className="flex items-center justify-center py-12">
-              <Loader2 className="w-8 h-8 animate-spin text-si-muted/50" />
-            </div>
-          ) : rows.length === 0 ? (
-            <p className="text-si-muted py-8 text-center">
-              {t("noFeesForCriteria")}
-            </p>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm border-collapse">
-                <thead>
-                  <tr className="border-b border-si-line bg-si-canvas">
-                    <th className="text-left py-3 px-3 font-medium">{t("client")}</th>
-                    <th className="text-right py-3 px-3 font-medium">{t("entries")}</th>
-                    <th className="text-right py-3 px-3 font-medium">{t("totalHours")}</th>
-                    <th className="text-right py-3 px-3 font-medium">{t("totalFees")}</th>
-                    <th className="text-right py-3 px-3 font-medium">{t("totalDisbursements")}</th>
-                    <th className="text-right py-3 px-3 font-medium">{t("totalFlatFees")}</th>
-                    <th className="text-right py-3 px-3 font-medium">{t("estimatedTaxes")}</th>
-                    <th className="text-right py-3 px-3 font-medium">{t("totalToBill")}</th>
-                    <th className="text-left py-3 px-3 font-medium">{t("lastDate")}</th>
-                    <th className="text-right py-3 px-3 font-medium">{t("actions")}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {pageRows.tranche.map((row) => {
-                    const selectableCount =
-                      row.timeEntryIds.length + row.expenseIds.length + row.registreTacheIds.length;
-                    const firstDraftInvoiceId = row.draftInvoiceIds?.[0] ?? null;
-                    return (
-                    <tr key={row.clientId} className="safe-zoom-rang border-b border-si-line " >
-                      <td className="py-3 px-3 font-medium">{row.clientName}</td>
-                      <td className="py-3 px-3 text-right">{row.count}</td>
-                      <td className="py-3 px-3 text-right">
-                        {row.totalHeures.toFixed(1)} h
-                      </td>
-                      <td className="py-3 px-3 text-right">
-                        {formatCurrency(row.totalHonoraires)}
-                      </td>
-                      <td className="py-3 px-3 text-right">
-                        {formatCurrency(row.totalDebours)}
-                      </td>
-                      <td className="py-3 px-3 text-right">
-                        {formatCurrency(row.totalForfaits)}
-                      </td>
-                      <td className="py-3 px-3 text-right">
-                        {formatCurrency(row.taxesEstimees)}
-                      </td>
-                      <td className="py-3 px-3 text-right font-medium">
-                        {formatCurrency(row.totalAFacturer)}
-                      </td>
-                      <td className="py-3 px-3 text-si-muted">
-                        {formatCalendarDate(row.lastDate)}
-                      </td>
-                      <td className="py-3 px-3 text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          {firstDraftInvoiceId && (
-                            <Link
-                              href={routes.facturationFactureApercu(firstDraftInvoiceId)}
-                              aria-label={t("viewInvoice")}
-                              title={t("viewInvoice")}
-                              className={`${ICON_BTN_BASE} ${ICON_BTN_OUTLINE}`}
+      {isLoading ? (
+        <p className="px-6 py-10 text-center text-sm text-si-muted" aria-live="polite">
+          {tc("loading")}
+        </p>
+      ) : rows.length === 0 ? (
+        <RegistreAucunResultat message={t("noFeesForCriteria")} />
+      ) : (
+        <>
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse text-[13px]">
+              <thead>
+                <tr className={registreHeadRowClass}>
+                  <th className={`${registreHeadCellClass} w-[34%]`}><RegistrePlainHeader label={t("colDossier")} /></th>
+                  <th className={registreHeadCellClass}><RegistrePlainHeader label={t("colFiches")} align="right" /></th>
+                  <th className={registreHeadCellClass}><RegistrePlainHeader label={t("colHeures")} align="right" /></th>
+                  <th className={registreHeadCellClass}><RegistrePlainHeader label={t("colHonoraires")} align="right" /></th>
+                  <th className={registreHeadCellClass}><RegistrePlainHeader label={t("colDebours")} align="right" /></th>
+                  <th className={registreHeadCellClass}><RegistrePlainHeader label={t("colTotalEstime")} align="right" /></th>
+                  <th className={registreHeadCellClass}><RegistrePlainHeader label={t("colPlusAncienne")} align="right" /></th>
+                  <th className={registreHeadCellClass}>
+                    <span className="sr-only">{t("actions")}</span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {pageRows.tranche.map((row, i) => {
+                  const precedent = pageRows.tranche[i - 1];
+                  const teteDeGroupe = !precedent || precedent.clientId !== row.clientId;
+                  const groupe = parClient.get(row.clientId) ?? { nb: 1, total: row.totalAFacturer };
+                  const libres =
+                    row.timeEntryIds.length +
+                    row.expenseIds.length +
+                    row.deboursIds.length +
+                    row.registreTacheIds.length;
+                  const bloque = libres === 0 || row.sousSeuil;
+                  const raison =
+                    libres === 0
+                      ? t("allItemsAlreadyDrafted")
+                      : row.sousSeuil
+                        ? t("minToBillTitle", { amount: formatCurrency(seuil) })
+                        : undefined;
+                  const brouillon = row.draftInvoiceIds[0] ?? null;
+                  const libelleDossier = row.dossierIntitule ?? t("noDossier");
+                  return (
+                    <RowFragment key={row.key}>
+                      {teteDeGroupe ? (
+                        <tr className="border-b border-si-line bg-si-canvas">
+                          <td colSpan={5} className="px-3 py-2 text-[13px]">
+                            <span className="font-medium text-si-ink">{row.clientName}</span>
+                            <span className="text-si-muted"> · {t("dossiersOfClient", { count: groupe.nb })}</span>
+                          </td>
+                          <td className="px-3 py-2 text-right font-mono text-[13px] tabular-nums text-si-ink">
+                            {formatCurrency(groupe.total)}
+                          </td>
+                          <td colSpan={2} className="px-3 py-2 text-right text-[13px]">
+                            {groupe.nb > 1 ? (
+                              <Link
+                                href={`${routes.facturationFactureNouvelle}?clientId=${encodeURIComponent(row.clientId)}`}
+                                className="text-si-body underline decoration-si-line underline-offset-2 transition-colors hover:text-si-ink hover:decoration-si-ink-strong"
+                              >
+                                {t("oneInvoiceForDossiers", { count: groupe.nb })}
+                              </Link>
+                            ) : null}
+                          </td>
+                        </tr>
+                      ) : null}
+                      <tr className={registreRowClass}>
+                        <td className={registreCellClass}>
+                          <span className="font-medium">
+                            {row.dossierNumero ? (
+                              <span className="font-mono tabular-nums">{row.dossierNumero} </span>
+                            ) : null}
+                            {libelleDossier}
+                          </span>
+                          {row.avocats.length > 0 ? (
+                            <span className="mt-0.5 block text-[12px] text-si-muted">{row.avocats.join(", ")}</span>
+                          ) : null}
+                        </td>
+                        <td className={registreCellNumClass}>{row.count}</td>
+                        <td className={registreCellNumClass}>
+                          {row.totalHeures.toLocaleString("fr-CA", { minimumFractionDigits: 1, maximumFractionDigits: 2 })} h
+                        </td>
+                        <td className={registreCellNumClass}>{formatCurrency(row.totalHonoraires)}</td>
+                        <td className={`${registreCellNumClass} ${row.totalDebours === 0 ? "text-si-muted" : ""}`}>
+                          {formatCurrency(row.totalDebours)}
+                        </td>
+                        <td className={`${registreCellNumClass} ${row.sousSeuil ? "text-si-muted" : "font-medium"}`}>
+                          {formatCurrency(row.totalAFacturer)}
+                          {row.sousSeuil ? (
+                            <span className="mt-0.5 block font-sans text-[12px] text-si-muted">{t("underThreshold")}</span>
+                          ) : null}
+                        </td>
+                        <td
+                          className={`${registreCellNumClass} ${
+                            row.ageMaxJours > DORMANT_DAYS ? "font-medium text-si-amber-ink" : ""
+                          }`}
+                        >
+                          {t("daysShort", { days: row.ageMaxJours })}
+                        </td>
+                        <td className={`${registreCellMutedClass} whitespace-nowrap text-right`}>
+                          <div className="flex items-center justify-end gap-1">
+                            <Button
+                              type="button"
+                              variant="secondary"
+                              size="sm"
+                              disabled={bloque}
+                              title={raison}
+                              onClick={() => router.push(urlNouvelleFacture(row))}
                             >
-                              <FileText className="h-4 w-4" aria-hidden />
-                            </Link>
-                          )}
-                          <Link
-                            href={routes.facturationHonorairesClient(row.clientId)}
-                            aria-label={t("viewDetail")}
-                            title={t("viewDetail")}
-                            className={`${ICON_BTN_BASE} ${ICON_BTN_GHOST}`}
-                          >
-                            <Eye className="h-4 w-4" aria-hidden />
-                          </Link>
-                          <button
-                            type="button"
-                            disabled={selectableCount === 0 || row.totalAFacturer < MIN_AMOUNT_TO_BILL}
-                            aria-label={t("prepareInvoice")}
-                            title={
-                              selectableCount === 0
-                                ? t("allItemsAlreadyDrafted")
-                                : row.totalAFacturer < MIN_AMOUNT_TO_BILL
-                                ? t("minToBillTitle", { amount: MIN_AMOUNT_TO_BILL })
-                                : t("prepareInvoice")
-                            }
-                            onClick={() => handlePreparerFacture(row.clientId)}
-                            className={`${ICON_BTN_BASE} ${ICON_BTN_PRIMARY}`}
-                          >
-                            <FilePlus2 className="h-4 w-4" aria-hidden />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
+                              {t("prepareInvoice")}
+                            </Button>
+                            <RowMenu label={t("actions")} describedBy={libelleDossier}>
+                              <Link
+                                role="menuitem"
+                                href={routes.facturationHonorairesClient(row.clientId)}
+                                className={rowMenuItemClass}
+                              >
+                                <Eye className="h-4 w-4" aria-hidden /> {t("viewClientDetail")}
+                              </Link>
+                              {brouillon ? (
+                                <Link
+                                  role="menuitem"
+                                  href={routes.facturationFactureApercu(brouillon)}
+                                  className={rowMenuItemClass}
+                                >
+                                  <FileText className="h-4 w-4" aria-hidden /> {t("viewDraftInvoice")}
+                                </Link>
+                              ) : null}
+                            </RowMenu>
+                          </div>
+                        </td>
+                      </tr>
+                    </RowFragment>
                   );
-                  })}
-                </tbody>
-              </table>
-              <RegistrePagination
-                totalCount={pageRows.total}
-                currentPage={pageRows.page}
-                resume={tc("paginationRange", {
-                  start: pageRows.debut + 1,
-                  end: pageRows.fin,
-                  total: pageRows.total,
                 })}
-                labelPage={tc("paginationPage", {
-                  current: pageRows.page,
-                  total: pageRows.totalPages,
-                })}
-                labelPrecedent={tc("previous")}
-                labelSuivant={tc("next")}
-                onPageChange={pageRows.setPage}
-              />
-            </div>
-          )}
-        </CardContent>
-      </Card>
-    </div>
+              </tbody>
+            </table>
+          </div>
+          <RegistrePagination
+            totalCount={pageRows.total}
+            currentPage={pageRows.page}
+            resume={t("footerSummary", {
+              dossiers: rows.length,
+              fiches: nbFiches,
+              total: formatCurrency(totalGeneral),
+            })}
+            labelPage={tc("paginationPage", { current: pageRows.page, total: pageRows.totalPages })}
+            labelPrecedent={tc("previous")}
+            labelSuivant={tc("next")}
+            onPageChange={pageRows.setPage}
+          />
+        </>
+      )}
+    </RegistreFeuille>
   );
+}
+
+/** Deux `<tr>` sous une même clé : la tête de groupe et la ligne du dossier. */
+function RowFragment({ children }: { children: React.ReactNode }) {
+  return <>{children}</>;
 }

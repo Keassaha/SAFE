@@ -115,6 +115,10 @@ const prismaMock = {
 };
 
 vi.mock("@/lib/db", () => ({ prisma: prismaMock }));
+// Le seuil vient du cabinet ; ce test regarde l'atomicité, pas le réglage.
+vi.mock("@/lib/services/billing/seuil-facturation", () => ({
+  getSeuilFacturationById: async () => 100,
+}));
 vi.mock("@/lib/facturation/numero-facture", () => ({
   makeProvisionalInvoiceNumero: vi.fn(() => "BROUILLON-test"),
   getNextIssuedInvoiceNumero: vi.fn().mockResolvedValue("2026-001"),

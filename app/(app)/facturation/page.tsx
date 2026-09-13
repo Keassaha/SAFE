@@ -15,6 +15,10 @@ import {
 import { FacturationTable } from "@/components/facturation/FacturationTable";
 import { FacturationActions } from "@/components/facturation/FacturationActions";
 import { HonorairesAFacturerView } from "./honoraires/HonorairesAFacturerView";
+import { getSeuilFacturationById } from "@/lib/services/billing/seuil-facturation";
+import { getFormatteurs } from "@/lib/i18n/formatteurs-serveur";
+import { canManageCabinetSettings } from "@/lib/auth/permissions";
+import type { UserRole } from "@prisma/client";
 import type { InvoiceStatut, Prisma } from "@prisma/client";
 import { joursDeRetard } from "@/lib/services/billing/reminder-service";
 import {
@@ -71,6 +75,8 @@ export default async function FacturationPage({
   const t = await getTranslations("facturation");
   const tb = await getTranslations("billingUi");
   const { cabinetId, role } = await requireCabinetAndUser();
+  const { formatCurrency } = await getFormatteurs();
+  const seuilFacturation = await getSeuilFacturationById(cabinetId);
 
   // Detect billing mode — shares the layout's cached CabinetInterface fetch
   // (React.cache dedupes, so no second DB query here)
@@ -285,8 +291,28 @@ export default async function FacturationPage({
         <div>
           <h2 className="text-lg font-medium text-si-ink">{tb("feesToBill")}</h2>
           <p className="max-w-[65ch] text-[13px] text-si-muted">{t("unbilledIntro")}</p>
+          {/* Le seuil se lit là où il agit. Il vivait gravé dans le code ;
+              il se règle désormais dans Paramètres › Facturation. */}
+          <p className="max-w-[65ch] text-[13px] text-si-muted">
+            {tb.rich("seuilPhrase", {
+              amount: () => (
+                <span className="font-mono tabular-nums text-si-ink">{formatCurrency(seuilFacturation)}</span>
+              ),
+            })}
+            {canManageCabinetSettings(role as UserRole) ? (
+              <>
+                {" "}
+                <Link
+                  href={routes.parametresFacture}
+                  className="text-si-ink underline decoration-si-line underline-offset-2 transition-colors hover:decoration-si-ink-strong"
+                >
+                  {tb("seuilModify")}
+                </Link>
+              </>
+            ) : null}
+          </p>
         </div>
-        <HonorairesAFacturerView cabinetId={cabinetId} role={role} embedded />
+        <HonorairesAFacturerView cabinetId={cabinetId} />
       </section>
 
       {/* La liste passe sur une feuille : surface blanche, filet, une ombre

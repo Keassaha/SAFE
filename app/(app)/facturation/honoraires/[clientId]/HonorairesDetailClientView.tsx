@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { routes } from "@/lib/routes";
 import { useFacturationHonorairesDetail } from "@/lib/hooks/useFacturation";
-import { MIN_AMOUNT_TO_BILL } from "@/lib/invoice-calculations";
+import { SEUIL_FACTURATION_DEFAUT } from "@/lib/cabinet-config";
 import { applyTaxes, toInvoiceTaxColumns, toDisplayTaxes, getDefaultTaxConfig } from "@/lib/billing/taxes";
 import type { CabinetTaxConfig } from "@/lib/billing/types";
 import { RegistrePagination, usePaginationLocale } from "@/components/ui/registre";
@@ -26,6 +26,8 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
   const t = useTranslations("billingUi");
   const tc = useTranslations("common");
   const { data, isLoading } = useFacturationHonorairesDetail(clientId);
+  // Le seuil vient du cabinet, jamais d'une constante : Paramètres › Facturation.
+  const seuil = data?.seuil ?? SEUIL_FACTURATION_DEFAUT;
   void role;
 
   const entries = useMemo(() => data?.entries ?? [], [data?.entries]);
@@ -245,7 +247,7 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
           {t("checkLinesToInclude")}
         </p>
         <p className="mt-1 max-w-[65ch] text-xs text-si-subtle">
-          {t("minAmountToBillHint", { amount: MIN_AMOUNT_TO_BILL })}
+          {t("minAmountToBillHint", { amount: formatCurrency(seuil) })}
         </p>
       </header>
 
@@ -370,10 +372,10 @@ export function HonorairesDetailClientView({ clientId, role }: HonorairesDetailC
               <Button
                 variant="primary"
                 onClick={handlePreparerFacture}
-                disabled={totalSelected === 0 || totalTTC < MIN_AMOUNT_TO_BILL}
+                disabled={totalSelected === 0 || totalTTC < seuil}
                 title={
-                  totalTTC < MIN_AMOUNT_TO_BILL && totalSelected > 0
-                    ? t("minToBillTitle", { amount: MIN_AMOUNT_TO_BILL })
+                  totalTTC < seuil && totalSelected > 0
+                    ? t("minToBillTitle", { amount: formatCurrency(seuil) })
                     : undefined
                 }
                 className="gap-2"

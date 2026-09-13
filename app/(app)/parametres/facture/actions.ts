@@ -8,7 +8,7 @@ import { requireCabinetAndUser } from "@/lib/auth/session";
 import { canManageCabinetSettings } from "@/lib/auth/permissions";
 import { createAuditLog } from "@/lib/services/audit";
 import { sanitizeInput } from "@/lib/utils/sanitize";
-import { mergeCabinetConfig } from "@/lib/cabinet-config";
+import { mergeCabinetConfig, parseCabinetConfig } from "@/lib/cabinet-config";
 import { isAccentDarkEnough, normalizeHex } from "@/lib/invoice-template/color";
 import { BILLING_MODES } from "./billing-modes";
 
@@ -205,5 +205,59 @@ export async function updateBillingMode(input: {
   // Le mode change l'interface partout : dossiers, facturation, tableau de bord.
   // On invalide la racine plutôt que d'énumérer des chemins qu'on oublierait.
   revalidatePath("/", "layout");
+  return { ok: true };
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   SEUIL DE FACTURATION
+   ══════════════════════════════════════════════════════════════════════════
+
+   Vit dans `Cabinet.config.seuilFacturation`, lu par `getSeuilFacturationById`
+   pour l'écran « Honoraires à facturer », le détail d'un client et la
+   création d'un brouillon. Zéro vaut « tout proposer ».
+*/
+
+const seuilSchema = z.object({
+  seuil: z.number().finite().min(0).max(1_000_000),
+});
+
+export async function updateSeuilFacturation(input: {
+  seuil: number;
+}): Promise<{ ok: true } | { ok: false; error: string }> {
+  const { cabinetId, userId, role } = await requireCabinetAndUser();
+  if (!canManageCabinetSettings(role as UserRole)) {
+    return { ok: false, error: "Droits insuffisants." };
+  }
+  const parsed = seuilSchema.safeParse(input);
+  if (!parsed.success) {
+    return { ok: false, error: "Le seuil doit être un montant de 0 $ ou plus." };
+  }
+  const seuil = Math.round(parsed.data.seuil * 100) / 100;
+
+  const current = await prisma.cabinet.findUnique({
+    where: { id: cabinetId },
+    select: { config: true },
+  });
+  const avant = parseCabinetConfig(current?.config ?? null).seuilFacturation ?? null;
+
+  await prisma.cabinet.update({
+    where: { id: cabinetId },
+    data: { config: mergeCabinetConfig(current?.config ?? null, { seuilFacturation: seuil }) },
+  });
+
+  await createAuditLog({
+    cabinetId,
+    userId,
+    entityType: "Cabinet",
+    entityId: cabinetId,
+    action: "update",
+    oldValues: { seuilFacturation: avant },
+    newValues: { seuilFacturation: seuil },
+    performedBy: userId,
+    performedAt: new Date(),
+  });
+
+  revalidatePath("/parametres/facture");
+  revalidatePath("/facturation");
   return { ok: true };
 }

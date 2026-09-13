@@ -17,6 +17,8 @@ export interface UnbilledDossierRow {
   plusAncienneDate: string | null;
   ageMaxJours: number;
   montantDormant: number;
+  /** Fiches du dossier, pour ouvrir la nouvelle facture avec elles cochées. */
+  timeEntryIds: string[];
 }
 
 export interface UnbilledTimeReport {
@@ -124,6 +126,7 @@ export async function getUnbilledTimeReport(
       existing.montant += montant;
       existing.nbEntries += 1;
       existing.montantDormant += dormant ? montant : 0;
+      existing.timeEntryIds.push(e.id);
       if (e.date.getTime() < existing._oldestMs) existing._oldestMs = e.date.getTime();
     } else {
       groups.set(key, {
@@ -137,6 +140,7 @@ export async function getUnbilledTimeReport(
         plusAncienneDate: null,
         ageMaxJours: 0,
         montantDormant: dormant ? montant : 0,
+        timeEntryIds: [e.id],
         _oldestMs: e.date.getTime(),
       });
     }

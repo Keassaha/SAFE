@@ -9,10 +9,8 @@ import {
   getNextIssuedInvoiceNumero,
   isProvisionalInvoiceNumero,
 } from "@/lib/facturation/numero-facture";
-import {
-  computeBillingTotals,
-  MIN_AMOUNT_TO_BILL,
-} from "@/lib/invoice-calculations";
+import { computeBillingTotals } from "@/lib/invoice-calculations";
+import { getSeuilFacturationById } from "@/lib/services/billing/seuil-facturation";
 import type { BillingLineRow } from "@/lib/invoice-calculations";
 import { applyTaxes, computeLineTaxColumns } from "@/lib/billing/taxes";
 import { getCabinetTaxConfigById } from "@/lib/billing/cabinet-tax-config";
@@ -100,9 +98,12 @@ export async function createDraftFromBillableItems(params: {
   const subtotalDebours = expenses.reduce((s, e) => s + e.amount, 0);
   const subtotalTaxable = subtotalHonoraires + subtotalDebours;
   const totalTTC = applyTaxes(subtotalTaxable, true, taxConfig).total;
-  if (totalTTC < MIN_AMOUNT_TO_BILL) {
+  // Le seuil est celui du cabinet (Paramètres › Facturation), le même que
+  // celui que l'écran affiche. Zéro vaut « pas de seuil ».
+  const seuil = await getSeuilFacturationById(cabinetId);
+  if (totalTTC < seuil) {
     throw new Error(
-      `Le total doit être supérieur ou égal à ${MIN_AMOUNT_TO_BILL} $ pour facturer le client.`
+      `Le total doit atteindre ${seuil.toFixed(2)} $ pour facturer le client.`
     );
   }
 

@@ -9,9 +9,11 @@ import {
   parseCabinetConfig,
   getCabinetInvoiceConfig,
   getCabinetTaxNumbers,
+  getSeuilFacturation,
 } from "@/lib/cabinet-config";
 import { InvoiceAppearanceForm } from "./InvoiceAppearanceForm";
 import { BillingModeForm } from "./BillingModeForm";
+import { SeuilFacturationForm } from "./SeuilFacturationForm";
 import { getCabinetInterfaceDerived } from "@/lib/services/cabinet-interface";
 import { getTranslations } from "next-intl/server";
 
@@ -56,6 +58,8 @@ export default async function InvoiceAppearancePage() {
       />
 
       <BillingModeForm initial={billingChoice} />
+
+      <SeuilFacturationForm initial={getSeuilFacturation(config)} />
 
       <InvoiceAppearanceForm
         initial={{

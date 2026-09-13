@@ -4,13 +4,14 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { canManageInvoices } from "@/lib/auth/permissions";
 import { facturationHonorairesQuerySchema } from "@/lib/validations/facturation";
-import { applyTaxes } from "@/lib/billing/taxes";
 import { getCabinetTaxConfigById } from "@/lib/billing/cabinet-tax-config";
 import {
   buildUnsentBillableTimeEntryWhere,
   buildHonorairesRegistreTacheWhere,
 } from "@/lib/billing/queries";
 import { clientDisplayName } from "@/lib/clients/normalize-name";
+import { regrouperHonorairesParDossier } from "@/lib/billing/honoraires-par-dossier";
+import { getSeuilFacturationById } from "@/lib/services/billing/seuil-facturation";
 import type { UserRole } from "@prisma/client";
 import type { Prisma } from "@prisma/client";
 
@@ -137,7 +138,7 @@ export async function GET(request: Request) {
   });
   const registreTachesWhere = buildHonorairesRegistreTacheWhere(cabinetId, filters);
 
-  const [entries, expenses, registreTaches] = await Promise.all([
+  const [entries, expenses, registreTaches, deboursDossiers, seuil] = await Promise.all([
     prisma.timeEntry.findMany({
       where,
       orderBy: { date: "desc" },
@@ -173,6 +174,7 @@ export async function GET(request: Request) {
             id: true,
             intitule: true,
             numeroDossier: true,
+            clientId: true,
             client: { select: { id: true, raisonSociale: true, prenom: true, nom: true } },
           },
         },
@@ -183,6 +185,49 @@ export async function GET(request: Request) {
         },
       },
     }),
+    /* LES VRAIS DÉBOURS. `Expense` n'est rempli par rien dans le produit ; les
+       débours saisis sur un dossier vivent dans `DeboursDossier`. Sans eux, la
+       colonne « Débours » de la section restait à zéro quoi qu'on saisisse. */
+    prisma.deboursDossier.findMany({
+      where: {
+        cabinetId,
+        refacturable: true,
+        ...(filters.dossierId ? { dossierId: filters.dossierId } : {}),
+        ...(filters.clientId ? { clientId: filters.clientId } : {}),
+        ...(filters.dateFrom || filters.dateTo
+          ? {
+              date: {
+                ...(filters.dateFrom && { gte: filters.dateFrom }),
+                ...(filters.dateTo && { lte: filters.dateTo }),
+              },
+            }
+          : {}),
+        OR: [
+          { statutDebours: "NON_FACTURE", factureId: null },
+          { facture: { invoiceStatus: { in: [...NOT_SENT_INVOICE_STATUSES] } } },
+        ],
+      },
+      orderBy: { date: "desc" },
+      select: {
+        id: true,
+        date: true,
+        montant: true,
+        taxable: true,
+        clientId: true,
+        dossierId: true,
+        dossier: {
+          select: {
+            id: true,
+            intitule: true,
+            numeroDossier: true,
+            clientId: true,
+            client: { select: { id: true, raisonSociale: true, prenom: true, nom: true } },
+          },
+        },
+        facture: { select: { id: true, invoiceStatus: true } },
+      },
+    }),
+    getSeuilFacturationById(cabinetId),
   ]);
 
   // Détail par client : entrées + débours
@@ -202,6 +247,7 @@ export async function GET(request: Request) {
     return NextResponse.json({
       clientId: filters.clientId,
       clientName,
+      seuil,
       taxConfig: {
         province: detailTaxConfig.province,
         mode: detailTaxConfig.mode,
@@ -259,142 +305,67 @@ export async function GET(request: Request) {
     });
   }
 
-  // Agrégation par client (time entries + expenses)
-  const byClient = new Map<
-    string,
-    {
-      clientId: string;
-      clientName: string;
-      count: number;
-      totalHeures: number;
-      totalHonoraires: number;
-      totalDebours: number;
-      totalForfaits: number;
-      totalTaxable: number;
-      lastDate: Date;
-      timeEntryIds: string[];
-      expenseIds: string[];
-      registreTacheIds: string[];
-      draftInvoiceIds: string[];
-    }
-  >();
-
-  for (const e of entries) {
-    // Client dérivé de la fiche ou du dossier pour que toutes les heures soient dans "honoraires à facturer"
-    const effectiveClientId = e.clientId ?? e.dossier?.clientId ?? undefined;
-    // Personnes physiques : `raisonSociale` est null. On compose le libellé via
-    // `clientDisplayName` (prénom+nom en repli) — sans quoi l'entrée serait sautée
-    // et n'apparaîtrait jamais dans "Honoraires à facturer".
-    const clientSource = e.client ?? e.dossier?.client ?? null;
-    const effectiveClientName = clientSource ? clientDisplayName(clientSource) : undefined;
-    if (!effectiveClientId || !effectiveClientName) continue;
-    const existing = byClient.get(effectiveClientId);
-    const totalHeures = e.dureeMinutes / 60;
-    const totalHonoraires = e.feeAmount ?? e.montant;
-    const taxableAmount = (e.taxable ?? true) ? totalHonoraires : 0;
-    if (!existing) {
-      byClient.set(effectiveClientId, {
-        clientId: effectiveClientId,
-        clientName: effectiveClientName,
-        count: 1,
-        totalHeures,
-        totalHonoraires,
-        totalDebours: 0,
-        totalForfaits: 0,
-        totalTaxable: taxableAmount,
-        lastDate: e.date,
-        timeEntryIds: e.invoiceId ? [] : [e.id],
-        expenseIds: [],
-        registreTacheIds: [],
-        draftInvoiceIds: e.invoiceId ? [e.invoiceId] : [],
-      });
-    } else {
-      existing.count += 1;
-      existing.totalHeures += totalHeures;
-      existing.totalHonoraires += totalHonoraires;
-      existing.totalTaxable += taxableAmount;
-      if (e.invoiceId) existing.draftInvoiceIds.push(e.invoiceId);
-      else existing.timeEntryIds.push(e.id);
-      if (e.date > existing.lastDate) existing.lastDate = e.date;
-    }
-  }
-
-  for (const exp of expenses) {
-    const existing = byClient.get(exp.clientId);
-    if (!existing) {
-      byClient.set(exp.clientId, {
-        clientId: exp.clientId,
-        clientName: clientDisplayName(exp.client),
-        count: 1,
-        totalHeures: 0,
-        totalHonoraires: 0,
-        totalDebours: exp.amount,
-        totalForfaits: 0,
-        totalTaxable: exp.taxable ? exp.amount : 0,
-        lastDate: exp.expenseDate,
-        timeEntryIds: [],
-        expenseIds: exp.invoiceId ? [] : [exp.id],
-        registreTacheIds: [],
-        draftInvoiceIds: exp.invoiceId ? [exp.invoiceId] : [],
-      });
-    } else {
-      existing.totalDebours += exp.amount;
-      existing.count += 1;
-      if (exp.taxable) existing.totalTaxable += exp.amount;
-      if (exp.invoiceId) existing.draftInvoiceIds.push(exp.invoiceId);
-      else existing.expenseIds.push(exp.id);
-      if (exp.expenseDate > existing.lastDate) existing.lastDate = exp.expenseDate;
-    }
-  }
-
-  for (const tache of registreTaches) {
-    const effectiveClientId = tache.clientId ?? tache.dossier.client?.id ?? undefined;
-    const effectiveClientName = tache.dossier.client
-      ? clientDisplayName(tache.dossier.client)
-      : undefined;
-    if (!effectiveClientId || !effectiveClientName) continue;
-    const existing = byClient.get(effectiveClientId);
-    if (!existing) {
-      byClient.set(effectiveClientId, {
-        clientId: effectiveClientId,
-        clientName: effectiveClientName,
-        count: 1,
-        totalHeures: 0,
-        totalHonoraires: 0,
-        totalDebours: 0,
-        totalForfaits: tache.montantFinal,
-        totalTaxable: tache.taxable ? tache.montantFinal : 0,
-        lastDate: tache.date,
-        timeEntryIds: [],
-        expenseIds: [],
-        registreTacheIds: tache.invoiceLine?.invoice?.id ? [] : [tache.id],
-        draftInvoiceIds: tache.invoiceLine?.invoice?.id ? [tache.invoiceLine.invoice.id] : [],
-      });
-    } else {
-      existing.totalForfaits += tache.montantFinal;
-      existing.count += 1;
-      if (tache.taxable) existing.totalTaxable += tache.montantFinal;
-      if (tache.invoiceLine?.invoice?.id) existing.draftInvoiceIds.push(tache.invoiceLine.invoice.id);
-      else existing.registreTacheIds.push(tache.id);
-      if (tache.date > existing.lastDate) existing.lastDate = tache.date;
-    }
-  }
-
-  // Taxes estimées province-aware : régime du cabinet (Derisier ON -> TVH 13 %,
-  // cabinets QC -> TPS + TVQ). Source de vérité = config du cabinet (modules).
+  // Une ligne par dossier. Le regroupement vit dans un module pur, testé :
+  // `lib/billing/honoraires-par-dossier.ts`. Ici on ne fait que traduire les
+  // formes Prisma vers les siennes.
   const taxConfig = await getCabinetTaxConfigById(cabinetId);
-  const rows = Array.from(byClient.values()).map((row) => {
-    const subtotal = row.totalHonoraires + row.totalDebours + row.totalForfaits;
-    const taxesEstimees = applyTaxes(row.totalTaxable, true, taxConfig).taxesTotal;
-    const totalAFacturer = subtotal + taxesEstimees;
-    return {
-      ...row,
-      count: row.count,
-      draftInvoiceIds: Array.from(new Set(row.draftInvoiceIds)),
-      taxesEstimees,
-      totalAFacturer: Math.round(totalAFacturer * 100) / 100,
-    };
-  });
+  const rows = regrouperHonorairesParDossier(
+    {
+      fiches: entries.map((e) => ({
+        id: e.id,
+        date: e.date,
+        dureeMinutes: e.dureeMinutes,
+        montant: e.montant,
+        feeAmount: e.feeAmount,
+        taxable: e.taxable,
+        clientId: e.clientId,
+        client: e.client,
+        dossierId: e.dossierId,
+        dossier: e.dossier,
+        userNom: e.user?.nom ?? null,
+        invoiceId: e.invoiceId,
+        invoiceStatus: e.invoice?.invoiceStatus ?? null,
+      })),
+      expenses: expenses.map((x) => ({
+        id: x.id,
+        date: x.expenseDate,
+        amount: x.amount,
+        taxable: x.taxable,
+        clientId: x.clientId,
+        client: x.client,
+        // `Expense.matterId` n'est pas chargé avec son dossier : ces débours
+        // tombent sous le client, en ligne « sans dossier ».
+        dossierId: null,
+        dossier: null,
+        invoiceId: x.invoiceId,
+        invoiceStatus: x.invoice?.invoiceStatus ?? null,
+      })),
+      debours: deboursDossiers.map((d) => ({
+        id: d.id,
+        date: d.date,
+        montant: d.montant,
+        taxable: d.taxable,
+        clientId: d.clientId,
+        dossierId: d.dossierId,
+        dossier: d.dossier,
+        invoiceId: d.facture?.id ?? null,
+        invoiceStatus: d.facture?.invoiceStatus ?? null,
+      })),
+      taches: registreTaches.map((t) => ({
+        id: t.id,
+        date: t.date,
+        montantFinal: t.montantFinal,
+        taxable: t.taxable,
+        clientId: t.clientId,
+        dossierId: t.dossierId,
+        dossier: t.dossier,
+        invoiceId: t.invoiceLine?.invoice?.id ?? null,
+        invoiceStatus: t.invoiceLine?.invoice?.invoiceStatus ?? null,
+      })),
+    },
+    taxConfig,
+    seuil,
+  );
 
-  return NextResponse.json({ rows });
+  return NextResponse.json({ rows, seuil });
 }
