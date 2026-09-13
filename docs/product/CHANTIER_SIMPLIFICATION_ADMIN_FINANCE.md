@@ -230,6 +230,7 @@ Une ligne par écran ouvert. **C'est ce tableau qui dit où en est le chantier.*
 | `/facturation/paiements` | 2026-09-12 | « ouvre les Paiements » ; « Oui, on met à exécution » | oui le 2026-09-12 (`captures/2026-09-12_paiements_proposition.png`) | 2026-09-12, code + docs en un commit | **29 → 3** · 8 → 7 colonnes · 5 icônes/ligne → 1 menu · lien du Suivi honoré · `/comptabilite` 73 → 50 par ricochet | `2026-09-12_paiements_ouverture.md` + capture après |
 | `/comptes` + `/comptes/rapports` | 2026-09-12 | « ouvre le Fidéicommis » ; « Oui, on met à exécution » | oui le 2026-09-12 (`captures/2026-09-12_fideicommis_proposition.png`, `…_rapports_proposition.png`) | 2026-09-12, code + docs en un commit | **39 → 4, 38 → 4** · 8 blocs → 2 · 2 actions pleines → 1 · 9 → 7 colonnes · `?clientId` honoré · 0 statut dans les mots du code · 4 composants morts retirés | `2026-09-12_fideicommis_ouverture.md` + capture après |
 | `/temps` (vue horaire, reçue par le mode mixte) | 2026-09-12 | « ouvre le Temps » ; « Oui, on met à exécution » (Démarrer reste secondaire) | oui le 2026-09-12 (`captures/2026-09-12_temps_proposition.png`) | 2026-09-12, code + docs en un commit | **45 → 11** · 13 contrôles + 2 onglets → 6 · 2 tris doublés → 0 · 4 contrôles pleins → 1 · 0 badge par ligne | `2026-09-12_temps_ouverture.md` + capture après |
+| `/comptabilite` (page + onglet Journal général) | 2026-09-12 | « ouvre la Comptabilité » ; « Oui, on met à exécution » ; le rouge des sorties gardé (consigne du 2026-09-09) | oui le 2026-09-12 (`captures/2026-09-12_comptabilite_proposition.png`) | 2026-09-12, code + docs en un commit | **50 → 30** (25 = journal des dépenses, rang 6 ; 5 partagés) · périmètre 20 → 0 · 2 titres → 1 · 7 éléments → 4 · 8 → 6 colonnes | `2026-09-12_comptabilite_ouverture.md` + capture après |
 | `/facturation`, section « Honoraires à facturer » + `/parametres/facture` (seuil) | 2026-09-12 | « je ne vois qu'une seule option, ce qui n'est pas normal » ; « par dossier » ; « Oui, on met à exécution » | oui le 2026-09-12 (`captures/2026-09-12_honoraires_par_dossier_proposition.png`) | 2026-09-12, code + docs en un commit | **20 → 17** · 1 ligne par client → 1 ligne par dossier · seuil gravé → réglable, zéro accepté · lien mort de Temps non facturé réparé · `/facturation/temps-non-facture` 6 → 5 · 0 écart nouveau | `2026-09-12_honoraires_par_dossier.md` + 2 captures après |
 
 Les cases « manquant » sont une dette de traçabilité : quatre lots ont été livrés du
@@ -296,6 +297,11 @@ une image, et attendre le oui.
 
 - 2026-09-12, 20 h 35 : « Honoraires à facturer » passe par dossier, seuil réglable
   dans Paramètres › Facturation (20 → 17). Hors file, sur constat du CEO le soir même.
+- 2026-09-12, 23 h 10 : `/comptabilite` livré (50 → 30, périmètre 20 → 0). Cinquième ligne
+  complète du registre. Prochain rang : `/journal/depenses`, quand l'autre session l'aura rendu.
+- 2026-09-12, 21 h 55 : `/comptabilite` ouvert, mesures avant et image proposée, en attente du oui.
+  Périmètre restreint à la page et au journal général : le journal des dépenses est le
+  chantier actif de l'autre session.
 - 2026-09-12, 20 h 20 : `/temps` livré (45 → 11). Quatrième ligne complète du registre.
   Prochain rang : finir `/comptabilite` (50 écarts restants).
 - 2026-09-12, 20 h 00 : `/temps` ouvert, mesures avant et image proposée, validée à 20 h 03.

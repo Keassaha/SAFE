@@ -4,14 +4,11 @@ import { useFormatteurs } from "@/lib/i18n/formatteurs";
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
-import { tMicro } from "@/lib/motion";
-import { BookOpen, CreditCard, Receipt } from "lucide-react";
 import { routes } from "@/lib/routes";
 import { PageHeader } from "@/components/ui/PageHeader";
-import { Figure } from "@/components/ui/Figure";
 import { MovementLegend } from "@/components/comptabilite/MovementLegend";
+import { JournauxOnglets } from "@/components/comptabilite/JournauxOnglets";
 // Types Prisma générés (pas d'instance prisma sur le namespace @prisma/client)
 import type { BankImportSession, BankImportTransaction, ExpenseCategory } from "@prisma/client";
 import type { JournalKpiData } from "@/types/journal";
@@ -23,16 +20,6 @@ import type { DepenseATaxeEstimee } from "@/components/expense-journal/TaxesACon
 import { FacturationPaiementsView } from "@/app/(app)/facturation/paiements/PaiementsView";
 
 export type ComptabiliteTabId = "general" | "depenses" | "paiements";
-
-const TABS: {
-  id: ComptabiliteTabId;
-  labelKey: "tabGeneralJournal" | "tabExpenseJournal" | "tabPayments";
-  icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
-}[] = [
-  { id: "general", labelKey: "tabGeneralJournal", icon: BookOpen },
-  { id: "depenses", labelKey: "tabExpenseJournal", icon: Receipt },
-  { id: "paiements", labelKey: "tabPayments", icon: CreditCard },
-];
 
 type SessionWithCount = BankImportSession & { _count: { transactions: number } };
 
@@ -73,8 +60,8 @@ export function ComptabilitePageView({
   const tab = (searchParams.get("tab") as ComptabiliteTabId) || "general";
   // Un onglet inconnu — ou refusé au rôle — retombe sur le journal général
   // plutôt que d'afficher une vue qui ne chargera pas.
-  const availableTabs = TABS.filter((tab_) => tab_.id !== "paiements" || canSeePayments);
-  const effectiveTab = availableTabs.some((tab_) => tab_.id === tab) ? tab : "general";
+  const availableTabs: ComptabiliteTabId[] = canSeePayments ? ["general", "depenses", "paiements"] : ["general", "depenses"];
+  const effectiveTab = availableTabs.includes(tab) ? tab : "general";
   const k = initialJournalKpis;
   const [showHelp, setShowHelp] = useState(false);
 
@@ -90,12 +77,12 @@ export function ComptabilitePageView({
    * Le motif d'onglet est celui de la fiche dossier, validé le 2026-08-27 :
    * filet bas, souligné plein sur l'actif, jetons si-*. */
   const journalItems = [
-    { id: "general" as const, label: t("tabGeneralJournal"), desc: t("journalGeneralDesc"), icon: BookOpen },
-    { id: "depenses" as const, label: t("tabExpenseJournal"), desc: t("journalExpensesDesc"), icon: Receipt },
+    { id: "general" as const, label: t("tabGeneralJournal"), desc: t("journalGeneralDesc"), count: comptes?.general },
+    { id: "depenses" as const, label: t("tabExpenseJournal"), desc: t("journalExpensesDesc"), count: comptes?.depenses },
     // Les paiements dépendent du droit de facturation : l'API qui les sert le
     // vérifie. Proposer l'onglet sans le droit n'afficherait qu'une erreur.
     ...(canSeePayments
-      ? [{ id: "paiements" as const, label: t("tabPayments"), desc: t("journalPaymentsDesc"), icon: CreditCard }]
+      ? [{ id: "paiements" as const, label: t("tabPayments"), desc: t("journalPaymentsDesc"), count: comptes?.paiements }]
       : []),
   ];
   /* L'onglet courant est un état local, pas une navigation.
@@ -113,9 +100,6 @@ export function ComptabilitePageView({
     setOngletLocal(id);
     window.history.replaceState(null, "", routes.comptabiliteTab(id));
   };
-
-  const compteDe = (id: ComptabiliteTabId) =>
-    id === "general" ? comptes?.general : id === "depenses" ? comptes?.depenses : comptes?.paiements;
 
   // Synthèse financière en liste dense plutôt qu'en cartes KPI.
   // Doctrine interface intérieure §6 et §7 : pas de boîtes à ombre pour porter un
@@ -178,146 +162,77 @@ export function ComptabilitePageView({
     <div className="w-full px-2 pb-24 pt-4 font-sans">
       {/* Plus de bannière. Un écran de comptabilité s'ouvre sur des chiffres,
           pas sur un bandeau de marque : la hauteur gagnée sert à la lecture. */}
-      <PageHeader
-        variant="dashboard"
-        title={t("pageTitle")}
-        description={
-          isSafeInc
-            ? "Une vue claire des flux : cash, factures, créances et dépenses."
-            : t("pageDescription")
-        }
-      />
+      {/* Un seul titre. « L'argent du cabinet » doublait « Comptabilité »
+          trente pixels plus bas ; la barre de chiffres se pose sous le titre
+          et sa phrase, comme sur les autres écrans d'argent. « Comprendre les
+          mouvements » devient un lien discret à droite. Demande CEO du
+          2026-09-12. */}
+      <div className="flex flex-col gap-2 lg:flex-row lg:items-end lg:justify-between">
+        <PageHeader
+          variant="dashboard"
+          title={t("pageTitle")}
+          description={
+            isSafeInc
+              ? "Une vue claire des flux : cash, factures, créances et dépenses."
+              : t("pageDescription")
+          }
+        />
+        <button
+          type="button"
+          onClick={() => setShowHelp((v) => !v)}
+          aria-expanded={showHelp}
+          className="min-h-tap self-start pb-4 text-[13px] text-si-muted underline decoration-si-line underline-offset-2 hover:text-si-ink hover:decoration-si-ink-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-si-verified lg:self-auto"
+        >
+          {showHelp ? t("hideHelp") : t("understandTitle")}
+        </button>
+      </div>
 
-      {/* ── Bloc 1 : synthèse financière ── */}
-      <section className="mt-8">
-        <h2 className="font-serif text-[22px] leading-tight text-si-ink">{t("snapshotTitle")}</h2>
+      {/* ── La synthèse : la grammaire de la Facturation. ── */}
+      <dl
+        aria-label={t("snapshotTitle")}
+        className="grid grid-cols-1 gap-x-8 gap-y-4 border-b border-si-line pb-5 min-[400px]:grid-cols-2 sm:gap-y-5 lg:flex lg:gap-x-12"
+      >
+        {summaryRows.map((row) => {
+          const mesure = (
+            <>
+              <dt className="text-[11px] font-medium uppercase tracking-[0.08em] text-si-muted">{row.title}</dt>
+              <dd className="mt-1.5 flex items-baseline gap-2">
+                <span className="font-mono text-[18px] font-medium leading-[24px] tabular-nums text-si-ink sm:text-[22px] sm:leading-[26px]">
+                  {formatCurrency(row.amount)}
+                </span>
+                <span className="truncate text-[12px] text-si-muted">{row.explanation}</span>
+              </dd>
+            </>
+          );
+          return row.href ? (
+            <Link key={row.title} href={row.href} className="group min-w-0 rounded-md">
+              {mesure}
+            </Link>
+          ) : (
+            <div key={row.title} className="min-w-0">
+              {mesure}
+            </div>
+          );
+        })}
+      </dl>
 
-        {/* La grammaire est celle de la page Facturation (`FacturationMainKpis`) :
-            libellé en petites capitales, montant en mono tabulaire, un mot
-            d'appoint à côté, aucun cadre, aucun filet vertical, un seul filet
-            en bas. Les deux écrans d'argent du produit se lisent donc de la
-            même façon. Demande CEO du 2026-09-09.
+      {showHelp && (
+        <div className="mt-4">
+          <MovementLegend />
+        </div>
+      )}
 
-            Les explications étaient des phrases entières. Elles deviennent le
-            mot d'appoint, à la place et au rôle que Facturation lui donne. */}
-        <dl className="mt-4 grid grid-cols-1 gap-x-8 gap-y-4 border-b border-si-line pb-5 min-[400px]:grid-cols-2 sm:gap-y-5 lg:flex lg:gap-x-12">
-          {summaryRows.map((row) => {
-            const mesure = (
-              <>
-                <dt className="text-[11px] font-medium uppercase tracking-[0.08em] text-si-muted">
-                  {row.title}
-                </dt>
-                <dd className="mt-1.5 flex items-baseline gap-2">
-                  <span className="font-mono text-[18px] font-medium leading-[24px] tabular-nums text-si-ink sm:text-[22px] sm:leading-[26px]">
-                    {formatCurrency(row.amount)}
-                  </span>
-                  <span className="truncate text-[12px] text-si-muted">{row.explanation}</span>
-                </dd>
-              </>
-            );
-            return row.href ? (
-              <Link key={row.title} href={row.href} className="group min-w-0 rounded-md">
-                {mesure}
-              </Link>
-            ) : (
-              <div key={row.title} className="min-w-0">
-                {mesure}
-              </div>
-            );
-          })}
-        </dl>
-      </section>
-
-      {/* ── Bloc 2 : les trois journaux ──────────────────────────────────
-          Onglets horizontaux, en EN-TÊTE DE LA CARTE. La colonne verticale
-          mangeait 224 px de largeur, et c'est ce qui poussait le registre à
-          défiler de gauche à droite. Signalé par le CEO le 2026-09-09.
-
-          Le motif est celui de la fiche dossier, avec deux ajouts : les
-          onglets et le registre forment un seul objet au lieu d'une barre
-          posée au-dessus d'une boîte, et chaque onglet porte son compte,
-          comme « Cartable (9) ». */}
-      <section className="mt-10">
-        <p className="mb-4 max-w-[65ch] text-[13px] leading-relaxed text-si-muted">
-          {t("detailsDesc")}{" "}
-          <button
-            type="button"
-            onClick={() => setShowHelp((v) => !v)}
-            aria-expanded={showHelp}
-            className="font-medium text-si-ink-strong underline decoration-si-line underline-offset-2 hover:decoration-si-ink-strong"
-          >
-            {showHelp ? t("hideHelp") : t("showHelp")}
-          </button>
-        </p>
-
-        {showHelp && (
-          <div className="mb-4">
-            <MovementLegend />
-          </div>
-        )}
-
-        <div className="overflow-hidden rounded-2xl border border-si-line bg-si-surface">
-          <nav
-            /* Pas de `overflow-x-auto` : trois onglets tiennent toujours, et
-               le conteneur défilant faisait apparaître une barre de défilement
-               à l'intérieur de la carte. Sous 640 px ils passent à la ligne. */
-            className="flex flex-wrap gap-1 border-b border-si-line px-2"
-            aria-label={t("tabsAriaLabel")}
-          >
-            {journalItems.map((j) => {
-              const Icon = j.icon;
-              const actif = ongletActif === j.id;
-              const n = compteDe(j.id);
-              return (
-                <button
-                  key={j.id}
-                  type="button"
-                  onClick={() => choisirOnglet(j.id)}
-                  aria-current={actif ? "page" : undefined}
-                  title={j.desc}
-                  /* `safe-zoom` : la surface se soulève au survol, elle ne se
-                     peint pas en gris. Règle dure du 2026-08-11. */
-                  className={`min-h-tap safe-zoom relative -mb-px flex shrink-0 items-center gap-2.5 whitespace-nowrap px-4 py-3.5 text-sm font-medium ${
-                    actif ? "text-si-ink" : "text-si-muted hover:text-si-body"
-                  }`}
-                >
-                  {actif && (
-                    /* Le trait GLISSE d'un onglet à l'autre au lieu de sauter :
-                       l'onglet est un état local, donc le composant n'est plus
-                       démonté à chaque changement. */
-                    <motion.span
-                      layoutId="compta-onglet"
-                      className="absolute inset-x-0 bottom-0 h-0.5 rounded-t bg-si-ink"
-                      transition={tMicro}
-                      aria-hidden
-                    />
-                  )}
-                  <Icon className="relative z-10 h-4 w-4 shrink-0" strokeWidth={1.75} aria-hidden />
-                  <span className="relative z-10">{j.label}</span>
-                  {typeof n === "number" && (
-                    <span
-                      className={`relative z-10 rounded-full px-1.5 py-0.5 font-mono text-[12px] tabular-nums ${
-                        actif ? "bg-si-ink/10 text-si-ink" : "bg-si-ink/[0.055] text-si-muted"
-                      }`}
-                    >
-                      {n}
-                    </span>
-                  )}
-                </button>
-              );
-            })}
-          </nav>
-
-          <div className="p-5">
-            {/* Plus de titre de section : l'onglet actif nomme déjà le journal,
-                et il le nommait une deuxième fois quarante pixels plus bas, avec
-                la même icône. Signalé par le CEO le 2026-09-09. Restent les
-                boutons, qui se posent sur la ligne des filtres du journal. */}
-            <div
-              id="compta-journal-actions"
-              className="mb-4 flex flex-wrap items-center justify-end gap-2 empty:mb-0"
-            />
-
+      {/* ── Les trois journaux : une feuille, les onglets en tête, les boutons
+          du journal actif sur la même ligne. ── */}
+      <section className="safe-feuille mt-6 overflow-hidden">
+        <JournauxOnglets
+          items={journalItems}
+          actif={ongletActif}
+          onChoisir={choisirOnglet}
+          ariaLabel={t("tabsAriaLabel")}
+          actionsHostId="compta-journal-actions"
+        />
+        <div className={ongletActif === "general" ? "" : "p-5"}>
           {ongletActif === "general" && (
             <GeneralJournalPageView
               initialKpis={initialJournalKpis}
@@ -342,7 +257,6 @@ export function ComptabilitePageView({
           {ongletActif === "paiements" && canSeePayments && (
             <FacturationPaiementsView cabinetId={cabinetId} embeddedInComptabilite />
           )}
-          </div>
         </div>
       </section>
     </div>

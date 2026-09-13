@@ -4,11 +4,8 @@ import { useFormatteurs } from "@/lib/i18n/formatteurs";
 import { useTranslations } from "next-intl";
 import { provenanceEcriture } from "@/lib/comptabilite/provenance";
 import type { JournalEntryRow } from "@/types/journal";
-import {
-  describeMovement,
-  type MovementKind,
-  type MovementTone,
-} from "@/lib/accounting/movement-semantics";
+import { JOURNAL_TRANSACTION_TYPE_LABELS } from "@/types/journal";
+import { displayJournalAmounts } from "@/lib/accounting/journal-display";
 import {
   RegistreAucunResultat,
   registreCellClass,
@@ -21,47 +18,25 @@ import {
 } from "@/components/ui/registre";
 
 /**
- * « Mouvements expliqués » : la lecture en langage avocat du même registre.
- * Augmente le dû · Réduit le dû · Impact trésorerie, depuis une seule source,
- * `describeMovement()`. Grammaire du registre, six colonnes : le dossier sous
- * le client, la pièce sous la provenance. Demande CEO du 2026-09-12.
+ * Le journal brut, vue par défaut depuis le 2026-09-09 : « en rouge on voit
+ * que c'est sorti et en vert que c'est entré, c'est plus simple » (CEO).
+ *
+ * Il avait huit colonnes et ses propres classes ; le client se tronquait à
+ * 180 px pour faire tenir le reste. Six colonnes dans la grammaire du
+ * registre : le dossier sous le client, la pièce sous la provenance, et deux
+ * montants qui gardent leurs couleurs. Demande CEO du 2026-09-12.
  */
-
-const KIND_LABEL_KEY: Record<MovementKind, string> = {
-  INVOICE_ISSUED: "moveKindInvoice",
-  CREDIT_NOTE: "moveKindCreditNote",
-  PAYMENT_RECEIVED: "moveKindPayment",
-  EXPENSE: "moveKindExpense",
-  DISBURSEMENT: "moveKindDisbursement",
-  TRUST_DEPOSIT: "moveKindTrustDeposit",
-  TRUST_WITHDRAWAL: "moveKindTrustWithdrawal",
-  ADJUSTMENT: "moveKindAdjustment",
-  CORRECTION_TRUST: "moveKindCorrection",
-  CORRECTION_CASH: "moveKindCorrection",
-};
-
-const TONE_DOT: Record<MovementTone, string> = {
-  positive: "bg-si-verified",
-  reduction: "bg-si-danger",
-  warning: "bg-si-amber",
-  neutral: "bg-si-muted",
-};
-
-export function MovementsTable({
+export function JournalBrutTable({
   entries,
   onAnnuler,
 }: {
   entries: JournalEntryRow[];
-  /**
-   * Fourni : une colonne d'action apparaît. Elle ne s'active que sur les lignes
-   * `annulable` (saisie manuelle vivante), miroir exact du garde-fou serveur
-   * `assertAnnulable`. Doctrine: docs/accounting/DOCTRINE_ANNULATION_CORRECTION.md.
-   */
+  /** Fourni ET au moins une ligne annulable : une colonne d'action apparaît. */
   onAnnuler?: (entry: JournalEntryRow) => void;
 }) {
   const t = useTranslations("accountingUi");
   const { formatCurrency, formatCalendarDate } = useFormatteurs();
-  const avecActions = Boolean(onAnnuler) && entries.some((e) => e.annulable);
+  const avecCorrection = Boolean(onAnnuler) && entries.some((e) => e.annulable);
 
   if (entries.length === 0) {
     return <RegistreAucunResultat message={`${t("emptyTitle")} ${t("emptyHint")}`} />;
@@ -76,9 +51,9 @@ export function MovementsTable({
             <th scope="col" className={`w-[150px] ${registreHeadCellClass}`}><RegistrePlainHeader label={t("type")} /></th>
             <th scope="col" className={registreHeadCellClass}><RegistrePlainHeader label={t("colClientMatter")} /></th>
             <th scope="col" className={`w-[22%] ${registreHeadCellClass}`}><RegistrePlainHeader label={t("colSourceVoucher")} /></th>
-            <th scope="col" className={`w-[150px] ${registreHeadCellClass} text-right`}><RegistrePlainHeader label={t("colDueEffect")} align="right" /></th>
-            <th scope="col" className={`w-[160px] ${registreHeadCellClass} text-right`}><RegistrePlainHeader label={t("colCashImpact")} align="right" /></th>
-            {avecActions ? (
+            <th scope="col" className={`w-[140px] ${registreHeadCellClass} text-right`}><RegistrePlainHeader label={t("moneyIn")} align="right" /></th>
+            <th scope="col" className={`w-[140px] ${registreHeadCellClass} text-right`}><RegistrePlainHeader label={t("moneyOut")} align="right" /></th>
+            {avecCorrection ? (
               <th scope="col" className={`w-[120px] ${registreHeadCellClass} text-right`}>
                 <span className="sr-only">{t("actions")}</span>
               </th>
@@ -87,18 +62,13 @@ export function MovementsTable({
         </thead>
         <tbody>
           {entries.map((e) => {
-            const m = describeMovement(e);
+            const display = displayJournalAmounts(e);
             const prov = provenanceEcriture(e);
             const piece = e.documentIdentifier ?? e.reference;
             return (
               <tr key={e.id} className={registreRowClass}>
                 <td className={`whitespace-nowrap ${registreCellMutedClass}`}>{formatCalendarDate(e.dateTransaction)}</td>
-                <td className={`whitespace-nowrap ${registreCellClass}`}>
-                  <span className="inline-flex items-center gap-2">
-                    <span className={`h-1.5 w-1.5 shrink-0 rounded-sm ${TONE_DOT[m.tone]}`} aria-hidden />
-                    {t(KIND_LABEL_KEY[m.kind])}
-                  </span>
-                </td>
+                <td className={`whitespace-nowrap ${registreCellClass}`}>{JOURNAL_TRANSACTION_TYPE_LABELS[e.typeTransaction]}</td>
                 <td className={registreCellClass}>
                   <span className="block truncate text-[14px] font-medium leading-5 text-si-ink" title={e.clientName ?? undefined}>
                     {e.clientName ?? <span className="font-normal text-si-muted">{t("firmOnly")}</span>}
@@ -113,29 +83,13 @@ export function MovementsTable({
                   <span className="block truncate">{prov ?? "—"}</span>
                   {piece ? <span className="block truncate font-mono text-[12px] leading-4" title={piece}>{piece}</span> : null}
                 </td>
-                {/* Un seul montant signé : l'ambre monte le dû, le vert le réduit.
-                    Le signe double la couleur, elle ne travaille jamais seule. */}
-                <td
-                  className={`whitespace-nowrap ${registreCellNumClass} ${
-                    m.increasesDue > 0 ? "text-si-amber-ink" : m.reducesDue > 0 ? "text-si-verified" : "text-si-muted"
-                  }`}
-                >
-                  {m.increasesDue > 0
-                    ? `+ ${formatCurrency(m.increasesDue)}`
-                    : m.reducesDue > 0
-                      ? `− ${formatCurrency(m.reducesDue)}`
-                      : "—"}
+                <td className={`whitespace-nowrap ${registreCellNumClass} text-si-verified`}>
+                  {display.inAmount > 0 ? formatCurrency(display.inAmount) : <span className="text-si-muted">—</span>}
                 </td>
-                {/* Le vert entre, le rouge sort : lecture choisie par le CEO le
-                    2026-09-09, gardée telle quelle. */}
-                <td
-                  className={`whitespace-nowrap ${registreCellNumClass} ${
-                    m.cashImpact > 0 ? "text-si-verified" : m.cashImpact < 0 ? "text-si-danger-ink" : "text-si-muted"
-                  }`}
-                >
-                  {m.cashImpact === 0 ? "—" : `${m.cashImpact > 0 ? "+ " : "− "}${formatCurrency(Math.abs(m.cashImpact))}`}
+                <td className={`whitespace-nowrap ${registreCellNumClass} text-si-danger-ink`}>
+                  {display.outAmount > 0 ? formatCurrency(display.outAmount) : <span className="text-si-muted">—</span>}
                 </td>
-                {avecActions ? (
+                {avecCorrection ? (
                   <td className={`whitespace-nowrap text-right ${registreCellClass}`}>
                     {e.annulable ? (
                       <button

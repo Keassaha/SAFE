@@ -2946,6 +2946,16 @@
     "seuilModify": "Change the threshold"
   },
   "accountingUi": {
+    "periodLabel": "Period",
+    "periodThisMonth": "This month",
+    "periodThreeMonths": "Last three months",
+    "periodYear": "This year",
+    "periodAll": "All",
+    "periodCustom": "Custom",
+    "colClientMatter": "Client · matter",
+    "colSourceVoucher": "Source · voucher",
+    "journalRegisterLabel": "Entries register",
+    "firmOnly": "firm",
     "pageTitle": "Accounting",
     "pageDescription": "The firm's books, and what they say this month.",
     "doctrineTitle": "Operational bookkeeping, export-ready",

@@ -2946,6 +2946,16 @@
     "seuilModify": "Modifier le seuil"
   },
   "accountingUi": {
+    "periodLabel": "Période",
+    "periodThisMonth": "Ce mois",
+    "periodThreeMonths": "Trois derniers mois",
+    "periodYear": "L'exercice",
+    "periodAll": "Tout",
+    "periodCustom": "Personnalisée",
+    "colClientMatter": "Client · dossier",
+    "colSourceVoucher": "Provenance · pièce",
+    "journalRegisterLabel": "Registre des écritures",
+    "firmOnly": "cabinet",
     "pageTitle": "Comptabilité",
     "pageDescription": "Les livres du cabinet, et ce qu'ils disent ce mois-ci.",
     "doctrineTitle": "Comptabilité opérationnelle, prête à exporter",

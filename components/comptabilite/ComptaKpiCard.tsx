@@ -27,7 +27,7 @@ const SEMANTIC_STYLES: Record<
 > = {
   neutral: { iconBg: "bg-si-ink-strong/[0.06]", iconColor: "text-si-ink-strong",  valueColor: "text-si-ink",       ring: "" },
   credit:  { iconBg: "bg-si-verified/10",   iconColor: "text-si-verified", valueColor: "text-si-verified",  ring: "" },
-  debit:   { iconBg: "bg-[#B84A3E]/10",     iconColor: "text-[#B84A3E]",   valueColor: "text-[#B84A3E]",    ring: "" },
+  debit:   { iconBg: "bg-si-danger/10",      iconColor: "text-si-danger-ink", valueColor: "text-si-danger-ink", ring: "" },
   warning: { iconBg: "bg-si-amber/[0.13]",  iconColor: "text-si-amber",    valueColor: "text-si-ink",       ring: "" },
   alert:   { iconBg: "bg-si-amber/[0.13]",  iconColor: "text-si-amber",    valueColor: "text-si-amber-ink", ring: "ring-1 ring-si-amber/30" },
 };
@@ -52,14 +52,14 @@ export function ComptaKpiCard({
   const trendPillClass = trendPositive
     ? "bg-si-verified/10 text-si-verified"
     : trendNegative
-    ? "bg-[#B84A3E]/10 text-[#B84A3E]"
+    ? "bg-si-danger/10 text-si-danger-ink"
     : "bg-si-canvas text-si-muted";
 
   return (
     <motion.div
       variants={reduceMotion ? staggerItemReduced : staggerItem}
       whileHover={{ y: -1, boxShadow: "0 8px 24px rgba(26,46,40,0.10)" }}
-      className={`safe-carte-chiffre bg-si-surface border-[0.5px] border-si-line rounded-2xl p-5 overflow-hidden transition-shadow duration-300 ${styles.ring} ${className}`}
+      className={`safe-carte-chiffre bg-si-surface border-[0.5px] border-si-line rounded-lg p-5 overflow-hidden transition-shadow duration-300 ${styles.ring} ${className}`}
     >
       {/* Top row */}
       <div className="flex items-start justify-between gap-2">
@@ -89,7 +89,7 @@ export function ComptaKpiCard({
       {/* Trend pill */}
       {trend != null && (
         <div className="mt-2">
-          <span className={`inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-full ${trendPillClass}`}>
+          <span className={`inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-md ${trendPillClass}`}>
             <TrendIcon className="w-3 h-3" strokeWidth={2} />
             {trend.value > 0 ? "+" : ""}
             {trend.value.toFixed(1)}% {trend.label}

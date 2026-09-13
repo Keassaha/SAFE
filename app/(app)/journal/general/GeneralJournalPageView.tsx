@@ -22,10 +22,17 @@ import type { JournalKpiData, JournalEntryRow, JournalPortee } from "@/types/jou
 import { JOURNAL_TRANSACTION_TYPE_LABELS, JOURNAL_MOTIVE_LABELS } from "@/types/journal";
 import type { JournalCorrectionMotive, JournalTransactionType } from "@prisma/client";
 import { MotifAnnulationModal } from "@/components/comptabilite/MotifAnnulationModal";
-import { Download, Loader2, BookOpen, Scale, TrendingUp, TrendingDown, Landmark, Wallet, FileClock, HandCoins, Plus, Undo2 } from "lucide-react";
+import { Scale, TrendingUp, TrendingDown, Landmark, Wallet, FileClock, HandCoins } from "lucide-react";
 import { ComptaKpiCard } from "@/components/comptabilite/ComptaKpiCard";
 import { MovementsTable } from "@/components/comptabilite/MovementsTable";
-import { RegistrePagination, REGISTRE_TAILLE_PAGE } from "@/components/ui/registre";
+import { JournalBrutTable } from "@/components/comptabilite/JournalBrutTable";
+import {
+  RegistreBarreOutils,
+  RegistrePagination,
+  REGISTRE_TAILLE_PAGE,
+  registreChampClass,
+  registreSelectClass,
+} from "@/components/ui/registre";
 import type { ManualJournalContext } from "./actions";
 import { toCalendarDayUTC, toIsoDay } from "@/lib/utils/calendar-date";
 
@@ -93,6 +100,28 @@ export function GeneralJournalPageView({
   const [dateTo, setDateTo] = useState<string>(() => toDateStr(endOfMonth(now)));
   const [typeTransaction, setTypeTransaction] = useState<string>("");
   const [search, setSearch] = useState("");
+  /* La période se choisit ; les deux dates ne s'affichent que pour une plage
+     personnalisée. Ce mois par défaut, comme avant. Demande CEO du 2026-09-12. */
+  const bornes = {
+    mois: { from: toDateStr(startOfMonth(now)), to: toDateStr(endOfMonth(now)) },
+    trois_mois: { from: toDateStr(new Date(now.getFullYear(), now.getMonth() - 2, 1)), to: toDateStr(endOfMonth(now)) },
+    exercice: { from: toDateStr(new Date(now.getFullYear(), 0, 1)), to: toDateStr(now) },
+    tout: { from: "", to: "" },
+  } as const;
+  type Periode = keyof typeof bornes | "perso";
+  const periode: Periode = (() => {
+    for (const k of ["mois", "trois_mois", "exercice", "tout"] as const) {
+      if (bornes[k].from === dateFrom && bornes[k].to === dateTo) return k;
+    }
+    return "perso";
+  })();
+  const changerPeriode = (p: Periode) => {
+    if (p !== "perso") {
+      setDateFrom(bornes[p].from);
+      setDateTo(bornes[p].to);
+    }
+    setPage(1);
+  };
   /* La recherche partait au serveur à CHAQUE frappe : « Beaulieu » déclenchait
      huit requêtes. Elle attend maintenant 300 ms de silence. Les autres filtres
      n'ont pas besoin de ce délai, un choix de date ou de type est un geste
@@ -313,27 +342,12 @@ export function GeneralJournalPageView({
           toute façon (`app/(app)/journal/general/actions.ts`), autant ne pas
           proposer un bouton qui finit en message d'erreur. */}
       {canWrite && (
-        <Button
-          type="button"
-          variant="primary"
-          onClick={openManualEntry}
-        >
-          <Plus className="w-4 h-4" aria-hidden />
-          <span className="ml-2">{t("newEntry")}</span>
+        <Button type="button" variant="primary" onClick={openManualEntry}>
+          {t("newEntry")}
         </Button>
       )}
-      <Button
-        type="button"
-        variant="secondary"
-        onClick={handleExport}
-        disabled={exporting}
-      >
-        {exporting ? (
-          <Loader2 className="w-4 h-4 animate-spin" aria-hidden />
-        ) : (
-          <Download className="w-4 h-4" aria-hidden />
-        )}
-        <span className="ml-2">{t("exportCsv")}</span>
+      <Button type="button" variant="secondary" onClick={handleExport} disabled={exporting}>
+        {exporting ? tc("loading") : t("exportCsv")}
       </Button>
     </>
   );
@@ -484,14 +498,13 @@ export function GeneralJournalPageView({
             </div>
           </div>
 
-          {manualError && <p className="text-sm text-[#B84A3E]">{manualError}</p>}
+          {manualError && <p className="text-sm text-si-danger-ink">{manualError}</p>}
 
           <div className="flex justify-end gap-2 pt-2">
             <Button type="button" variant="secondary" disabled={manualSubmitting} onClick={() => setManualModalOpen(false)}>
               {t("cancel")}
             </Button>
             <Button type="submit" disabled={manualSubmitting}>
-              {manualSubmitting ? <Loader2 className="w-4 h-4 animate-spin" aria-hidden /> : null}
               {t("save")}
             </Button>
           </div>
@@ -563,49 +576,69 @@ export function GeneralJournalPageView({
       </div>
       )}
 
-      {/* Barre d'outils, plus une carte.
-          « Filtres » était une carte à part entière, avec cadre et titre, pour
-          quatre champs : une carte dans la carte, et 190 px de hauteur avant la
-          première écriture. Les libellés empilés au-dessus de chaque champ
-          disparaissent aussi, le texte indicatif suffit sur une seule ligne.
-          Signalé par le CEO le 2026-09-09. */}
-          <form
-            className="flex flex-wrap items-center gap-2"
-            onSubmit={(e) => {
-              e.preventDefault();
-              setPage(1);
-            }}
-          >
-            <label className="flex items-center gap-2">
-              <span className="whitespace-nowrap text-[12px] font-medium text-si-muted">{t("from")}</span>
-              <input
-                type="date"
-                value={dateFrom}
-                onChange={(e) => {
-                  setDateFrom(e.target.value);
-                  setPage(1);
-                }}
-                className="w-40 h-10 px-3 rounded-md border border-si-line bg-si-surface text-si-ink focus:border-si-verified focus:shadow-focus outline-none"
-              />
-            </label>
-            <label className="flex items-center gap-2">
-              <span className="whitespace-nowrap text-[12px] font-medium text-si-muted">{t("to")}</span>
-              <input
-                type="date"
-                value={dateTo}
-                onChange={(e) => {
-                  setDateTo(e.target.value);
-                  setPage(1);
-                }}
-                className="w-40 h-10 px-3 rounded-md border border-si-line bg-si-surface text-si-ink focus:border-si-verified focus:shadow-focus outline-none"
-              />
-            </label>
-            <label className="flex items-center gap-2">
-              <span className="whitespace-nowrap text-[12px] font-medium text-si-muted">{t("type")}</span>
-              {/* « Corrections » n'était pas une vue, c'était un filtre : il
-                  change les LIGNES affichées, pas leur présentation. Il siégeait
-                  pourtant à côté de deux boutons qui, eux, ne changeaient que la
-                  présentation. Il rejoint donc les filtres, à sa place. */}
+      {/* La barre du journal, dans la grammaire du registre : la recherche
+          ouvre la barre, un sélecteur par question à droite (période, type),
+          la vue et le compte au bout. Les libellés devant chaque champ
+          partent, et la rangée « Vue brute · N écritures » aussi.
+          Demande CEO du 2026-09-12. */}
+      <div className={embedded ? "" : "safe-feuille overflow-hidden"}>
+        <RegistreBarreOutils
+          recherche={
+            <input
+              type="search"
+              placeholder={t("searchPlaceholder")}
+              aria-label={t("search")}
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(1);
+              }}
+              className={`${registreChampClass} w-full px-3`}
+            />
+          }
+          filtres={
+            <div className="flex flex-wrap items-center gap-2">
+              <select
+                value={periode}
+                onChange={(e) => changerPeriode(e.target.value as Periode)}
+                aria-label={t("periodLabel")}
+                className={registreSelectClass}
+              >
+                <option value="mois">{t("periodThisMonth")}</option>
+                <option value="trois_mois">{t("periodThreeMonths")}</option>
+                <option value="exercice">{t("periodYear")}</option>
+                <option value="tout">{t("periodAll")}</option>
+                <option value="perso">{t("periodCustom")}</option>
+              </select>
+              {periode === "perso" ? (
+                <>
+                  <label className="flex items-center gap-1.5 text-[13px] text-si-muted">
+                    {t("from")}
+                    <input
+                      type="date"
+                      value={dateFrom}
+                      onChange={(e) => {
+                        setDateFrom(e.target.value);
+                        setPage(1);
+                      }}
+                      className={`${registreChampClass} px-2`}
+                    />
+                  </label>
+                  <label className="flex items-center gap-1.5 text-[13px] text-si-muted">
+                    {t("to")}
+                    <input
+                      type="date"
+                      value={dateTo}
+                      onChange={(e) => {
+                        setDateTo(e.target.value);
+                        setPage(1);
+                      }}
+                      className={`${registreChampClass} px-2`}
+                    />
+                  </label>
+                </>
+              ) : null}
+              {/* « Corrections » est un filtre : il change les LIGNES affichées. */}
               <select
                 value={viewMode === "corrections" ? "__corrections" : typeTransaction}
                 onChange={(e) => {
@@ -619,7 +652,8 @@ export function GeneralJournalPageView({
                   }
                   setPage(1);
                 }}
-                className="w-48 h-10 px-3 rounded-md border border-si-line bg-si-surface text-si-ink focus:border-si-verified focus:shadow-focus outline-none"
+                aria-label={t("type")}
+                className={`${registreSelectClass} max-w-[200px]`}
               >
                 <option value="">{t("allTypes")}</option>
                 {TRANSACTION_TYPE_OPTIONS.map((opt) => (
@@ -629,55 +663,19 @@ export function GeneralJournalPageView({
                 ))}
                 <option value="__corrections">{t("viewCorrections")}</option>
               </select>
-            </label>
-            <label className="flex items-center gap-2">
-              <span className="whitespace-nowrap text-[12px] font-medium text-si-muted">{t("search")}</span>
-              <input
-                type="search"
-                placeholder={t("searchPlaceholder")}
-                value={search}
-                onChange={(e) => {
-                  setSearch(e.target.value);
-                  setPage(1);
-                }}
-                className="w-56 h-10 px-3 rounded-md border border-si-line bg-si-surface text-si-ink placeholder:text-si-muted focus:border-si-verified focus:shadow-focus outline-none"
-              />
-            </label>
-            {/* « Appliquer » est retiré le 2026-09-09.
-                Son `onSubmit` ne faisait que `preventDefault` : les filtres se
-                rechargent déjà à chaque changement, ils sont dans les
-                dépendances de `loadEntries`. Le bouton ne servait donc à rien,
-                et il enfreignait la loi L2 du référentiel, une seule action
-                pleine par écran : il en faisait une deuxième à côté de
-                « Nouvelle écriture ». */}
-          </form>
-
-      {/* Plus de carte « Écritures ».
-          Elle était la deuxième carte à l'intérieur de la carte du journal, avec
-          son cadre et son titre, pour porter un tableau. Le sélecteur de vue et
-          le compte remontent sur la ligne des filtres. Signalé par le CEO le
-          2026-09-09. */}
-      <div>
-        <div className="mb-3 flex flex-wrap items-center justify-end gap-3 border-b border-si-line2 pb-3">
-          {/* Plus de bandeau à trois boutons. Deux d'entre eux ne changeaient que
-              la présentation des MÊMES lignes, le troisième changeait les
-              lignes : trois boutons égaux pour deux natures différentes.
-              Reste un interrupteur, entre la vue brute et la vue expliquée. */}
-          <div className="flex items-center gap-3">
-            {viewMode !== "corrections" && (
-              <button
-                type="button"
-                onClick={() => setViewMode(viewMode === "expert" ? "readable" : "expert")}
-                className="min-h-tap text-[12.5px] font-medium text-si-ink-strong underline decoration-si-line underline-offset-2 hover:decoration-si-ink-strong"
-              >
-                {t(viewMode === "expert" ? "viewReadable" : "viewExpert")}
-              </button>
-            )}
-            <span className="text-sm font-normal text-si-muted">
-              {t("entryCount", { count: totalCount })}
-            </span>
-          </div>
-        </div>
+              {viewMode !== "corrections" && (
+                <button
+                  type="button"
+                  onClick={() => setViewMode(viewMode === "expert" ? "readable" : "expert")}
+                  className="min-h-tap text-[13px] font-medium text-si-ink-strong underline decoration-si-line underline-offset-2 hover:decoration-si-ink-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-si-verified"
+                >
+                  {t(viewMode === "expert" ? "viewReadable" : "viewExpert")}
+                </button>
+              )}
+              <span className="text-[13px] text-si-muted">{t("entryCount", { count: totalCount })}</span>
+            </div>
+          }
+        />
         {/* Le tableau ne disparaît JAMAIS pendant un chargement.
             Il était remplacé par un bloc de 100 px portant un tourniquet : la
             page se repliait, puis se redéployait quand les écritures
@@ -690,7 +688,7 @@ export function GeneralJournalPageView({
               className="pointer-events-none absolute inset-0 z-10 flex items-start justify-center bg-si-surface/45 pt-10"
               aria-hidden
             >
-              <Loader2 className="h-6 w-6 animate-spin text-si-muted motion-reduce:animate-none" />
+              <span className="text-sm text-si-muted">{tc("loading")}</span>
             </div>
           )}
           {loadError ? (
@@ -754,121 +752,7 @@ export function GeneralJournalPageView({
                   d'une page mal figée. Le mouvement doit guider, confirmer ou
                   clarifier ; celui-ci ne faisait aucun des trois.
                   Signalé par le CEO le 2026-09-09. */}
-              <div>
-              <table className="min-w-full">
-                <thead>
-                  <tr className="border-b-[0.5px] border-si-line bg-si-canvas">
-                    <th className="px-4 py-3 text-left text-[11px] font-medium text-si-muted uppercase tracking-[0.05em]">
-                      {t("date")}
-                    </th>
-                    <th className="px-4 py-3 text-left text-[11px] font-medium text-si-muted uppercase tracking-[0.05em]">
-                      {t("type")}
-                    </th>
-                    <th className="px-4 py-3 text-left text-[11px] font-medium text-si-muted uppercase tracking-[0.05em]">
-                      {t("colSource")}
-                    </th>
-                    <th className="px-4 py-3 text-left text-[11px] font-medium text-si-muted uppercase tracking-[0.05em]">
-                      {t("client")}
-                    </th>
-                    <th className="px-4 py-3 text-left text-[11px] font-medium text-si-muted uppercase tracking-[0.05em]">
-                      {t("matter")}
-                    </th>
-                    <th className="px-4 py-3 text-left text-[11px] font-medium text-si-muted uppercase tracking-[0.05em]">
-                      {t("colVoucher")}
-                    </th>
-                    <th className="px-4 py-3 text-right text-[11px] font-medium text-si-muted uppercase tracking-[0.05em]">
-                      {t("moneyIn")}
-                    </th>
-                    <th className="px-4 py-3 text-right text-[11px] font-medium text-si-muted uppercase tracking-[0.05em]">
-                      {t("moneyOut")}
-                    </th>
-                    {/* La correction ne vivait QUE dans la vue expliquée. En
-                        faisant du journal brut la vue par défaut le 2026-09-09,
-                        elle est devenue inatteignable : le CEO l'a signalé le
-                        jour même. Elle est ici, au même endroit et sous le même
-                        garde-fou que dans l'autre vue. */}
-                    {avecCorrection ? (
-                      <th className="px-4 py-3 text-right text-[11px] font-medium text-si-muted uppercase tracking-[0.05em]">
-                        {t("actions")}
-                      </th>
-                    ) : null}
-                  </tr>
-                </thead>
-                <tbody>
-                  {entries.length === 0 ? (
-                    <tr>
-                      <td colSpan={avecCorrection ? 9 : 8} className="py-16 text-center">
-                        <div className="flex flex-col items-center justify-center">
-                          <div className="flex items-center justify-center w-16 h-16 rounded-full bg-si-canvas mb-4">
-                            <BookOpen className="w-8 h-8 text-si-muted" />
-                          </div>
-                          <p className="text-[16px] font-medium text-si-ink">{t("emptyTitle")}</p>
-                          <p className="text-[14px] text-si-muted mt-2 max-w-[400px] mx-auto">{t("emptyHint")}</p>
-                        </div>
-                      </td>
-                    </tr>
-                  ) : (
-                    entries.map((e) => {
-                      const display = displayJournalAmounts(e);
-                      return (
-                        <tr key={e.id} className="safe-zoom-rang border-b-[0.5px] border-si-line transition-colors" >
-                          <td className="px-4 py-3 text-[14px] text-si-ink whitespace-nowrap">
-                            {formatCalendarDate(e.dateTransaction)}
-                          </td>
-                          <td className="px-4 py-3 text-[14px] text-si-ink whitespace-nowrap">
-                            {JOURNAL_TRANSACTION_TYPE_LABELS[e.typeTransaction]}
-                          </td>
-                          {/* Provenance, à la place de la référence bancaire :
-                              comment l'argent est arrivé, ou la catégorie de la
-                              dépense. Vide sur une facture émise, où elle ne
-                              ferait que répéter la colonne Type. */}
-                          <td className="px-4 py-3 text-[14px] text-si-body whitespace-nowrap">
-                            {provenanceEcriture(e) ?? "—"}
-                          </td>
-                          <td className="px-4 py-3 text-[14px] text-si-ink max-w-[180px] truncate">
-                            {e.clientName ?? "—"}
-                          </td>
-                          <td className="px-4 py-3 text-[14px] font-mono text-si-ink max-w-[180px] truncate">
-                            {e.dossierLabel ?? "—"}
-                          </td>
-                          {/* La PIÈCE, à la place de la description qui répétait
-                              le type. Le numéro de facture, identique sur la
-                              facture et sur le paiement qui la règle. */}
-                          <td
-                            className="px-4 py-3 text-[14px] font-mono text-si-ink max-w-[220px] truncate"
-                            title={(e.documentIdentifier ?? e.reference) ?? undefined}
-                          >
-                            {e.documentIdentifier ?? e.reference ?? "—"}
-                          </td>
-                          <td className="px-4 py-3 text-[14px] text-right font-mono tabular-nums text-si-verified">
-                            {display.inAmount > 0 ? formatCurrency(display.inAmount) : "—"}
-                          </td>
-                          <td className="px-4 py-3 text-[14px] text-right font-mono tabular-nums text-si-danger-ink">
-                            {display.outAmount > 0 ? formatCurrency(display.outAmount) : "—"}
-                          </td>
-                          {avecCorrection ? (
-                            <td className="px-4 py-3 text-right whitespace-nowrap">
-                              {e.annulable ? (
-                                <button
-                                  type="button"
-                                  onClick={() => setAnnulationCible(e)}
-                                  className="min-h-tap inline-flex items-center gap-1.5 rounded-md px-2 py-1.5 text-[13px] text-si-muted transition-colors hover:bg-si-canvas hover:text-si-ink-strong"
-                                >
-                                  <Undo2 className="h-4 w-4 shrink-0" aria-hidden />
-                                  {t("cancelEntry")}
-                                </button>
-                              ) : (
-                                <span className="text-[12px] text-si-muted">—</span>
-                              )}
-                            </td>
-                          ) : null}
-                        </tr>
-                      );
-                    })
-                  )}
-                </tbody>
-              </table>
-              </div>
+              <JournalBrutTable entries={entries} onAnnuler={canWrite ? setAnnulationCible : undefined} />
               {pagination}
             </>
           )}
@@ -919,9 +803,6 @@ function CorrectionsTable({
     return (
       <div className="py-16 text-center">
         <div className="flex flex-col items-center justify-center">
-          <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-si-canvas">
-            <Undo2 className="h-8 w-8 text-si-muted" aria-hidden />
-          </div>
           <p className="max-w-[420px] text-[14px] text-si-muted">{emptyLabel}</p>
         </div>
       </div>
@@ -959,7 +840,7 @@ function CorrectionsTable({
             </td>
             <td className="px-4 py-3 text-[14px] text-si-ink">
               {e.motifCode ? (
-                <span className="inline-flex items-center rounded-full border border-si-line bg-si-canvas px-2 py-0.5 text-[12px] text-si-muted">
+                <span className="inline-flex items-center rounded-md border border-si-line bg-si-canvas px-2 py-0.5 text-[12px] text-si-muted">
                   {JOURNAL_MOTIVE_LABELS[e.motifCode]}
                 </span>
               ) : (
@@ -982,18 +863,6 @@ function CorrectionsTable({
   );
 }
 
-function displayJournalAmounts(entry: JournalEntryRow): { inAmount: number; outAmount: number } {
-  if (entry.typeTransaction === "PAIEMENT") {
-    return {
-      inAmount: 0,
-      outAmount: Math.max(entry.montantEntree, entry.montantSortie),
-    };
-  }
-  return {
-    inAmount: entry.montantEntree,
-    outAmount: entry.montantSortie,
-  };
-}
 
 function defaultDirectionFor(type: JournalTransactionType): "IN" | "OUT" {
   switch (type) {
