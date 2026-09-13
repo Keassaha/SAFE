@@ -75,7 +75,7 @@ export function RegistreTacheTable({ dossierId, onFacturer }: RegistreTacheTable
   const totalRabais = unbilledTaches.reduce((s, t) => s + t.rabais, 0);
 
   if (isLoading) {
-    return <Card><CardContent className="p-6"><div className="h-24 bg-neutral-100 animate-pulse rounded" /></CardContent></Card>;
+    return <Card><CardContent className="p-6"><div className="h-24 rounded bg-si-line" /></CardContent></Card>;
   }
 
   return (
@@ -85,9 +85,9 @@ export function RegistreTacheTable({ dossierId, onFacturer }: RegistreTacheTable
           <h3 className="text-sm font-medium">{t("tableTitle")}</h3>
           {unbilledTaches.length > 0 && dossierId && (
             <div className="flex items-center gap-3">
-              <span className="text-sm text-neutral-500">
+              <span className="text-sm text-si-muted">
                 {t("tasksCount", { count: unbilledTaches.length })} — {formatCurrency(totalUnbilled)}
-                {totalRabais > 0 && <span className="text-green-600"> ({t("discount", { amount: formatCurrency(totalRabais) })})</span>}
+                {totalRabais > 0 && <span className="text-si-verified"> ({t("discount", { amount: formatCurrency(totalRabais) })})</span>}
               </span>
               <Button variant="primary" onClick={() => onFacturer?.(dossierId)}>
                 <Receipt className="w-3 h-3" /> {t("generateInvoice")}
@@ -97,7 +97,7 @@ export function RegistreTacheTable({ dossierId, onFacturer }: RegistreTacheTable
         </div>
 
         {taches.length === 0 ? (
-          <p className="text-sm text-neutral-400 py-8 text-center">{t("noTasks")}</p>
+          <p className="text-sm text-si-muted py-8 text-center">{t("noTasks")}</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -128,34 +128,34 @@ export function RegistreTacheTable({ dossierId, onFacturer }: RegistreTacheTable
 
                   return (
                     <tr key={task.id} className="safe-zoom-rang border-b last:border-0 ">
-                      <td className="py-2 text-neutral-500 whitespace-nowrap">
+                      <td className="py-2 text-si-muted whitespace-nowrap">
                         {new Date(task.date).toLocaleDateString(dateLocale)}
                       </td>
                       {!dossierId && (
                         <td className="py-2 text-xs">
                           <span className="font-medium">{formatClientName(task.dossier?.client ?? null) || "—"}</span>
                           {task.dossier?.numeroDossier && (
-                            <span className="block text-neutral-400 font-mono">{task.dossier.numeroDossier}</span>
+                            <span className="block text-si-muted font-mono">{task.dossier.numeroDossier}</span>
                           )}
                         </td>
                       )}
                       <td className="py-2">
                         <span className="font-medium">{task.description}</span>
                         {task.forfaitService && (
-                          <span className="ml-1 text-xs text-neutral-400 font-mono">[{task.forfaitService.code}]</span>
+                          <span className="ml-1 text-xs text-si-muted font-mono">[{task.forfaitService.code}]</span>
                         )}
                       </td>
                       <td className="py-2 text-right tabular-nums">{formatCurrency(task.montantBase)}</td>
                       <td className="py-2 text-right tabular-nums">
                         {task.ajustement !== 0 ? (
-                          <span className={task.ajustement > 0 ? "text-blue-600" : "text-amber-600"}>
+                          <span className={task.ajustement > 0 ? "text-si-ink" : "text-si-amber-ink"}>
                             {task.ajustement > 0 ? "+" : ""}{formatCurrency(task.ajustement)}
                           </span>
                         ) : "—"}
                       </td>
                       <td className="py-2 text-right tabular-nums">
                         {task.rabais > 0 ? (
-                          <span className="text-green-600 flex items-center justify-end gap-1">
+                          <span className="text-si-verified flex items-center justify-end gap-1">
                             <Tag className="w-3 h-3" />
                             -{formatCurrency(task.rabais)}
                           </span>
@@ -172,7 +172,7 @@ export function RegistreTacheTable({ dossierId, onFacturer }: RegistreTacheTable
                         {task.statut !== "facture" && (
                           <button
                             onClick={() => deleteMutation.mutate(task.id)}
-                            className="text-neutral-300 hover:text-red-500 transition-colors"
+                            className="text-si-muted/60 hover:text-si-danger-ink transition-colors"
                             title={t("removeTask")}
                           >
                             <Trash2 className="w-3 h-3" />

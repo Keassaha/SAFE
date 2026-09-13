@@ -177,7 +177,7 @@ export function AjouterTacheModal({ isOpen, onClose, dossiers, preselectedDossie
             value={clientId}
             onChange={e => handleClientChange(e.target.value)}
             disabled={!!preselectedDossierId}
-            className="w-full h-tap px-3 rounded-safe border border-neutral-border bg-white/90 text-sm"
+            className="w-full h-tap px-3 rounded-safe border border-si-line bg-white/90 text-sm"
           >
             <option value="">{t("selectClient")}</option>
             {clients.map(client => (
@@ -197,7 +197,7 @@ export function AjouterTacheModal({ isOpen, onClose, dossiers, preselectedDossie
               value={dossierId}
               onChange={e => setDossierId(e.target.value)}
               disabled={!!preselectedDossierId}
-              className="w-full h-tap px-3 rounded-safe border border-neutral-border bg-white/90 text-sm"
+              className="w-full h-tap px-3 rounded-safe border border-si-line bg-white/90 text-sm"
             >
               <option value="">{t("selectTrackingFile")}</option>
               {dossierChoice.dossiers.map(d => (
@@ -213,7 +213,7 @@ export function AjouterTacheModal({ isOpen, onClose, dossiers, preselectedDossie
         )}
 
         {clientId && dossierChoice.kind === "single" && (
-          <div className="flex items-start gap-2 px-3 py-2 rounded-safe bg-neutral-50 border border-neutral-border">
+          <div className="flex items-start gap-2 px-3 py-2 rounded-safe bg-si-canvas border border-si-line">
             <FolderOpen className="w-4 h-4 mt-0.5 text-neutral-text-secondary shrink-0" aria-hidden />
             <p className="text-sm text-neutral-text-secondary">
               {t("linkedTrackingFile", { dossier: formatDossierLabel(dossierChoice.dossier) })}
@@ -235,7 +235,7 @@ export function AjouterTacheModal({ isOpen, onClose, dossiers, preselectedDossie
           <select
             value={serviceId}
             onChange={e => handleServiceChange(e.target.value)}
-            className="w-full h-tap px-3 rounded-safe border border-neutral-border bg-white/90 text-sm"
+            className="w-full h-tap px-3 rounded-safe border border-si-line bg-white/90 text-sm"
           >
             <option value="">{t("manualEntry")}</option>
             {services.map(s => (
@@ -293,17 +293,17 @@ export function AjouterTacheModal({ isOpen, onClose, dossiers, preselectedDossie
         </label>
 
         {/* Final amount preview */}
-        <div className="p-3 rounded-safe bg-neutral-50 border flex items-center justify-between">
-          <span className="text-sm text-neutral-500">{t("amountToBill")}</span>
+        <div className="p-3 rounded-safe bg-si-canvas border flex items-center justify-between">
+          <span className="text-sm text-si-muted">{t("amountToBill")}</span>
           <div className="text-right">
             <span className="text-lg font-medium tabular-nums">{formatCurrency(montantFinal)}</span>
             {rabaisNum > 0 && (
-              <span className="flex items-center gap-1 text-xs text-green-600 justify-end">
+              <span className="flex items-center gap-1 text-xs text-si-verified justify-end">
                 <Tag className="w-3 h-3" /> {t("discountPreview", { amount: formatCurrency(rabaisNum) })}
               </span>
             )}
             {taxable && (
-              <span className="text-xs text-neutral-400 block">{t("hst", { amount: formatCurrency(montantFinal * 0.13) })}</span>
+              <span className="text-xs text-si-muted block">{t("hst", { amount: formatCurrency(montantFinal * 0.13) })}</span>
             )}
           </div>
         </div>

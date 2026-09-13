@@ -425,7 +425,7 @@ export function TimeEntryFormModal({
           </div>
         )}
 
-        {error && <p className="text-sm text-[#B84A3E]">{error}</p>}
+        {error && <p className="text-sm text-si-danger-ink">{error}</p>}
         <div className="flex gap-2 pt-2">
           <Button type="submit" disabled={pending}>
             {isEdit ? t("save") : t("create")}

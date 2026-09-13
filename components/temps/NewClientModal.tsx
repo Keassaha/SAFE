@@ -84,7 +84,7 @@ export function NewClientModal({ open, onClose, onSuccess }: NewClientModalProps
           required
           autoFocus
         />
-        {error && <p className="text-sm text-[#B84A3E]">{error}</p>}
+        {error && <p className="text-sm text-si-danger-ink">{error}</p>}
         <div className="flex gap-2 pt-2">
           <Button type="submit" disabled={pending}>
             {pending ? t("registering") : t("registerInRegistry")}

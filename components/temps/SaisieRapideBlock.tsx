@@ -1,12 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Play, Clock, Pause, Square, RotateCcw, Save, X } from "lucide-react";
+import { Play } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { useTimer, formatTimerElapsed } from "@/lib/contexts/TimerContext";
 import { useTempsContext } from "@/lib/hooks/useTemps";
 import { useQueryClient } from "@tanstack/react-query";
-import { Card } from "@/components/ui/Card";
 import { NewClientModal } from "./NewClientModal";
 import { useLocale, useTranslations } from "next-intl";
 import { formatHeuresDecimales, minutesFacturablesDuChrono } from "@/lib/temps/duree";
@@ -87,136 +86,126 @@ export function SaisieRapideBlock({ cabinetId, currentUserId }: SaisieRapideBloc
     setClientId(client.id);
   };
 
+  const champ = "h-9 rounded-md border border-si-line bg-si-surface px-2.5 text-[13px] text-si-ink outline-none transition-[border-color,box-shadow] focus:border-si-ink-strong/40 focus:ring-2 focus:ring-si-ink-strong/20 disabled:cursor-not-allowed disabled:opacity-60";
+  const etat = timer.running
+    ? t("statusRunning")
+    : timer.hasStoppedWithPending
+      ? t("statusStopped")
+      : timer.isPaused
+        ? t("statusPaused")
+        : t("statusReady");
+
+  /* Une ligne, pas une carte : le chronomètre avait un titre, une phrase
+     d'explication et un bouton plein qui disputait l'écran à « Nouvelle
+     entrée ». Sa mécanique est intacte. Demande CEO du 2026-09-12. */
   return (
-    <Card className="p-6">
-      <h2 className="text-base font-medium text-si-ink flex items-center gap-2 tracking-tight">
-        <Play className="w-4 h-4" aria-hidden />
-        {t("quickEntry")}
-      </h2>
-      <p className="text-sm text-si-muted mt-1 mb-4">
-        {t("quickEntryDesc")}
-      </p>
-      <div className="flex flex-col sm:flex-row sm:items-end gap-4 flex-wrap">
-        <div className="flex items-center gap-3">
-          <Clock className="h-5 w-5 shrink-0 text-si-verified" aria-hidden />
-          <div>
-            <p className="text-2xl font-mono font-medium text-si-ink tabular-nums">
-              {formatTimerElapsed(timer.elapsedSeconds)}
-            </p>
-            <p className="text-xs text-si-muted">
-              {minutesFacturables > 0 && (
-                <span className="font-medium text-si-ink tabular-nums">
-                  {t("hoursShort", { heures: formatHeuresDecimales(minutesFacturables, locale) })}
-                  {" · "}
-                </span>
-              )}
-              {timer.running ? t("statusRunning") : timer.hasStoppedWithPending ? t("statusStopped") : timer.isPaused ? t("statusPaused") : t("statusReady")}
-            </p>
-          </div>
-        </div>
-        {timer.running || timer.isPaused || timer.hasStoppedWithPending ? (
-          <div className="flex items-center gap-2 flex-wrap">
-            {timer.hasStoppedWithPending ? (
-              <>
-                <Button type="button" onClick={timer.triggerOpenSaveModal}>
-                  <Save className="w-4 h-4 mr-2 inline" />
-                  {t("saveTime")}
-                </Button>
-                <Button type="button" variant="secondary" onClick={timer.clearPending}>
-                  <X className="w-4 h-4 mr-2 inline" />
-                  {tc("cancel")}
-                </Button>
-              </>
-            ) : (
-              <>
-                {timer.running ? (
-                  <Button type="button" variant="secondary" onClick={timer.pause}>
-                    <Pause className="w-4 h-4 mr-2 inline" />
-                    {tt("pause")}
-                  </Button>
-                ) : (
-                  <Button type="button" onClick={timer.resume}>
-                    <Play className="w-4 h-4 mr-2 inline" />
-                    {tt("resume")}
-                  </Button>
-                )}
-                <Button type="button" variant="secondary" onClick={timer.restart}>
-                  <RotateCcw className="w-4 h-4 mr-2 inline" />
-                  {tt("restart")}
-                </Button>
-                <Button type="button" variant="secondary" onClick={timer.stopOnly}>
-                  <Square className="w-4 h-4 mr-2 inline" />
-                  {tt("stop")}
-                </Button>
-              </>
-            )}
-          </div>
-        ) : (
-          <>
-            <div className="min-w-[180px]">
-              <label className="block text-xs font-medium text-si-muted mb-1">{tc("client")}</label>
-              <select
-                value={clientId}
-                onChange={(e) => handleClientChange(e.target.value)}
-                disabled={isLoading}
-                className="h-tap w-full rounded-md border border-si-line bg-si-surface px-3 text-sm"
-              >
-                <option value="">{t("selectClient")}</option>
-                {clients.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {clientLabel(c)}
-                  </option>
-                ))}
-                <option value={NEW_CLIENT_OPTION_VALUE}>{t("addNewClient")}</option>
-              </select>
-            </div>
-            <div className="min-w-[200px]">
-              <label className="block text-xs font-medium text-si-muted mb-1">{tc("dossier")}</label>
-              <select
-                value={dossierId}
-                onChange={(e) => setDossierId(e.target.value)}
-                disabled={!clientId || isLoading}
-                className="h-tap w-full rounded-md border border-si-line bg-si-surface px-3 text-sm"
-              >
-                <option value="">
-                  {!clientId ? t("selectClientFirst") : dossiersForClient.length === 0 ? t("noActiveMatter") : t("chooseMatter")}
-                </option>
-                {dossiersForClient.map((d) => (
-                  <option key={d.id} value={d.id}>
-                    {d.numeroDossier ?? d.reference ?? "—"} — {d.intitule}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="flex-1 min-w-[200px]">
-              <label className="block text-xs font-medium text-si-muted mb-1">
-                {t("workingOn")}
-              </label>
-              <input
-                type="text"
-                placeholder={t("descriptionOptional")}
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                className="h-tap w-full rounded-md border border-si-line bg-si-surface px-3 text-sm"
-              />
-            </div>
-            <div className="shrink-0">
-              <Button type="button" onClick={handleStart} disabled={!canStart}>
-                <Play className="mr-2 inline h-4 w-4" />
-                {t("startTimer")}
+    <section
+      aria-label={t("chronoLabel")}
+      className="flex flex-wrap items-center gap-2.5 rounded-[10px] border border-si-line bg-si-surface px-3.5 py-2.5"
+    >
+      <span className="flex items-baseline gap-2 pr-1">
+        <span className="font-mono text-[18px] font-medium tabular-nums text-si-ink">{formatTimerElapsed(timer.elapsedSeconds)}</span>
+        <span className="text-[12px] text-si-muted">
+          {minutesFacturables > 0 ? (
+            <>
+              <span className="font-medium tabular-nums text-si-ink">
+                {t("hoursShort", { heures: formatHeuresDecimales(minutesFacturables, locale) })}
+              </span>
+              {" · "}
+            </>
+          ) : null}
+          {etat}
+        </span>
+      </span>
+      {timer.running || timer.isPaused || timer.hasStoppedWithPending ? (
+        <span className="flex flex-wrap items-center gap-2">
+          {timer.hasStoppedWithPending ? (
+            <>
+              <Button type="button" onClick={timer.triggerOpenSaveModal}>
+                {t("saveTime")}
               </Button>
-              {!clientId && (
-                <p className="mt-1 max-w-40 text-xs text-si-muted">{t("selectClientToStart")}</p>
+              <Button type="button" variant="secondary" onClick={timer.clearPending}>
+                {tc("cancel")}
+              </Button>
+            </>
+          ) : (
+            <>
+              {timer.running ? (
+                <Button type="button" variant="secondary" onClick={timer.pause}>
+                  {tt("pause")}
+                </Button>
+              ) : (
+                <Button type="button" variant="secondary" onClick={timer.resume}>
+                  {tt("resume")}
+                </Button>
               )}
-            </div>
-          </>
-        )}
-      </div>
+              <Button type="button" variant="secondary" onClick={timer.restart}>
+                {tt("restart")}
+              </Button>
+              <Button type="button" variant="secondary" onClick={timer.stopOnly}>
+                {tt("stop")}
+              </Button>
+            </>
+          )}
+        </span>
+      ) : (
+        <>
+          <select
+            value={clientId}
+            onChange={(e) => handleClientChange(e.target.value)}
+            disabled={isLoading}
+            aria-label={tc("client")}
+            className={`${champ} w-[200px]`}
+          >
+            <option value="">{t("selectClient")}</option>
+            {clients.map((c) => (
+              <option key={c.id} value={c.id}>
+                {clientLabel(c)}
+              </option>
+            ))}
+            <option value={NEW_CLIENT_OPTION_VALUE}>{t("addNewClient")}</option>
+          </select>
+          <select
+            value={dossierId}
+            onChange={(e) => setDossierId(e.target.value)}
+            disabled={!clientId || isLoading}
+            aria-label={tc("dossier")}
+            className={`${champ} w-[220px]`}
+          >
+            <option value="">
+              {!clientId ? t("selectClientFirst") : dossiersForClient.length === 0 ? t("noActiveMatter") : t("chooseMatter")}
+            </option>
+            {dossiersForClient.map((d) => (
+              <option key={d.id} value={d.id}>
+                {d.numeroDossier ?? d.reference ?? "—"} — {d.intitule}
+              </option>
+            ))}
+          </select>
+          <input
+            type="text"
+            placeholder={t("workingOn")}
+            aria-label={t("workingOn")}
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            className={`${champ} min-w-[200px] flex-1`}
+          />
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={handleStart}
+            disabled={!canStart}
+            title={!clientId ? t("selectClientToStart") : undefined}
+          >
+            <Play className="mr-1.5 inline h-4 w-4" aria-hidden />
+            {t("startTimer")}
+          </Button>
+        </>
+      )}
       <NewClientModal
         open={newClientModalOpen}
         onClose={() => setNewClientModalOpen(false)}
         onSuccess={handleNewClientSuccess}
       />
-    </Card>
+    </section>
   );
 }

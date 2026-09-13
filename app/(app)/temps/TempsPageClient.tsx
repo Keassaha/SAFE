@@ -4,7 +4,6 @@ import { useState, useMemo } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { PageHeader } from "@/components/ui/PageHeader";
 import {
@@ -14,13 +13,13 @@ import {
 import { routes } from "@/lib/routes";
 import { canViewAllTimeEntries } from "@/lib/auth/permissions";
 import { SaisieRapideBlock } from "@/components/temps/SaisieRapideBlock";
-import { TimeMetricsCards } from "@/components/temps/TimeMetricsCards";
+import { TimeSummaryBar } from "@/components/temps/TimeSummaryBar";
 import { TimeFiltersBar } from "@/components/temps/TimeFiltersBar";
 import { TimeEntriesTable } from "@/components/temps/TimeEntriesTable";
 import { WeekGrid } from "@/components/temps/WeekGrid";
 import { TimeEntryFormModal } from "@/components/temps/TimeEntryFormModal";
 import { QueryErrorState } from "@/components/ui/QueryErrorState";
-import { RegistrePagination, REGISTRE_TAILLE_PAGE } from "@/components/ui/registre";
+import { RegistreFeuille, RegistrePagination, REGISTRE_TAILLE_PAGE } from "@/components/ui/registre";
 import type { TimeEntryFilters } from "@/types/temps";
 import type { UserRole } from "@prisma/client";
 
@@ -49,10 +48,10 @@ export function TempsPageClient({
   onAddSuccess,
 }: TempsPageClientProps) {
   const t = useTranslations("mattersUi");
+  const tt = useTranslations("temps");
   const tc = useTranslations("common");
   const [filters, setFilters] = useState<TimeEntryFilters>({});
   const [viewMode, setViewMode] = useState<"list" | "week">("list");
-  const [showAllEntries, setShowAllEntries] = useState(true);
   const [internalAddOpen, setInternalAddOpen] = useState(false);
   // Mode contrôlé si `controlledAddOpen` est fourni, sinon état interne.
   const addModalOpen = controlledAddOpen ?? internalAddOpen;
@@ -63,13 +62,13 @@ export function TempsPageClient({
   const [weekOffset, setWeekOffset] = useState(0);
   const [page, setPage] = useState(1);
 
+  /* Qui ne peut voir que ses heures ne voit que ses heures, quel que soit le
+     filtre demandé. */
   const effectiveFilters: TimeEntryFilters = useMemo(() => {
     const f = { ...filters };
-    if (!showAllEntries && !canViewAllTimeEntries(role)) {
-      f.userId = userId;
-    }
+    if (!canViewAllTimeEntries(role)) f.userId = userId;
     return f;
-  }, [filters, showAllEntries, role, userId]);
+  }, [filters, role, userId]);
 
   const {
     data: tempsData,
@@ -79,8 +78,6 @@ export function TempsPageClient({
     refetch,
   } = useTimeEntries(cabinetId, effectiveFilters);
   const entries = tempsData?.entries ?? [];
-  const activeCount = tempsData?.activeCount ?? 0;
-  const archivedCount = tempsData?.archivedCount ?? 0;
   const {
     data: context,
     isError: isContextError,
@@ -123,8 +120,6 @@ export function TempsPageClient({
   const facturableCount = entriesWithDate.filter((e) => e.facturable).length;
   const tauxFacturablePercent = entries.length > 0 ? Math.round((facturableCount / entries.length) * 100) : 0;
 
-  const semaineHeures = semaineEntries.reduce((s, e) => s + e.dureeMinutes, 0) / 60;
-  const moisHeures = moisEntries.reduce((s, e) => s + e.dureeMinutes, 0) / 60;
 
   /**
    * Historique paginé par 20, comme le registre clients.
@@ -146,12 +141,12 @@ export function TempsPageClient({
   const debut = (pageSure - 1) * REGISTRE_TAILLE_PAGE;
   const entriesPage = entriesWithDate.slice(debut, debut + REGISTRE_TAILLE_PAGE);
 
-  const activeTab = filters.facture === true ? "facture" : "active";
-  const setActiveTab = (tab: string) => {
-    setPage(1);
-    if (tab === "facture") setFilters((f) => ({ ...f, facture: true }));
-    else setFilters((f) => ({ ...f, facture: undefined }));
-  };
+  const weekStart = (() => {
+    const d = new Date(now);
+    d.setDate(now.getDate() - now.getDay() + 1 + weekOffset * 7);
+    d.setHours(0, 0, 0, 0);
+    return d;
+  })();
 
   return (
     <div className="space-y-6">
@@ -187,120 +182,87 @@ export function TempsPageClient({
         <>
           <SaisieRapideBlock cabinetId={cabinetId} currentUserId={userId} />
 
-          <TimeMetricsCards
-            semaineHeures={semaineHeures}
-            moisHeures={moisHeures}
+          <TimeSummaryBar
+            semaineMinutes={semaineEntries.reduce((s, e) => s + e.dureeMinutes, 0)}
+            moisMinutes={moisEntries.reduce((s, e) => s + e.dureeMinutes, 0)}
             nonFactureMontant={nonFactureMontant}
+            nonFactureCount={nonFactureEntries.length}
             tauxFacturablePercent={tauxFacturablePercent}
             loading={isLoading}
           />
 
-          <Card>
-            <section aria-labelledby="time-history-title">
-            <div className="flex items-center justify-between px-4 py-3">
-              <h2 id="time-history-title" className="text-sm font-medium text-si-ink">
-                {t("entriesHistory")}
-              </h2>
-              <span className="text-sm text-si-muted">{t("entriesCount", { count: entries.length })}</span>
-            </div>
-          <div className="flex border-b border-si-line px-4 gap-1">
-            <button
-              type="button"
-              onClick={() => setActiveTab("active")}
-              className={`min-h-tap px-4 py-3 text-sm font-medium border-b-2 -mb-px ${
-                activeTab === "active"
-                  ? "border-si-ink-strong text-si-verified"
-                  : "border-transparent text-si-muted hover:text-si-ink"
-              }`}
-            >
-              {t("activeTab", { count: activeCount })}
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveTab("facture")}
-              className={`min-h-tap px-4 py-3 text-sm font-medium border-b-2 -mb-px ${
-                activeTab === "facture"
-                  ? "border-si-ink-strong text-si-verified"
-                  : "border-transparent text-si-muted hover:text-si-ink"
-              }`}
-            >
-              {t("archivedTab", { count: archivedCount })}
-            </button>
-          </div>
-          <TimeFiltersBar
-            filters={filters}
-            onFiltersChange={(f) => {
-              setPage(1);
-              setFilters(f);
-            }}
-            viewMode={viewMode}
-            onViewModeChange={setViewMode}
-            showAllEntries={showAllEntries}
-            onShowAllEntriesChange={setShowAllEntries}
-            canViewAll={canViewAll}
-            dossiers={dossiers}
-            users={users}
-          />
-          {isLoading ? (
-            <div className="space-y-3 p-8" aria-busy="true">
-              <div className="h-4 w-3/4 rounded-md bg-si-line" />
-              <div className="h-4 w-1/2 rounded-md bg-si-line" />
-              <div className="h-4 w-2/3 rounded-md bg-si-line" />
-            </div>
-          ) : entries.length === 0 ? (
-            <EmptyState
-              title={t("emptyTitle")}
-              description={t("emptyDescription")}
-              action={
-                hideAddButton ? undefined : (
-                  <Button onClick={() => setAddModalOpen(true)}>{t("newEntry")}</Button>
-                )
-              }
+          {/* Le registre, dans la grammaire commune jusqu'à sa barre. Il vivait
+              dans une carte avec un titre, deux onglets et deux rangées de
+              filtres au-dessus de lui. Demande CEO du 2026-09-12. */}
+          <RegistreFeuille ariaLabel={tt("registerLabel")}>
+            <TimeFiltersBar
+              filters={filters}
+              onFiltersChange={(f) => {
+                setPage(1);
+                setFilters(f);
+              }}
+              viewMode={viewMode}
+              onViewModeChange={setViewMode}
+              canViewAll={canViewAll}
+              currentUserId={userId}
+              dossiers={dossiers}
+              users={users}
+              count={entriesWithDate.length}
             />
-          ) : viewMode === "week" ? (
-            <div className="p-4">
-              <WeekGrid
-                entries={entriesWithDate}
-                weekStart={(() => {
-                  const d = new Date(now);
-                  d.setDate(now.getDate() - now.getDay() + 1 + weekOffset * 7);
-                  d.setHours(0, 0, 0, 0);
-                  return d;
-                })()}
-                onPrevWeek={() => setWeekOffset((o) => o - 1)}
-                onNextWeek={() => setWeekOffset((o) => o + 1)}
+            {isLoading ? (
+              <div className="space-y-3 p-8" aria-busy="true">
+                <div className="h-4 w-3/4 rounded-md bg-si-line" />
+                <div className="h-4 w-1/2 rounded-md bg-si-line" />
+                <div className="h-4 w-2/3 rounded-md bg-si-line" />
+              </div>
+            ) : entries.length === 0 ? (
+              <EmptyState
+                title={t("emptyTitle")}
+                description={t("emptyDescription")}
+                action={
+                  hideAddButton ? undefined : (
+                    <Button onClick={() => setAddModalOpen(true)}>{t("newEntry")}</Button>
+                  )
+                }
               />
-            </div>
-          ) : (
-            <>
-              <TimeEntriesTable
-                entries={entriesPage}
-                cabinetId={cabinetId}
-                currentUserId={userId}
-                clients={clients}
-                dossiers={dossiers}
-                users={users}
-                tauxHoraireDefaut={tauxHoraireDefaut}
-                canEditAll={canViewAll}
-                onRefresh={() => refetch()}
-              />
-              <RegistrePagination
-                totalCount={entriesWithDate.length}
-                currentPage={pageSure}
-                resume={t("paginationRange", {
-                  start: debut + 1,
-                  end: Math.min(debut + REGISTRE_TAILLE_PAGE, entriesWithDate.length),
-                  total: entriesWithDate.length,
-                })}
-                labelPage={t("paginationPage", { current: pageSure, total: totalPages })}
-                labelPrecedent={tc("previous")}
-                labelSuivant={tc("next")}
-                onPageChange={setPage}
-              />
-            </>
-          )}
-          </section>
-          </Card>
+            ) : viewMode === "week" ? (
+              <div className="p-4">
+                <WeekGrid
+                  entries={entriesWithDate}
+                  weekStart={weekStart}
+                  onPrevWeek={() => setWeekOffset((o) => o - 1)}
+                  onNextWeek={() => setWeekOffset((o) => o + 1)}
+                />
+              </div>
+            ) : (
+              <>
+                <TimeEntriesTable
+                  entries={entriesPage}
+                  cabinetId={cabinetId}
+                  currentUserId={userId}
+                  clients={clients}
+                  dossiers={dossiers}
+                  users={users}
+                  tauxHoraireDefaut={tauxHoraireDefaut}
+                  canEditAll={canViewAll}
+                  onRefresh={() => refetch()}
+                />
+                <RegistrePagination
+                  totalCount={entriesWithDate.length}
+                  currentPage={pageSure}
+                  resume={t("paginationRange", {
+                    start: debut + 1,
+                    end: Math.min(debut + REGISTRE_TAILLE_PAGE, entriesWithDate.length),
+                    total: entriesWithDate.length,
+                  })}
+                  labelPage={t("paginationPage", { current: pageSure, total: totalPages })}
+                  labelPrecedent={tc("previous")}
+                  labelSuivant={tc("next")}
+                  onPageChange={setPage}
+                />
+              </>
+            )}
+          </RegistreFeuille>
 
           <TimeEntryFormModal
             open={addModalOpen}

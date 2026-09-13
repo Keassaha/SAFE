@@ -18,9 +18,10 @@ function formatHeures(minutes: number, locale: string): string {
   return `${formatHeuresDecimales(minutes, locale)} h`;
 }
 
-function formatPeriodLabel(start: Date, end: Date): string {
-  const opts: Intl.DateTimeFormatOptions = { day: "numeric", month: "long", year: "numeric" };
-  return `${start.getDate()} – ${end.getDate()} ${start.toLocaleDateString("fr-FR", { month: "long", year: "numeric" })}`;
+/* La grille parle la langue de l'utilisateur : l'étiquette était fabriquée en
+   français quelle que soit la langue choisie. */
+function formatPeriodLabel(start: Date, end: Date, locale: string): string {
+  return `${start.getDate()} – ${end.getDate()} ${start.toLocaleDateString(locale, { month: "long", year: "numeric" })}`;
 }
 
 export function WeekGrid({
@@ -68,7 +69,7 @@ export function WeekGrid({
             <ChevronLeft className="w-5 h-5" />
           </button>
           <span className="text-sm font-medium text-si-ink min-w-[220px] text-center">
-            {formatPeriodLabel(startOfWeek, endOfWeek)}
+            {formatPeriodLabel(startOfWeek, endOfWeek, locale)}
           </span>
           <button
             type="button"

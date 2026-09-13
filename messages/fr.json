@@ -2164,6 +2164,21 @@
     }
   },
   "temps": {
+    "summaryLabel": "Synthèse du temps",
+    "toBillShort": "À facturer",
+    "billableShort": "Facturable",
+    "entriesPlural": "{count, plural, =0 {aucune entrée} one {# entrée} other {# entrées}}",
+    "ofEntries": "des entrées",
+    "searchEntries": "Rechercher une description ou un dossier",
+    "periodCustom": "Personnalisée",
+    "whoLabel": "Qui",
+    "statusToBill": "À facturer",
+    "statusBilled": "Facturée",
+    "viewList": "Liste",
+    "viewWeek": "Semaine",
+    "viewLabel": "Affichage",
+    "chronoLabel": "Chronomètre",
+    "registerLabel": "Registre des entrées de temps",
     "mixte": {
       "title": "Temps",
       "description": "Saisissez votre temps à l'heure et vos prestations au forfait au même endroit.",
@@ -3145,9 +3160,9 @@
     "matterNotFound": "Dossier introuvable.",
     "back": "Retour",
     "timesheetTitle": "Temps",
-    "timesheetSubtitle": "Suivez et gérez votre temps facturable.",
+    "timesheetSubtitle": "Les heures travaillées, et ce qu'il reste à facturer.",
     "feesToBill": "Honoraires à facturer",
-    "newEntry": "+ Nouvelle entrée",
+    "newEntry": "Nouvelle entrée",
     "entriesHistory": "Historique des entrées",
     "entriesCount": "{count} entrée(s)",
     "paginationRange": "{start}–{end} sur {total} entrée(s)",
@@ -3998,7 +4013,9 @@
     "navPatrimoineFamilialDesc": "Partage calculé article par article",
     "navCorrespondance": "Correspondance",
     "navCorrespondanceDesc": "Ce qui est parti du cabinet, et ce qui n'est pas parti",
-    "navFlatFees": "Forfaits"
+    "navFlatFees": "Forfaits",
+    "navDisbursements": "Débours",
+    "navDisbursementsDesc": "Ce que le cabinet a avancé pour ses clients"
   },
   "appExtraUi": {
     "newMatterTitle": "Nouveau dossier",

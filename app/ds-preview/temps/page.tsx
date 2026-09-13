@@ -1,7 +1,14 @@
 "use client";
 
+import { useState } from "react";
 import { QueryProvider } from "@/components/providers/QueryProvider";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { Button } from "@/components/ui/Button";
+import { RegistreFeuille } from "@/components/ui/registre";
 import { TimeEntriesTable } from "@/components/temps/TimeEntriesTable";
+import { TimeFiltersBar } from "@/components/temps/TimeFiltersBar";
+import { TimeSummaryBar } from "@/components/temps/TimeSummaryBar";
+import type { TimeEntryFilters } from "@/types/temps";
 
 /**
  * Aperçu du registre des heures, hors authentification.
@@ -73,17 +80,42 @@ const ENTREES = [
 ];
 
 export default function ApercuTemps() {
+  const [filters, setFilters] = useState<TimeEntryFilters>({});
+  const [viewMode, setViewMode] = useState<"list" | "week">("list");
   return (
     <QueryProvider>
       <div className="min-h-screen bg-si-canvas">
-        <div className="mx-auto max-w-[1240px] px-4 py-10 sm:px-6 lg:px-10">
-          <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-si-muted">
-            Aperçu
-          </p>
-          <h1 className="mt-2 font-serif text-[34px] leading-[1.15] text-si-ink">
-            Registre des heures
-          </h1>
-          <div className="safe-feuille mt-8">
+        <div className="mx-auto max-w-[1240px] space-y-6 px-4 py-10 sm:px-6 lg:px-10">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+            <PageHeader
+              variant="dashboard"
+              title="Temps"
+              description="Données fictives. Contrôle visuel des composants réels sur leurs cas limites."
+            />
+            <div className="flex gap-2 pb-4">
+              <Button variant="secondary">Honoraires à facturer</Button>
+              <Button variant="primary">Nouvelle entrée</Button>
+            </div>
+          </div>
+          <TimeSummaryBar
+            semaineMinutes={750}
+            moisMinutes={2892}
+            nonFactureMontant={6240}
+            nonFactureCount={38}
+            tauxFacturablePercent={91}
+          />
+          <RegistreFeuille ariaLabel="Registre des entrées de temps">
+            <TimeFiltersBar
+              filters={filters}
+              onFiltersChange={setFilters}
+              viewMode={viewMode}
+              onViewModeChange={setViewMode}
+              canViewAll
+              currentUserId={AUTEUR.id}
+              dossiers={[]}
+              users={[AUTEUR, { id: "u2", nom: "Me Ngo" }]}
+              count={ENTREES.length}
+            />
             <TimeEntriesTable
               entries={ENTREES}
               cabinetId="cab-apercu"
@@ -94,7 +126,7 @@ export default function ApercuTemps() {
               canEditAll
               onRefresh={() => {}}
             />
-          </div>
+          </RegistreFeuille>
         </div>
       </div>
     </QueryProvider>

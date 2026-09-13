@@ -2164,6 +2164,21 @@
     }
   },
   "temps": {
+    "summaryLabel": "Time summary",
+    "toBillShort": "To bill",
+    "billableShort": "Billable",
+    "entriesPlural": "{count, plural, =0 {no entries} one {# entry} other {# entries}}",
+    "ofEntries": "of entries",
+    "searchEntries": "Search a description or a matter",
+    "periodCustom": "Custom",
+    "whoLabel": "Who",
+    "statusToBill": "To bill",
+    "statusBilled": "Billed",
+    "viewList": "List",
+    "viewWeek": "Week",
+    "viewLabel": "View",
+    "chronoLabel": "Timer",
+    "registerLabel": "Time entries register",
     "mixte": {
       "title": "Time",
       "description": "Track hourly time and flat-fee services in one place.",
@@ -3145,9 +3160,9 @@
     "matterNotFound": "Matter not found.",
     "back": "Back",
     "timesheetTitle": "Time",
-    "timesheetSubtitle": "Track and manage your billable time.",
+    "timesheetSubtitle": "Hours worked, and what is left to bill.",
     "feesToBill": "Fees to bill",
-    "newEntry": "+ New entry",
+    "newEntry": "New entry",
     "entriesHistory": "Entry history",
     "entriesCount": "{count} entries",
     "paginationRange": "{start}–{end} of {total} entr(ies)",
@@ -3998,7 +4013,9 @@
     "navPatrimoineFamilialDesc": "Division computed article by article",
     "navCorrespondance": "Correspondence",
     "navCorrespondanceDesc": "What went out from the firm, and what did not",
-    "navFlatFees": "Flat fees"
+    "navFlatFees": "Flat fees",
+    "navDisbursements": "Disbursements",
+    "navDisbursementsDesc": "What the firm advanced for its clients"
   },
   "appExtraUi": {
     "newMatterTitle": "New matter",

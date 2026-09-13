@@ -100,7 +100,7 @@ export function ForfaitServiceTable() {
         </div>
 
         {showAdd && (
-          <div className="mb-4 p-3 bg-neutral-50 rounded-safe border space-y-3">
+          <div className="mb-4 p-3 bg-si-canvas rounded-safe border space-y-3">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               <Input label={t("code")} value={newService.code} onChange={e => setNewService({ ...newService, code: e.target.value })} placeholder={t("codePlaceholder")} />
               <Input label={t("serviceName")} value={newService.nom} onChange={e => setNewService({ ...newService, nom: e.target.value })} placeholder={t("serviceNamePlaceholder")} />
@@ -110,7 +110,7 @@ export function ForfaitServiceTable() {
                 <select
                   value={newService.categorie}
                   onChange={e => setNewService({ ...newService, categorie: e.target.value })}
-                  className="w-full h-tap px-3 rounded-safe border border-neutral-border bg-white/90 text-sm"
+                  className="w-full h-tap px-3 rounded-safe border border-si-line bg-white/90 text-sm"
                 >
                   <option value="">{t("categoryGeneral")}</option>
                   <option value="immobilier">{t("categoryRealEstate")}</option>
@@ -146,9 +146,9 @@ export function ForfaitServiceTable() {
             <tbody>
               {services.map(s => (
                 <tr key={s.id} className="safe-zoom-rang border-b last:border-0 ">
-                  <td className="py-2 font-mono text-xs text-neutral-500">{s.code}</td>
+                  <td className="py-2 font-mono text-xs text-si-muted">{s.code}</td>
                   <td className="py-2 font-medium">{s.nom}</td>
-                  <td className="py-2 text-xs text-neutral-500">{categorieLabel(s.categorie)}</td>
+                  <td className="py-2 text-xs text-si-muted">{categorieLabel(s.categorie)}</td>
                   <td className="py-2 text-right tabular-nums">
                     {editState?.id === s.id && editState.field === "montant" ? (
                       <div className="flex items-center gap-1 justify-end">
@@ -163,12 +163,12 @@ export function ForfaitServiceTable() {
                             if (e.key === "Escape") setEditState(null);
                           }}
                         />
-                        <button onClick={() => updateMutation.mutate({ id: s.id, field: "montant", value: parseFloat(editState.value) })} className="text-green-600"><Check className="w-3 h-3" /></button>
-                        <button onClick={() => setEditState(null)} className="text-neutral-400"><X className="w-3 h-3" /></button>
+                        <button onClick={() => updateMutation.mutate({ id: s.id, field: "montant", value: parseFloat(editState.value) })} className="text-si-verified"><Check className="w-3 h-3" /></button>
+                        <button onClick={() => setEditState(null)} className="text-si-muted"><X className="w-3 h-3" /></button>
                       </div>
                     ) : (
                       <span
-                        className="cursor-pointer hover:text-primary-600 hover:underline"
+                        className="cursor-pointer hover:text-si-ink-strong hover:underline"
                         onClick={() => setEditState({ id: s.id, field: "montant", value: String(s.montant) })}
                       >
                         {formatCurrency(s.montant, "CAD", locale)}
@@ -176,14 +176,14 @@ export function ForfaitServiceTable() {
                     )}
                   </td>
                   <td className="py-2 text-center">
-                    <span className={`text-xs ${s.taxable ? "text-green-600" : "text-neutral-400"}`}>
+                    <span className={`text-xs ${s.taxable ? "text-si-verified" : "text-si-muted"}`}>
                       {s.taxable ? t("taxYes") : "—"}
                     </span>
                   </td>
                   <td className="py-2">
                     <button
                       onClick={() => setEditState({ id: s.id, field: "montant", value: String(s.montant) })}
-                      className="text-neutral-400 hover:text-primary-600"
+                      className="text-si-muted hover:text-si-ink-strong"
                       aria-label={t("editPrice")}
                     >
                       <Pencil className="w-3 h-3" />
@@ -192,7 +192,7 @@ export function ForfaitServiceTable() {
                 </tr>
               ))}
               {services.length === 0 && (
-                <tr><td colSpan={6} className="py-8 text-center text-neutral-400">{t("empty")}</td></tr>
+                <tr><td colSpan={6} className="py-8 text-center text-si-muted">{t("empty")}</td></tr>
               )}
             </tbody>
           </table>

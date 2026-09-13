@@ -211,7 +211,7 @@ export function GlobalTimer({ cabinetId, currentUserId }: GlobalTimerProps) {
             {panneauOuvert && (
               <div
                 role="menu"
-                className="absolute right-0 top-full z-50 mt-2 w-60 overflow-hidden rounded-[10px] border border-[0.5px] border-border bg-surface shadow-[0_20px_60px_-20px_rgba(15,23,42,0.25)]"
+                className="absolute right-0 top-full z-50 mt-2 w-60 overflow-hidden rounded-[10px] border border-[0.5px] border-border bg-surface shadow-menu"
               >
                 <div className="border-b border-[0.5px] border-border/70 bg-si-canvas/60 px-3.5 py-3">
                   <p className="text-[11px] font-sans font-medium uppercase tracking-[0.12em] text-si-ink-strong">

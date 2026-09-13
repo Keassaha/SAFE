@@ -9,7 +9,6 @@ import { formatCalendarDate, formatCurrency } from "@/lib/utils/format";
 import { clientDisplayName } from "@/lib/clients/normalize-name";
 import { useUpdateTimeEntry, useDeleteTimeEntry } from "@/lib/hooks/useTemps";
 import { TimeEntryFormModal } from "./TimeEntryFormModal";
-import { StatusBadge } from "@/components/ui/StatusBadge";
 import {
   registreCellClass,
   registreCellMutedClass,
@@ -44,14 +43,18 @@ interface TimeEntryRow {
   invoiceLines: { id: string }[];
 }
 
+/**
+ * L'état de facturation, en toutes lettres. Un badge sur chaque ligne ne
+ * signalait plus rien : « À facturer » porte l'ambre parce que c'est ce qui
+ * réclame un geste, « Facturée » se lit en gris.
+ */
 function BillingStatus({ billingStatus }: { billingStatus: string | null }) {
   const t = useTranslations("temps");
   const isFacture = billingStatus === "BILLED";
-  return (
-    <StatusBadge
-      label={isFacture ? t("billed") : t("notBilled")}
-      variant={isFacture ? "success" : "warning"}
-    />
+  return isFacture ? (
+    <span className="whitespace-nowrap text-[13px] text-si-muted">{t("statusBilled")}</span>
+  ) : (
+    <span className="whitespace-nowrap text-[13px] font-medium text-si-amber-ink">{t("statusToBill")}</span>
   );
 }
 
@@ -141,9 +144,11 @@ export function TimeEntriesTable({
                   <td className={registreCellClass}>
                     {entry.dossier ? (
                       <div className="min-w-[150px]">
+                        {/* En encre, pas en vert : l'accent est réservé à ce
+                            qui réclame un geste. */}
                         <Link
                           href={routes.dossier(entry.dossier.id)}
-                          className="font-medium text-si-verified hover:underline"
+                          className="font-mono text-[13px] font-medium text-si-ink hover:underline"
                         >
                           {entry.dossier.numeroDossier ?? entry.dossier.reference ?? "—"}
                         </Link>
