@@ -1650,6 +1650,10 @@ model Invoice {
   @@index([validatedById])
   @@index([invoiceStatus])
   @@index([paymentStatus])
+  /// Cree par 20260803140000_ch13_invoice_delivery pour les releves de
+  /// transmission demandes en inspection. Declare ici parce qu'il existe
+  /// reellement en base : le schema doit le dire, sinon la derive revient.
+  @@index([cabinetId, deliveryChannel])
 }
 
 model InvoiceLine {
