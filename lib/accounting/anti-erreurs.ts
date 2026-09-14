@@ -15,6 +15,15 @@ import type { DossierStatut, DeboursStatut } from "@prisma/client";
 export interface GuardWarning {
   code: string;
   message: string;
+  /**
+   * La facture visée, quand l'avertissement en vise une.
+   *
+   * Sert à l'écran, qui offre alors le geste de réparation sur place plutôt que
+   * de renvoyer l'utilisateur chercher la facture ailleurs. Absent sur les
+   * avertissements qui ne portent sur aucune facture précise.
+   */
+  invoiceId?: string;
+  invoiceNumero?: string;
 }
 
 /** Dossiers considérés fermés (plus d'activité courante attendue). */
@@ -31,6 +40,47 @@ export function warnPaymentWithoutInvoice(hasInvoice: boolean): GuardWarning | n
     code: "PAYMENT_WITHOUT_INVOICE",
     message:
       "Paiement enregistré sans facture associée. Pensez à l'allouer à une facture pour réduire les comptes à recevoir.",
+  };
+}
+
+/**
+ * Avertissement (non bloquant) : de l'argent entre sur une facture dont AUCUNE
+ * transmission au client n'est enregistrée.
+ *
+ * Ce n'est pas une faute. Le cabinet a pu la poster, la remettre en main propre
+ * ou l'envoyer depuis son propre courriel : le règlement reconnaît ces canaux
+ * (art. 56(2) B-1 r.5 · s. 9(1)3 By-Law 9), et SAFE ne peut pas les prouver.
+ * C'est une incohérence tant que la transmission n'est pas déclarée, parce que
+ * le même règlement n'ouvre le retrait du fidéicommis que pour la facturation
+ * « qui a été envoyée ».
+ *
+ * Volontairement un AVERTISSEMENT et non un blocage. Refuser d'inscrire un
+ * paiement réellement reçu ferait mentir SAFE sur le compte en banque, et
+ * refuser le geste pousserait au contournement — donc à la perte de traçabilité
+ * qu'on cherchait à éviter. Le raisonnement complet vit dans
+ * `lib/compliance/invoice-delivery.ts`.
+ *
+ * ⚠️ `deliveredAt`, jamais `sentAt`. `sentAt` n'est posé que par l'envoi
+ * courriel de SAFE : une facture postée l'a toujours à `null` bien qu'elle ait
+ * été régulièrement transmise. C'est l'erreur corrigée le 2026-09-13.
+ */
+export function warnPaymentOnUndeliveredInvoice(params: {
+  invoiceId?: string | null;
+  invoiceNumero?: string | null;
+  /** `Invoice.deliveredAt`. Null = aucune transmission enregistrée. */
+  deliveredAt?: Date | null;
+}): GuardWarning | null {
+  // Pas de facture : c'est l'autre avertissement qui parle, pas celui-ci.
+  if (!params.invoiceId) return null;
+  if (params.deliveredAt) return null;
+  const numero = params.invoiceNumero?.trim();
+  return {
+    code: "PAYMENT_ON_UNDELIVERED_INVOICE",
+    message: numero
+      ? `La facture ${numero} n'a jamais été transmise au client. Déclarez la transmission si vous l'avez postée, remise en main propre ou envoyée autrement.`
+      : "Cette facture n'a jamais été transmise au client. Déclarez la transmission si vous l'avez postée, remise en main propre ou envoyée autrement.",
+    invoiceId: params.invoiceId,
+    ...(numero ? { invoiceNumero: numero } : {}),
   };
 }
 

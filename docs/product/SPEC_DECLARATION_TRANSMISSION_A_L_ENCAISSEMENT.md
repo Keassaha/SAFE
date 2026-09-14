@@ -1,7 +1,7 @@
 # Déclarer la transmission là où l'argent arrive
 
 Date : 2026-09-14
-Statut : **proposition**. Aucun code écrit. En attente du oui du CEO.
+Statut : **validée et livrée**. Oui du CEO le 2026-09-14 : « Oui, on met à exécution ».
 Demande : « peux-tu créer un processus pour cela ? », après le constat du 2026-09-13
 qu'une facture payée pouvait n'avoir jamais été transmise sans que rien ne se passe.
 

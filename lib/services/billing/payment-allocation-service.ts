@@ -15,7 +15,11 @@ import {
   validateMotif,
 } from "@/lib/services/journal/annulation";
 import { recalculateInvoiceTotals } from "./invoice-service";
-import { warnPaymentWithoutInvoice, type GuardWarning } from "@/lib/accounting/anti-erreurs";
+import {
+  warnPaymentWithoutInvoice,
+  type GuardWarning,
+  warnPaymentOnUndeliveredInvoice,
+} from "@/lib/accounting/anti-erreurs";
 import { prolongerAccesApresPaiement } from "@/lib/services/abonnement/acces-paye";
 
 export interface AllocationItem {
@@ -186,7 +190,7 @@ export async function createPayment(params: {
     }
   }
 
-  const payment = await prisma.$transaction(async (tx) => {
+  const { created: payment, invoiceForWarning } = await prisma.$transaction(async (tx) => {
     let invoiceForAllocation:
       | {
           id: string;
@@ -195,6 +199,11 @@ export async function createPayment(params: {
           dossierId: string | null;
           numero: string;
           balanceDue: number;
+          /* La TRANSMISSION au client, tous canaux confondus. Sert à avertir
+             quand de l'argent entre sur une facture que le client n'a peut-être
+             jamais reçue. Jamais `sentAt`, qui ne connaît que le courriel de
+             SAFE. Voir lib/compliance/invoice-delivery.ts. */
+          deliveredAt: Date | null;
         }
       | null = null;
     let initialAllocationAmount = 0;
@@ -210,6 +219,7 @@ export async function createPayment(params: {
           dossierId: true,
           numero: true,
           balanceDue: true,
+          deliveredAt: true,
         },
       });
       if (!invoiceForAllocation) {
@@ -294,7 +304,10 @@ export async function createPayment(params: {
       await recalculateInvoiceTotals(invoiceForAllocation.id, tx);
     }
 
-    return created;
+    /* La facture ressort de la transaction pour que l'avertissement de
+       transmission se calcule dehors, une fois l'écriture acquise : un
+       avertissement ne doit jamais pouvoir faire échouer un encaissement. */
+    return { created, invoiceForWarning: invoiceForAllocation };
   });
 
   await createAuditLog({
@@ -326,6 +339,16 @@ export async function createPayment(params: {
   const warnings: GuardWarning[] = [];
   const warning = warnPaymentWithoutInvoice(Boolean(invoiceId));
   if (warning) warnings.push(warning);
+
+  /* De l'argent vient d'entrer sur une facture jamais transmise au client.
+     Signalé, jamais bloqué : l'argent est reçu, et le cabinet a pu poster la
+     facture. L'écran offre la déclaration sur place. Demande CEO du 2026-09-14. */
+  const avertissementTransmission = warnPaymentOnUndeliveredInvoice({
+    invoiceId: invoiceForWarning?.id ?? null,
+    invoiceNumero: invoiceForWarning?.numero ?? null,
+    deliveredAt: invoiceForWarning?.deliveredAt ?? null,
+  });
+  if (avertissementTransmission) warnings.push(avertissementTransmission);
 
   return { paymentId: payment.id, warnings };
 }
@@ -499,7 +522,11 @@ export async function allocateToInvoices(params: {
   allocations: AllocationItem[];
   performedById?: string | null;
   cabinetId?: string;
-}): Promise<void> {
+  /* Rend les avertissements comptables, comme `createPayment`. Allouer un
+     paiement à une facture, c'est le même fait que l'encaisser dessus : la
+     facture jamais transmise doit se signaler aux deux endroits.
+     Demande CEO du 2026-09-14. */
+}): Promise<{ warnings: GuardWarning[] }> {
   const { paymentId, allocations, performedById, cabinetId: enforcedCabinetId } = params;
 
   // 1. Lecture initiale du paiement (sans verrou) pour fail-fast sur paiement
@@ -520,7 +547,7 @@ export async function allocateToInvoices(params: {
   const now = new Date();
 
   // 2. Toute la logique d'écriture sous verrou advisory + revalidation atomique
-  const validatedItems = await prisma.$transaction(async (tx) => {
+  const { items: validatedItems, invoices: invoicesAllouees } = await prisma.$transaction(async (tx) => {
     // Verrou advisory : sérialise les transactions concurrentes touchant ce
     // paiement et ces factures. Libéré automatiquement au commit/rollback.
     // Pattern réutilisé depuis lib/services/journal/journal-service.ts.
@@ -546,7 +573,9 @@ export async function allocateToInvoices(params: {
 
     const invoices = await tx.invoice.findMany({
       where: { id: { in: invoiceIds }, cabinetId },
-      select: { id: true, balanceDue: true },
+      // `numero` et `deliveredAt` : de quoi avertir dehors, une fois l'écriture
+      // acquise, sans relire la base.
+      select: { id: true, balanceDue: true, numero: true, deliveredAt: true },
     });
     const invoiceBalances = new Map<string, number>(
       invoices.map((i) => [i.id, i.balanceDue ?? 0]),
@@ -591,7 +620,7 @@ export async function allocateToInvoices(params: {
       await recalculateInvoiceTotals(invoiceId, tx);
     }
 
-    return validation.items;
+    return { items: validation.items, invoices };
   });
 
   await createAuditLog({
@@ -615,4 +644,21 @@ export async function allocateToInvoices(params: {
       },
     );
   }
+
+  /* Un avertissement par facture allouée qui n'a jamais été transmise. Calculé
+     après le commit : il informe, il n'a aucun droit de faire échouer une
+     allocation déjà inscrite. */
+  const parId = new Map(invoicesAllouees.map((i) => [i.id, i]));
+  const warnings: GuardWarning[] = [];
+  for (const { invoiceId } of validatedItems) {
+    const facture = parId.get(invoiceId);
+    const w = warnPaymentOnUndeliveredInvoice({
+      invoiceId,
+      invoiceNumero: facture?.numero ?? null,
+      deliveredAt: facture?.deliveredAt ?? null,
+    });
+    if (w) warnings.push(w);
+  }
+
+  return { warnings };
 }

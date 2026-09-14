@@ -25,7 +25,10 @@ import { declareInvoiceDelivery } from "@/lib/services/billing/invoice-delivery-
 
 export type ActionResult = { ok: true } | { ok: false; error: string };
 
-const PATH = "/inspection/transmission-factures";
+/* Les écrans qui montrent l'état de transmission d'une facture. La déclaration
+   se fait depuis deux endroits depuis le 2026-09-14 : cet écran, et le bandeau
+   d'avertissement qui suit un encaissement. */
+const PATHS = ["/inspection/transmission-factures", "/facturation", "/facturation/paiements"];
 
 export async function declareDeliveryAction(formData: FormData): Promise<ActionResult> {
   try {
@@ -66,7 +69,7 @@ export async function declareDeliveryAction(formData: FormData): Promise<ActionR
       userId,
     });
 
-    revalidatePath(PATH);
+    for (const chemin of PATHS) revalidatePath(chemin);
     return { ok: true };
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : "Une erreur est survenue." };

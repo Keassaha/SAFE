@@ -1,7 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { PaiementsTable } from "@/components/facturation/PaiementsTable";
+import { AvertissementsComptables } from "@/components/facturation/AvertissementsComptables";
 import {
   RegistreBarreOutils,
   RegistreFeuille,
@@ -18,6 +20,16 @@ import { RANGEES } from "./donnees";
  * annulé, montant à sept chiffres. Ne touche pas la base, n'est pas branchée à
  * la navigation.
  */
+/** L'avertissement tel que `createPayment` le renvoie sur une facture jamais transmise. */
+const AVERTISSEMENT = [
+  {
+    code: "PAYMENT_ON_UNDELIVERED_INVOICE",
+    message: "repli, jamais affiché quand le code est connu de l'écran",
+    invoiceId: "inv-apercu",
+    invoiceNumero: "2026-0039",
+  },
+];
+
 export default function ApercuPaiements() {
   const rien = () => undefined;
   return (
@@ -28,6 +40,7 @@ export default function ApercuPaiements() {
           title="Paiements"
           description="Données fictives. Contrôle visuel du composant réel sur ses cas limites."
         />
+        <AvertissementsComptables warnings={AVERTISSEMENT} onDeclarerTransmission={rien} onFermer={rien} />
         <RegistreFeuille ariaLabel="Paiements">
           <RegistreBarreOutils
             recherche={<input className={`${registreChampClass} w-full px-3`} placeholder="Rechercher un client ou une facture" readOnly />}

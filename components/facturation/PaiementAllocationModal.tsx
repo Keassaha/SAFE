@@ -4,6 +4,7 @@ import { useFormatteurs } from "@/lib/i18n/formatteurs";
 import { useState, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
+import type { GuardWarning } from "@/lib/accounting/anti-erreurs";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 
@@ -26,7 +27,12 @@ export interface PaiementAllocationModalProps {
     clientId: string | null;
     balanceDue: number;
   }[];
-  onSuccess?: () => void;
+  /**
+   * Appelé après l'écriture, avec les avertissements comptables que le service
+   * a renvoyés. La vue les affiche : ils se calculaient déjà et tombaient dans
+   * le vide. Demande CEO du 2026-09-14.
+   */
+  onSuccess?: (warnings?: GuardWarning[]) => void;
 }
 
 export function PaiementAllocationModal({
@@ -107,7 +113,7 @@ export function PaiementAllocationModal({
       queryClient.invalidateQueries({ queryKey: ["facturation", "paiements"] });
       setInvoiceId("");
       setAllocatedAmount("");
-      onSuccess?.();
+      onSuccess?.((data.warnings ?? []) as GuardWarning[]);
       onClose();
     } catch (err) {
       setError(err instanceof Error ? err.message : tp("errorOccurred"));

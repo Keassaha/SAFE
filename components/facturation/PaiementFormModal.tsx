@@ -4,6 +4,7 @@ import { useFormatteurs } from "@/lib/i18n/formatteurs";
 import { useState, useEffect, useRef } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
+import type { GuardWarning } from "@/lib/accounting/anti-erreurs";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -69,7 +70,12 @@ export interface PaiementFormModalProps {
     totalInvoiceAmount: number;
     totalPaidAmount: number;
   }[];
-  onSuccess?: () => void;
+  /**
+   * Appelé après l'écriture, avec les avertissements comptables que le service
+   * a renvoyés. La vue les affiche : ils se calculaient déjà et tombaient dans
+   * le vide. Demande CEO du 2026-09-14.
+   */
+  onSuccess?: (warnings?: GuardWarning[]) => void;
   /**
    * Facture sur laquelle ouvrir le formulaire (mode création). Le client, la
    * facture, le montant et l'allocation sont pré-remplis avec son solde ; tout
@@ -216,6 +222,7 @@ export function PaiementFormModal({
     setSubmitting(true);
     const form = e.currentTarget;
     const formData = new FormData(form);
+    let avertissements: GuardWarning[] = [];
 
     const payload = {
       clientId: formData.get("clientId") as string,
@@ -239,6 +246,7 @@ export function PaiementFormModal({
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error ?? tp("errorSaving"));
+        avertissements = (data.warnings ?? []) as GuardWarning[];
       } else if (paymentId) {
         const patch = {
           paymentDate: payload.paymentDate,
@@ -263,7 +271,7 @@ export function PaiementFormModal({
       }
       queryClient.invalidateQueries({ queryKey: ["facturation", "paiements"] });
       form.reset();
-      onSuccess?.();
+      onSuccess?.(avertissements);
       onClose();
     } catch (err) {
       setError(err instanceof Error ? err.message : tp("errorOccurred"));

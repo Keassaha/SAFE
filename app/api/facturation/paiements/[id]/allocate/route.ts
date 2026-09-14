@@ -47,13 +47,13 @@ export async function POST(
   }
 
   try {
-    await allocateToInvoices({
+    const { warnings } = await allocateToInvoices({
       paymentId,
       allocations: parsed.data.allocations,
       performedById: userId ?? undefined,
       cabinetId,
     });
-    return NextResponse.json({ ok: true });
+    return NextResponse.json({ ok: true, warnings });
   } catch (err) {
     const message =
       err instanceof Error ? err.message : "Erreur lors de l'allocation du paiement";

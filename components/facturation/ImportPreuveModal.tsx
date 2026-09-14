@@ -4,6 +4,7 @@ import { useFormatteurs } from "@/lib/i18n/formatteurs";
 import { useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
+import type { GuardWarning } from "@/lib/accounting/anti-erreurs";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -30,7 +31,12 @@ export interface ImportPreuveModalProps {
   onClose: () => void;
   clients: ClientOpt[];
   invoices: InvoiceOpt[];
-  onSuccess?: () => void;
+  /**
+   * Appelé après l'écriture, avec les avertissements comptables que le service
+   * a renvoyés. La vue les affiche : ils se calculaient déjà et tombaient dans
+   * le vide. Demande CEO du 2026-09-14.
+   */
+  onSuccess?: (warnings?: GuardWarning[]) => void;
 }
 
 type Phase = "upload" | "loading" | "review" | "submitting" | "duplicate";
@@ -161,7 +167,7 @@ export function ImportPreuveModal({ open, onClose, clients, invoices, onSuccess 
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? tp("errorSaving"));
       queryClient.invalidateQueries({ queryKey: ["facturation", "paiements"] });
-      onSuccess?.();
+      onSuccess?.((data.warnings ?? []) as GuardWarning[]);
       onClose();
     } catch (err) {
       setError(err instanceof Error ? err.message : tp("errorSaving"));

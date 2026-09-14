@@ -16,6 +16,9 @@ import type { JournalCorrectionMotive } from "@prisma/client";
 import { PaiementFormModal } from "@/components/facturation/PaiementFormModal";
 import { ImportPreuveModal } from "@/components/facturation/ImportPreuveModal";
 import { PaiementAllocationModal } from "@/components/facturation/PaiementAllocationModal";
+import { AvertissementsComptables } from "@/components/facturation/AvertissementsComptables";
+import { DeclarerTransmissionModal } from "@/components/facturation/DeclarerTransmissionModal";
+import type { GuardWarning } from "@/lib/accounting/anti-erreurs";
 import {
   PaiementsTable,
   libelleClientPaiement,
@@ -67,6 +70,13 @@ export function FacturationPaiementsView({
   const [factureInitiale, setFactureInitiale] = useState<string | null>(null);
   const [recherche, setRecherche] = useState("");
   const [filtre, setFiltre] = useState<FiltrePaiements>("tous");
+  /* Les avertissements comptables du dernier encaissement, et la facture dont
+     on déclare la transmission. Ils vivent ICI et non dans les fenêtres :
+     celles-ci se ferment en réussissant, et un bandeau qui disparaît avec la
+     fenêtre qui l'a produit n'aurait jamais été lu.
+     Demande CEO du 2026-09-14. */
+  const [avertissements, setAvertissements] = useState<GuardWarning[]>([]);
+  const [transmissionCible, setTransmissionCible] = useState<{ id: string; numero?: string } | null>(null);
   const [importModalOpen, setImportModalOpen] = useState(false);
   const [formMode, setFormMode] = useState<"create" | "edit">("create");
   const [editingPaymentId, setEditingPaymentId] = useState<string | null>(null);
@@ -270,6 +280,14 @@ export function FacturationPaiementsView({
         </div>
       )}
 
+      {avertissements.length > 0 ? (
+        <AvertissementsComptables
+          warnings={avertissements}
+          onDeclarerTransmission={(id, numero) => setTransmissionCible({ id, numero })}
+          onFermer={() => setAvertissements([])}
+        />
+      ) : null}
+
       {creditsError ? (
         <p className="border-l-2 border-status-error bg-status-error-bg px-4 py-3 text-sm text-status-error" role="alert">
           {t("creditsLoadError")}
@@ -423,7 +441,10 @@ export function FacturationPaiementsView({
         initialInvoiceId={factureInitiale}
         clients={clients}
         invoices={invoices}
-        onSuccess={() => setFormModalOpen(false)}
+        onSuccess={(warnings) => {
+          setFormModalOpen(false);
+          setAvertissements(warnings ?? []);
+        }}
       />
 
       <ImportPreuveModal
@@ -431,7 +452,10 @@ export function FacturationPaiementsView({
         onClose={() => setImportModalOpen(false)}
         clients={clients}
         invoices={invoices}
-        onSuccess={() => setImportModalOpen(false)}
+        onSuccess={(warnings) => {
+          setImportModalOpen(false);
+          setAvertissements(warnings ?? []);
+        }}
       />
 
       <PaiementAllocationModal
@@ -452,7 +476,23 @@ export function FacturationPaiementsView({
             : undefined
         }
         invoices={invoices}
-        onSuccess={() => setAllocationModalOpen(false)}
+        onSuccess={(warnings) => {
+          setAllocationModalOpen(false);
+          setAvertissements(warnings ?? []);
+        }}
+      />
+
+      {/* La déclaration de transmission. Elle recharge le registre en réussissant :
+          la facture cesse d'être signalée, ici comme au registre des factures. */}
+      <DeclarerTransmissionModal
+        open={transmissionCible !== null}
+        onClose={() => setTransmissionCible(null)}
+        invoiceId={transmissionCible?.id ?? null}
+        invoiceNumero={transmissionCible?.numero}
+        onSuccess={() => {
+          setAvertissements([]);
+          void refetchPayments();
+        }}
       />
 
       <MotifAnnulationModal
