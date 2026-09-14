@@ -84,7 +84,7 @@ describe("InvoiceDocument — gabarit standard", () => {
     expect(buf.length).toBeGreaterThan(0);
   });
 
-  it("rend un dossier au forfait (colonnes heures et taux retirées)", async () => {
+  it("rend un dossier au forfait, quantité et taux montrés", async () => {
     const forfait = {
       ...base,
       isForfait: true,
@@ -93,6 +93,42 @@ describe("InvoiceDocument — gabarit standard", () => {
       ],
     } as unknown as PresentedInvoice;
     const buf = await rendu(forfait);
+    expect(buf.length).toBeGreaterThan(0);
+  });
+
+  it("rend une facture mixte : forfait et horaire, chacun son sous-total", async () => {
+    /* Le cas que le document ne savait pas montrer avant le 2026-09-14 : les
+       lignes au forfait laissaient deux colonnes vides au milieu des lignes
+       horaires, et rien ne disait au client ce qui était facturé d'avance. */
+    const mixte = {
+      ...base,
+      isForfait: false,
+      lines: [
+        {
+          ...base.lines[0],
+          id: "l-forfait",
+          description: "Constitution de société — forfait",
+          basis: "forfait" as const,
+          quantite: 1,
+          taux: 850,
+          hours: 1,
+          rate: 850,
+          amount: 850,
+        },
+        {
+          ...base.lines[0],
+          id: "l-horaire",
+          description: "Contestation de saisie",
+          basis: "horaire" as const,
+          quantite: 2.5,
+          taux: 300,
+          hours: 2.5,
+          rate: 300,
+          amount: 750,
+        },
+      ],
+    };
+    const buf = await rendu(mixte);
     expect(buf.length).toBeGreaterThan(0);
   });
 

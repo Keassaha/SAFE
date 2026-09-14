@@ -16,9 +16,24 @@
 
 import type { PresentedLine } from "@/lib/services/billing/invoice-presenter";
 
+/**
+ * Comment la facture a formé ses honoraires.
+ *
+ * Déduit des LIGNES, jamais du mode du dossier : une facture porte parfois les
+ * deux, et un dossier au forfait peut porter une heure. Demande CEO du
+ * 2026-09-14.
+ */
+export type ModeHonoraires = "horaire" | "forfait" | "mixte" | "aucun";
+
 export interface GroupesFacture {
-  /** Le travail : ce que le cabinet a fait. */
+  /** Le travail : ce que le cabinet a fait. Les deux familles réunies. */
   honoraires: PresentedLine[];
+  /** Les honoraires au forfait. Vides si la facture n'en porte pas. */
+  honorairesForfait: PresentedLine[];
+  /** Les honoraires au temps passé. */
+  honorairesHoraire: PresentedLine[];
+  /** `mixte` quand les deux familles sont présentes. */
+  modeHonoraires: ModeHonoraires;
   /** Les sommes avancées à des tiers pour le compte du client. */
   debours: PresentedLine[];
   /** Les rabais, rendus à part : un montant négatif dans un tableau se rate. */
@@ -31,6 +46,10 @@ export interface GroupesFacture {
     deboursNonTaxables: number;
     /** Somme des deux, telle qu'elle s'affiche sur le titre du groupe. */
     debours: number;
+    /** Sous-total du forfait, porté par son titre sur une facture mixte. */
+    honorairesForfait: number;
+    /** Sous-total de l'horaire. */
+    honorairesHoraire: number;
     rabais: number;
     /** L'assiette sur laquelle la TPS et la TVQ se calculent. */
     baseTaxable: number;
@@ -39,6 +58,8 @@ export interface GroupesFacture {
 
 export function grouperLignes(lignes: PresentedLine[]): GroupesFacture {
   const honoraires: PresentedLine[] = [];
+  const honorairesForfait: PresentedLine[] = [];
+  const honorairesHoraire: PresentedLine[] = [];
   const debours: PresentedLine[] = [];
   const rabais: PresentedLine[] = [];
   const autres: PresentedLine[] = [];
@@ -47,12 +68,24 @@ export function grouperLignes(lignes: PresentedLine[]): GroupesFacture {
   let sTaxables = 0;
   let sNonTaxables = 0;
   let sRabais = 0;
+  let sForfait = 0;
+  let sHoraire = 0;
 
   for (const l of lignes) {
     switch (l.type) {
       case "honoraires":
         honoraires.push(l);
         sHonoraires += l.amount;
+        /* Une ligne sans base déclarée rejoint l'horaire : c'est le cas
+           ordinaire, et le forfait se déclare. Mieux vaut ranger une ligne
+           ancienne du mauvais côté que la faire disparaître d'un tableau. */
+        if (l.basis === "forfait") {
+          honorairesForfait.push(l);
+          sForfait += l.amount;
+        } else {
+          honorairesHoraire.push(l);
+          sHoraire += l.amount;
+        }
         break;
       case "debours_taxable":
         debours.push(l);
@@ -78,13 +111,27 @@ export function grouperLignes(lignes: PresentedLine[]): GroupesFacture {
      le rabais la réduit. C'est le nombre qui rend la facture vérifiable. */
   const baseTaxable = arrondi(sHonoraires + sTaxables - sRabais);
 
+  const modeHonoraires: ModeHonoraires =
+    honorairesForfait.length > 0 && honorairesHoraire.length > 0
+      ? "mixte"
+      : honorairesForfait.length > 0
+        ? "forfait"
+        : honorairesHoraire.length > 0
+          ? "horaire"
+          : "aucun";
+
   return {
     honoraires,
+    honorairesForfait,
+    honorairesHoraire,
+    modeHonoraires,
     debours,
     rabais,
     autres,
     sousTotaux: {
       honoraires: arrondi(sHonoraires),
+      honorairesForfait: arrondi(sForfait),
+      honorairesHoraire: arrondi(sHoraire),
       deboursTaxables: arrondi(sTaxables),
       deboursNonTaxables: arrondi(sNonTaxables),
       debours: arrondi(sTaxables + sNonTaxables),

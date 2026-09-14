@@ -386,3 +386,46 @@ Donnees sur l'ecran `/facturation` en production locale, captures a l'appui.
 3. **« il manque une logique comptable, je vois qu'une facture qui n'a jamais ete
    envoyee est payee dans les statuts, gere cette incoherence comptable »**
 4. **« Les titres doivent etre mieux ajustes »**
+
+### 2026-09-14 · Honoraires a facturer, la ligne de groupe
+
+> « cette ligne pour moi n'est pas necessaire »
+
+Capture a l'appui : la ligne « Services Longueuil inc. · 1 dossier — 1 006,03 $ », en
+tete du groupe d'un client qui n'a qu'un dossier.
+
+Verifie dans le code : cette ligne porte quatre choses. Le total du client (identique a
+celui du dossier quand il n'y en a qu'un), le compte de dossiers, le NOM DU CLIENT — qui
+n'est ecrit nulle part ailleurs dans ce tableau — et, a partir de deux dossiers, le lien
+« Une facture pour les N dossiers », seul endroit du produit qui prepare une facture
+groupee.
+
+Proposition montree en image : la ligne disparait quand le client n'a qu'un dossier, et
+son nom passe sur la ligne du dossier. Elle reste des deux dossiers, ou elle additionne
+vraiment et porte le lien.
+
+### 2026-09-14 · Le document de facture, les trois modes
+
+> « la facture n'est pas assez detaillee par exemple, je fais allusion aux titres comme
+> le taux (pour horaire) et pour Quantite (pour les heures) et une organisation aussi
+> pour une facture mixte et une facture par forfait »
+
+Verifie dans le code (`lib/services/billing/invoice-presenter.ts` l. 400-460,
+`lib/invoice-template/InvoiceDocument.tsx` l. 525-545) :
+
+- `InvoiceLine` porte DEJA `quantite` et `tauxUnitaire` sur chaque ligne.
+- Le presentateur les met a `null` des que `invoice.dossier.modeFacturation === "forfait"` :
+  une facture au forfait perd donc les deux colonnes entierement.
+- Le mode de la facture vient du DOSSIER, jamais des lignes : une ligne horaire sur un
+  dossier au forfait perd aussi son taux.
+- En mixte, tout vit dans un seul tableau ; les lignes au forfait y laissent deux
+  colonnes vides.
+
+Proposition montree en image : « Heures » devient « Quantite » ; le presentateur cesse
+d'effacer quantite et taux ; chaque ligne dit d'ou vient son prix (temps saisi ou
+forfait) ; le mode se deduit des lignes ; en mixte le bloc se scinde en « Au forfait » et
+« A l'heure », chacun avec son sous-total.
+
+**Tranche le 2026-09-14** : « Quantite partout, forfait avant horaire, on met a
+execution. » Donc « Quantite » dans les trois modes, y compris l'horaire pur, et en
+mixte le bloc « Au forfait » precede « A l'heure ».

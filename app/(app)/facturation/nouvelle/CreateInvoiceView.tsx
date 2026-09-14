@@ -423,17 +423,34 @@ export function CreateInvoiceView({
 
     const presentedLines: PresentedLine[] = lines.flatMap<PresentedLine>(
       (l) => {
+        /* L'aperçu en direct doit dire exactement ce que le document dira :
+           une ligne au forfait porte une quantité de 1 au prix du forfait, une
+           ligne horaire porte ses heures et son taux. Demande CEO du
+           2026-09-14. */
+        const estHonoraireApercu = !["rabais", "frais_administratifs", "debours", "debours_taxable", "debours_non_taxable"].includes(
+          l.type,
+        );
+        const auForfait = estHonoraireApercu && l.type === "forfait";
+        const quantiteApercu = !estHonoraireApercu
+          ? null
+          : auForfait
+            ? (l.hours || 1)
+            : l.hours || null;
+        const tauxApercu = !estHonoraireApercu
+          ? null
+          : auForfait
+            ? (l.rate || l.amount)
+            : l.rate || null;
         const baseLine: PresentedLine = {
           id: l.id,
           type: lineToType(l),
           description: l.description || "—",
           date: l.date,
-          hours: ["rabais", "frais_administratifs", "debours"].includes(l.type)
-            ? null
-            : l.hours || null,
-          rate: ["rabais", "frais_administratifs", "debours"].includes(l.type)
-            ? null
-            : l.rate || null,
+          hours: quantiteApercu,
+          rate: tauxApercu,
+          quantite: quantiteApercu,
+          taux: tauxApercu,
+          basis: estHonoraireApercu ? (auForfait ? "forfait" : "horaire") : null,
           amount: l.type === "rabais" ? -Math.abs(l.amount) : l.amount,
           userNom:
             l.type === "rabais" || l.type === "frais_administratifs"
@@ -451,6 +468,9 @@ export function CreateInvoiceView({
           out.push({
             id: `${l.id}-rabais`,
             type: "rabais",
+            quantite: null,
+            taux: null,
+            basis: null,
             description: l.rabaisRaison
               ? `Rabais — ${l.rabaisRaison}`
               : `Rabais — ${l.description || "ligne"}`,

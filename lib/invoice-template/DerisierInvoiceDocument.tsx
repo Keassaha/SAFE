@@ -65,7 +65,7 @@ const labels = {
     detail: "HONORAIRES & DÉBOURS",
     colDesc: "DESCRIPTION",
     colDate: "DATE",
-    colHours: "HEURES",
+    colHours: "QUANTITÉ",
     colRate: "TAUX",
   },
   en: {
@@ -85,7 +85,7 @@ const labels = {
     detail: "FEES & DISBURSEMENTS",
     colDesc: "DESCRIPTION",
     colDate: "DATE",
-    colHours: "HOURS",
+    colHours: "QUANTITY",
     colRate: "RATE",
   },
 } as const;
@@ -473,11 +473,18 @@ export function DerisierInvoiceDocument({
               <Text style={[styles.itemCell, styles.colDate]}>
                 {line.date ? fmtDate(line.date, language) : "—"}
               </Text>
+              {/* La quantité dit son unité : « 2,5 h » pour du temps, un nombre
+                  nu pour un forfait. La colonne s'appelait « Heures » et
+                  l'unité était implicite. Demande CEO du 2026-09-14. */}
               <Text style={[styles.itemCellNum, styles.colHours]}>
-                {line.hours != null ? line.hours.toLocaleString(numberLocale) : "—"}
+                {line.quantite != null
+                  ? line.basis === "forfait"
+                    ? line.quantite.toLocaleString(numberLocale)
+                    : `${line.quantite.toLocaleString(numberLocale)} h`
+                  : "—"}
               </Text>
               <Text style={[styles.itemCellNum, styles.colRate]}>
-                {line.rate != null ? fmtMoney(line.rate, language, currency) : "—"}
+                {line.taux != null ? fmtMoney(line.taux, language, currency) : "—"}
               </Text>
               <Text style={[styles.itemAmount, styles.colAmount]}>
                 {fmtMoney(line.amount, language, currency)}

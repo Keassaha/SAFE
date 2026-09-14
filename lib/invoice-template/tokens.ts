@@ -119,9 +119,12 @@ export const tableColumns = {
  */
 export const colonnesHonoraires = {
   date: 11,
-  prestation: 43,
+  /* 40 au lieu de 43 : les trois points vont à la quantité. Le titre de sa
+     colonne est passé de « HEURES » à « QUANTITÉ » le 2026-09-14, et il se
+     coupait en deux à 9 %. La prestation reste de loin la plus large. */
+  prestation: 40,
   intervenant: 16,
-  heures: 9,
+  heures: 12,
   taux: 9,
   montant: 12,
 } as const;

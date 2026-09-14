@@ -63,12 +63,14 @@ const labels = {
     bn: "Entreprise",
     taxNumbers: "NUMÉROS D'INSCRIPTION",
     groupFees: "HONORAIRES PROFESSIONNELS",
+    familleForfait: "Au forfait",
+    familleHoraire: "À l'heure",
     groupExpenses: "DÉBOURS ET FRAIS",
     groupOther: "AJUSTEMENTS",
     colDate: "DATE",
     colService: "PRESTATION",
     colWho: "INTERVENANT",
-    colHours: "HEURES",
+    colHours: "QUANTITÉ",
     colRate: "TAUX",
     colAmount: "MONTANT",
     colNature: "NATURE",
@@ -107,12 +109,14 @@ const labels = {
     bn: "Business",
     taxNumbers: "REGISTRATION NUMBERS",
     groupFees: "PROFESSIONAL FEES",
+    familleForfait: "Flat fee",
+    familleHoraire: "Hourly",
     groupExpenses: "DISBURSEMENTS AND CHARGES",
     groupOther: "ADJUSTMENTS",
     colDate: "DATE",
     colService: "SERVICE",
     colWho: "FEE EARNER",
-    colHours: "HOURS",
+    colHours: "QUANTITY",
     colRate: "RATE",
     colAmount: "AMOUNT",
     colNature: "NATURE",
@@ -250,6 +254,29 @@ const styles = StyleSheet.create({
 
   /* ── Groupes de lignes ────────────────────────────────────────── */
   group: { marginBottom: 10 },
+  /* Le sous-titre d'une famille : plus discret que le titre du groupe, un filet
+     fin, pour qu'on lise « un groupe qui contient deux familles » et non deux
+     groupes. */
+  familleTitleRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "baseline",
+    borderBottomWidth: 0.5,
+    borderBottomColor: colors.border,
+    paddingTop: 8,
+    paddingBottom: 3,
+  },
+  familleTitle: {
+    fontSize: echelle.petit,
+    fontFamily: font.bold,
+    color: colors.textMuted,
+    letterSpacing: 0.8,
+  },
+  familleSubtotal: {
+    fontSize: echelle.petit,
+    fontFamily: font.bold,
+    color: colors.text,
+  },
   groupTitleRow: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -430,6 +457,28 @@ function fmtMoney(
   }).format(n);
 }
 
+/**
+ * La quantité, dans son unité.
+ *
+ * La colonne s'appelait « Heures » et l'unité était donc implicite. Nommée
+ * « Quantité », elle doit la dire : « 2,50 h » pour du temps, un nombre nu pour
+ * un forfait. Demande CEO du 2026-09-14.
+ */
+function fmtQuantite(
+  quantite: number,
+  basis: "horaire" | "forfait" | null,
+  locale: InvoiceLanguage,
+): string {
+  const intl = locale === "en" ? "en-CA" : "fr-CA";
+  if (basis === "forfait") {
+    return new Intl.NumberFormat(intl, {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2,
+    }).format(quantite);
+  }
+  return `${fmtHeures(quantite, locale)} h`;
+}
+
 function fmtHeures(n: number, locale: InvoiceLanguage): string {
   const intl = locale === "en" ? "en-CA" : "fr-CA";
   return new Intl.NumberFormat(intl, {
@@ -522,14 +571,24 @@ export function InvoiceDocument({
 
   const groupes = grouperLignes(invoice.lines);
 
-  // Les colonnes « Heures » et « Taux » n'ont de sens qu'en mode horaire. Au
-  // forfait, elles affichaient deux tirets par ligne sur toute la facture ;
-  // on les retire et la prestation récupère la place.
-  const montrerHeures =
-    !invoice.isForfait &&
-    groupes.honoraires.some(
-      (l) => l.hours != null && l.hours > 0 && l.rate != null,
-    );
+  /* « Quantité » et « Taux » se montrent dès qu'une ligne d'honoraires porte de
+     quoi les remplir, quel que soit le mode du dossier. Jusqu'au 2026-09-14
+     elles disparaissaient entièrement sur une facture au forfait : le client
+     lisait trois montants sans jamais voir ce que chaque chose valait à
+     l'unité. Elles ne restent masquées que si AUCUNE ligne n'a de quantité —
+     sinon la prestation récupère la place. Demande CEO du 2026-09-14. */
+  const montrerHeures = groupes.honoraires.some(
+    (l) => l.quantite != null && l.quantite > 0 && l.taux != null,
+  );
+  /* Deux familles, deux sous-totaux, seulement quand la facture porte les deux.
+     Le forfait d'abord : décision CEO du 2026-09-14. */
+  const famillesHonoraires =
+    groupes.modeHonoraires === "mixte"
+      ? [
+          { cle: "forfait", titre: t.familleForfait, lignes: groupes.honorairesForfait, sousTotal: groupes.sousTotaux.honorairesForfait },
+          { cle: "horaire", titre: t.familleHoraire, lignes: groupes.honorairesHoraire, sousTotal: groupes.sousTotaux.honorairesHoraire },
+        ]
+      : [{ cle: "tout", titre: null, lignes: groupes.honoraires, sousTotal: groupes.sousTotaux.honoraires }];
   const cH = montrerHeures
     ? colonnesHonoraires
     : {
@@ -659,7 +718,12 @@ export function InvoiceDocument({
           </View>
         ) : null}
 
-        {/* ── Groupe 1 : le travail ──────────────────────────────── */}
+        {/* ── Groupe 1 : le travail ────────────────────────────────
+            Un seul groupe, mais deux familles quand la facture porte à la fois
+            du forfait et de l'horaire : chacune a son sous-titre et son
+            sous-total, le forfait d'abord. Sur une facture d'un seul mode, la
+            boucle ne tourne qu'une fois et rien ne change.
+            Demande CEO du 2026-09-14. */}
         {groupes.honoraires.length > 0 ? (
           <View style={styles.group}>
             <View style={styles.groupTitleRow} minPresenceAhead={40}>
@@ -668,124 +732,78 @@ export function InvoiceDocument({
                 {fmtMoney(groupes.sousTotaux.honoraires, language, currency)}
               </Text>
             </View>
-            <View style={styles.headRow}>
-              <Text
-                style={[styles.headCell, styles.pr, { width: `${cH.date}%` }]}
-              >
-                {t.colDate}
-              </Text>
-              <Text
-                style={[
-                  styles.headCell,
-                  styles.pr,
-                  { width: `${cH.prestation}%` },
-                ]}
-              >
-                {t.colService}
-              </Text>
-              <Text
-                style={[
-                  styles.headCell,
-                  styles.pr,
-                  { width: `${cH.intervenant}%` },
-                ]}
-              >
-                {t.colWho}
-              </Text>
-              {montrerHeures ? (
-                <>
-                  <Text
-                    style={[
-                      styles.headCell,
-                      styles.right,
-                      styles.pr,
-                      { width: `${cH.heures}%` },
-                    ]}
-                  >
-                    {t.colHours}
-                  </Text>
-                  <Text
-                    style={[
-                      styles.headCell,
-                      styles.right,
-                      styles.pr,
-                      { width: `${cH.taux}%` },
-                    ]}
-                  >
-                    {t.colRate}
-                  </Text>
-                </>
-              ) : null}
-              <Text
-                style={[
-                  styles.headCell,
-                  styles.right,
-                  { width: `${cH.montant}%` },
-                ]}
-              >
-                {t.colAmount}
-              </Text>
-            </View>
-            {groupes.honoraires.map((l) => (
-              <View key={l.id} style={styles.row} wrap={false}>
-                <Text
-                  style={[
-                    styles.cellMuted,
-                    styles.pr,
-                    { width: `${cH.date}%` },
-                  ]}
-                >
-                  {l.date ? fmtDateShort(l.date, language) : "—"}
-                </Text>
-                <Text
-                  style={[
-                    styles.cell,
-                    styles.pr,
-                    { width: `${cH.prestation}%` },
-                  ]}
-                >
-                  {l.description || "—"}
-                </Text>
-                <Text
-                  style={[
-                    styles.cellMuted,
-                    styles.pr,
-                    { width: `${cH.intervenant}%` },
-                  ]}
-                >
-                  {l.userNom || "—"}
-                </Text>
-                {montrerHeures ? (
-                  <>
-                    <Text
-                      style={[
-                        styles.cellMuted,
-                        styles.right,
-                        styles.pr,
-                        { width: `${cH.heures}%` },
-                      ]}
-                    >
-                      {l.hours != null && l.hours > 0
-                        ? fmtHeures(l.hours, language)
-                        : "—"}
+            {famillesHonoraires.map((famille) => (
+              <View key={famille.cle}>
+                {famille.titre ? (
+                  <View style={styles.familleTitleRow} minPresenceAhead={30}>
+                    <Text style={styles.familleTitle}>{famille.titre}</Text>
+                    <Text style={styles.familleSubtotal}>
+                      {fmtMoney(famille.sousTotal, language, currency)}
                     </Text>
-                    <Text
-                      style={[
-                        styles.cellMuted,
-                        styles.right,
-                        styles.pr,
-                        { width: `${cH.taux}%` },
-                      ]}
-                    >
-                      {l.rate != null && l.rate > 0
-                        ? fmtMoney(l.rate, language, currency)
-                        : "—"}
-                    </Text>
-                  </>
+                  </View>
                 ) : null}
-                <Text style={[styles.cellAmount, { width: `${cH.montant}%` }]}>
-                  {fmtMoney(l.amount, language, currency)}
-                </Text>
+                <View style={styles.headRow}>
+                  <Text style={[styles.headCell, styles.pr, { width: `${cH.date}%` }]}>
+                    {t.colDate}
+                  </Text>
+                  <Text style={[styles.headCell, styles.pr, { width: `${cH.prestation}%` }]}>
+                    {t.colService}
+                  </Text>
+                  <Text style={[styles.headCell, styles.pr, { width: `${cH.intervenant}%` }]}>
+                    {t.colWho}
+                  </Text>
+                  {montrerHeures ? (
+                    <>
+                      <Text
+                        style={[styles.headCell, styles.right, styles.pr, { width: `${cH.heures}%` }]}
+                      >
+                        {t.colHours}
+                      </Text>
+                      <Text
+                        style={[styles.headCell, styles.right, styles.pr, { width: `${cH.taux}%` }]}
+                      >
+                        {t.colRate}
+                      </Text>
+                    </>
+                  ) : null}
+                  <Text style={[styles.headCell, styles.right, { width: `${cH.montant}%` }]}>
+                    {t.colAmount}
+                  </Text>
+                </View>
+                {famille.lignes.map((l) => (
+                  <View key={l.id} style={styles.row} wrap={false}>
+                    <Text style={[styles.cellMuted, styles.pr, { width: `${cH.date}%` }]}>
+                      {l.date ? fmtDateShort(l.date, language) : "—"}
+                    </Text>
+                    <Text style={[styles.cell, styles.pr, { width: `${cH.prestation}%` }]}>
+                      {l.description || "—"}
+                    </Text>
+                    <Text style={[styles.cellMuted, styles.pr, { width: `${cH.intervenant}%` }]}>
+                      {l.userNom || "—"}
+                    </Text>
+                    {montrerHeures ? (
+                      <>
+                        <Text
+                          style={[styles.cellMuted, styles.right, styles.pr, { width: `${cH.heures}%` }]}
+                        >
+                          {l.quantite != null && l.quantite > 0
+                            ? fmtQuantite(l.quantite, l.basis, language)
+                            : "—"}
+                        </Text>
+                        <Text
+                          style={[styles.cellMuted, styles.right, styles.pr, { width: `${cH.taux}%` }]}
+                        >
+                          {l.taux != null && l.taux > 0
+                            ? fmtMoney(l.taux, language, currency)
+                            : "—"}
+                        </Text>
+                      </>
+                    ) : null}
+                    <Text style={[styles.cellAmount, { width: `${cH.montant}%` }]}>
+                      {fmtMoney(l.amount, language, currency)}
+                    </Text>
+                  </View>
+                ))}
               </View>
             ))}
           </View>

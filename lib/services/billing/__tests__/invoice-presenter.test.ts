@@ -236,7 +236,7 @@ describe("invoice-presenter", () => {
     expect(t.balanceDue).toBe(1174.75);
   });
 
-  it("forfait : ne projette pas heures × taux sur les honoraires", () => {
+  it("forfait : la quantité et le taux du forfait sont rendus au client", () => {
     const invoice = baseInvoice({
       dossier: {
         id: "dos-1",
@@ -259,9 +259,47 @@ describe("invoice-presenter", () => {
     const fee = presented.lines[0];
     expect(fee.type).toBe("honoraires");
     expect(fee.amount).toBe(2500);
-    // En mode forfait, aucune projection horaire :
-    expect(fee.hours).toBeNull();
-    expect(fee.rate).toBeNull();
+    /* CHANGEMENT DU 2026-09-14, demande CEO.
+       Ce test vérifiait l'inverse : au forfait, le présentateur mettait la
+       quantité et le taux à `null`, et le document perdait alors ses deux
+       colonnes entières. Le client lisait un montant sans jamais voir ce que la
+       chose valait à l'unité. Les deux champs existaient pourtant en base sur
+       chaque ligne. Ils sont désormais rendus, et c'est le document qui décide
+       comment les afficher — « 1 » pour un forfait, « 2,50 h » pour du temps. */
+    expect(fee.quantite).toBe(8);
+    expect(fee.taux).toBe(200);
+    expect(fee.basis).toBe("forfait");
+    // Les anciens noms portent la même valeur, le temps que les gabarits
+    // historiques migrent.
+    expect(fee.hours).toBe(8);
+    expect(fee.rate).toBe(200);
+  });
+
+  it("une ligne horaire garde son taux même sur un dossier au forfait", () => {
+    /* Le mode se lit sur la LIGNE, plus sur le dossier : une heure travaillée
+       sur un dossier au forfait perdait son taux, alors que la donnée était là. */
+    const invoice = baseInvoice({
+      dossier: {
+        id: "dos-1",
+        intitule: "Demande EE",
+        numeroDossier: "2026-001",
+        modeFacturation: "forfait",
+      },
+      invoiceLines: [
+        fakeInvoiceLine({
+          lineType: "fee",
+          sourceType: "time_entry",
+          quantite: 2.5,
+          tauxUnitaire: 300,
+          lineSubtotal: 750,
+          description: "Appel avec la partie adverse",
+        }),
+      ],
+    });
+    const fee = presentInvoice(invoice).lines[0];
+    expect(fee.basis).toBe("horaire");
+    expect(fee.quantite).toBe(2.5);
+    expect(fee.taux).toBe(300);
   });
 
   it("horaire : projette heures × taux sur les honoraires", () => {

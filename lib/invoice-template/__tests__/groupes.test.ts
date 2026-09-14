@@ -71,3 +71,56 @@ describe("deboursEstTaxable", () => {
     expect(deboursEstTaxable(l({ type: "debours_non_taxable", amount: 1 }))).toBe(false);
   });
 });
+
+describe("grouperLignes — le forfait et l'horaire se séparent", () => {
+  const forfait = (amount: number) =>
+    l({ type: "honoraires", amount, basis: "forfait", quantite: 1, taux: amount });
+  const horaire = (amount: number, h: number, taux: number) =>
+    l({ type: "honoraires", amount, basis: "horaire", quantite: h, taux });
+
+  it("dit « horaire » quand rien n'est au forfait", () => {
+    const g = grouperLignes([horaire(750, 2.5, 300), horaire(1140, 3.8, 300)]);
+    expect(g.modeHonoraires).toBe("horaire");
+    expect(g.honorairesForfait).toHaveLength(0);
+    expect(g.sousTotaux.honorairesHoraire).toBe(1890);
+  });
+
+  it("dit « forfait » quand rien n'est à l'heure", () => {
+    const g = grouperLignes([forfait(850), forfait(1100)]);
+    expect(g.modeHonoraires).toBe("forfait");
+    expect(g.honorairesHoraire).toHaveLength(0);
+    expect(g.sousTotaux.honorairesForfait).toBe(1950);
+  });
+
+  it("dit « mixte » quand les deux familles sont là, et totalise chacune", () => {
+    const g = grouperLignes([forfait(850), horaire(750, 2.5, 300), forfait(200), horaire(1140, 3.8, 300)]);
+    expect(g.modeHonoraires).toBe("mixte");
+    expect(g.honorairesForfait).toHaveLength(2);
+    expect(g.honorairesHoraire).toHaveLength(2);
+    expect(g.sousTotaux.honorairesForfait).toBe(1050);
+    expect(g.sousTotaux.honorairesHoraire).toBe(1890);
+    // Les deux sous-totaux redonnent le total du groupe : c'est ce qui rend la
+    // facture vérifiable par le client.
+    expect(g.sousTotaux.honorairesForfait + g.sousTotaux.honorairesHoraire).toBe(
+      g.sousTotaux.honoraires,
+    );
+  });
+
+  it("range une ligne sans base déclarée du côté horaire plutôt que de la perdre", () => {
+    const g = grouperLignes([l({ type: "honoraires", amount: 500 })]);
+    expect(g.honorairesHoraire).toHaveLength(1);
+    expect(g.modeHonoraires).toBe("horaire");
+  });
+
+  it("dit « aucun » sur une facture qui ne porte que des débours", () => {
+    const g = grouperLignes([l({ type: "debours_non_taxable", amount: 191 })]);
+    expect(g.modeHonoraires).toBe("aucun");
+  });
+
+  it("ne range ni un débours ni un rabais dans une famille d'honoraires", () => {
+    const g = grouperLignes([forfait(850), l({ type: "debours_taxable", amount: 150 }), l({ type: "rabais", amount: -50 })]);
+    expect(g.honorairesForfait).toHaveLength(1);
+    expect(g.honorairesHoraire).toHaveLength(0);
+    expect(g.sousTotaux.honorairesForfait).toBe(850);
+  });
+});

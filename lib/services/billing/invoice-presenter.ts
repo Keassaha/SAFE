@@ -70,6 +70,9 @@ function extractInvoiceTemplate(rawConfig: string | null) {
   };
 }
 
+/** Comment le prix d'une ligne d'honoraires a été formé. */
+export type LineBasis = "horaire" | "forfait";
+
 export type PresentedLineType =
   | "honoraires"
   | "debours_taxable"
@@ -88,10 +91,33 @@ export interface PresentedLine {
   description: string;
   /** Date affichée (ISO string ou Date). */
   date: string | Date;
-  /** Heures (mode horaire seulement). null si forfait ou rabais simple. */
+  /**
+   * @deprecated Employer `quantite`. Conservé le temps que les gabarits HTML
+   * historiques migrent ; porte exactement la même valeur.
+   */
   hours: number | null;
-  /** Taux horaire. null hors mode horaire. */
+  /** @deprecated Employer `taux`. */
   rate: number | null;
+  /**
+   * Ce qui est compté sur la ligne : des heures en mode horaire, un nombre
+   * d'unités au forfait. Vient de `InvoiceLine.quantite`, qui l'a toujours porté.
+   *
+   * Jusqu'au 2026-09-14, ce champ était mis à `null` dès que le DOSSIER était au
+   * forfait : une facture au forfait perdait alors ses deux colonnes, et le
+   * client ne voyait aucun prix unitaire. Une heure travaillée sur un dossier au
+   * forfait perdait son taux pour la même raison. Demande CEO du 2026-09-14.
+   */
+  quantite: number | null;
+  /** Le prix de l'unité : le taux horaire, ou le montant du forfait. */
+  taux: number | null;
+  /**
+   * D'où vient le prix de cette ligne. Sert au document à séparer les deux
+   * familles sur une facture mixte, et il se lit sur la LIGNE, non sur le mode
+   * du dossier : une facture porte parfois les deux.
+   *
+   * `null` sur ce qui n'est pas un honoraire (débours, rabais, intérêts).
+   */
+  basis: LineBasis | null;
   /** Montant brut (positif pour honoraires/débours, négatif pour rabais). */
   amount: number;
   /** Nom de l'avocat/professionnel responsable, si applicable. */
@@ -416,18 +442,36 @@ export function presentInvoice(
       const description = isRabais
         ? buildRabaisDescription(line.discountReason, line.description)
         : line.description;
-      // En mode forfait, on ne projette pas heures × taux comme rendu principal :
-      // les fiches de temps internes restent dans la donnée (quantite/taux) mais
-      // ne doivent pas devenir un service horaire client. Une ligne d'honoraires
-      // au forfait est typiquement quantite=1, taux=montant : on masque.
-      const showHourly = !isForfait && presentedType === "honoraires" && line.lineType === "fee";
+      /* La quantité et le taux se montrent sur toute ligne d'honoraires, quel
+         que soit le mode du dossier. Un forfait vaut quantité 1 (ou N) au prix
+         du forfait ; le client a le droit de le lire. Ils restent nuls sur ce
+         qui n'est pas un honoraire : un débours a son propre tableau, sans
+         colonne de quantité. */
+      const estHonoraire = presentedType === "honoraires" && line.lineType === "fee";
+      /* Le prix vient d'un temps saisi, ou d'un forfait. La source de la ligne
+         le dit sans ambiguïté ; le rattachement à une fiche de temps tranche
+         les lignes anciennes qui n'ont pas de `sourceType`. */
+      const basis: LineBasis | null = !estHonoraire
+        ? null
+        : line.sourceType === "time_entry" || line.timeEntryId
+          ? "horaire"
+          : line.sourceType === "registre_tache"
+            ? "forfait"
+            : isForfait
+              ? "forfait"
+              : "horaire";
+      const quantite = estHonoraire ? line.quantite : null;
+      const taux = estHonoraire ? line.tauxUnitaire : null;
       return {
         id: `line:${line.id}`,
         type: presentedType,
         description,
         date: line.serviceDate ?? line.createdAt,
-        hours: showHourly ? line.quantite : null,
-        rate: showHourly ? line.tauxUnitaire : null,
+        hours: quantite,
+        rate: taux,
+        quantite,
+        taux,
+        basis,
         amount: isRabais ? -Math.abs(amount) : amount,
         userNom: line.timeEntry?.user?.nom ?? null,
         parentLineId: line.parentLineId ?? null,
@@ -444,15 +488,27 @@ export function presentInvoice(
     const description = isRabais
       ? buildRabaisDescription(/* legacy n'a pas de discountReason */ null, item.description)
       : item.description;
-    const showHourly =
-      !isForfait && item.type === "honoraires" && item.hours != null && item.rate != null;
+    const estHonoraire = item.type === "honoraires";
+    /* Une ligne héritée n'a pas de `sourceType` : des heures réelles disent
+       l'horaire, leur absence dit le forfait. */
+    const aDesHeures = item.hours != null && item.hours > 0 && item.rate != null;
+    const basis: LineBasis | null = !estHonoraire
+      ? null
+      : aDesHeures
+        ? "horaire"
+        : "forfait";
+    const quantite = estHonoraire ? (item.hours ?? (basis === "forfait" ? 1 : null)) : null;
+    const taux = estHonoraire ? (item.rate ?? (basis === "forfait" ? amount : null)) : null;
     return {
       id: `item:${item.id}`,
       type: (isRabais ? "rabais" : (item.type as PresentedLineType)) ?? "honoraires",
       description,
       date: item.date,
-      hours: showHourly ? item.hours : null,
-      rate: showHourly ? item.rate : null,
+      hours: quantite,
+      rate: taux,
+      quantite,
+      taux,
+      basis,
       amount: isRabais ? -Math.abs(amount) : amount,
       userNom: item.professionalDisplayName ?? item.user?.nom ?? null,
       parentLineId: item.parentLineId ?? null,
