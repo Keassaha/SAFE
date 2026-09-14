@@ -9,18 +9,23 @@ datasource db {
 }
 
 model Cabinet {
-  id                          String    @id @default(cuid())
-  nom                         String
-  adresse                     String?
-  telephone                   String?
-  email                       String?
-  logoUrl                     String?
-  barreauNumero               String? // LSO#, Barreau# for invoice header
+  id                        String    @id @default(cuid())
+  /// Nombre de clients que le cabinet se donne à entrer, saisi au début de la
+  /// reprise. Sert uniquement à afficher « 6 entrés, 24 à venir ». NULL veut
+  /// dire qu'aucun objectif n'a été posé : l'écran compte alors sans promettre
+  /// une fin, plutôt que d'inventer un dénominateur.
+  objectifEntreeClients     Int?
+  nom                       String
+  adresse                   String?
+  telephone                 String?
+  email                     String?
+  logoUrl                   String?
+  barreauNumero             String? // LSO#, Barreau# for invoice header
   /// Fin d'exercice financier, format "MM-DD". Toutes les durées de conservation
   /// ancrées sur l'exercice en dépendent : art. 32 QC (7 ans après la fin de
   /// l'exercice) et By-Law 9 s. 23 ON (6 ans / 10 ans précédant la dernière fin
   /// d'exercice). Sans cette donnée, aucune rétention n'est calculable.
-  fiscalYearEnd               String?
+  fiscalYearEnd             String?
   /// Date à partir de laquelle le garde-fou d'identité BLOQUE les mouvements de
   /// fonds (art. 26(1) B-1 r.5 / s. 22(1)(b) By-Law 7.1).
   ///
@@ -34,7 +39,7 @@ model Cabinet {
   ///             mais ne bloque pas. Signalé comme écart de conformité ouvert.
   /// future    → période de régularisation, compte à rebours affiché au cabinet.
   /// atteinte  → blocage effectif.
-  identityGateEnforcedFrom    DateTime?
+  identityGateEnforcedFrom  DateTime?
   /// Exige-t-on une pièce justificative pour marquer une identité « vérifiée » ?
   ///
   /// Par défaut OUI (art. 22 B-1 r.5 / s. 23(13) By-Law 7.1). Le réglage existe
@@ -44,19 +49,19 @@ model Cabinet {
   ///
   /// La levée est ATTRIBUÉE : qui, quand, pourquoi. Une dispense anonyme est une
   /// dispense que personne n'assume, et c'est ce qu'un inspecteur cherche.
-  identityProofRequired       Boolean   @default(true)
-  identityProofWaivedById     String?
-  identityProofWaivedAt       DateTime?
-  identityProofWaiverReason   String?
-  config                      String? // JSON: tauxInteret, devise, formatFacture
-  plan                        String    @default("essentiel")
-  stripeCustomerId            String?   @unique
-  stripeSubscriptionId        String?   @unique
-  stripePriceId               String?
-  stripeSubscriptionStatus    String?
-  stripeCurrentPeriodEnd      DateTime?
-  stripeCancelAtPeriodEnd     Boolean   @default(false)
-  stripeTrialEnd              DateTime?
+  identityProofRequired     Boolean   @default(true)
+  identityProofWaivedById   String?
+  identityProofWaivedAt     DateTime?
+  identityProofWaiverReason String?
+  config                    String? // JSON: tauxInteret, devise, formatFacture
+  plan                      String    @default("essentiel")
+  stripeCustomerId          String?   @unique
+  stripeSubscriptionId      String?   @unique
+  stripePriceId             String?
+  stripeSubscriptionStatus  String?
+  stripeCurrentPeriodEnd    DateTime?
+  stripeCancelAtPeriodEnd   Boolean   @default(false)
+  stripeTrialEnd            DateTime?
 
   /// Accès payé hors Stripe, jusqu'à cette date incluse.
   ///
@@ -72,7 +77,7 @@ model Cabinet {
   ///
   /// Cohabite avec Stripe sans le remplacer : `deriveCabinetSubscriptionState`
   /// accorde l'accès si l'UNE des deux sources est valide.
-  accesPayeJusquau            DateTime?
+  accesPayeJusquau DateTime?
 
   /// Montant mensuel de l'abonnement de CE cabinet, taxes exclues.
   ///
@@ -82,12 +87,12 @@ model Cabinet {
   ///
   /// Vaut le tarif fondateur quand le cabinet en est un (50 $, 75 $), donc PAS
   /// forcément le prix catalogue de `PLANS`.
-  abonnementMontantMensuel    Decimal?  @db.Decimal(10, 2)
+  abonnementMontantMensuel Decimal? @db.Decimal(10, 2)
 
   /// Jour du mois où la facture d'abonnement est émise. 1 à 28 seulement :
   /// au-delà, février n'existe pas certaines années et la facture sauterait
   /// silencieusement.
-  abonnementJourFacturation   Int?
+  abonnementJourFacturation Int?
 
   /// Date de FERMETURE de l'espace. NULL = espace ouvert.
   ///
@@ -161,15 +166,15 @@ model Cabinet {
   employeeHoursEntries       EmployeeHoursEntry[]
 
   // --- CRM / Console SAFE Inc. (Spec v1.1) ---
-  lead               Lead?                  @relation("CabinetLead")
+  lead                 Lead?                                @relation("CabinetLead")
   /// Fiche client, chez SAFE Inc., qui facture l'abonnement de CE cabinet.
   /// Sert de pont entre un encaissement et l'accès qu'il paie (dog food, ADR-006).
-  ficheAbonne        Client?                @relation("CabinetAbonne")
-  tickets            SupportTicket[]        @relation("CabinetTickets")
-  conversations      SupportConversation[]  @relation("CabinetConversations")
-  impersonationsOnMe ImpersonationSession[] @relation("CabinetImpersonations")
-  payerRules         PayerRule[]
-  dossierParties     DossierPartie[]
+  ficheAbonne          Client?                              @relation("CabinetAbonne")
+  tickets              SupportTicket[]                      @relation("CabinetTickets")
+  conversations        SupportConversation[]                @relation("CabinetConversations")
+  impersonationsOnMe   ImpersonationSession[]               @relation("CabinetImpersonations")
+  payerRules           PayerRule[]
+  dossierParties       DossierPartie[]
   beneficialOwners     BeneficialOwner[]
   identityAttestations IdentityAttestation[]
   trustBankAccounts    TrustBankAccount[]
@@ -187,8 +192,7 @@ model Cabinet {
   inspectionSessions   InspectionAccessSession[]
   successionPlan       PracticeSuccessionPlan?
   interestRemittances  TrustInterestRemittance[]
-  expectedDocuments ExpectedDocument[]
-
+  expectedDocuments    ExpectedDocument[]
 }
 
 /// Statut du permis d'exercice. Réf. By-Law 9 s. 2, 2.2, 2.3 (ON) ·
@@ -209,16 +213,16 @@ enum UserRole {
 }
 
 model User {
-  id                String   @id @default(cuid())
+  id                String    @id @default(cuid())
   cabinetId         String
   email             String
   passwordHash      String
   nom               String
   role              UserRole
   defaultHourlyRate Float?
-  isBillable        Boolean  @default(true)
-  digestOptOut      Boolean  @default(false) // N7b — désactive le digest courriel quotidien
-  isInternal        Boolean  @default(false) // équipe SAFE Inc. : accès Console (remplace le check par nom de cabinet)
+  isBillable        Boolean   @default(true)
+  digestOptOut      Boolean   @default(false) // N7b — désactive le digest courriel quotidien
+  isInternal        Boolean   @default(false) // équipe SAFE Inc. : accès Console (remplace le check par nom de cabinet)
   // Révocation de sessions (audit 2026-07-28, §M1). Les sessions sont des JWT de
   // 30 jours : sans marqueur, une réinitialisation de mot de passe ou un
   // changement de rôle n'invalidait rien. Tout JWT émis avant cette date est
@@ -237,19 +241,19 @@ model User {
   /// la connexion et révoque les sessions déjà ouvertes, sans attendre les
   /// trente jours du jeton. Aucune donnée n'est touchée : le compte se
   /// réactive en effaçant la date.
-  desactiveLe       DateTime?
+  desactiveLe    DateTime?
   /// Pourquoi l'accès a été retiré. Un retrait d'accès anonyme est un retrait
   /// que personne n'assume, et c'est ce qu'un inspecteur cherche.
-  desactiveMotif    String?
+  desactiveMotif String?
   /// Statut du permis. s. 2 et 2.2 By-Law 9 : un titulaire failli ou suspendu ne
   /// peut pas manier de fonds détenus en fiducie. s. 2.3(1) : le suspendu dispose de
   /// 30 jours pour retirer les fonds de ses comptes en fiducie.
-  licenceNumber     String?
-  licenceStatus     LicenceStatus @default(ACTIVE)
-  suspendedFrom     DateTime?
-  bankruptSince     DateTime?
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  licenceNumber  String?
+  licenceStatus  LicenceStatus @default(ACTIVE)
+  suspendedFrom  DateTime?
+  bankruptSince  DateTime?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
 
   cabinet                    Cabinet                 @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
   timeEntries                TimeEntry[]
@@ -262,6 +266,11 @@ model User {
   clientsLawyerInCharge      Client[]                @relation("LawyerInCharge")
   clientsAssignedLawyer      Client[]                @relation("AssignedLawyer")
   clientsAssistantAssigned   Client[]                @relation("AssistantAssigned")
+  // Déclarations d'entrée signées par cet utilisateur (mandat, conflits).
+  clientsMandatEnvoyeDeclare Client[]                @relation("ClientMandatEnvoyeDeclarePar")
+  clientsMandatSigneDeclare  Client[]                @relation("ClientMandatSigneDeclarePar")
+  clientsMandatVerseDeclare  Client[]                @relation("ClientMandatVerseDeclarePar")
+  clientsConflictDeclare     Client[]                @relation("ClientConflictDeclarePar")
   dossierTachesAssignees     DossierTache[]
   dossierActesAssignees      DossierActe[]
   dossierNotesCreated        DossierNote[]
@@ -309,8 +318,7 @@ model User {
   conversationsCreated  SupportConversation[]  @relation("ConversationCreator")
   messagesAuthored      SupportMessage[]       @relation("MessageAuthor")
   impersonationsByMe    ImpersonationSession[] @relation("Impersonator")
-  expectedDocuments ExpectedDocument[]
-
+  expectedDocuments     ExpectedDocument[]
 }
 
 enum EmployeeRole {
@@ -560,32 +568,73 @@ model Client {
   conflictCheckDate           DateTime?
   conflictNotes               String?
 
+  // ── Entrée d'un client déjà servi par le cabinet ───────────────────────────
+  // Un cabinet qui arrive dans SAFE a déjà des clients, des mandats et des
+  // vérifications faites ailleurs. Ces colonnes enregistrent ce qu'il DÉCLARE
+  // avoir fait, horodaté et signé. Même doctrine que `Invoice.deliveryChannel` :
+  // SAFE distingue la preuve qu'il détient de la déclaration qu'on lui confie,
+  // et les deux sont recevables. Refuser la seconde reviendrait à traiter un
+  // cabinet qui poste ses mandats comme un cabinet qui n'a rien fait.
+
+  /// Mandat ENVOYÉ au client. Distinct de signé : un mandat parti et jamais
+  /// revenu est précisément ce que le cabinet doit voir.
+  mandatEnvoyeAt           DateTime?
+  mandatEnvoyeDeclareParId String?
+  /// Auteur de la déclaration « mandat signé ». La date, elle, reste dans
+  /// `retainerDate`, déjà en service : deux colonnes pour la même date
+  /// deviendraient deux vérités.
+  mandatSigneDeclareParId  String?
+  /// Copie signée VERSÉE au dossier. Troisième état, souvent le manquant.
+  mandatVerseAuDossierAt   DateTime?
+  mandatVerseDeclareParId  String?
+  /// Auteur de la déclaration de vérification de conflits faite hors SAFE.
+  /// `conflictCheckDate` porte la date. Sans auteur, la déclaration n'engage
+  /// personne et ne vaut rien à l'inspection.
+  conflictDeclareParId     String?
+
+  /// Début de l'entrée par le processus dédié. NULL pour toute fiche créée
+  /// autrement : sans cette marque, les clients d'avant se compteraient comme
+  /// des entrées inachevées.
+  entreeCommenceeAt DateTime?
+  /// Entrée déclarée terminée par le cabinet. NULL et `entreeCommenceeAt` non
+  /// NULL veut dire « mise de côté, à reprendre ». Aucune case n'est
+  /// obligatoire : c'est le cabinet qui dit quand il a fini, pas un compteur.
+  entreeCompleteeAt DateTime?
+
   // ── CH-06 — identification du client (B-1 r.5 art. 13-14 / By-Law 7.1 s. 23(1))
   /// Occupation. Exigée pour toute personne physique dans les DEUX régimes
   /// (art. 14(1)d QC / s. 23(1)5 ON). Champ absent jusqu'ici : l'obligation ne
   /// pouvait donc pas être satisfaite.
-  occupation                  String?
+  occupation                     String?
   /// Nature générale des activités d'une société ou d'un organisme
   /// (art. 14(2)d QC / s. 23(1)6 ON).
-  natureActivites             String?
+  natureActivites                String?
   /// Le client agit-il pour un tiers ? Si oui, les mêmes renseignements sont exigés
   /// sur ce tiers (art. 14 al. 3 QC / s. 23(1)8 ON).
-  actsForThirdParty           Boolean                 @default(false)
-  thirdPartyDetails           String?
+  actsForThirdParty              Boolean   @default(false)
+  thirdPartyDetails              String?
   /// Exemption de vérification invoquée (art. 21 QC / s. 22(2)(3)(4) ON), validée
   /// contre la province : une exemption ontarienne n'exempte pas au Québec.
-  identityExemption           String?
+  identityExemption              String?
   identityExemptionJustification String?
   /// Premier mouvement de fonds pour ce client : point de départ du délai de
   /// vérification (60 jours au QC, 30 en ON pour une organisation).
-  firstFundsMovementAt        DateTime?
+  firstFundsMovementAt           DateTime?
   /// Échéance de vérification calculée. Au-delà, les mouvements sont bloqués.
-  identityVerificationDueAt   DateTime?
-  documentRefs                String? // JSON: retainer_agreement, id_documents, court_documents, client_correspondence
-  createdAt                   DateTime                @default(now())
-  updatedAt                   DateTime                @updatedAt
+  identityVerificationDueAt      DateTime?
+  documentRefs                   String? // JSON: retainer_agreement, id_documents, court_documents, client_correspondence
+  createdAt                      DateTime  @default(now())
+  updatedAt                      DateTime  @updatedAt
 
-  cabinet               Cabinet                       @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  cabinet Cabinet @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+
+  // Auteurs des déclarations d'entrée. `SetNull` partout : la déclaration est
+  // la pièce, son auteur en est la métadonnée. Un utilisateur supprimé ne doit
+  // pas emporter la déclaration avec lui, ni bloquer sa propre suppression.
+  mandatEnvoyeDeclarePar User? @relation("ClientMandatEnvoyeDeclarePar", fields: [mandatEnvoyeDeclareParId], references: [id], onDelete: SetNull)
+  mandatSigneDeclarePar  User? @relation("ClientMandatSigneDeclarePar", fields: [mandatSigneDeclareParId], references: [id], onDelete: SetNull)
+  mandatVerseDeclarePar  User? @relation("ClientMandatVerseDeclarePar", fields: [mandatVerseDeclareParId], references: [id], onDelete: SetNull)
+  conflictDeclarePar     User? @relation("ClientConflictDeclarePar", fields: [conflictDeclareParId], references: [id], onDelete: SetNull)
 
   /// Cabinet ABONNÉ que cette fiche client représente.
   ///
@@ -599,8 +648,8 @@ model Client {
   ///
   /// `@unique` : deux fiches clients ne peuvent pas facturer le même abonné,
   /// sinon deux factures payées prolongeraient le même accès deux fois.
-  cabinetAbonneId            String?                 @unique
-  cabinetAbonne              Cabinet?                @relation("CabinetAbonne", fields: [cabinetAbonneId], references: [id], onDelete: SetNull)
+  cabinetAbonneId       String?                       @unique
+  cabinetAbonne         Cabinet?                      @relation("CabinetAbonne", fields: [cabinetAbonneId], references: [id], onDelete: SetNull)
   lawyerInCharge        User?                         @relation("LawyerInCharge", fields: [lawyerInChargeId], references: [id], onDelete: SetNull)
   assignedLawyer        User?                         @relation("AssignedLawyer", fields: [assignedLawyerId], references: [id], onDelete: SetNull)
   assistantAssigned     User?                         @relation("AssistantAssigned", fields: [assistantAssignedId], references: [id], onDelete: SetNull)
@@ -637,6 +686,8 @@ model Client {
   @@index([cabinetId, raisonSociale])
   @@index([cabinetId, status])
   @@index([assignedLawyerId])
+  /// File de l'entrée : « les clients commencés et pas encore terminés ».
+  @@index([cabinetId, entreeCommenceeAt, entreeCompleteeAt])
 }
 
 enum DossierStatut {
@@ -879,7 +930,7 @@ model ExpectedDocument {
   cabinetId String
   dossierId String
 
-  libelle String
+  libelle         String
   /// Montrable au client, en une phrase. Jamais « documents financiers ».
   raison          String?
   periodeCouverte String?
@@ -902,7 +953,7 @@ model ExpectedDocument {
   requisPourAideJuridique Boolean @default(false)
 
   /// Le fichier reçu. L'original n'est jamais remplacé.
-  documentId String?
+  documentId     String?
   /// La pièce produite qui en découle, le cas échéant.
   dossierPieceId String?
 
@@ -1545,32 +1596,32 @@ model Invoice {
   /// la DÉCLARATION du cabinet (poste, main propre, autre courriel). Les deux sont
   /// recevables : refuser la seconde serait du sur-blocage, et pousserait un cabinet
   /// qui poste ses factures à contourner le garde-fou.
-  deliveredAt            DateTime?
+  deliveredAt          DateTime?
   /// EMAIL_SAFE | AUTRE_COURRIEL | POSTE | MAIN_PROPRE | PORTAIL_CLIENT | LEGACY_PRESUME
-  deliveryChannel        String?
-  deliveryDeclaredById   String?
-  deliveryNote           String?
-  approvedAt             DateTime?
-  approvedById           String?
-  cancelledAt            DateTime?
-  cancelReason           String?
-  createdById            String?
+  deliveryChannel      String?
+  deliveryDeclaredById String?
+  deliveryNote         String?
+  approvedAt           DateTime?
+  approvedById         String?
+  cancelledAt          DateTime?
+  cancelReason         String?
+  createdById          String?
 
   /// Nombre de mois d'abonnement que cette facture couvre. NULL vaut 1.
   /// Sans ce champ, une facture annuelle encaissée ne prolongerait l'accès que
   /// d'un mois, et l'abonné serait bloqué onze mois trop tôt.
-  accesMoisCouverts      Int?
+  accesMoisCouverts Int?
 
   /// Échéance d'accès que CETTE facture a effectivement accordée.
   ///
   /// Double emploi assumé : c'est la trace (jusqu'à quand elle a payé) ET le
   /// verrou d'idempotence. Non NULL veut dire « déjà appliquée » : un paiement
   /// rejoué, corrigé ou réalloué ne peut pas offrir un second mois gratuit.
-  accesProlongeJusquau   DateTime?
-  shareToken             String?               @unique // token pour lien unique d'envoi au client
-  shareTokenExpiresAt    DateTime? // expiration du lien (option config cabinet)
-  createdAt              DateTime              @default(now())
-  updatedAt              DateTime              @updatedAt
+  accesProlongeJusquau DateTime?
+  shareToken           String?   @unique // token pour lien unique d'envoi au client
+  shareTokenExpiresAt  DateTime? // expiration du lien (option config cabinet)
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
 
   cabinet                Cabinet                 @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
   client                 Client                  @relation(fields: [clientId], references: [id], onDelete: Restrict)
@@ -1679,19 +1730,19 @@ model InvoiceItem {
 }
 
 model Payment {
-  id                String                @id @default(cuid())
+  id                String                   @id @default(cuid())
   cabinetId         String
   clientId          String? // requis pour nouveaux paiements; dérivé de facture si absent
   invoiceId         String?
   montant           Float
   datePaiement      DateTime
   mode              String?
-  method            PaymentMethod         @default(autre)
+  method            PaymentMethod            @default(autre)
   reference         String?
-  paymentMethod     PaymentMethodBilling? @default(other)
+  paymentMethod     PaymentMethodBilling?    @default(other)
   referenceNumber   String?
-  sourceAccountType SourceAccountType?    @default(operating)
-  allocationStatus  AllocationStatus      @default(UNALLOCATED)
+  sourceAccountType SourceAccountType?       @default(operating)
+  allocationStatus  AllocationStatus         @default(UNALLOCATED)
   note              String?
   receivedById      String?
   // Origine du paiement : "stripe" | "interac" | "cash" | null (saisie manuelle
@@ -1714,8 +1765,8 @@ model Payment {
   reversalMotive    JournalCorrectionMotive?
   reversalNote      String?
   reversedById      String?
-  createdAt         DateTime              @default(now())
-  updatedAt         DateTime              @default(now()) @updatedAt
+  createdAt         DateTime                 @default(now())
+  updatedAt         DateTime                 @default(now()) @updatedAt
 
   cabinet            Cabinet             @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
   client             Client?             @relation(fields: [clientId], references: [id], onDelete: SetNull)
@@ -1904,11 +1955,11 @@ model InvoiceSendLog {
 /// vers un compte non fiduciaire au nom de l'avocat, sans réquisition ni double
 /// contrôle. Imposer ce modèle à un cabinet québécois inventerait une obligation.
 model ElectronicTrustTransferRequisition {
-  id                 String   @id @default(cuid())
+  id                 String @id @default(cuid())
   cabinetId          String
   trustBankAccountId String
   /// 9A (virement courant) · 9B / 9C (fonds de clôture immobilière, s. 13).
-  formType           String   @default("9A")
+  formType           String @default("9A")
 
   clientName             String
   dossierRef             String?
@@ -1934,14 +1985,14 @@ model ElectronicTrustTransferRequisition {
   solePractitionerExemption Boolean   @default(false)
 
   /// s. 12(2)3 — les six éléments que la confirmation doit porter.
-  confirmationDocumentId           String?
-  confirmationReceivedAt           DateTime?
-  confirmationSourceAccount        String?
-  confirmationRecipientInstitution String?
-  confirmationRecipientName        String?
-  confirmationRecipientAccount     String?
+  confirmationDocumentId            String?
+  confirmationReceivedAt            DateTime?
+  confirmationSourceAccount         String?
+  confirmationRecipientInstitution  String?
+  confirmationRecipientName         String?
+  confirmationRecipientAccount      String?
   confirmationInstitutionReceivedAt DateTime?
-  confirmationSentAt               DateTime?
+  confirmationSentAt                DateTime?
 
   /// s. 12(5) — imprimer, comparer, annoter, signer et dater, au plus tard à la
   /// clôture du jour bancaire suivant l'envoi de la confirmation.
@@ -1976,11 +2027,11 @@ model ElectronicTrustTransferRequisition {
 ///
 /// Le montant du cautionnement n'est donc pas arbitraire : il se calcule.
 model TrustSignatory {
-  id                 String   @id @default(cuid())
+  id                 String  @id @default(cuid())
   cabinetId          String
   userId             String
   trustBankAccountId String
-  isLicensee         Boolean  @default(true)
+  isLicensee         Boolean @default(true)
 
   bondAmount     Float?
   bondExpiryDate DateTime?
@@ -2047,21 +2098,21 @@ model ClientLedgerTransfer {
 ///
 /// ⚠️ ONTARIO SEULEMENT. B-1 r.5 ne traite pas des frais de renvoi.
 model ReferralFee {
-  id                  String   @id @default(cuid())
-  cabinetId           String
+  id                   String   @id @default(cuid())
+  cabinetId            String
   /// RECEIVED | PAID
-  direction           String
-  date                DateTime
+  direction            String
+  date                 DateTime
   /// s. 19.1(1)(2) — « the method by which each referral fee is received / paid ».
-  method              String
-  amount              Float
+  method               String
+  amount               Float
   /// Titulaire de qui le frais est reçu, ou à qui il est payé.
   counterpartyLicensee String
-  clientId            String?
+  clientId             String?
   /// s. 19.1(2) — « the number or a similar identifier of any document used to pay ».
-  documentIdentifier  String?
-  agreementDocumentId String?
-  createdAt           DateTime @default(now())
+  documentIdentifier   String?
+  agreementDocumentId  String?
+  createdAt            DateTime @default(now())
 
   cabinet Cabinet @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
 
@@ -2186,10 +2237,10 @@ model InspectionAccessSession {
   scopeFrom DateTime?
   scopeTo   DateTime?
 
-  grantedAt      DateTime @default(now())
+  grantedAt       DateTime  @default(now())
   grantedByUserId String
-  expiresAt      DateTime
-  revokedAt      DateTime?
+  expiresAt       DateTime
+  revokedAt       DateTime?
   revokedByUserId String?
   revokedReason   String?
 
@@ -2197,7 +2248,7 @@ model InspectionAccessSession {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  cabinet Cabinet                     @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  cabinet Cabinet                @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
   reads   InspectionAccessRead[]
 
   @@index([cabinetId])
@@ -2210,8 +2261,8 @@ model InspectionAccessSession {
 /// qui a vu quoi, et quand. Append-only par construction — aucune mise à jour, aucune
 /// suppression n'est prévue par le service.
 model InspectionAccessRead {
-  id        String   @id @default(cuid())
-  sessionId String
+  id         String   @id @default(cuid())
+  sessionId  String
   /// REGISTERS | MONTHLY_REPORTS | SUPPORTING_DOCUMENTS | ...
   resource   String
   resourceId String?
@@ -2224,21 +2275,21 @@ model InspectionAccessRead {
 }
 
 model TrustShortfall {
-  id                 String   @id @default(cuid())
+  id                 String  @id @default(cuid())
   cabinetId          String
   trustBankAccountId String?
   clientId           String
   dossierId          String?
 
   /// Montant à combler, toujours positif.
-  amount     Float
-  detectedAt DateTime @default(now())
+  amount             Float
+  detectedAt         DateTime @default(now())
   /// Solde de la carte-client au moment de la détection, pour l'historique.
   balanceAtDetection Float
 
-  resolvedAt        DateTime?
+  resolvedAt               DateTime?
   /// CABINET_OPERATING | CLIENT_DEPOSIT | LEDGER_CORRECTION
-  remediationSource String?
+  remediationSource        String?
   /// Écriture de renflouement, quand elle existe.
   remediationTransactionId String?
   remediationNote          String?
@@ -2272,7 +2323,7 @@ model TrustShortfall {
 /// consigne un versement constaté : période, montant, date, preuve. Ajouter un taux
 /// reviendrait à fabriquer une règle.
 model TrustInterestRemittance {
-  id                 String   @id @default(cuid())
+  id                 String @id @default(cuid())
   cabinetId          String
   trustBankAccountId String
 
@@ -2281,11 +2332,11 @@ model TrustInterestRemittance {
   beneficiary String
   amount      Float
 
-  remittedAt         DateTime?
+  remittedAt      DateTime?
   /// Art. 32 QC / s. 18(10) ON : une date sans pièce n'est qu'une affirmation.
-  proofDocumentId    String?
-  note               String?
-  recordedById       String?
+  proofDocumentId String?
+  note            String?
+  recordedById    String?
 
   province  String
   createdAt DateTime @default(now())
@@ -2300,28 +2351,28 @@ model TrustInterestRemittance {
 }
 
 model TrustAnnualReport {
-  id                 String  @id @default(cuid())
+  id                 String @id @default(cuid())
   cabinetId          String
   trustBankAccountId String
 
   /// La période est identifiée DANS LA DEMANDE : ni l'année civile, ni forcément
   /// l'exercice financier.
-  periodStart        String  // "YYYY-MM"
-  periodEnd          String  // "YYYY-MM"
+  periodStart       String // "YYYY-MM"
+  periodEnd         String // "YYYY-MM"
   /// Le délai de 30 jours court depuis cette date, pas depuis le calendrier.
-  requestReceivedAt  DateTime?
+  requestReceivedAt DateTime?
 
-  status             String  @default("draft") // draft | complete | certified
+  status String @default("draft") // draft | complete | certified
 
   // ── Art. 42(5) — état comparatif à la fin de la période ───────────────────
   journalBalance          Float
   bankStatementBalance    Float
   ledgerSumBalance        Float
-  outstandingChequesTotal Float @default(0)
-  depositsInTransitTotal  Float @default(0)
+  outstandingChequesTotal Float   @default(0)
+  depositsInTransitTotal  Float   @default(0)
   reconciledBalance       Float
-  ecartPeriode            Float @default(0)
-  ecartCartesClients      Float @default(0)
+  ecartPeriode            Float   @default(0)
+  ecartCartesClients      Float   @default(0)
   /// « La copie du relevé de l'institution financière pour le DERNIER MOIS de la
   /// période doit être jointe au rapport. » Obligatoire pour certifier.
   bankStatementDocumentId String?
@@ -2342,8 +2393,8 @@ model TrustAnnualReport {
   cabinet          Cabinet          @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
   trustBankAccount TrustBankAccount @relation(fields: [trustBankAccountId], references: [id], onDelete: Restrict)
 
-  monthlyTotals  TrustAnnualMonthlyTotal[]
-  closedAccounts TrustAnnualClosedAccount[]
+  monthlyTotals      TrustAnnualMonthlyTotal[]
+  closedAccounts     TrustAnnualClosedAccount[]
   ledgerSnapshot     TrustClientLedgerSnapshot[]
   outstandingCheques TrustOutstandingChequeLine[]
   depositsInTransit  TrustDepositInTransitLine[]
@@ -2356,11 +2407,11 @@ model TrustAnnualReport {
 /// Art. 42(4) — « le total des recettes et des débours au cours de CHAQUE MOIS de la
 /// période ». Douze lignes, là où l'art. 41(4) n'en demande qu'une.
 model TrustAnnualMonthlyTotal {
-  id                 String @id @default(cuid())
-  annualReportId     String
-  periode            String // "YYYY-MM"
-  totalReceipts      Float  @default(0)
-  totalDisbursements Float  @default(0)
+  id                     String  @id @default(cuid())
+  annualReportId         String
+  periode                String // "YYYY-MM"
+  totalReceipts          Float   @default(0)
+  totalDisbursements     Float   @default(0)
   /// Le rapport mensuel de ce mois est-il certifié ? Conditionne la certification
   /// annuelle (art. 40 combiné à l'art. 42).
   monthlyReportCertified Boolean @default(false)
@@ -2380,7 +2431,7 @@ model TrustAnnualClosedAccount {
   id                 String   @id @default(cuid())
   annualReportId     String
   trustBankAccountId String
-  accountType        String   // GENERAL | PARTICULIER
+  accountType        String // GENERAL | PARTICULIER
   accountLabel       String
   institutionName    String
   accountNumberLast4 String
@@ -2394,10 +2445,10 @@ model TrustAnnualClosedAccount {
 }
 
 model TrustProperty {
-  id                   String   @id @default(cuid())
-  cabinetId            String
-  clientId             String
-  dossierId            String?
+  id        String  @id @default(cuid())
+  cabinetId String
+  clientId  String
+  dossierId String?
 
   /// Art. 43 / s. 18(9) — description du bien.
   description          String
@@ -2407,33 +2458,33 @@ model TrustProperty {
   estimatedValue       Float?
 
   /// s. 18(9) ON seulement — « the person who had possession immediately before ».
-  receivedFromName     String?
-  receivedAt           DateTime
+  receivedFromName String?
+  receivedAt       DateTime
 
   /// Art. 45 QC — lieu de garde, et tout changement doit être communiqué au client.
   /// L'historique est conservé : un lieu écrasé fait perdre la trace du déplacement.
-  storageLocation      String?
-  storageHistoryJson   String?
-  storageNotifiedAt    DateTime?
+  storageLocation    String?
+  storageHistoryJson String?
+  storageNotifiedAt  DateTime?
 
   /// Art. 44 QC — le bien vient d'un tiers : le client doit en être informé sans délai.
-  fromThirdParty       Boolean   @default(false)
-  clientNotifiedAt     DateTime?
+  fromThirdParty   Boolean   @default(false)
+  clientNotifiedAt DateTime?
 
   /// Art. 46 QC — « un autre bien en fidéicommis doit être utilisé selon son
   /// affectation ». Sans affectation consignée, l'obligation est invérifiable.
-  purpose              String?
+  purpose String?
 
   /// Art. 43 / s. 18(9) — remise du bien.
-  releasedAt           DateTime?
-  releasedToName       String?
+  releasedAt                 DateTime?
+  releasedToName             String?
   releaseSignatureDocumentId String?
 
   /// Province du régime appliqué : les champs exigés ne sont pas les mêmes.
-  province             String
-  createdById          String?
-  createdAt            DateTime  @default(now())
-  updatedAt            DateTime  @updatedAt
+  province    String
+  createdById String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   cabinet Cabinet @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
   client  Client  @relation(fields: [clientId], references: [id], onDelete: Restrict)
@@ -2453,22 +2504,22 @@ model CashReceipt {
   date          DateTime
 
   /// Art. 70(2) / s. 19(1) — nom de la personne de qui la somme provient.
-  payerName     String
+  payerName          String
   /// Montant tel que présenté, dans sa devise d'origine.
-  amount        Float
-  currency      String   @default("CAD")
+  amount             Float
+  currency           String    @default("CAD")
   /// Art. 73 / s. 4(2) — valeur en dollars canadiens. C'est ce montant qui est
   /// agrégé et comparé au seuil.
-  cadAmount     Float
+  cadAmount          Float
   conversionRate     Float?
   conversionRateDate DateTime?
 
-  clientId      String
-  dossierId     String
+  clientId  String
+  dossierId String
   /// Art. 70(6) — objet pour lequel la somme est reçue. Non exigé en Ontario.
-  purpose       String?
+  purpose   String?
 
-  receivedByUserId String
+  receivedByUserId            String
   /// Art. 70 al. 2 — les DEUX signatures.
   licenseeSignatureDocumentId String?
   payerSignatureDocumentId    String?
@@ -2479,15 +2530,15 @@ model CashReceipt {
 
   /// Province du régime appliqué. Une réception jugée conforme sous un régime ne
   /// prouve pas la conformité sous l'autre : les exceptions ne sont pas les mêmes.
-  province      String
+  province               String
   /// La somme est-elle reçue en fidéicommis ? Décisif au Québec (art. 69).
-  intoTrust     Boolean  @default(true)
+  intoTrust              Boolean @default(true)
   /// Exception invoquée au seuil, le cas échéant (art. 69 QC / s. 6 ON).
-  exemptionInvoked      String?
+  exemptionInvoked       String?
   exemptionJustification String?
   /// s. 6(e) ON — l'exception « honoraires, débours, cautionnement » n'est acquise
   /// que si tout remboursement se fait lui aussi en espèces. Mémorisé à la réception.
-  refundMustBeCash      Boolean @default(false)
+  refundMustBeCash       Boolean @default(false)
 
   /// Art. 71 QC — déclaration au directeur de l'inspection dans les 30 jours.
   /// Sans équivalent ontarien : les champs y restent nuls.
@@ -2499,8 +2550,8 @@ model CashReceipt {
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
 
-  cabinet Cabinet @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
-  client  Client  @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  cabinet Cabinet      @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  client  Client       @relation(fields: [clientId], references: [id], onDelete: Restrict)
   refunds CashRefund[]
 
   @@unique([cabinetId, receiptNumber])
@@ -2519,18 +2570,18 @@ model CashReceipt {
 /// C'est le SEUL cas où le règlement impose une sortie en espèces, alors que
 /// l'art. 57 l'interdit par ailleurs. Le flux est donc distinct et explicite.
 model CashRefund {
-  id            String   @id @default(cuid())
-  cabinetId     String
-  cashReceiptId String
-  date          DateTime
-  amount        Float
+  id                  String   @id @default(cuid())
+  cabinetId           String
+  cashReceiptId       String
+  date                DateTime
+  amount              Float
   /// Art. 72(2) — nom de la personne qui reçoit la somme.
-  recipientName String
-  clientId      String
-  dossierId     String
+  recipientName       String
+  clientId            String
+  dossierId           String
   /// Reçu signé par le bénéficiaire.
   signatureDocumentId String?
-  createdAt     DateTime @default(now())
+  createdAt           DateTime @default(now())
 
   cabinet     Cabinet     @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
   cashReceipt CashReceipt @relation(fields: [cashReceiptId], references: [id], onDelete: Restrict)
@@ -2540,17 +2591,17 @@ model CashRefund {
 }
 
 model TrustMonthlyReport {
-  id                 String  @id @default(cuid())
+  id                 String @id @default(cuid())
   cabinetId          String
   trustBankAccountId String
-  periode            String  // "YYYY-MM"
+  periode            String // "YYYY-MM"
 
   /// draft | complete | certified
-  status             String  @default("draft")
+  status String @default("draft")
 
   // ── Art. 41(4) — total des recettes et des débours du mois ────────────────
-  totalReceipts      Float   @default(0)
-  totalDisbursements Float   @default(0)
+  totalReceipts      Float @default(0)
+  totalDisbursements Float @default(0)
 
   // ── Art. 41(5) — état comparatif journal ↔ relevé bancaire ────────────────
   bankStatementBalance    Float
@@ -2571,7 +2622,7 @@ model TrustMonthlyReport {
 
   /// Instantané immuable figé à la certification (PR-5). Un recalcul ultérieur ne
   /// réécrit JAMAIS un rapport signé : un inspecteur compare des documents datés.
-  snapshotJson       String?
+  snapshotJson String?
 
   /// PR-3 — liste des contrôles RÉELLEMENT exécutés, d'où l'attestation est tirée.
   verifiedControlsJson String?
@@ -2586,7 +2637,7 @@ model TrustMonthlyReport {
   cabinet          Cabinet          @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
   trustBankAccount TrustBankAccount @relation(fields: [trustBankAccountId], references: [id], onDelete: Restrict)
 
-  ledgerSnapshot    TrustClientLedgerSnapshot[]
+  ledgerSnapshot     TrustClientLedgerSnapshot[]
   outstandingCheques TrustOutstandingChequeLine[]
   depositsInTransit  TrustDepositInTransitLine[]
   discrepancies      TrustDiscrepancyReason[]
@@ -2617,7 +2668,7 @@ model TrustClientLedgerSnapshot {
   balance       Float
   lastEntryDate DateTime?
 
-  report       TrustMonthlyReport? @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  report         TrustMonthlyReport? @relation(fields: [reportId], references: [id], onDelete: Cascade)
   annualReportId String?
   annualReport   TrustAnnualReport?  @relation(fields: [annualReportId], references: [id], onDelete: Cascade)
 
@@ -2642,7 +2693,7 @@ model TrustOutstandingChequeLine {
   /// bancaire, PAS une règle du Barreau.
   stale        Boolean  @default(false)
 
-  report       TrustMonthlyReport? @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  report         TrustMonthlyReport? @relation(fields: [reportId], references: [id], onDelete: Cascade)
   annualReportId String?
   annualReport   TrustAnnualReport?  @relation(fields: [annualReportId], references: [id], onDelete: Cascade)
 
@@ -2654,16 +2705,16 @@ model TrustOutstandingChequeLine {
 /// pour chacune le montant, la date de réception, le nom du client et le numéro ou la
 /// désignation du dossier ».
 model TrustDepositInTransitLine {
-  id             String   @id @default(cuid())
-  reportId       String?
-  transactionId  String?
-  receivedDate   DateTime
-  amount         Float
-  payerName      String?
-  clientName     String?
-  dossierRef     String?
+  id            String   @id @default(cuid())
+  reportId      String?
+  transactionId String?
+  receivedDate  DateTime
+  amount        Float
+  payerName     String?
+  clientName    String?
+  dossierRef    String?
 
-  report       TrustMonthlyReport? @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  report         TrustMonthlyReport? @relation(fields: [reportId], references: [id], onDelete: Cascade)
   annualReportId String?
   annualReport   TrustAnnualReport?  @relation(fields: [annualReportId], references: [id], onDelete: Cascade)
 
@@ -2778,9 +2829,9 @@ enum TrustSupportingDocumentRole {
 }
 
 model TrustBankAccount {
-  id                 String               @id @default(cuid())
-  cabinetId          String
-  type               TrustBankAccountType @default(GENERAL)
+  id        String               @id @default(cuid())
+  cabinetId String
+  type      TrustBankAccountType @default(GENERAL)
 
   /// Libellé légal du compte tel qu'il apparaît à l'institution.
   /// VALIDÉ : doit contenir « en fidéicommis » ou « in trust » (art. 50 al. 2 et 63 al. 2 QC).
@@ -2797,11 +2848,11 @@ model TrustBankAccount {
   accountNumber      String
   /// Quatre derniers chiffres, pour l'affichage courant sans exposer le numéro complet.
   accountNumberLast4 String
-  currency           String               @default("CAD")
+  currency           String  @default("CAD")
 
   /// Art. 50 QC : l'institution doit avoir conclu une entente avec le Barreau au
   /// sens du Règlement sur le fonds d'études juridiques (B-1, r. 10).
-  barreauAgreementConfirmed Boolean        @default(false)
+  barreauAgreementConfirmed Boolean   @default(false)
   /// Art. 51 QC (compte général) et 64 QC (compte particulier) : formulaire prescrit
   /// transmis sans délai au Barreau ET à l'institution, l'avocat en conserve copie.
   regulatorNotifiedAt       DateTime?
@@ -2809,17 +2860,17 @@ model TrustBankAccount {
   /// Art. 64 QC : pour un compte particulier, un exemplaire est aussi remis au client.
   clientCopySentAt          DateTime?
 
-  openedAt           DateTime
+  openedAt      DateTime
   /// Art. 42(7) QC : la liste des comptes fermés durant la période est exigée au
   /// rapport annuel. Un compte fermé n'est donc jamais supprimé.
-  closedAt           DateTime?
-  closureReason      String?
+  closedAt      DateTime?
+  closureReason String?
 
   /// Comptes particuliers seulement (art. 62 à 68 QC) : ouverts quand le client
   /// exige que les revenus de son dépôt lui soient remis.
-  clientId           String?
-  dossierId          String?
-  initialDeposit     Float?
+  clientId       String?
+  dossierId      String?
+  initialDeposit Float?
 
   /// Bénéficiaire des intérêts. Compte général : Fonds d'études juridiques (QC,
   /// art. 50 renvoyant à B-1 r.10) ou Law Foundation of Ontario (s. 57 Law Society
@@ -2827,18 +2878,18 @@ model TrustBankAccount {
   interestBeneficiary TrustInterestBeneficiary @default(FONDS_ETUDES_JURIDIQUES)
 
   /// Solde de contrôle, dérivé du registre append-only. Cache, jamais autorité (PR-1).
-  currentBalance     Float                @default(0)
+  currentBalance Float @default(0)
 
-  createdAt          DateTime             @default(now())
-  updatedAt          DateTime             @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  cabinet         Cabinet               @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
-  client          Client?               @relation(fields: [clientId], references: [id], onDelete: Restrict)
-  transactions    TrustTransaction[]
-  reconciliations TrustReconciliation[]
-  cheques         TrustCheque[]
-  monthlyReports  TrustMonthlyReport[]
-  annualReports   TrustAnnualReport[]
+  cabinet              Cabinet                              @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  client               Client?                              @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  transactions         TrustTransaction[]
+  reconciliations      TrustReconciliation[]
+  cheques              TrustCheque[]
+  monthlyReports       TrustMonthlyReport[]
+  annualReports        TrustAnnualReport[]
   interestRemittances  TrustInterestRemittance[]
   transferRequisitions ElectronicTrustTransferRequisition[]
   signatories          TrustSignatory[]
@@ -2883,27 +2934,27 @@ model TrustAccount {
 }
 
 model TrustTransaction {
-  id              String                       @id @default(cuid())
-  cabinetId       String
-  trustAccountId  String?
+  id                 String                       @id @default(cuid())
+  cabinetId          String
+  trustAccountId     String?
   /// Compte bancaire en fidéicommis d'où sortent ou où entrent les fonds.
   /// Nullable le temps de la reprise ; obligatoire pour toute nouvelle écriture.
   trustBankAccountId String?
-  clientId        String
-  dossierId       String?
-  date            DateTime
-  amount          Float
-  type            TrustTransactionType
-  transactionType TrustTransactionTypeBilling?
-  balanceAfter    Float?
-  invoiceId       String?
-  note            String?
-  description     String?
-  reference       String?
-  modePaiement    TrustModePaiement?
+  clientId           String
+  dossierId          String?
+  date               DateTime
+  amount             Float
+  type               TrustTransactionType
+  transactionType    TrustTransactionTypeBilling?
+  balanceAfter       Float?
+  invoiceId          String?
+  note               String?
+  description        String?
+  reference          String?
+  modePaiement       TrustModePaiement?
   /// Motif réglementaire du retrait (art. 56 QC / s. 9(1) ON). Obligatoire sur tout
   /// nouveau retrait ; nullable pour l'historique antérieur à CH-00.
-  withdrawalMotive TrustWithdrawalMotive?
+  withdrawalMotive   TrustWithdrawalMotive?
 
   // ── CH-02 — champs du journal de caisse en fidéicommis ─────────────────────
   // Art. 38 B-1 r.5 et s. 18(1)(2) By-Law 9 énumèrent ce que CHAQUE ligne doit
@@ -2912,43 +2963,52 @@ model TrustTransaction {
 
   /// Art. 38(1)c QC / s. 18(1) ON — « le nom de la personne de qui la somme est reçue ».
   /// Distinct du client : un tiers peut verser pour lui (art. 49).
-  payerName        String?
+  payerName         String?
   /// Art. 38(2)c QC / s. 18(2) ON — « le nom du bénéficiaire du débours ».
-  payeeName        String?
+  payeeName         String?
   /// Art. 38(1)f et (2)f QC — « l'objet pour lequel la somme est reçue / le débours
   /// est effectué ». Code normalisé pour les rapports, texte libre pour le détail.
-  purposeCode      TrustPurposeCode?
-  purposeText      String?
+  purposeCode       TrustPurposeCode?
+  purposeText       String?
   /// Art. 38(2)h QC / s. 18(2) ON — « le numéro de chèque » ou tout identifiant du
   /// document ayant servi au débours.
-  chequeNumber     Int?
+  chequeNumber      Int?
   /// Art. 38(1)g QC — « une indication selon laquelle la somme a été reçue en
   /// espèces ». Normalisé, plutôt que déduit du mode de paiement.
-  isCash           Boolean @default(false)
+  isCash            Boolean           @default(false)
   /// Art. 50 QC (« sans délai ») / s. 7(1) ON (« immediately »). Sans les DEUX dates,
   /// le respect du délai de dépôt est invérifiable : c'est l'écart entre elles qui
   /// constitue la preuve.
-  receivedAt       DateTime?
-  depositedAt      DateTime?
+  receivedAt        DateTime?
+  depositedAt       DateTime?
   /// Art. 48 QC — « les sommes d'argent en fidéicommis doivent être utilisées selon
   /// leur affectation ». Sans affectation consignée, l'obligation est invérifiable.
-  fundAllocation   String?
+  fundAllocation    String?
   /// Art. 49 QC — l'avocat informe le client sans délai quand les fonds viennent
   /// d'un tiers. La date de notification est la preuve du « sans délai ».
-  fromThirdParty   Boolean @default(false)
-  clientNotifiedAt DateTime?
-  correctionOfId  String?
-  createdById     String?
-  createdAt       DateTime                     @default(now())
+  fromThirdParty    Boolean           @default(false)
+  clientNotifiedAt  DateTime?
+  /// Écriture d'OUVERTURE, créée à l'entrée d'un client déjà servi par le
+  /// cabinet : « voici ce que je détenais pour lui au jour où j'arrive ».
+  ///
+  /// Elle compte dans le solde du client, sinon sa carte ne balancerait pas.
+  /// Elle porte ce drapeau parce qu'elle n'est PAS un mouvement de fonds : rien
+  /// n'est entré au compte ce jour-là. Les confondre ferait apparaître un dépôt
+  /// fictif dans le journal de caisse, et le rapprochement bancaire du mois
+  /// chercherait en vain l'opération correspondante à la banque.
+  estSoldeOuverture Boolean           @default(false)
+  correctionOfId    String?
+  createdById       String?
+  createdAt         DateTime          @default(now())
 
-  cabinet      Cabinet            @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
-  trustAccount TrustAccount?      @relation(fields: [trustAccountId], references: [id], onDelete: SetNull)
-  trustBankAccount TrustBankAccount? @relation(fields: [trustBankAccountId], references: [id], onDelete: Restrict)
-  client       Client             @relation(fields: [clientId], references: [id], onDelete: Restrict)
-  dossier      Dossier?           @relation(fields: [dossierId], references: [id], onDelete: SetNull)
-  invoice      Invoice?           @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
-  correctionOf TrustTransaction?  @relation("TrustCorrection", fields: [correctionOfId], references: [id], onDelete: SetNull)
-  corrections  TrustTransaction[] @relation("TrustCorrection")
+  cabinet             Cabinet                    @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  trustAccount        TrustAccount?              @relation(fields: [trustAccountId], references: [id], onDelete: SetNull)
+  trustBankAccount    TrustBankAccount?          @relation(fields: [trustBankAccountId], references: [id], onDelete: Restrict)
+  client              Client                     @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  dossier             Dossier?                   @relation(fields: [dossierId], references: [id], onDelete: SetNull)
+  invoice             Invoice?                   @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
+  correctionOf        TrustTransaction?          @relation("TrustCorrection", fields: [correctionOfId], references: [id], onDelete: SetNull)
+  corrections         TrustTransaction[]         @relation("TrustCorrection")
   supportingDocuments TrustTransactionDocument[]
 
   @@index([cabinetId])
@@ -3070,29 +3130,29 @@ model ClientIdentityVerification {
   /// Province du régime appliqué au moment de la vérification. Une vérification
   /// faite sous le régime ontarien ne prouve pas la conformité québécoise, et
   /// inversement : la méthode acceptée n'est pas la même.
-  province          String?
+  province                String?
   /// Code de méthode normalisé, validé contre la liste de la province
   /// (lib/compliance/identity.ts). Le champ `methode` reste libre pour l'historique.
-  methodCode        String?
+  methodCode              String?
   /// Personne physique ou organisation : les délais et les méthodes en dépendent.
-  subjectKind       String?
+  subjectKind             String?
   /// Source des fonds. ONTARIO SEULEMENT (By-Law 7.1 s. 23(2)). B-1 r.5 ne comporte
   /// aucune obligation équivalente : ne jamais l'exiger d'un cabinet québécois.
-  sourceOfFunds     String?
+  sourceOfFunds           String?
   /// Date à laquelle les renseignements ont été OBTENUS, distincte de la date de
   /// vérification. By-Law 7.1 s. 23(12.1) l'exige explicitement.
-  recordedAt        DateTime?
+  recordedAt              DateTime?
   /// By-Law 7.1 s. 23(12.2) : pour une organisation, mesures prises pour confirmer
   /// l'exactitude des renseignements de propriété effective, et leur date.
-  accuracyMeasures  String?
-  accuracyConfirmedAt DateTime?
+  accuracyMeasures        String?
+  accuracyConfirmedAt     DateTime?
   /// By-Law 7.1 s. 23(2.2) : procédure de repli quand la propriété effective ne peut
   /// pas être établie. Sans équivalent au Québec, où l'obligation est inconditionnelle.
-  fallbackSeniorOfficer String?
+  fallbackSeniorOfficer   String?
   fallbackConsistencyNote String?
   fallbackRiskAssessment  String?
   fallbackRecordedAt      DateTime?
-  verifiedById      String?
+  verifiedById            String?
 
   // ── CH-06.7 — mode de preuve ────────────────────────────────────────────────
   /// Comment la pièce est-elle probante ?
@@ -3102,14 +3162,14 @@ model ClientIdentityVerification {
   ///                         L'art. 22 B-1 r.5 exige que la copie soit « consignée
   ///                         ou conservée au dossier », pas qu'elle soit dans SAFE.
   ///  DISPENSE_CABINET     : enregistrée sans pièce sous la dispense du cabinet.
-  proofMode             String?
+  proofMode            String?
   /// Où la pièce est physiquement conservée. Obligatoire pour ATTESTATION_MANUELLE :
   /// une attestation qui ne dit pas où chercher ne vaut rien à l'inspection.
-  proofLocation         String?
+  proofLocation        String?
   /// Texte de l'attestation, figé au moment de la signature.
-  attestationStatement  String?
-  attestedById          String?
-  attestedAt            DateTime?
+  attestationStatement String?
+  attestedById         String?
+  attestedAt           DateTime?
 
   client   Client    @relation(fields: [clientId], references: [id], onDelete: Restrict)
   document Document? @relation(fields: [documentId], references: [id], onDelete: SetNull)
@@ -3125,7 +3185,7 @@ model ClientIdentityVerification {
 /// Le seuil de 25 % est identique dans les deux régimes, mais l'Ontario le qualifie
 /// d'« efforts raisonnables » et prévoit un repli, pas le Québec.
 model BeneficialOwner {
-  id               String   @id @default(cuid())
+  id               String              @id @default(cuid())
   cabinetId        String
   clientId         String
   role             BeneficialOwnerRole
@@ -3140,8 +3200,8 @@ model BeneficialOwner {
   ownershipPercent Float?
   verifiedAt       DateTime?
   sourceDocumentId String?
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
 
   cabinet Cabinet @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
   client  Client  @relation(fields: [clientId], references: [id], onDelete: Restrict)
@@ -3203,23 +3263,23 @@ enum DocumentProvenance {
 }
 
 model Document {
-  id                        String    @id @default(cuid())
-  cabinetId                 String
-  clientId                  String?
-  dossierId                 String?
-  documentType              String? // depot_tribunal, contrat, correspondance, preuve, etc.
-  nom                       String
-  mimeType                  String
-  sizeBytes                 Int
-  storageKey                String // chemin ou clé objet (fichier local ou S3)
-  hash                      String? // intégrité
+  id              String             @id @default(cuid())
+  cabinetId       String
+  clientId        String?
+  dossierId       String?
+  documentType    String? // depot_tribunal, contrat, correspondance, preuve, etc.
+  nom             String
+  mimeType        String
+  sizeBytes       Int
+  storageKey      String // chemin ou clé objet (fichier local ou S3)
+  hash            String? // intégrité
   /// D'où vient le fichier. Blueprint §11, métadonnées canoniques.
-  provenance                DocumentProvenance @default(CABINET)
+  provenance      DocumentProvenance @default(CABINET)
   /// NULL = déposé hors du cabinet (client par lien, tiers). Attribuer un dépôt
   /// client à un membre du cabinet inscrirait une fausse mention dans la piste
   /// d'audit. Voir `provenance`.
-  uploadedById              String?
-  retentionJusqua           DateTime?
+  uploadedById    String?
+  retentionJusqua DateTime?
 
   /// Art. 19 B-1 r.5 — original APPARTENANT AU CLIENT.
   ///
@@ -3706,14 +3766,14 @@ model JournalGeneralEntry {
   motifCode  JournalCorrectionMotive?
   motifTexte String?
 
-  createdAt       DateTime               @default(now())
+  createdAt DateTime @default(now())
 
-  cabinet     Cabinet  @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
-  client      Client?  @relation(fields: [clientId], references: [id], onDelete: SetNull)
-  dossier     Dossier? @relation(fields: [dossierId], references: [id], onDelete: SetNull)
-  utilisateur User?    @relation(fields: [utilisateurId], references: [id], onDelete: SetNull)
-  annule      JournalGeneralEntry?  @relation("JournalAnnulation", fields: [annuleId], references: [id], onDelete: SetNull)
-  annulePar   JournalGeneralEntry?  @relation("JournalAnnulation")
+  cabinet     Cabinet              @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  client      Client?              @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  dossier     Dossier?             @relation(fields: [dossierId], references: [id], onDelete: SetNull)
+  utilisateur User?                @relation(fields: [utilisateurId], references: [id], onDelete: SetNull)
+  annule      JournalGeneralEntry? @relation("JournalAnnulation", fields: [annuleId], references: [id], onDelete: SetNull)
+  annulePar   JournalGeneralEntry? @relation("JournalAnnulation")
 
   @@index([cabinetId])
   @@index([cabinetId, dateTransaction])
@@ -3833,8 +3893,8 @@ model CalendarEvent {
   dossierId   String?
   assigneeId  String?
   createdById String?
-  createdAt   DateTime            @default(now())
-  updatedAt   DateTime            @updatedAt
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   cabinet   Cabinet  @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
   client    Client?  @relation("CalendarEventClient", fields: [clientId], references: [id], onDelete: SetNull)
@@ -3962,7 +4022,7 @@ model TrustReconciliation {
   /// certifier. Sans ce champ, la « comparaison à trois voies » annoncée au client
   /// n'en comparait que deux : art. 41(5) QC exige l'état comparatif, et
   /// s. 18(8) ON exige explicitement la liste détaillée par client en appui.
-  ecartCartesClients   Float @default(0)
+  ecartCartesClients Float @default(0)
 
   /// PR-3 — liste sérialisée des contrôles RÉELLEMENT exécutés au moment de la
   /// certification. Le texte de l'attestation est généré à partir de cette liste :
@@ -4546,6 +4606,7 @@ enum SourceLead {
   SEO_LOCAL_BUSINESS
   REFERRAL
   AUDIT_GRATUIT
+  SITE_WEB
   EMAIL
   FACEBOOK_GROUP
   RECRUITMENT_AGENCY
@@ -4924,6 +4985,7 @@ model Lead {
   leadMagnetConsumptions LeadMagnetConsumption[]
   linkedInEngagements    LinkedInEngagement[]
   campaigns              Campaign[]              @relation("LeadCampaigns")
+  demandesSite           DemandeSite[]           @relation("LeadDemandesSite")
 
   createdAt            DateTime  @default(now())
   updatedAt            DateTime  @updatedAt
@@ -5291,9 +5353,9 @@ model SupportMessage {
   readAt        DateTime?
 
   // Billets dérivés de ce message (transformation en billet côté CRM)
-  derivedTickets SupportTicket[] @relation("MessageDerivedTickets")
+  derivedTickets SupportTicket[]     @relation("MessageDerivedTickets")
   // Pièces jointes (images, PDF, Word…) stockées sur Vercel Blob privé
-  pieces SupportAttachment[]
+  pieces         SupportAttachment[]
 
   createdAt DateTime @default(now())
 
@@ -5342,4 +5404,74 @@ model ImpersonationSession {
   userAgent    String?
 
   @@index([cabinetId, startedAt])
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Demandes venues du site public
+// ─────────────────────────────────────────────────────────────────────
+
+enum DemandeSiteType {
+  CONTACT
+  RENDEZ_VOUS
+}
+
+enum DemandeSiteStatut {
+  NOUVELLE
+  REPONDUE
+  PLANIFIEE
+  CLOSE
+}
+
+/// Tout ce que le site public envoie et qui n'est pas un audit.
+///
+/// Raison d'être : jusqu'au 2026-09-04, `POST /api/contact` n'écrivait nulle
+/// part. Il envoyait deux courriels et s'arrêtait là ; un envoi manqué faisait
+/// disparaître la demande sans trace. Cette table est écrite AVANT tout envoi,
+/// exactement comme `AuditSubmission` l'est pour l'audit gratuit. Le courriel
+/// et le rattachement CRM viennent après et ne peuvent plus rien faire perdre.
+///
+/// Les colonnes `email*` et `crmNote` gardent la trace de ce qui a suivi, pour
+/// qu'un échec se voie à l'écran au lieu de rester dans les logs.
+model DemandeSite {
+  id     String            @id @default(cuid())
+  type   DemandeSiteType
+  statut DemandeSiteStatut @default(NOUVELLE)
+
+  /// Page d'origine : "/contact", "/demo".
+  page String?
+
+  // Ce que le formulaire demande
+  nom            String
+  email          String
+  telephone      String?
+  cabinet        String?
+  nbAvocats      String?
+  raison         String?
+  /// Moments qui conviennent au prospect, en texte libre (demande de RDV).
+  momentSouhaite String?
+  langue         String  @default("fr")
+
+  // Traces techniques (anti-abus, diagnostic)
+  ip        String?
+  userAgent String?
+
+  // Ce qui a suivi l'enregistrement, best-effort et jamais bloquant
+  accuseReceptionEnvoye Boolean @default(false)
+  aviseInterneEnvoye    Boolean @default(false)
+  crmNote               String?
+
+  leadId String?
+  lead   Lead?   @relation("LeadDemandesSite", fields: [leadId], references: [id])
+
+  traiteeLe DateTime?
+  notes     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([statut])
+  @@index([type])
+  @@index([email])
+  @@index([createdAt])
+  @@index([leadId])
 }
