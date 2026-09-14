@@ -2620,6 +2620,7 @@
     "chooseLanguage": "Choisissez votre langue"
   },
   "billingUi": {
+    "colClientDossier": "Client · dossier",
     "addMore": "Ajouter",
     "addDisbursementShort": "un débours",
     "addAdminChargeShort": "des frais",

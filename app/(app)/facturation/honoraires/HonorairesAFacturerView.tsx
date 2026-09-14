@@ -212,7 +212,7 @@ export function HonorairesAFacturerView({ cabinetId }: HonorairesAFacturerViewPr
             <table className="w-full border-collapse text-[13px]">
               <thead>
                 <tr className={registreHeadRowClass}>
-                  <th className={`${registreHeadCellClass} w-[34%]`}><RegistrePlainHeader label={t("colDossier")} /></th>
+                  <th className={`${registreHeadCellClass} w-[34%]`}><RegistrePlainHeader label={t("colClientDossier")} /></th>
                   <th className={registreHeadCellClass}><RegistrePlainHeader label={t("colFiches")} align="right" /></th>
                   <th className={registreHeadCellClass}><RegistrePlainHeader label={t("colHeures")} align="right" /></th>
                   <th className={registreHeadCellClass}><RegistrePlainHeader label={t("colHonoraires")} align="right" /></th>
@@ -227,8 +227,20 @@ export function HonorairesAFacturerView({ cabinetId }: HonorairesAFacturerViewPr
               <tbody>
                 {pageRows.tranche.map((row, i) => {
                   const precedent = pageRows.tranche[i - 1];
-                  const teteDeGroupe = !precedent || precedent.clientId !== row.clientId;
                   const groupe = parClient.get(row.clientId) ?? { nb: 1, total: row.totalAFacturer };
+                  /* La tête de groupe ne paraît QUE si le client a plusieurs
+                     dossiers. À un seul, elle répétait le total de la ligne du
+                     dessous, annonçait « 1 dossier » qui ne groupe rien, et ne
+                     portait pas le lien de facture groupée, réservé à deux
+                     dossiers et plus. Son seul apport, le nom du client, passe
+                     sur la ligne du dossier. Demande CEO du 2026-09-14. */
+                  const premierDuClient = !precedent || precedent.clientId !== row.clientId;
+                  const teteDeGroupe = premierDuClient && groupe.nb > 1;
+                  /* Sans tête de groupe, la ligne porte elle-même le nom du
+                     client : il n'est écrit nulle part ailleurs dans ce
+                     tableau. Même grammaire que les autres registres, le client
+                     au-dessus de sa référence. */
+                  const porteLeClient = groupe.nb === 1;
                   const libres =
                     row.timeEntryIds.length +
                     row.expenseIds.length +
@@ -268,15 +280,33 @@ export function HonorairesAFacturerView({ cabinetId }: HonorairesAFacturerViewPr
                       ) : null}
                       <tr className={registreRowClass}>
                         <td className={registreCellClass}>
-                          <span className="font-medium">
-                            {row.dossierNumero ? (
-                              <span className="font-mono tabular-nums">{row.dossierNumero} </span>
-                            ) : null}
-                            {libelleDossier}
-                          </span>
-                          {row.avocats.length > 0 ? (
-                            <span className="mt-0.5 block text-[12px] text-si-muted">{row.avocats.join(", ")}</span>
-                          ) : null}
+                          {porteLeClient ? (
+                            <>
+                              <span className="block truncate text-[14px] font-medium leading-5 text-si-ink">
+                                {row.clientName}
+                              </span>
+                              <span className="mt-0.5 block truncate text-[12px] leading-4 text-si-muted">
+                                {row.dossierNumero ? (
+                                  <span className="font-mono tabular-nums">{row.dossierNumero} · </span>
+                                ) : null}
+                                {libelleDossier}
+                                {row.avocats.length > 0 ? ` · ${row.avocats.join(", ")}` : ""}
+                              </span>
+                            </>
+                          ) : (
+                            <>
+                              {/* Le client est déjà nommé par la tête de groupe,
+                                  juste au-dessus : le répéter à chaque ligne du
+                                  groupe le dirait trois fois. */}
+                              <span className="block truncate text-[13px] text-si-muted">
+                                {row.dossierNumero ? (
+                                  <span className="font-mono tabular-nums">{row.dossierNumero} · </span>
+                                ) : null}
+                                {libelleDossier}
+                                {row.avocats.length > 0 ? ` · ${row.avocats.join(", ")}` : ""}
+                              </span>
+                            </>
+                          )}
                         </td>
                         <td className={registreCellNumClass}>{row.count}</td>
                         <td className={registreCellNumClass}>

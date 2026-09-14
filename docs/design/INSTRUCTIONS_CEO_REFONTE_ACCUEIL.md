@@ -429,3 +429,6 @@ forfait) ; le mode se deduit des lignes ; en mixte le bloc se scinde en « Au fo
 **Tranche le 2026-09-14** : « Quantite partout, forfait avant horaire, on met a
 execution. » Donc « Quantite » dans les trois modes, y compris l'horaire pur, et en
 mixte le bloc « Au forfait » precede « A l'heure ».
+
+**Valide le 2026-09-14** : « la ligne de groupe, on met a execution. » La proposition
+montree en image est appliquee telle quelle.
