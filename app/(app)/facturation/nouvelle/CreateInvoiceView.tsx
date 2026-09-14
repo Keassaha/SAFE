@@ -1373,7 +1373,10 @@ export function CreateInvoiceView({
 
   /** Un en-tête de section : le titre à gauche, son sous-total à droite. */
   const enTeteSection = (titre: string, montant?: number) => (
-    <div className="flex items-baseline justify-between border-b border-si-ink pb-1.5">
+    /* Un filet FIN. Quatre traits noirs descendaient la page, un sous chaque
+       titre de section : le reste du produit emploie la hairline.
+       Demande CEO du 2026-09-13. */
+    <div className="flex items-baseline justify-between border-b border-si-line pb-1.5">
       <h2 className="text-[11px] font-medium uppercase tracking-[0.09em] text-si-ink">
         {titre}
       </h2>
@@ -1387,10 +1390,32 @@ export function CreateInvoiceView({
 
   const corpsSection =
     "rounded-b-lg border border-t-0 border-si-line bg-si-surface px-4 pb-3 pt-1";
+  /* 12 px et le même suivi que les registres du produit (`registre.tsx`). Les
+     trois tableaux de cet écran étaient seuls à 10 px. Demande CEO du 2026-09-13. */
   const enTeteColonne =
-    "px-2 pb-2 pt-2.5 text-left text-[10px] font-medium uppercase tracking-[0.08em] text-si-muted";
+    "px-2 pb-2 pt-2.5 text-left text-[12px] font-medium uppercase tracking-[0.06em] text-si-muted";
   const boutonAjout =
     "safe-zoom inline-flex min-h-tap items-center gap-1.5 rounded-md border border-si-line bg-si-surface px-3 text-xs font-medium text-si-ink transition-colors hover:border-si-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-si-accent/30";
+  /* Ce que les sections repliées proposent, en une ligne sous le tableau des
+     honoraires.
+     « Débours et frais » et « Ajustements » ne s'affichent plus vides : sur une
+     facture d'honoraires ordinaire, deux sections sur quatre n'étaient qu'un
+     titre, un filet, un sous-total à 0,00 $ et des boutons. Leurs actions
+     restent atteignables ici, et chaque section réapparaît entière dès qu'elle
+     porte une ligne — c'est l'ajout lui-même qui la fait revenir, sans état de
+     plus. Demande CEO du 2026-09-13. */
+  const actionsRepliees = [
+    ...(lignesDebours.length === 0
+      ? [
+          { cle: "debours", label: t("addDisbursementShort"), onClick: addDebours },
+          { cle: "frais", label: t("addAdminChargeShort"), onClick: addFrais },
+        ]
+      : []),
+    ...(lignesRabais.length === 0
+      ? [{ cle: "rabais", label: t("addDiscountShort"), onClick: addRabais }]
+      : []),
+  ];
+
   const boutonAjoutDiscret =
     "safe-zoom inline-flex min-h-tap items-center gap-1.5 rounded-md px-3 text-xs font-medium text-si-muted transition-colors hover:text-si-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-si-accent/30";
 
@@ -1586,22 +1611,13 @@ export function CreateInvoiceView({
                     </div>
                   </div>
 
-                  <div>
-                    <label className="mb-1.5 block text-xs font-medium text-si-muted">
-                      {t("currency")}
-                    </label>
-                    <div
-                      className={`${inputBase} flex cursor-not-allowed select-none items-center justify-between bg-si-canvas`}
-                      aria-readonly="true"
-                      title={t("currencyLockedTitle")}
-                    >
-                      <span className="font-medium">CAD</span>
-                      <span className="text-xs text-si-muted">
-                        {t("canadianDollar")}
-                      </span>
-                    </div>
-                  </div>
-
+                  {/* La DEVISE et le NUMÉRO ont quitté ce panneau le 2026-09-14.
+                      Ni l'un ni l'autre ne se règle : la devise est verrouillée à
+                      CAD, le numéro est attribué à la création. Ils se lisent sur
+                      la ligne repliée juste au-dessus, qui est l'endroit où on les
+                      cherche. Le bloc « Mes coordonnées » est parti pour la même
+                      raison : il s'affichait sans rien régler, et il est sur
+                      l'aperçu. Demande CEO du 2026-09-13. */}
                   <div>
                     <label className="mb-1.5 block text-xs font-medium text-si-muted">
                       {t("documentType")}
@@ -1625,21 +1641,6 @@ export function CreateInvoiceView({
                         className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-si-muted"
                       />
                     </div>
-                  </div>
-
-                  <div>
-                    <label className="mb-1.5 block text-xs font-medium text-si-muted">
-                      {t("documentNumber")}
-                    </label>
-                    <input
-                      value={documentNumber}
-                      readOnly
-                      aria-readonly="true"
-                      className={`${inputBase} cursor-not-allowed bg-si-canvas text-si-muted`}
-                    />
-                    <p className="mt-1.5 text-[11px] text-si-muted">
-                      {t("autoAssignedOnCreation")}
-                    </p>
                   </div>
 
                   <div>
@@ -1688,25 +1689,6 @@ export function CreateInvoiceView({
                     </div>
                   </div>
 
-                  <div className="sm:col-span-2">
-                    <p className="mb-1.5 text-xs font-medium text-si-muted">
-                      {t("myContactInfo")}
-                    </p>
-                    <p className="text-sm font-medium text-si-ink">
-                      {cabinet.nom}
-                    </p>
-                    {cabinet.adresse && (
-                      <p className="text-[13px] text-si-muted">
-                        {cabinet.adresse}
-                      </p>
-                    )}
-                    <p className="text-[13px] text-si-muted">
-                      {[cabinet.telephone, cabinet.email]
-                        .filter(Boolean)
-                        .join(" · ")}
-                    </p>
-                    {/* NB : numéro du Barreau volontairement omis — donnée confidentielle */}
-                  </div>
                 </div>
               )}
             </div>
@@ -1868,11 +1850,35 @@ export function CreateInvoiceView({
                       })}
                     </button>
                   )}
+                  {actionsRepliees.length > 0 && (
+                    <span className="ml-auto flex flex-wrap items-center gap-1.5 text-xs text-si-muted">
+                      {t("addMore")}
+                      {actionsRepliees.map((a, i) => (
+                        <span key={a.cle} className="flex items-center gap-1.5">
+                          {i > 0 ? (
+                            <span className="text-si-line" aria-hidden>
+                              ·
+                            </span>
+                          ) : null}
+                          <button
+                            type="button"
+                            onClick={a.onClick}
+                            className="min-h-tap rounded px-0.5 text-si-body underline decoration-si-line underline-offset-2 transition-colors hover:text-si-ink hover:decoration-si-ink-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-si-accent/30"
+                          >
+                            {a.label}
+                          </button>
+                        </span>
+                      ))}
+                    </span>
+                  )}
                 </div>
               </div>
             </section>
 
-            {/* ── Débours et frais ─────────────────────────────────── */}
+            {/* ── Débours et frais ───────────────────────────────────
+                Repliée tant qu'elle ne porte rien : ses deux actions vivent
+                alors sous le tableau des honoraires. */}
+            {lignesDebours.length > 0 && (
             <section>
               {enTeteSection(t("groupExpenses"), totals.totalDebours)}
               <div className={corpsSection}>
@@ -1918,8 +1924,11 @@ export function CreateInvoiceView({
                 </div>
               </div>
             </section>
+            )}
 
-            {/* ── Ajustements ──────────────────────────────────────── */}
+            {/* ── Ajustements ────────────────────────────────────────
+                Repliée tant qu'elle ne porte rien, comme les débours. */}
+            {lignesRabais.length > 0 && (
             <section>
               {enTeteSection(
                 t("groupAdjustments"),
@@ -1960,6 +1969,7 @@ export function CreateInvoiceView({
                 </div>
               </div>
             </section>
+            )}
 
             {/* ── La note, et ce que le client verra ───────────────── */}
             <div className="flex flex-col gap-6 lg:flex-row lg:items-start">

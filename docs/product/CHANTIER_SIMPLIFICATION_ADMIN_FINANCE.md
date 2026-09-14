@@ -233,7 +233,7 @@ Une ligne par écran ouvert. **C'est ce tableau qui dit où en est le chantier.*
 | `/comptes` + `/comptes/rapports` | 2026-09-12 | « ouvre le Fidéicommis » ; « Oui, on met à exécution » | oui le 2026-09-12 (`captures/2026-09-12_fideicommis_proposition.png`, `…_rapports_proposition.png`) | 2026-09-12, code + docs en un commit | **39 → 4, 38 → 4** · 8 blocs → 2 · 2 actions pleines → 1 · 9 → 7 colonnes · `?clientId` honoré · 0 statut dans les mots du code · 4 composants morts retirés | `2026-09-12_fideicommis_ouverture.md` + capture après |
 | `/temps` (vue horaire, reçue par le mode mixte) | 2026-09-12 | « ouvre le Temps » ; « Oui, on met à exécution » (Démarrer reste secondaire) | oui le 2026-09-12 (`captures/2026-09-12_temps_proposition.png`) | 2026-09-12, code + docs en un commit | **45 → 11** · 13 contrôles + 2 onglets → 6 · 2 tris doublés → 0 · 4 contrôles pleins → 1 · 0 badge par ligne | `2026-09-12_temps_ouverture.md` + capture après |
 | `/comptabilite` (page + onglet Journal général) | 2026-09-12 | « ouvre la Comptabilité » ; « Oui, on met à exécution » ; le rouge des sorties gardé (consigne du 2026-09-09) | oui le 2026-09-12 (`captures/2026-09-12_comptabilite_proposition.png`) | 2026-09-12, code + docs en un commit | **50 → 30** (25 = journal des dépenses, rang 6 ; 5 partagés) · périmètre 20 → 0 · 2 titres → 1 · 7 éléments → 4 · 8 → 6 colonnes | `2026-09-12_comptabilite_ouverture.md` + capture après |
-| `/facturation/nouvelle` | 2026-09-13 | « ouvre la Nouvelle facture » ; consignes de fond à venir | proposée le 2026-09-13, **en attente du oui** (`captures/2026-09-13_nouvelle-facture_proposition.png`) | — | 4 sections dont 2 vides → 2 · 4 filets noirs → 0 · 7 champs de réglage dont 3 morts → 4 · en-têtes 10 px → 12 px | `2026-09-13_nouvelle_facture_ouverture.md` |
+| `/facturation/nouvelle` | 2026-09-13 | « ouvre la Nouvelle facture » ; « Oui, on met à exécution » (09-14) | oui le 2026-09-14 (`captures/2026-09-13_nouvelle-facture_proposition.png`) | 2026-09-14, code + docs en un commit | **4 sections dont 2 vides → 2** · 4 filets noirs → 0 · 7 champs de réglage dont 3 morts → **4** · 5 boutons d'ajout → 1 + 3 liens · en-têtes 10 → 12 px · route de contrôle créée | `2026-09-13_nouvelle_facture_ouverture.md` + capture après |
 | `/facturation`, section « Honoraires à facturer » + `/parametres/facture` (seuil) | 2026-09-12 | « je ne vois qu'une seule option, ce qui n'est pas normal » ; « par dossier » ; « Oui, on met à exécution » | oui le 2026-09-12 (`captures/2026-09-12_honoraires_par_dossier_proposition.png`) | 2026-09-12, code + docs en un commit | **20 → 17** · 1 ligne par client → 1 ligne par dossier · seuil gravé → réglable, zéro accepté · lien mort de Temps non facturé réparé · `/facturation/temps-non-facture` 6 → 5 · 0 écart nouveau | `2026-09-12_honoraires_par_dossier.md` + 2 captures après |
 
 Les cases « manquant » sont une dette de traçabilité : quatre lots ont été livrés du
@@ -300,6 +300,8 @@ une image, et attendre le oui.
 
 - 2026-09-12, 20 h 35 : « Honoraires à facturer » passe par dossier, seuil réglable
   dans Paramètres › Facturation (20 → 17). Hors file, sur constat du CEO le soir même.
+- 2026-09-14, 10 h 30 : `/facturation/nouvelle` **livré** (rang 7). Dernier écran de la file
+  hors `/journal/depenses`, qui reste à l'autre session.
 - 2026-09-14, 10 h 05 : processus de déclaration de transmission **livré** (spec validée le
   matin même). Découverte confirmée et corrigée : trois écrans de paiement recevaient des
   avertissements comptables et n'en affichaient aucun.

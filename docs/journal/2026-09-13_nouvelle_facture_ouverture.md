@@ -1,9 +1,8 @@
-# 2026-09-13 — La Nouvelle facture s'ouvre : mesures avant, et une proposition en image
+# 2026-09-13 → 09-14 — La Nouvelle facture : deux sections au lieu de quatre, et des réglages qui se règlent
 
 Rang 7 de la file du cadre `docs/product/CHANTIER_SIMPLIFICATION_ADMIN_FINANCE.md`, pris
 avant le rang 6 (`/journal/depenses`), qui reste le chantier actif de l'autre session.
-Aucun code touché : ce document porte les mesures avant et la proposition. Le code
-attend le oui.
+Ouverte le 2026-09-13, validée et livrée le 2026-09-14. La fiche est complète.
 
 **Une réserve, à dire avant le reste.** Le cadre note pour cet écran : « demande une
 séance d'observation avant (R9) ». Cette séance n'a pas eu lieu. Les frictions relevées
@@ -76,7 +75,8 @@ reste du produit. Elle ne touche pas au parcours lui-même.
 - Images :
   - avant, reconstitué depuis le code : `docs/journal/captures/2026-09-13_nouvelle-facture_avant_maquette.png`
   - proposition : `docs/journal/captures/2026-09-13_nouvelle-facture_proposition.png`
-- Validation : **en attente.**
+- Validation : **2026-09-14, « Oui, on met à exécution la Nouvelle facture »**, images
+  acceptées telles quelles.
 
 ### Ce que ça donne, en cibles
 | | Avant | Cible |
@@ -97,3 +97,54 @@ reste du produit. Elle ne touche pas au parcours lui-même.
 - Les modes forfait et mixte : la même vue sert les trois modes, avec un catalogue de
   forfaits en plus. Les sections repliées se comportent de la même façon, mais je ne
   l'ai pas rendu.
+
+---
+
+## Livraison — 2026-09-14
+
+- Commit : voir `git log -1 -- app/ds-preview/nouvelle-facture/page.tsx`.
+- Capture après : `docs/journal/captures/2026-09-14_nouvelle-facture_apres.png`, l'écran
+  RÉEL rendu sur `/ds-preview/nouvelle-facture`.
+
+### Ce qui a été construit
+
+1. **Les sections vides ne s'affichent plus.** « Débours et frais » et « Ajustements »
+   ne se rendent que si elles portent une ligne. Leurs trois actions vivent sous le
+   tableau des honoraires, à droite : « Ajouter un débours · des frais · un rabais ».
+   Aucun état de plus n'a été nécessaire : l'ajout crée la ligne, donc la section
+   réapparaît d'elle-même, entière, avec son titre, son sous-total et ses propres
+   boutons. La ligne discrète n'offre alors plus que ce qui reste replié.
+2. **Le panneau des réglages tient en quatre champs.** Vérifié dans le navigateur après
+   coup, en dépliant le panneau : `Langue`, `Type de document`, `Date d'émission`,
+   `Date d'échéance`. La devise verrouillée, le numéro attribué automatiquement et le
+   bloc « Mes coordonnées » n'y sont plus.
+3. **Les trois tableaux passent à 12 px**, le suivi des registres du produit.
+4. **Les filets noirs sous les titres de section deviennent des filets fins.**
+
+### Une route de contrôle, enfin
+
+`/ds-preview/nouvelle-facture` monte le composant réel sur des données fictives. C'était
+le seul écran du périmètre sans route de contrôle : il fallait une session et onze
+requêtes serveur pour le regarder. Il se regarde maintenant comme les autres.
+
+### Mesures après
+
+| | Avant | Après |
+|---|---:|---:|
+| Sections affichées sur une facture d'honoraires ordinaire | 4, dont 2 vides | **2** |
+| Filets noirs en travers de la page | 4 | **0** |
+| Champs dans le panneau des réglages | 7, dont 3 non réglables | **4** |
+| Boutons d'ajout visibles d'emblée | 5 | **1**, plus une ligne de trois liens |
+| Taille des en-têtes de colonne | 10 px | **12 px** |
+| Écarts au standard | 3 | 3 |
+
+Typecheck vert, 2 159 tests verts, parité FR/EN parfaite.
+
+### Ce que je n'ai pas pu vérifier
+
+- L'écran avec une session et de vraies données : la route de contrôle rend le composant,
+  pas les onze requêtes qui l'alimentent.
+- Les modes **forfait** et **mixte**. La même vue les sert, avec un catalogue de forfaits
+  en plus ; les sections repliées s'y comportent de la même façon puisque la règle ne
+  regarde que les lignes présentes. Non rendu.
+- L'aperçu en pleine page, inchangé mais non recapturé.

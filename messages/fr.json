@@ -2620,6 +2620,10 @@
     "chooseLanguage": "Choisissez votre langue"
   },
   "billingUi": {
+    "addMore": "Ajouter",
+    "addDisbursementShort": "un débours",
+    "addAdminChargeShort": "des frais",
+    "addDiscountShort": "un rabais",
     "warnTitle": "À vérifier",
     "warnDismiss": "Plus tard",
     "warnClose": "Fermer l'avertissement",
