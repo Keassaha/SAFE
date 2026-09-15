@@ -352,8 +352,16 @@ export function FormulaireEntreeClient({
               {recherche.parties} partie{recherche.parties > 1 ? "s" : ""} déjà au dossier.
             </p>
             <p className="mt-1 text-[12px] text-si-subtle">
-              Une nouvelle recherche sera proposée quand tous vos clients seront entrés : les premiers n&apos;ont pas encore
-              été comparés aux derniers.
+              Vos premiers clients n&apos;ont pas encore été comparés aux derniers.{" "}
+              <a
+                href="/clients/entree/conflits"
+                target="_blank"
+                rel="noreferrer"
+                className="text-si-body underline underline-offset-4 hover:text-si-ink"
+              >
+                Comparer tout le monde maintenant
+              </a>
+              , dans un nouvel onglet, sans perdre cette saisie.
             </p>
           </div>
           <div className="mt-3">
