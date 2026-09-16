@@ -62,16 +62,27 @@ type PaymentJournalInput = Pick<
 
 export async function writeJournalForIssuedInvoice(
   invoice: InvoiceJournalInput,
-  opts: { client?: JournalPrismaClient; utilisateurId?: string | null } = {},
+  opts: {
+    client?: JournalPrismaClient;
+    utilisateurId?: string | null;
+    /**
+     * Re-jeu après correction : `${invoice.id}#vN`. Même rôle que sur le
+     * paiement — l'index unique partiel sur (cabinetId, sourceModule, sourceId)
+     * interdit de réécrire le même sourceId, et la version distingue la
+     * facture corrigée de l'originale.
+     */
+    sourceIdOverride?: string;
+  } = {},
 ): Promise<BillingJournalResult> {
   const amount = roundMoney(invoice.totalInvoiceAmount || invoice.montantTotal || 0);
   if (amount <= 0) return { created: false, reason: "amount_zero" };
 
   const client = opts.client ?? prisma;
+  const sourceIdFacture = opts.sourceIdOverride ?? invoice.id;
   const existing = await findExistingEntry(client, {
     cabinetId: invoice.cabinetId,
     sourceModule: INVOICE_JOURNAL_SOURCE_MODULE,
-    sourceId: invoice.id,
+    sourceId: sourceIdFacture,
   });
   if (existing) return { created: false, journalId: existing.id, reason: "already_journalized" };
 
@@ -91,7 +102,7 @@ export async function writeJournalForIssuedInvoice(
         montantEntree: amount,
         montantSortie: 0,
         sourceModule: INVOICE_JOURNAL_SOURCE_MODULE,
-        sourceId: invoice.id,
+        sourceId: sourceIdFacture,
         utilisateurId: opts.utilisateurId ?? null,
       },
       client,
@@ -102,7 +113,7 @@ export async function writeJournalForIssuedInvoice(
     const winner = await findExistingEntry(client, {
       cabinetId: invoice.cabinetId,
       sourceModule: INVOICE_JOURNAL_SOURCE_MODULE,
-      sourceId: invoice.id,
+      sourceId: sourceIdFacture,
     });
     return { created: false, journalId: winner?.id, reason: "already_journalized" };
   }
