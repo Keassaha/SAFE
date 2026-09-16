@@ -23,6 +23,7 @@ export async function getBriefcaseData(dossierId: string) {
         nom: true,
         documentType: true,
         createdAt: true,
+        dateDocument: true,
         uploadedById: true,
         storageKey: true,
         mimeType: true,
@@ -32,7 +33,15 @@ export async function getBriefcaseData(dossierId: string) {
         classificationNeedsReview: true,
       },
       orderBy: { createdAt: "desc" },
-    }),
+    }).then((docs) =>
+      // Dans chaque section du cartable, les pièces se suivent par la date
+      // qu'elles PORTENT (une facture reprise datée d'il y a six mois), pas par
+      // l'heure de leur dépôt dans SAFE. `dateDocument` est absente de la
+      // plupart des documents : ceux-là gardent leur ordre de dépôt.
+      [...docs].sort(
+        (a, b) => (b.dateDocument ?? b.createdAt).getTime() - (a.dateDocument ?? a.createdAt).getTime(),
+      ),
+    ),
     prisma.richDocument.findMany({
       where: {
         dossierId,
