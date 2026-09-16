@@ -29,8 +29,10 @@ import {
   CalendarDays,
   Calculator,
   Mail,
+  UserPlus,
 } from "lucide-react";
 import {
+  canCreateClients,
   canViewClients,
   canViewDossiers,
   canManageDossiers,
@@ -100,6 +102,15 @@ const NAV_ITEMS: NavItem[] = [
     dividerBefore: true,
     children: [
       { id: "clients", href: routes.clients, labelKey: "nav.clients", icon: Users, show: canViewClients },
+      {
+        // Même écran que components/layout/Header.tsx : entrée d'un client
+        // qui arrive avec des dossiers et un solde de fidéicommis existants.
+        id: "client-entree",
+        href: routes.clientEntree,
+        labelKey: "nav.clientEntree",
+        icon: UserPlus,
+        show: canCreateClients,
+      },
       { id: "dossiers", href: routes.dossiers, labelKey: "nav.matters", icon: FolderOpen, show: canViewDossiers },
       // Agenda — calendrier du cabinet (événements + échéances). Le composant existait déjà
       // sur /gestion/lextrack mais n'était atteignable par aucune entrée de menu.

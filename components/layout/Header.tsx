@@ -35,10 +35,12 @@ import {
   Calculator,
   Coins,
   Mail,
+  UserPlus,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { UserRole } from "@prisma/client";
 import {
+  canCreateClients,
   canManageInvoices,
   canViewAssistantQueue,
   canViewBillingTrust,
@@ -169,6 +171,16 @@ const NAV: NavGroup[] = [
         icon: Users,
         descriptionKey: "navClientsDesc",
         show: canViewClients,
+      },
+      {
+        // Entrée d'un client déjà servi ailleurs (dossiers + fidéicommis
+        // existants). Livré le 2026-09-15, mais n'était accessible que par
+        // l'URL directe : voir project_entree_client_reprise.
+        labelKey: "navClientEntree",
+        href: routes.clientEntree,
+        icon: UserPlus,
+        descriptionKey: "navClientEntreeDesc",
+        show: canCreateClients,
       },
       {
         labelKey: "navMatters",

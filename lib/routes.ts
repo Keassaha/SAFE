@@ -9,6 +9,7 @@ export const routes = {
   clients: "/clients",
   client: (id: string) => `/clients/${id}`,
   clientNouveau: "/clients/nouveau",
+  clientEntree: "/clients/entree",
   clientVerificationIdentite: (id: string) => `/clients/${id}/verification-identite`,
   dossiers: "/dossiers",
   dossier: (id: string) => `/dossiers/${id}`,
