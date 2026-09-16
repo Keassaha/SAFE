@@ -452,14 +452,19 @@ function CarteFacture({
       {entree.expanded && (
         <div className="mt-3 border-t border-si-line pt-3">
           <p className="mb-2 text-[12px] text-si-muted">
-            Heures reprises, rangées par date de travail, marquées facturées : elles ne repartiront pas en
-            facturation.
+            Les heures reprises sont rangées par date de travail et marquées facturées : elles ne
+            repartiront pas en facturation. Les débours rejoignent la fiche de débours du dossier.
           </p>
           <div className="space-y-1">
             {extraction.lignes.map((ligne, i) => (
               <div key={i} className="flex items-center justify-between text-[13px]">
                 <span className="text-si-subtle">{ligne.date ?? "—"}</span>
-                <span className="flex-1 px-3 text-si-ink">{ligne.description}</span>
+                <span className="flex-1 px-3 text-si-ink">
+                  {ligne.description}
+                  {ligne.nature === "debours" && (
+                    <span className="ml-2 text-[12px] text-si-muted">débours</span>
+                  )}
+                </span>
                 {ligne.heures !== null && <span className="text-si-muted">{heureFmt(ligne.heures)}</span>}
                 <span className="ml-3 w-20 text-right text-si-ink">
                   {ligne.montant !== null ? devise.format(ligne.montant) : "?"}

@@ -11,6 +11,8 @@ function facture(
     dossierIntitule: overrides.dossierIntitule ?? null,
     dateEmission: overrides.dateEmission ?? null,
     montantTotal: overrides.montantTotal ?? 0,
+    tps: overrides.tps ?? null,
+    tvq: overrides.tvq ?? null,
     lignes: overrides.lignes ?? [],
     confianceOcr: overrides.confianceOcr ?? "haute",
     champsIllisibles: overrides.champsIllisibles ?? [],
@@ -92,7 +94,7 @@ describe("construireLotReprise — synthèse", () => {
         dateEmission: "2026-03-01",
         montantTotal: 805,
         lignes: [
-          { description: "Étude", date: "2026-02-24", montant: 805, heures: 1.75, tauxHoraire: 460 },
+          { description: "Étude", date: "2026-02-24", montant: 805, heures: 1.75, tauxHoraire: 460, nature: "honoraire" },
         ],
       }),
       facture({
@@ -100,13 +102,30 @@ describe("construireLotReprise — synthèse", () => {
         dateEmission: "2026-03-02",
         montantTotal: 1125,
         lignes: [
-          { description: "Forfait", date: null, montant: 1125, heures: null, tauxHoraire: null },
+          { description: "Forfait", date: null, montant: 1125, heures: null, tauxHoraire: null, nature: "honoraire" },
         ],
       }),
     ]);
 
     expect(lot.synthese.heuresReprises).toBe(1.75);
     expect(lot.synthese.totalFacture).toBe(1930);
+  });
+
+  it("un débours compte dans le total facturé mais jamais dans les heures reprises", () => {
+    const lot = construireLotReprise([
+      facture({
+        id: "a",
+        dateEmission: "2026-03-01",
+        montantTotal: 933,
+        lignes: [
+          { description: "Rédaction", date: "2026-02-24", montant: 805, heures: 1.75, tauxHoraire: 460, nature: "honoraire" },
+          { description: "Frais de greffe", date: "2026-02-26", montant: 128, heures: null, tauxHoraire: null, nature: "debours" },
+        ],
+      }),
+    ]);
+
+    expect(lot.synthese.heuresReprises).toBe(1.75);
+    expect(lot.synthese.totalFacture).toBe(933);
   });
 
   it("le reste dû ne compte que les factures marquées impayées", () => {
