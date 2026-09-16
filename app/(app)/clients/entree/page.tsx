@@ -1,10 +1,13 @@
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { Button } from "@/components/ui/Button";
 import { requireCabinetAndUser } from "@/lib/auth/session";
 import { canCreateClients } from "@/lib/auth/permissions";
 import { prisma } from "@/lib/db";
 import { chargerContexteEntree } from "@/lib/services/entree-client/contexte-entree";
 import { FormulaireEntreeClient } from "@/components/clients/entree/FormulaireEntreeClient";
+import { routes } from "@/lib/routes";
 import type { UserRole } from "@prisma/client";
 
 /**
@@ -38,6 +41,13 @@ export default async function EntreeClientPage({
           variant="dashboard"
           title="Entrée d'un client"
           description="Ce que vous savez, ce que vous avez déjà fait, ce qui reste ouvert."
+          action={
+            <Link href={routes.clientEntreeReprise}>
+              <Button variant="secondary" type="button">
+                Reprendre l&apos;historique de facturation
+              </Button>
+            </Link>
+          }
         />
       </div>
 
