@@ -33,11 +33,13 @@ import {
   Flame,
   CalendarDays,
   Calculator,
+  Coins,
   Mail,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { UserRole } from "@prisma/client";
 import {
+  canManageInvoices,
   canViewAssistantQueue,
   canViewBillingTrust,
   canViewClients,
@@ -208,13 +210,29 @@ const NAV: NavGroup[] = [
     id: "finances",
     labelKey: "navFinances",
     icon: Wallet,
-    matchPrefixes: [routes.facturation, routes.comptabilite, routes.comptes, routes.inspection, routes.conformite],
+    matchPrefixes: [
+      routes.facturation,
+      routes.facturationFrais,
+      routes.comptabilite,
+      routes.comptes,
+      routes.inspection,
+      routes.conformite,
+    ],
     children: [
       {
         labelKey: "navBilling",
         href: routes.facturation,
         icon: Receipt,
         descriptionKey: "navBillingDesc",
+      },
+      {
+        /* Les débours étaient dans AUCUN menu : on n'y arrivait que par une
+           tuile au bas de Facturation. Décision CEO du 2026-09-12. */
+        labelKey: "navDisbursements",
+        href: routes.facturationFrais,
+        icon: Coins,
+        descriptionKey: "navDisbursementsDesc",
+        show: canManageInvoices,
       },
       {
         labelKey: "navAccounting",

@@ -13,6 +13,7 @@ import {
   Clock,
   FileText,
   Receipt,
+  Coins,
   BookOpen,
   BarChart3,
   ChevronRight,
@@ -131,6 +132,8 @@ const NAV_ITEMS: NavItem[] = [
     dividerBefore: true,
     children: [
       { id: "facturation", href: routes.facturation, labelKey: "nav.billing", icon: Receipt, show: canManageInvoices },
+      // Même arborescence que `components/layout/Header.tsx`, qui fait foi.
+      { id: "debours", href: routes.facturationFrais, labelKey: "nav.disbursements", icon: Coins, show: canManageInvoices },
       { id: "comptabilite", href: routes.comptabilite, labelKey: "nav.comptabilite", icon: BookOpen, show: (role) => canManageExpenseJournal(role) || canManageInvoices(role) },
       { id: "comptes", href: routes.comptes, labelKey: "nav.trustAccounts", icon: Wallet, show: canViewBillingTrust },
       // Section Inspection : tout ce qu'un inspecteur demande, au meme endroit.
