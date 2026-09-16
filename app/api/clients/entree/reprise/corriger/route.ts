@@ -54,6 +54,10 @@ export async function GET() {
         orderBy: { createdAt: "asc" },
         take: 1,
       },
+      invoiceLines: {
+        select: { id: true, description: true, montant: true, lineType: true },
+        orderBy: { sortOrder: "asc" },
+      },
     },
   });
 
@@ -71,6 +75,12 @@ export async function GET() {
         f.client?.raisonSociale ||
         [f.client?.prenom, f.client?.nom].filter(Boolean).join(" ") ||
         "Client",
+      lignes: f.invoiceLines.map((l) => ({
+        id: l.id,
+        description: l.description,
+        montant: l.montant,
+        nature: l.lineType === "expense" ? "debours" : "honoraire",
+      })),
     })),
   });
 }

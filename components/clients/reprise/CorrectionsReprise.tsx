@@ -21,6 +21,15 @@ const devise = new Intl.NumberFormat("fr-CA", { style: "currency", currency: "CA
 
 type StatutPaiement = "payee" | "partielle" | "impayee";
 
+type NatureLigne = "honoraire" | "debours";
+
+interface LigneReprise {
+  id: string;
+  description: string;
+  montant: number;
+  nature: NatureLigne;
+}
+
 interface FactureReprise {
   id: string;
   numero: string;
@@ -30,6 +39,7 @@ interface FactureReprise {
   montantPaye: number;
   statutPaiement: StatutPaiement;
   datePaiement: string | null;
+  lignes: LigneReprise[];
 }
 
 interface Brouillon {
@@ -38,6 +48,8 @@ interface Brouillon {
   statutPaiement: StatutPaiement;
   montantPaye: string;
   datePaiement: string;
+  /** Nature retenue pour chaque ligne, par identifiant de ligne. */
+  natures: Record<string, NatureLigne>;
 }
 
 const LIBELLE_STATUT: Record<StatutPaiement, string> = {
@@ -53,6 +65,7 @@ function brouillonDe(f: FactureReprise): Brouillon {
     statutPaiement: f.statutPaiement,
     montantPaye: String(f.montantPaye),
     datePaiement: f.datePaiement ?? "",
+    natures: Object.fromEntries((f.lignes ?? []).map((l) => [l.id, l.nature])),
   };
 }
 
@@ -115,6 +128,10 @@ export function CorrectionsReprise() {
                 ? Number(brouillon.montantPaye.replace(",", "."))
                 : undefined,
             datePaiement: brouillon.statutPaiement === "impayee" ? null : brouillon.datePaiement || null,
+            lignes: Object.entries(brouillon.natures).map(([invoiceLineId, nature]) => ({
+              invoiceLineId,
+              nature,
+            })),
           },
         }),
       });
@@ -252,6 +269,34 @@ export function CorrectionsReprise() {
                   </label>
                 )}
               </div>
+
+              {f.lignes.length > 0 && (
+                <div className="space-y-1.5">
+                  <p className="text-[12px] text-si-muted">
+                    Une ligne rangée du mauvais côté se reclasse ici. Un débours quitte la fiche de
+                    débours du dossier, un honoraire la rejoint.
+                  </p>
+                  {f.lignes.map((ligne) => (
+                    <div key={ligne.id} className="flex items-center justify-between gap-3 text-[13px]">
+                      <span className="min-w-0 flex-1 truncate text-si-ink">{ligne.description}</span>
+                      <span className="text-si-muted">{devise.format(ligne.montant)}</span>
+                      <select
+                        className={champClass}
+                        value={brouillon.natures[ligne.id] ?? ligne.nature}
+                        onChange={(e) =>
+                          setBrouillon({
+                            ...brouillon,
+                            natures: { ...brouillon.natures, [ligne.id]: e.target.value as NatureLigne },
+                          })
+                        }
+                      >
+                        <option value="honoraire">Honoraire</option>
+                        <option value="debours">Débours</option>
+                      </select>
+                    </div>
+                  ))}
+                </div>
+              )}
 
               {erreur && (
                 <div className="flex items-start gap-2 rounded-lg border border-si-danger/30 bg-si-danger/[0.06] px-3 py-2 text-[13px] text-si-danger-ink">

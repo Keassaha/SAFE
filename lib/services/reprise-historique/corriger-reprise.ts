@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { derivePaymentStatus } from "@/lib/billing/payment-status";
 import { createJournalEntry } from "@/lib/services/journal/journal-service";
 import { writeJournalForIssuedInvoice, writeJournalForPayment } from "@/lib/services/journal/billing-journal";
+import { writeJournalForDeboursPaiement } from "@/lib/services/journal/debours-dossier-journal";
 import { getPeriodeFromDate, isPeriodLocked } from "@/lib/services/journal/period-lock";
 import { createAuditLog } from "@/lib/services/audit";
 import { JOURNAL_MOTIVE_LABELS } from "@/types/journal";
@@ -50,6 +51,8 @@ export interface CorrigerRepriseParams {
     statutPaiement?: StatutPaiementCorrige;
     montantPaye?: number;
     datePaiement?: string | null;
+    /** Reclassement d'une ligne lue de travers : honoraire ↔ débours. */
+    lignes?: { invoiceLineId: string; nature: "honoraire" | "debours" }[];
   };
 }
 
@@ -114,6 +117,21 @@ export async function corrigerFactureReprise(
         select: { id: true, montant: true, datePaiement: true },
         orderBy: { createdAt: "asc" },
       },
+      invoiceLines: {
+        select: {
+          id: true,
+          description: true,
+          montant: true,
+          lineType: true,
+          serviceDate: true,
+          // `timeEntryRef` est l'entrée de temps qui POINTE vers cette ligne
+          // (relation InvoiceLineRef), pas `timeEntry` qui est la source.
+          timeEntryRef: { select: { id: true } },
+          registreTache: { select: { id: true } },
+          deboursDossier: { select: { id: true } },
+        },
+        orderBy: { sortOrder: "asc" },
+      },
     },
   });
 
@@ -155,8 +173,27 @@ export async function corrigerFactureReprise(
     throw new CorrigerRepriseError("Une facture partielle demande le montant réellement reçu.");
   }
 
+  // ── Reclassements de lignes demandés ──────────────────────────────────────
+  // Une ligne lue comme honoraire alors que c'était un débours (ou l'inverse)
+  // ne change pas le total de la facture : elle change où la somme est rangée,
+  // donc l'entrée de temps ou le débours qui lui est accroché.
+  const reclassements = (corrections.lignes ?? [])
+    .map((demande) => {
+      const ligne = facture.invoiceLines.find((l) => l.id === demande.invoiceLineId);
+      if (!ligne) return null;
+      const natureActuelle = ligne.lineType === "expense" ? "debours" : "honoraire";
+      if (natureActuelle === demande.nature) return null;
+      return { ligne, vers: demande.nature };
+    })
+    .filter((r): r is { ligne: (typeof facture.invoiceLines)[number]; vers: "honoraire" | "debours" } => r !== null);
+
   const changements = changementsMateriels(avant, apres);
-  if (!changements.material) {
+  for (const r of reclassements) {
+    changements.raisons.push(
+      `ligne « ${r.ligne.description} » ${r.vers === "debours" ? "honoraire → débours" : "débours → honoraire"}`,
+    );
+  }
+  if (!changements.material && reclassements.length === 0) {
     return { corrige: false, raisons: [], correctionIds: [], message: "Rien n'a changé." };
   }
 
@@ -181,7 +218,7 @@ export async function corrigerFactureReprise(
 
     /** Neutralise l'effet net déjà inscrit pour une pièce, puis rend la version du re-jeu. */
     const neutraliser = async (
-      sourceModule: "FACTURATION" | "PAIEMENTS",
+      sourceModule: "FACTURATION" | "PAIEMENTS" | "DEBOURS",
       sourceId: string,
       quoi: string,
     ): Promise<number> => {
@@ -225,6 +262,81 @@ export async function corrigerFactureReprise(
       return versionLaPlusHaute(anterieures) + 1;
     };
 
+    // ── Reclassement des lignes ──────────────────────────────────────────
+    // Fait AVANT le re-jeu de la facture pour que les sous-totaux honoraires
+    // et débours réinscrits disent déjà la vérité.
+    for (const { ligne, vers } of reclassements) {
+      const dateLigne = ligne.serviceDate ?? facture.dateEmission;
+
+      if (vers === "debours") {
+        if (ligne.timeEntryRef) await tx.timeEntry.delete({ where: { id: ligne.timeEntryRef.id } });
+        if (ligne.registreTache) await tx.registreTache.delete({ where: { id: ligne.registreTache.id } });
+
+        await tx.invoiceLine.update({
+          where: { id: ligne.id },
+          data: {
+            lineType: "expense",
+            sourceType: "debours_dossier",
+            taxable: false,
+            quantite: 1,
+            tauxUnitaire: ligne.montant,
+          },
+        });
+
+        const type = await tx.deboursType.findFirst({
+          where: { cabinetId, nom: ligne.description, actif: true },
+          select: { id: true },
+        });
+        const debours = await tx.deboursDossier.create({
+          data: {
+            cabinetId,
+            dossierId: facture.dossierId!,
+            clientId: facture.clientId,
+            deboursTypeId: type?.id ?? null,
+            description: ligne.description,
+            quantite: 1,
+            montant: ligne.montant,
+            taxable: false,
+            date: dateLigne,
+            payeParCabinet: true,
+            refacturable: true,
+            statutDebours: "FACTURE",
+            factureId: facture.id,
+            invoiceLineId: ligne.id,
+          },
+        });
+        await writeJournalForDeboursPaiement(debours, { client: tx, utilisateurId: userId });
+      } else {
+        // Débours → honoraire : la sortie d'argent inscrite au journal n'a
+        // jamais eu lieu, on la neutralise avant de retirer le débours.
+        if (ligne.deboursDossier) {
+          await neutraliser("DEBOURS", ligne.deboursDossier.id, "du débours");
+          await tx.deboursDossier.delete({ where: { id: ligne.deboursDossier.id } });
+        }
+
+        await tx.invoiceLine.update({
+          where: { id: ligne.id },
+          data: { lineType: "fee", sourceType: "manual", taxable: true },
+        });
+
+        // Sans heures connues, la ligne redevient une tâche forfaitaire, déjà
+        // facturée : elle ne doit jamais ressortir en facturation.
+        await tx.registreTache.create({
+          data: {
+            cabinetId,
+            dossierId: facture.dossierId!,
+            clientId: facture.clientId,
+            description: ligne.description,
+            montantBase: ligne.montant,
+            montantFinal: ligne.montant,
+            date: dateLigne,
+            statut: "facture",
+            invoiceLineId: ligne.id,
+          },
+        });
+      }
+    }
+
     const versionFacture = await neutraliser("FACTURATION", facture.id, "de la facture");
 
     // ── La facture corrigée ──────────────────────────────────────────────
@@ -236,6 +348,19 @@ export async function corrigerFactureReprise(
     // plutôt que d'inventer une taxe que la facture ne portait pas.
     const taxTotal = Math.min(facture.taxTotal, apres.montantTotal);
 
+    // Les sous-totaux suivent le reclassement : une ligne passée en débours
+    // quitte les honoraires, sinon la facture dirait deux choses différentes.
+    const lignesApres = await tx.invoiceLine.findMany({
+      where: { invoiceId: facture.id },
+      select: { montant: true, lineType: true },
+    });
+    const subtotalExpenses = arrondir(
+      lignesApres.filter((l) => l.lineType === "expense").reduce((s, l) => s + l.montant, 0),
+    );
+    const subtotalFees = arrondir(
+      lignesApres.filter((l) => l.lineType !== "expense").reduce((s, l) => s + l.montant, 0),
+    );
+
     await tx.invoice.update({
       where: { id: facture.id },
       data: {
@@ -243,6 +368,8 @@ export async function corrigerFactureReprise(
         dateEcheance: dateEmission,
         montantTotal: apres.montantTotal,
         totalInvoiceAmount: apres.montantTotal,
+        subtotalFees,
+        subtotalExpenses,
         subtotalBeforeTax: arrondir(apres.montantTotal - taxTotal),
         subtotalTaxable: arrondir(apres.montantTotal - taxTotal),
         taxTotal,
