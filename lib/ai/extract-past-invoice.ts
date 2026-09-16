@@ -142,7 +142,7 @@ RÈGLES STRICTES :
 - N'invente JAMAIS une valeur. Si un champ est absent ou illisible, mets-le à null ET ajoute son nom dans "champsIllisibles".
 - N'invente JAMAIS un statut de paiement. Ne le déduis pas d'une mention « payé » ou d'un tampon : ignore-le complètement, ce n'est pas demandé ici.
 - "numeroFacture" = le numéro tel qu'imprimé sur la facture (ex: "F-2026-011").
-- "clientNom" = le nom du client facturé (personne ou entreprise), tel qu'écrit.
+- "clientNom" = le nom du CLIENT FACTURÉ, celui qui doit payer. ATTENTION, c'est le piège le plus fréquent : le nom le plus gros et le plus haut de la page est celui du CABINET qui émet la facture, pas celui du client. Le client se trouve sous une mention du genre « Facturé à », « Client », « Destinataire », « À l'attention de », souvent avec son adresse. Ne prends JAMAIS pour un client une ligne d'en-tête de cabinet (un nom suivi de « Avocats », « Avocat », « Notaires », « S.E.N.C.R.L. », « s.a. », d'une ville seule, d'un numéro de permis ou du Barreau). Si tu n'es pas certain d'avoir le client et non l'émetteur, mets null et ajoute "clientNom" à "champsIllisibles".
 - "dossierIntitule" = l'objet du mandat mentionné (ex: « Bail commercial, rue Laurier », « Séparation de corps »). null si aucun objet n'est mentionné.
 - "dateEmission" = la date d'émission de la facture, au format AAAA-MM-JJ.
 - "montantTotal" = le montant TOTAL de la facture, taxes comprises, celui que le client devait payer. En nombre décimal, sans symbole ni séparateur de milliers.

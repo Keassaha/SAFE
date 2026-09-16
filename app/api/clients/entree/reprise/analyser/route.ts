@@ -7,6 +7,7 @@ import { extractPastInvoice } from "@/lib/ai/extract-past-invoice";
 import { capaciteIAAutorisee } from "@/lib/ai/politique-donnees-client";
 import { hashProofFile } from "@/lib/services/finance/proof-dedup";
 import { matchFacturePassee } from "@/lib/services/reprise-historique/matcher";
+import { cleCroisement } from "@/lib/clients/croisement-conflits";
 import { loadClientsCandidatsReprise } from "@/lib/services/reprise-historique/candidats";
 import type { UserRole } from "@prisma/client";
 
@@ -23,6 +24,27 @@ function getSessionData() {
     const role = (session.user as { role?: string }).role as UserRole;
     if (!cabinetId) return null;
     return { cabinetId, role };
+  });
+}
+
+/**
+ * Les clients du cabinet, pour que l'écran puisse rattacher une facture à la
+ * main quand la lecture n'a pas su nommer le client. Sans cette liste, l'écran
+ * dirait « corrigez le nom » sans offrir le moyen de le faire.
+ */
+export async function GET() {
+  const data = await getSessionData();
+  if (!data) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
+  if (!canCreateClients(data.role)) {
+    return NextResponse.json({ error: "Droits insuffisants" }, { status: 403 });
+  }
+
+  const clients = await loadClientsCandidatsReprise(data.cabinetId);
+  return NextResponse.json({
+    clients: clients
+      .filter((c) => c.nom)
+      .map((c) => ({ id: c.id, nom: c.nom }))
+      .sort((a, b) => a.nom.localeCompare(b.nom, "fr")),
   });
 }
 
@@ -97,14 +119,34 @@ export async function POST(request: Request) {
     );
   }
 
+  // ── L'en-tête du cabinet lu à la place du client ─────────────────────────
+  // C'est l'erreur classique sur une facture à papier à lettre : le nom le plus
+  // gros de la page est celui du cabinet, pas celui du client. On refuse de le
+  // prendre pour un client plutôt que d'ouvrir une fiche au nom du cabinet.
+  const cabinet = await prisma.cabinet.findUnique({
+    where: { id: data.cabinetId },
+    select: { nom: true },
+  });
+  const extractionRetenue =
+    cabinet?.nom && cleCroisement(extraction.clientNom) === cleCroisement(cabinet.nom)
+      ? {
+          ...extraction,
+          clientNom: null,
+          champsIllisibles: [
+            ...extraction.champsIllisibles,
+            "le nom du client (c'est l'en-tête du cabinet qui a été lu)",
+          ],
+        }
+      : extraction;
+
   const clients = await loadClientsCandidatsReprise(data.cabinetId);
-  const match = matchFacturePassee(extraction, clients);
+  const match = matchFacturePassee(extractionRetenue, clients);
 
   return NextResponse.json({
     fichierNom: file.name,
     hash,
     mimeType: file.type,
-    extraction,
+    extraction: extractionRetenue,
     match,
   });
 }

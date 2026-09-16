@@ -255,6 +255,27 @@ describe("deux factures du lot qui portent le même numéro", () => {
   });
 });
 
+describe("l'en-tête du cabinet pris pour le client", () => {
+  it("prévient quand le nom lu porte une marque de cabinet", () => {
+    // Cas mesuré : la lecture a pris la deuxième ligne de l'en-tête.
+    const c = controlerFacture(facture({}, { clientNom: "Avocats - Gatineau" }));
+    expect(c.avertissements.join(" ")).toContain("en-tête de cabinet");
+    // Un cabinet peut facturer un autre cabinet : ça ne bloque pas.
+    expect(versable(c)).toBe(true);
+  });
+
+  it("ne dit rien sur un nom de client ordinaire", () => {
+    const c = controlerFacture(facture({}, { clientNom: "Société Kaboré et fils" }));
+    expect(c.avertissements.join(" ")).not.toContain("en-tête de cabinet");
+  });
+
+  it("se tait quand le client est déjà au dossier, même s'il est avocat", () => {
+    const f = facture({}, { clientNom: "Untel Avocats inc." });
+    f.match.client = { statut: "existant", clientId: "c1", clientNom: "Untel Avocats inc." };
+    expect(controlerFacture(f).avertissements.join(" ")).not.toContain("en-tête de cabinet");
+  });
+});
+
 describe("une facture bien lue ne dit rien", () => {
   it("ne bloque ni n'avertit", () => {
     const c = controlerFacture(facture());

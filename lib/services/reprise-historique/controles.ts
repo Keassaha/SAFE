@@ -69,6 +69,36 @@ function enFrancais(champ: string): string {
   return NOM_DES_CHAMPS[champ] ?? NOM_DES_CHAMPS[champ.trim()] ?? champ;
 }
 
+/**
+ * Mots qui trahissent une ligne d'en-tête de cabinet plutôt qu'un client.
+ * Un cabinet peut facturer un autre cabinet, donc ceci ne bloque jamais : ça
+ * demande de regarder.
+ */
+const MARQUEURS_DE_CABINET = [
+  "avocat",
+  "avocats",
+  "avocate",
+  "avocates",
+  "notaire",
+  "notaires",
+  "sencrl",
+  "senc",
+  "llp",
+  "barreau",
+  "huissier",
+  "huissiers",
+];
+
+function ressembleAUnEnTeteDeCabinet(nom: string): boolean {
+  const mots = nom
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .split(/[^a-z0-9]+/)
+    .filter(Boolean);
+  return mots.some((m) => MARQUEURS_DE_CABINET.includes(m));
+}
+
 export function controlerFacture(
   facture: FactureRepriseSaisie,
   contexte: ContexteControle = {},
@@ -205,6 +235,15 @@ export function controlerFacture(
   }
   if (!extraction.numeroFacture) {
     avertissements.push("Le numéro de facture n'a pas été lu : SAFE lui en donnera un.");
+  }
+  if (match.client.statut === "nouveau" && ressembleAUnEnTeteDeCabinet(match.client.clientNom)) {
+    // Mesuré le 2026-09-16 : sur une facture à papier à lettre, la lecture a
+    // pris « Avocats - Gatineau », la deuxième ligne de l'en-tête, pour le
+    // client. Un cabinet PEUT facturer un autre cabinet : on prévient, on ne
+    // bloque pas.
+    avertissements.push(
+      `« ${match.client.clientNom} » ressemble à un en-tête de cabinet plutôt qu'à un client. Vérifiez qui est facturé avant de créer la fiche.`,
+    );
   }
 
   return { bloquants, avertissements };

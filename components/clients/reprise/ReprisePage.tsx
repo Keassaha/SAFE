@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { AlertTriangle, ChevronDown, FileWarning, Upload } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { StatusBadge } from "@/components/ui/StatusBadge";
@@ -49,6 +49,10 @@ interface EntreeFacture {
   montantPaye: string;
   /** Correction manuelle si l'IA n'a pas pu lire la date d'émission. */
   dateEmissionCorrigee: string;
+  /** Client existant choisi à la main parmi les ressemblances proposées. */
+  clientChoisi?: { clientId: string; nom: string };
+  /** Nom de client saisi à la main quand la lecture n'a pas su le nommer. */
+  clientNomSaisi?: string;
   expanded: boolean;
 }
 
@@ -61,11 +65,27 @@ function idUnique(): string {
 function versSaisie(e: EntreeFacture): FactureRepriseSaisie | null {
   if (e.statut !== "analyse" || !e.extraction || !e.match) return null;
   const dateEmission = e.extraction.dateEmission ?? (e.dateEmissionCorrigee || null);
+  // Un client choisi à la main dans les ressemblances l'emporte sur la lecture.
+  const match = e.clientChoisi
+    ? {
+        ...e.match,
+        client: {
+          statut: "existant" as const,
+          clientId: e.clientChoisi.clientId,
+          clientNom: e.clientChoisi.nom,
+        },
+      }
+    : e.clientNomSaisi?.trim()
+      ? {
+          ...e.match,
+          client: { ...e.match.client, clientNom: e.clientNomSaisi.trim() },
+        }
+      : e.match;
   return {
     id: e.id,
     fichierNom: e.fichierNom,
     extraction: { ...e.extraction, dateEmission },
-    match: e.match,
+    match,
     statutPaiement: e.statutPaiement,
     datePaiement: e.datePaiement || null,
   };
@@ -83,6 +103,14 @@ export function ReprisePage() {
     { phase: "idle" } | { phase: "en_cours" } | { phase: "termine"; resultats: { id: string; ok: boolean; erreur?: string }[] }
   >({ phase: "idle" });
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [clientsDuCabinet, setClientsDuCabinet] = useState<{ id: string; nom: string }[]>([]);
+
+  useEffect(() => {
+    fetch("/api/clients/entree/reprise/analyser")
+      .then((r) => (r.ok ? r.json() : { clients: [] }))
+      .then((d) => setClientsDuCabinet(d.clients ?? []))
+      .catch(() => setClientsDuCabinet([]));
+  }, []);
 
   const saisies = useMemo(() => entrees.map(versSaisie).filter((s): s is FactureRepriseSaisie => s !== null), [entrees]);
   const lot = useMemo(() => construireLotReprise(saisies), [saisies]);
@@ -296,6 +324,7 @@ export function ReprisePage() {
                   facture={s}
                   entree={entree}
                   controle={controles.get(s.id)}
+                  clientsDuCabinet={clientsDuCabinet}
                   // La carte entière dès le début : tout ce qui cloche se voit
                   // d'un coup, au lieu d'apparaître une fois la date remplie.
                   onDater={(valeur) => mettreAJour(s.id, { dateEmissionCorrigee: valeur })}
@@ -325,6 +354,7 @@ export function ReprisePage() {
                   facture={facture}
                   entree={entree}
                   controle={controles.get(facture.id)}
+                  clientsDuCabinet={clientsDuCabinet}
                   onChange={(patch) => mettreAJour(facture.id, patch)}
                 />
               );
@@ -436,12 +466,14 @@ function CarteFacture({
   facture,
   entree,
   controle,
+  clientsDuCabinet,
   onDater,
   onChange,
 }: {
   facture: FactureRepriseSaisie;
   entree: EntreeFacture;
   controle?: ControleFacture;
+  clientsDuCabinet: { id: string; nom: string }[];
   /** Fourni quand la date d'émission n'a pas été lue : la carte la demande. */
   onDater?: (valeur: string) => void;
   onChange: (patch: Partial<EntreeFacture>) => void;
@@ -485,6 +517,67 @@ function CarteFacture({
             />
           </div>
           <p className="text-[13px] text-si-muted">{match.dossier.dossierIntitule}</p>
+
+          {/* Une coquille dans le nom lu ouvrirait une seconde fiche pour la
+              même personne. On propose le rapprochement, l'humain tranche. */}
+          {match.client.statut === "nouveau" && (match.client.ressemblances?.length ?? 0) > 0 && (
+            <div className="mt-1.5 flex flex-wrap items-center gap-1.5 text-[13px]">
+              <span className="text-si-amber-ink">Ressemble à un client déjà au dossier :</span>
+              {match.client.ressemblances!.map((r) => (
+                <button
+                  key={r.clientId}
+                  type="button"
+                  onClick={() => onChange({ clientChoisi: { clientId: r.clientId, nom: r.nom } })}
+                  className="rounded-md border border-si-line bg-si-surface2 px-2 py-0.5 font-medium text-si-ink hover:bg-si-line2"
+                >
+                  {r.nom}
+                </button>
+              ))}
+            </div>
+          )}
+          {entree.clientChoisi && (
+            <p className="mt-1.5 text-[13px] text-si-muted">
+              Rattachée à {entree.clientChoisi.nom}.{" "}
+              <button
+                type="button"
+                onClick={() => onChange({ clientChoisi: undefined })}
+                className="underline hover:text-si-ink"
+              >
+                Annuler
+              </button>
+            </p>
+          )}
+
+          {/* Quand la lecture n'a pas su nommer le client, l'écran le demande.
+              Sans ce champ il disait « corrigez-le » sans offrir le moyen. */}
+          {!entree.clientChoisi && match.client.statut === "nouveau" && (
+            <div className="mt-1.5 flex flex-wrap items-center gap-2 text-[13px]">
+              <span className="text-si-muted">
+                {entree.extraction?.clientNom ? "Client à créer :" : "Qui est le client ?"}
+              </span>
+              <input
+                list={`clients-${facture.id}`}
+                value={entree.clientNomSaisi ?? entree.extraction?.clientNom ?? ""}
+                placeholder="Nom du client"
+                onChange={(ev) => {
+                  const valeur = ev.target.value;
+                  const existant = clientsDuCabinet.find((c) => c.nom === valeur);
+                  onChange(
+                    existant
+                      ? { clientChoisi: { clientId: existant.id, nom: existant.nom }, clientNomSaisi: valeur }
+                      : { clientNomSaisi: valeur },
+                  );
+                }}
+                className="h-8 w-56 rounded-md border border-si-line bg-si-canvas px-2 text-[13px]"
+              />
+              <datalist id={`clients-${facture.id}`}>
+                {clientsDuCabinet.map((c) => (
+                  <option key={c.id} value={c.nom} />
+                ))}
+              </datalist>
+            </div>
+          )}
+
           <button
             type="button"
             onClick={() => onChange({ expanded: !entree.expanded })}

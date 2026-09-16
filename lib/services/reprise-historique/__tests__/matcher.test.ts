@@ -105,6 +105,47 @@ describe("matchFacturePassee", () => {
     expect(r.dossier.statut).toBe("nouveau");
   });
 
+  it("une coquille est proposée, jamais rattachée d'office", () => {
+    // « Ouelet » pour « Ouellet » : une lettre en moins, l'erreur de lecture type.
+    const r = matchFacturePassee({ clientNom: "Nadine Ouelet", dossierIntitule: null }, clients);
+    expect(r.client.statut).toBe("nouveau");
+    expect(r.client.clientId).toBeNull();
+    expect(r.client.ressemblances).toEqual([{ clientId: "c1", nom: "Nadine Ouellet" }]);
+  });
+
+  it("au-delà de la coquille, on préfère un client de trop à un client fusionné à tort", () => {
+    // Trois lettres d'écart : plausible, mais pas assez sûr pour le proposer.
+    const r = matchFacturePassee({ clientNom: "Nadine Ouelette", dossierIntitule: null }, clients);
+    expect(r.client.ressemblances).toEqual([]);
+  });
+
+  it("les accents ne créent aucune ressemblance : ils sont déjà gommés en amont", () => {
+    const avecAccent: ClientCandidat[] = [{ id: "c9", nom: "Société Kaboré", dossiers: [] }];
+    const r = matchFacturePassee({ clientNom: "Societe Kabore", dossierIntitule: null }, avecAccent);
+    // Rapprochement franc, pas une suggestion.
+    expect(r.client).toMatchObject({ statut: "existant", clientId: "c9" });
+  });
+
+  it("deux noms étrangers ne se ressemblent pas", () => {
+    const r = matchFacturePassee({ clientNom: "Bombardier inc.", dossierIntitule: null }, clients);
+    expect(r.client.statut).toBe("nouveau");
+    expect(r.client.ressemblances).toEqual([]);
+  });
+
+  it("un nom très court ne tolère aucune coquille : trop risqué", () => {
+    const courts: ClientCandidat[] = [{ id: "x1", nom: "Roy", dossiers: [] }];
+    const r = matchFacturePassee({ clientNom: "Ray", dossierIntitule: null }, courts);
+    expect(r.client.ressemblances).toEqual([]);
+  });
+
+  it("ne propose jamais plus de trois pistes", () => {
+    const beaucoup: ClientCandidat[] = ["Tremblay", "Trembley", "Tremblai", "Tramblay", "Trembloy"].map(
+      (nom, i) => ({ id: `t${i}`, nom, dossiers: [] }),
+    );
+    const r = matchFacturePassee({ clientNom: "Tremblex", dossierIntitule: null }, beaucoup);
+    expect(r.client.ressemblances!.length).toBeLessThanOrEqual(3);
+  });
+
   it("un nom illisible (null) ne matche jamais par accident et reste 'nouveau'", () => {
     const result = matchFacturePassee({ clientNom: null, dossierIntitule: null }, clients);
     expect(result.client.statut).toBe("nouveau");
