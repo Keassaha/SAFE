@@ -97,13 +97,15 @@ export interface CreateDocumentParams {
   documentType?: string | null;
   templateCode?: string | null; // code taxonomie droit familial
   aiAssisted?: boolean;
+  /** Date portée par la pièce elle-même (ex: date d'émission d'une facture reprise). */
+  dateDocument?: Date | null;
 }
 
 /**
  * Crée l'enregistrement Document en base après que le fichier ait été stocké.
  */
 export async function createDocumentRecord(params: CreateDocumentParams) {
-  const { cabinetId, userId, clientId, dossierId, nom, mimeType, sizeBytes, storageKey, hash, retentionJusqua, documentType, templateCode, aiAssisted } = params;
+  const { cabinetId, userId, clientId, dossierId, nom, mimeType, sizeBytes, storageKey, hash, retentionJusqua, documentType, templateCode, aiAssisted, dateDocument } = params;
   const doc = await prisma.document.create({
     data: {
       cabinetId,
@@ -119,6 +121,7 @@ export async function createDocumentRecord(params: CreateDocumentParams) {
       documentType: documentType ?? undefined,
       templateCode: templateCode ?? undefined,
       aiAssisted: aiAssisted ?? undefined,
+      dateDocument: dateDocument ?? undefined,
     },
   });
   await createAuditLog({
