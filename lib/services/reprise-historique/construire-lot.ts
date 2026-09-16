@@ -1,3 +1,4 @@
+import { cleCroisement } from "@/lib/clients/croisement-conflits";
 import type { PastInvoiceExtraction } from "@/lib/ai/extract-past-invoice";
 import type { MatchFacturePassee } from "@/lib/services/reprise-historique/matcher";
 
@@ -127,7 +128,12 @@ export function construireLotReprise(factures: FactureRepriseSaisie[]): LotRepri
   let resteDu = 0;
 
   for (const facture of factures) {
-    const cleClient = facture.match.client.clientId ?? `nouveau:${facture.match.client.clientNom}`;
+    // Même clé que celle qui décide à l'écriture (`MemoireDuLot`) : sans quoi
+    // le bandeau annoncerait deux clients à créer là où le versement n'en
+    // créera qu'un, « Ouellet Nadine » et « Nadine Ouellet » étant la même
+    // personne.
+    const cleClient =
+      facture.match.client.clientId ?? `nouveau:${cleCroisement(facture.match.client.clientNom)}`;
     nomsClientsVus.add(cleClient);
     if (facture.match.client.statut === "nouveau") {
       nomsClientsACreer.add(cleClient);

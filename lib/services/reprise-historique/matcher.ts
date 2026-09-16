@@ -53,12 +53,43 @@ export function normaliseIntitule(intitule: string): string {
     .replace(/\s+/g, " ");
 }
 
-/** Un intitulé "recoupe" l'autre si l'un contient l'autre (dans un sens ou l'autre). */
+/** Un intitulé assez parlant pour qu'on ose l'employer comme preuve d'identité. */
+const LONGUEUR_PARLANTE = 10;
+
+/**
+ * Deux intitulés désignent-ils le même dossier ?
+ *
+ * Un client a souvent PLUSIEURS dossiers, et chaque cabinet nomme les siens à
+ * sa façon : « 2026-050 — Bail commercial », « Tremblay c. Untel »,
+ * « Divorce », « Divorce 2 ». La règle doit donc se tromper du bon côté.
+ *
+ * Se tromper en RATTACHANT range une facture sur le mauvais dossier du client :
+ * les heures, les débours et l'argent partent ailleurs, et personne ne le voit.
+ * Se tromper en SÉPARANT crée un dossier de trop, qui se voit à l'écran et se
+ * corrige. On rattache donc seulement sur :
+ *
+ *   - une égalité franche, une fois la casse et les accents mis de côté ;
+ *   - ou une inclusion dont la partie commune est assez parlante pour valoir
+ *     preuve : au moins deux mots et dix caractères. « Bail commercial »
+ *     retrouve « 2026-050 — Bail commercial », mais « Divorce » ne se colle pas
+ *     à « Divorce 2 », et « Dossier 1 » ne se colle pas à « Dossier 12 ».
+ */
 function intitulesSeRecoupent(a: string, b: string): boolean {
   const na = normaliseIntitule(a);
   const nb = normaliseIntitule(b);
   if (!na || !nb) return false;
-  return na.includes(nb) || nb.includes(na);
+  if (na === nb) return true;
+
+  const [court, long] = na.length <= nb.length ? [na, nb] : [nb, na];
+  if (!long.includes(court)) return false;
+
+  const assezParlant =
+    court.length >= LONGUEUR_PARLANTE && court.split(" ").filter(Boolean).length >= 2;
+  if (!assezParlant) return false;
+
+  // L'inclusion doit tomber sur des mots entiers : « bail commercial » ne doit
+  // pas se reconnaître dans « contre-bail commercialisation ».
+  return new RegExp(`(^|\\s)${court.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(\\s|$)`).test(long);
 }
 
 const DOSSIER_INTITULE_PAR_DEFAUT = "Dossier";
