@@ -1,3 +1,4 @@
+import { richDocumentScope } from "@/lib/edition/access";
 import { NextRequest, NextResponse } from "next/server";
 import { requireCabinetAndUser } from "@/lib/auth/session";
 import { canViewDocuments } from "@/lib/auth/permissions";
@@ -19,7 +20,7 @@ export async function GET(
   if (!session) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
 
   const doc = await prisma.richDocument.findFirst({
-    where: { id, cabinetId: session.cabinetId, isArchived: false },
+    where: { id, ...richDocumentScope(session), isArchived: false },
     include: {
       dossier: { select: { intitule: true } },
       client: { select: { raisonSociale: true } },

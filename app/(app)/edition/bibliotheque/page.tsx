@@ -1,3 +1,4 @@
+import { richDocumentScope } from "@/lib/edition/access";
 import { requirePageAccess } from "@/lib/auth/page-guard";
 import { canViewDocuments } from "@/lib/auth/permissions";
 import { prisma } from "@/lib/db";
@@ -12,7 +13,7 @@ export default async function EditionBibliothequePage() {
   if (!session) notFound();
 
   const docs = await prisma.richDocument.findMany({
-    where: { cabinetId: session.cabinetId, isArchived: false },
+    where: { ...richDocumentScope(session), isArchived: false },
     orderBy: { updatedAt: "desc" },
     take: 200,
     select: {

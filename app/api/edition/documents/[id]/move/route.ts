@@ -1,3 +1,4 @@
+import { richDocumentScope, dossierDocumentScope } from "@/lib/edition/access";
 import { NextRequest, NextResponse } from "next/server";
 import { requireCabinetAndUser } from "@/lib/auth/session";
 import { canViewDocuments } from "@/lib/auth/permissions";
@@ -31,20 +32,20 @@ export async function PUT(
 
   // Vérifier le document
   const doc = await prisma.richDocument.findFirst({
-    where: { id, cabinetId: session.cabinetId, isArchived: false },
+    where: { id, ...richDocumentScope(session), isArchived: false },
   });
   if (!doc) return NextResponse.json({ error: "Document introuvable" }, { status: 404 });
 
   // Vérifier le dossier cible
   const targetDossier = await prisma.dossier.findFirst({
-    where: { id: targetDossierId, cabinetId: session.cabinetId },
+    where: { id: targetDossierId, ...dossierDocumentScope(session) },
     include: { client: { select: { id: true, raisonSociale: true } } },
   });
   if (!targetDossier) return NextResponse.json({ error: "Dossier cible introuvable" }, { status: 404 });
 
   // Déplacer
   const updated = await prisma.richDocument.update({
-    where: { id },
+    where: { ...richDocumentScope(session), id, isArchived: false },
     data: {
       dossierId: targetDossierId,
       clientId: targetDossier.client.id,

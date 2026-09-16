@@ -1,3 +1,4 @@
+import { richDocumentScope, type DocumentActor } from "@/lib/edition/access";
 import { NextResponse } from "next/server";
 import { requireCabinetAndUser } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
@@ -6,9 +7,9 @@ import { sanitizeInput } from "@/lib/utils/sanitize";
 
 const SENDER_ROLES = ["admin_cabinet", "avocat", "assistante"];
 
-async function loadDoc(id: string, cabinetId: string) {
+async function loadDoc(id: string, actor: DocumentActor) {
   return prisma.richDocument.findFirst({
-    where: { id, cabinetId, isArchived: false },
+    where: { id, ...richDocumentScope(actor), isArchived: false },
     include: {
       client: { select: { id: true, raisonSociale: true, email: true } },
       dossier: { select: { id: true } },
@@ -19,11 +20,12 @@ async function loadDoc(id: string, cabinetId: string) {
 /** GET — données pour préremplir la fenêtre d'envoi (email client, nom cabinet, type/titre). */
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const { cabinetId, role } = await requireCabinetAndUser();
+  const actor = await requireCabinetAndUser();
+  const { cabinetId, role } = actor;
   if (!SENDER_ROLES.includes(role)) {
     return NextResponse.json({ error: "Droits insuffisants" }, { status: 403 });
   }
-  const doc = await loadDoc(id, cabinetId);
+  const doc = await loadDoc(id, actor);
   if (!doc) return NextResponse.json({ error: "Document introuvable" }, { status: 404 });
 
   const cabinet = await prisma.cabinet.findUnique({ where: { id: cabinetId }, select: { nom: true } });
@@ -41,12 +43,13 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
 /** POST — envoie le document au client par courriel. Body : { recipientEmail, subject, body }. */
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const { cabinetId, userId, role } = await requireCabinetAndUser();
+  const actor = await requireCabinetAndUser();
+  const { cabinetId, userId, role } = actor;
   if (!SENDER_ROLES.includes(role)) {
     return NextResponse.json({ error: "Droits insuffisants pour envoyer au client" }, { status: 403 });
   }
 
-  const doc = await loadDoc(id, cabinetId);
+  const doc = await loadDoc(id, actor);
   if (!doc) return NextResponse.json({ error: "Document introuvable" }, { status: 404 });
 
   let payload: { recipientEmail?: unknown; subject?: unknown; body?: unknown };

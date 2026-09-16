@@ -27,9 +27,7 @@ import type { UserRole } from "@prisma/client";
  * Dupliquer une liste de rôles dans cette garde l'aurait fait diverger le jour
  * où l'un de ces arbitrages change.
  *
- * Un rôle absent est refusé. `requireCabinetAndUser` retombe sur « avocat »
- * quand la session n'en porte pas, ce qui convient à une page qui affiche moins,
- * mais accorderait ici des droits à une session incomplète. Les fonctions de
+ * Un rôle absent est refusé, y compris par `requireCabinetAndUser`. Les fonctions de
  * permission refusent d'elles-mêmes tout rôle qu'elles ne listent pas, donc un
  * rôle futur reste refusé tant que quelqu'un ne l'a pas explicitement admis.
  */

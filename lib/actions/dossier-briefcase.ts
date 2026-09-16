@@ -1,11 +1,16 @@
 "use server";
 
+import { dossierDocumentScope, richDocumentScope, uploadedDocumentScope } from "@/lib/edition/access";
 import { prisma } from "@/lib/db";
 import { requireCabinetAndUser } from "@/lib/auth/session";
 import { resolveAvailableSectionKey, suggestPracticeDocument } from "@/lib/dossiers/practice-docket";
 
 export async function getBriefcaseData(dossierId: string) {
-  const { cabinetId } = await requireCabinetAndUser();
+  const actor = await requireCabinetAndUser();
+  const { cabinetId } = actor;
+
+  const accessible = await prisma.dossier.findFirst({ where: { id: dossierId, ...dossierDocumentScope(actor) }, select: { id: true } });
+  if (!accessible) throw new Error("Dossier introuvable");
 
   const [documents, richDocuments, dossier] = await Promise.all([
     prisma.document.findMany({
@@ -43,8 +48,8 @@ export async function getBriefcaseData(dossierId: string) {
       },
       orderBy: { createdAt: "desc" },
     }),
-    prisma.dossier.findUnique({
-      where: { id: dossierId },
+    prisma.dossier.findFirst({
+      where: { id: dossierId, ...dossierDocumentScope(actor) },
       select: {
         id: true,
         type: true,
@@ -164,11 +169,12 @@ function organizeByCategoryAndSubsection(
 }
 
 export async function getDocumentContent(documentId: string, type: "document" | "rich-document") {
-  const { cabinetId } = await requireCabinetAndUser();
+  const actor = await requireCabinetAndUser();
+  const { cabinetId } = actor;
 
   if (type === "document") {
     return prisma.document.findFirst({
-      where: { id: documentId, cabinetId },
+      where: { id: documentId, ...uploadedDocumentScope(actor) },
       select: {
         id: true,
         nom: true,
@@ -181,7 +187,7 @@ export async function getDocumentContent(documentId: string, type: "document" | 
     });
   } else {
     return prisma.richDocument.findFirst({
-      where: { id: documentId, cabinetId },
+      where: { id: documentId, ...richDocumentScope(actor) },
       select: {
         id: true,
         titre: true,

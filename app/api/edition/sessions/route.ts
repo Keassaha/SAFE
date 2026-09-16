@@ -1,3 +1,4 @@
+import { richDocumentScope } from "@/lib/edition/access";
 import { NextRequest, NextResponse } from "next/server";
 import { requireCabinetAndUser } from "@/lib/auth/session";
 import { canViewDocuments } from "@/lib/auth/permissions";
@@ -25,12 +26,21 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
   }
 
+  const doc = await prisma.richDocument.findFirst({
+    where: { id: parsed.data.richDocumentId, ...richDocumentScope(session), isArchived: false },
+    select: { id: true, dossierId: true, clientId: true },
+  });
+  if (!doc) return NextResponse.json({ error: "Document introuvable" }, { status: 404 });
+  if (doc.dossierId !== parsed.data.dossierId || doc.clientId !== parsed.data.clientId) {
+    return NextResponse.json({ error: "Références incohérentes" }, { status: 400 });
+  }
+
   // Clôturer toute session active existante sur ce document pour cet user
   await prisma.workSession.updateMany({
     where: {
       cabinetId: session.cabinetId,
       userId: session.userId,
-      richDocumentId: parsed.data.richDocumentId,
+      richDocumentId: doc.id,
       statut: "en_cours",
     },
     data: { statut: "pause" },
@@ -40,9 +50,9 @@ export async function POST(req: NextRequest) {
     data: {
       cabinetId: session.cabinetId,
       userId: session.userId,
-      dossierId: parsed.data.dossierId,
-      clientId: parsed.data.clientId,
-      richDocumentId: parsed.data.richDocumentId,
+      dossierId: doc.dossierId,
+      clientId: doc.clientId,
+      richDocumentId: doc.id,
       startedAt: new Date(),
       statut: "en_cours",
     },
@@ -65,14 +75,15 @@ export async function PATCH(req: NextRequest) {
   }
 
   const workSession = await prisma.workSession.findFirst({
-    where: { id: sessionId, cabinetId: session.cabinetId, userId: session.userId },
+    where: { id: sessionId, cabinetId: session.cabinetId, userId: session.userId, statut: { in: ["en_cours", "pause"] }, richDocument: richDocumentScope(session) },
   });
   if (!workSession) return NextResponse.json({ error: "Session introuvable" }, { status: 404 });
 
-  const updated = await prisma.workSession.update({
-    where: { id: sessionId },
+  const updated = await prisma.workSession.updateMany({
+    where: { id: sessionId, cabinetId: session.cabinetId, userId: session.userId, statut: { in: ["en_cours", "pause"] } },
     data: { statut: action === "pause" ? "pause" : "en_cours" },
   });
 
-  return NextResponse.json(updated);
+  if (updated.count !== 1) return NextResponse.json({ error: "La session a déjà été terminée." }, { status: 409 });
+  return NextResponse.json({ ...workSession, statut: action === "pause" ? "pause" : "en_cours" });
 }

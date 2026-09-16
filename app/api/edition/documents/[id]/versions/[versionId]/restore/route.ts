@@ -1,3 +1,4 @@
+import { richDocumentScope } from "@/lib/edition/access";
 import { NextRequest, NextResponse } from "next/server";
 import { requireCabinetAndUser } from "@/lib/auth/session";
 import { canViewDocuments } from "@/lib/auth/permissions";
@@ -18,54 +19,41 @@ export async function POST(
   if (!session) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
 
   const doc = await prisma.richDocument.findFirst({
-    where: { id, cabinetId: session.cabinetId, isArchived: false },
+    where: { id, ...richDocumentScope(session), isArchived: false },
   });
   if (!doc) return NextResponse.json({ error: "Document introuvable" }, { status: 404 });
 
   const targetVersion = await prisma.richDocumentVersion.findFirst({
-    where: { id: versionId, richDocumentId: id },
+    where: { id: versionId, richDocumentId: id, cabinetId: session.cabinetId },
   });
   if (!targetVersion) return NextResponse.json({ error: "Version introuvable" }, { status: 404 });
 
-  const lastVersion = await prisma.richDocumentVersion.findFirst({
-    where: { richDocumentId: id },
-    orderBy: { versionNumber: "desc" },
+  const restored = await prisma.$transaction(async (tx) => {
+    const changed = await tx.richDocument.updateMany({
+      where: { id, ...richDocumentScope(session), isArchived: false, updatedAt: doc.updatedAt },
+      data: {
+        content: targetVersion.content, lastEditedById: session.userId, lastEditedAt: new Date(),
+        updatedAt: new Date(Math.max(Date.now(), doc.updatedAt.getTime() + 1)),
+      },
+    });
+    if (changed.count !== 1) return false;
+    const lastVersion = await tx.richDocumentVersion.findFirst({
+      where: { richDocumentId: id, cabinetId: session.cabinetId },
+      orderBy: { versionNumber: "desc" },
+    });
+    await tx.richDocumentVersion.create({ data: {
+      richDocumentId: id, cabinetId: session.cabinetId, createdById: session.userId,
+      content: doc.content, versionNumber: (lastVersion?.versionNumber ?? 0) + 1,
+      label: `Avant restauration v.${targetVersion.versionNumber}`,
+    } });
+    await tx.richDocumentVersion.create({ data: {
+      richDocumentId: id, cabinetId: session.cabinetId, createdById: session.userId,
+      content: targetVersion.content, versionNumber: (lastVersion?.versionNumber ?? 0) + 2,
+      label: `Restauré depuis v.${targetVersion.versionNumber}`,
+    } });
+    return true;
   });
-
-  // Transaction : snapshot de l'état actuel + restauration + mise à jour du doc
-  await prisma.$transaction([
-    // 1. Snapshot de l'état avant restauration (sécurité Barreau)
-    prisma.richDocumentVersion.create({
-      data: {
-        richDocumentId: id,
-        cabinetId: session.cabinetId,
-        createdById: session.userId,
-        content: doc.content,
-        versionNumber: (lastVersion?.versionNumber ?? 0) + 1,
-        label: `Avant restauration v.${targetVersion.versionNumber}`,
-      },
-    }),
-    // 2. Nouvelle version "restauration"
-    prisma.richDocumentVersion.create({
-      data: {
-        richDocumentId: id,
-        cabinetId: session.cabinetId,
-        createdById: session.userId,
-        content: targetVersion.content,
-        versionNumber: (lastVersion?.versionNumber ?? 0) + 2,
-        label: `Restauré depuis v.${targetVersion.versionNumber}${targetVersion.label ? ` — ${targetVersion.label}` : ""}`,
-      },
-    }),
-    // 3. Mettre à jour le document avec le contenu restauré
-    prisma.richDocument.update({
-      where: { id },
-      data: {
-        content: targetVersion.content,
-        lastEditedById: session.userId,
-        lastEditedAt: new Date(),
-      },
-    }),
-  ]);
+  if (!restored) return NextResponse.json({ error: "Le document a changé. Rechargez-le avant de restaurer." }, { status: 409 });
 
   return NextResponse.json({
     success: true,

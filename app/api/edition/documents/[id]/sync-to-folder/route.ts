@@ -1,3 +1,4 @@
+import { richDocumentScope } from "@/lib/edition/access";
 import { NextRequest, NextResponse } from "next/server";
 import { requireCabinetAndUser } from "@/lib/auth/session";
 import { canViewDocuments } from "@/lib/auth/permissions";
@@ -15,9 +16,7 @@ import { prepareStorageForUpload, writeDocumentObject } from "@/lib/services/doc
  * (table Document legacy) afin qu'il apparaisse comme un fichier classique
  * téléchargeable / partageable.
  *
- * Idempotent : un seul Document par RichDocument (identifié par
- * templateCode = "rich-doc:<richDocId>"). Sur appels successifs, le fichier
- * et l'enregistrement sont mis à jour, pas dupliqués.
+ * Les exports sont conservés sans écraser les précédents.
  */
 export async function POST(
   _req: NextRequest,
@@ -31,7 +30,7 @@ export async function POST(
   if (!session) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
 
   const richDoc = await prisma.richDocument.findFirst({
-    where: { id, cabinetId: session.cabinetId, isArchived: false },
+    where: { id, ...richDocumentScope(session), isArchived: false },
     include: {
       dossier: { select: { intitule: true } },
       client: { select: { raisonSociale: true } },
@@ -67,33 +66,15 @@ export async function POST(
       cabinetId: session.cabinetId,
       dossierId: richDoc.dossierId,
       templateCode,
+      hash,
     },
   });
 
-  // Préparer le storage (réutilise la clé existante si possible)
-  const documentIdForStorage = existing?.id ?? `rich-${richDoc.id}`;
-  const { storageKey } = await prepareStorageForUpload(
-    session.cabinetId,
-    documentIdForStorage,
-  );
-
-  await writeDocumentObject(`${storageKey}.pdf`, buffer, "application/pdf", {
-    upsert: Boolean(existing),
-  });
-
-  if (existing) {
-    const updated = await prisma.document.update({
-      where: { id: existing.id },
-      data: {
-        nom: filename,
-        sizeBytes,
-        hash,
-        storageKey: storageKey + ".pdf",
-        updatedAt: new Date(),
-      },
-    });
-    return NextResponse.json({ ok: true, documentId: updated.id, action: "updated" });
-  }
+  // Un export identique est réutilisé ; un contenu différent conserve l'ancien
+  // Document et son objet, au lieu d'écraser une pièce déjà versée au dossier.
+  if (existing) return NextResponse.json({ ok: true, documentId: existing.id, action: "unchanged" });
+  const { storageKey } = await prepareStorageForUpload(session.cabinetId, crypto.randomUUID());
+  await writeDocumentObject(`${storageKey}.pdf`, buffer, "application/pdf");
 
   const created = await prisma.document.create({
     data: {

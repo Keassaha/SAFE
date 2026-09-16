@@ -1,4 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
+import { documentClassificationEnabled } from "./document-classification-policy";
 
 export interface DossierCandidate {
   id: string;
@@ -24,11 +25,13 @@ export interface ClassificationResult {
  * Toujours validation humaine obligatoire avant d'appliquer.
  */
 export async function classifyDocument(params: {
+  cabinetId: string;
   filename: string;
   mimeType: string;
   textContent?: string; // Texte extrait du fichier (PDF, TXT, etc.)
   dossiers: DossierCandidate[];
 }): Promise<ClassificationResult | null> {
+  if (!documentClassificationEnabled(params.cabinetId)) return null;
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
     console.warn("ANTHROPIC_API_KEY manquant — classification IA désactivée");

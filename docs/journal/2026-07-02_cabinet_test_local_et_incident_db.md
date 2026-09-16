@@ -28,8 +28,8 @@ avec exactement le même profil de cabinet que Me Dérisier.
 ## Observé (INCIDENT DB — à traiter)
 Split-brain de configuration base de données, cause probable de l'« incident P0 connexion » :
 - `.env` / `.env.local` (dev) → projet Supabase **`rsblxmmqlnywcjxztebu`** : projet VIVANT
-  (le pooler répond) mais **mot de passe périmé**. Détail : `.env` a `Jesuisjeremie`,
-  `.env.local` a `Jesuisjeremietiahou333` (ce dernier n'a PAS été testé contre le cloud,
+  (le pooler répond) mais **mot de passe périmé**. Détail : `.env` a `[SECRET RETIRÉ : rotation requise si encore actif]`,
+  `.env.local` a `[SECRET RETIRÉ : rotation requise si encore actif]` (ce dernier n'a PAS été testé contre le cloud,
   il est peut-être encore valide).
 - Vercel **prod ET dev ET preview** → variables `POSTGRES_*` + `NEXT_PUBLIC_SUPABASE_URL`
   pointent vers projet **`nhiorvnljwmdyiedkkdd`** qui **n'existe plus** (NXDOMAIN,

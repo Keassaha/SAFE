@@ -50,7 +50,7 @@ export async function requireCabinetAndUser(): Promise<{ cabinetId: string; user
   const session = await requireSession();
   const cabinetId = (session.user as { cabinetId?: string }).cabinetId;
   const userId = (session.user as { id?: string }).id;
-  const role = (session.user as { role?: string }).role ?? "avocat";
-  if (!cabinetId || !userId) throw new Error("Session incomplète");
+  const role = (session.user as { role?: string }).role;
+  if (!cabinetId || !userId || !role) throw new Error("Session incomplète");
   return { cabinetId, userId, role };
 }

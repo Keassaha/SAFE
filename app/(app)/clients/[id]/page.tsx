@@ -1,3 +1,4 @@
+import { richDocumentScope } from "@/lib/edition/access";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getLocale } from "next-intl/server";
@@ -89,7 +90,7 @@ export default async function ClientDetailPage({
 
   // Documents rédigés via l'éditeur (RichDocument) — tous dossiers du client
   const richDocs = await prisma.richDocument.findMany({
-    where: { clientId: id, cabinetId, isArchived: false },
+    where: { clientId: id, ...richDocumentScope({ cabinetId, userId, role }), isArchived: false },
     orderBy: { updatedAt: "desc" },
     take: 30,
     select: {

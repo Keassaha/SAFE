@@ -1,3 +1,4 @@
+import { richDocumentScope, dossierDocumentScope } from "@/lib/edition/access";
 import { requirePageAccess } from "@/lib/auth/page-guard";
 import { canViewDocuments } from "@/lib/auth/permissions";
 import { prisma } from "@/lib/db";
@@ -58,26 +59,27 @@ export default async function EditionPage() {
     activeDossiers,
   ] = await Promise.all([
     prisma.user.findUnique({ where: { id: userId }, select: { nom: true } }),
-    prisma.richDocument.count({ where: { cabinetId, isArchived: false } }),
+    prisma.richDocument.count({ where: { ...richDocumentScope(session), isArchived: false } }),
     prisma.richDocument.count({
-      where: { cabinetId, isArchived: false, createdAt: { gte: sevenDaysAgo } },
+      where: { ...richDocumentScope(session), isArchived: false, createdAt: { gte: sevenDaysAgo } },
     }),
     prisma.richDocument.count({
-      where: { cabinetId, isArchived: false, statut: "brouillon" },
+      where: { ...richDocumentScope(session), isArchived: false, statut: "brouillon" },
     }),
     prisma.richDocument.count({
-      where: { cabinetId, isArchived: false, statut: "final" },
+      where: { ...richDocumentScope(session), isArchived: false, statut: "final" },
     }),
     prisma.workSession.aggregate({
       where: {
         cabinetId,
+        richDocument: richDocumentScope(session),
         startedAt: { gte: startOfMonth },
         dureeMinutes: { not: null },
       },
       _sum: { dureeMinutes: true },
     }),
     prisma.richDocument.findMany({
-      where: { cabinetId, isArchived: false },
+      where: { ...richDocumentScope(session), isArchived: false },
       orderBy: { updatedAt: "desc" },
       take: 6,
       select: {
@@ -92,7 +94,7 @@ export default async function EditionPage() {
       },
     }),
     prisma.workSession.findMany({
-      where: { cabinetId, userId, statut: "en_cours" },
+      where: { cabinetId, userId, richDocument: richDocumentScope(session), statut: "en_cours" },
       include: {
         richDocument: { select: { id: true, titre: true, dossierId: true } },
         dossier: { select: { id: true, intitule: true } },
@@ -101,7 +103,7 @@ export default async function EditionPage() {
       take: 5,
     }),
     prisma.dossier.findMany({
-      where: { cabinetId, statut: { not: "cloture" } },
+      where: { ...dossierDocumentScope(session), statut: { not: "cloture" } },
       orderBy: { updatedAt: "desc" },
       take: 8,
       select: {

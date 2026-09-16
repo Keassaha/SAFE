@@ -1,3 +1,4 @@
+import { richDocumentScope, dossierDocumentScope } from "@/lib/edition/access";
 import { requirePageAccess } from "@/lib/auth/page-guard";
 import { canViewDocuments } from "@/lib/auth/permissions";
 import { prisma } from "@/lib/db";
@@ -16,9 +17,9 @@ export default async function DocumentEditorPage({ params }: Props) {
   const session = await requirePageAccess(canViewDocuments);
   if (!session) notFound();
 
-  // Tous les dossiers du cabinet pour Move + classification
+  // Dossiers autorisés pour le déplacement et le classement.
   const allDossiers = await prisma.dossier.findMany({
-    where: { cabinetId: session.cabinetId, statut: { not: "cloture" } },
+    where: { ...dossierDocumentScope(session), statut: { not: "cloture" } },
     include: { client: { select: { raisonSociale: true } } },
     orderBy: { updatedAt: "desc" },
     take: 100,
@@ -28,7 +29,7 @@ export default async function DocumentEditorPage({ params }: Props) {
     where: {
       id: docId,
       dossierId: dossierId,
-      cabinetId: session.cabinetId,
+      ...richDocumentScope(session),
       isArchived: false,
     },
     include: {

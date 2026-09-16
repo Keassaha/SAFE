@@ -19,6 +19,7 @@ import type { UserRole } from "@prisma/client";
 import { put, get, del } from "@vercel/blob";
 import path from "path";
 import fs from "fs/promises";
+import { uploadedDocumentScope } from "@/lib/edition/access";
 
 const UPLOAD_BASE = process.env.UPLOAD_DIR ?? path.join(process.cwd(), "uploads");
 
@@ -71,7 +72,7 @@ export async function canAccessDocument(
   action: "view" | "manage"
 ): Promise<boolean> {
   const doc = await prisma.document.findFirst({
-    where: { id: documentId, cabinetId },
+    where: { id: documentId, ...uploadedDocumentScope({ cabinetId, userId, role }) },
     include: { dossier: { select: { avocatResponsableId: true } } },
   });
   if (!doc) return false;

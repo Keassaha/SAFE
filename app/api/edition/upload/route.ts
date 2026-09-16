@@ -8,6 +8,8 @@ import { writeDocumentObject } from "@/lib/services/document";
 import { suggestPracticeDocument } from "@/lib/dossiers/practice-docket";
 import path from "path";
 import { randomUUID } from "crypto";
+import { documentClassificationEnabled } from "@/lib/ai/document-classification-policy";
+import { dossierDocumentScope } from "@/lib/edition/access";
 import { createHash } from "crypto";
 
 const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25 MB
@@ -38,7 +40,7 @@ export async function POST(req: NextRequest) {
   }
 
   const file = formData.get("file") as File | null;
-  const classifyFlag = formData.get("classify") !== "false"; // true par défaut
+  const classifyFlag = formData.get("classify") === "true" && documentClassificationEnabled(session.cabinetId);
 
   if (!file) return NextResponse.json({ error: "Fichier requis" }, { status: 400 });
   if (file.size > MAX_FILE_SIZE) {
@@ -84,12 +86,13 @@ export async function POST(req: NextRequest) {
   if (classifyFlag) {
     // Charger tous les dossiers du cabinet pour les passer à Claude
     const dossiers = await prisma.dossier.findMany({
-      where: { cabinetId: session.cabinetId, statut: { not: "cloture" } },
+      where: { ...dossierDocumentScope(session), statut: { not: "cloture" } },
       include: { client: { select: { raisonSociale: true } } },
       take: 50, // Limiter pour le prompt
     });
 
     const aiClassification = await classifyDocument({
+      cabinetId: session.cabinetId,
       filename: file.name,
       mimeType: file.type,
       textContent: textContent || undefined,

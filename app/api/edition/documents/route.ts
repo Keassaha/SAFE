@@ -1,3 +1,4 @@
+import { richDocumentScope, dossierDocumentScope } from "@/lib/edition/access";
 import { NextRequest, NextResponse } from "next/server";
 import { requireCabinetAndUser } from "@/lib/auth/session";
 import { canViewDocuments } from "@/lib/auth/permissions";
@@ -26,7 +27,7 @@ export async function GET(req: NextRequest) {
   if (!dossierId) return NextResponse.json({ error: "dossierId requis" }, { status: 400 });
 
   const docs = await prisma.richDocument.findMany({
-    where: { cabinetId: session.cabinetId, dossierId, isArchived: false },
+    where: { ...richDocumentScope(session), dossierId, isArchived: false },
     include: {
       createdBy: { select: { nom: true } },
       lastEditedBy: { select: { nom: true } },
@@ -56,7 +57,7 @@ export async function POST(req: NextRequest) {
 
   // Vérifier que le dossier appartient bien au cabinet
   const dossier = await prisma.dossier.findFirst({
-    where: { id: dossierId, cabinetId: session.cabinetId },
+    where: { id: dossierId, ...dossierDocumentScope(session) },
     include: { sections: { where: { archive: false }, select: { sectionKey: true } } },
   });
   if (!dossier) return NextResponse.json({ error: "Dossier introuvable" }, { status: 404 });

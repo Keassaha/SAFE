@@ -3329,7 +3329,7 @@ model Document {
   createdAt                 DateTime  @default(now())
   updatedAt                 DateTime  @updatedAt
 
-  cabinet               Cabinet                      @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  cabinet               Cabinet                      @relation(fields: [cabinetId], references: [id], onDelete: Restrict)
   client                Client?                      @relation(fields: [clientId], references: [id], onDelete: Restrict)
   // Rétention Barreau (B-1 r.5, 10 ans) : une pièce ne doit JAMAIS disparaître par
   // effet de bord. Restrict force à traiter le dossier / l'utilisateur d'abord, et
@@ -4513,8 +4513,8 @@ model RichDocument {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  cabinet      Cabinet @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
-  dossier      Dossier @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+  cabinet      Cabinet @relation(fields: [cabinetId], references: [id], onDelete: Restrict)
+  dossier      Dossier @relation(fields: [dossierId], references: [id], onDelete: Restrict)
   client       Client  @relation(fields: [clientId], references: [id], onDelete: Restrict)
   createdBy    User    @relation("RichDocCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
   lastEditedBy User?   @relation("RichDocLastEditedBy", fields: [lastEditedById], references: [id], onDelete: SetNull)
@@ -4544,7 +4544,7 @@ model RichDocumentVersion {
 
   createdAt DateTime @default(now())
 
-  richDocument RichDocument @relation(fields: [richDocumentId], references: [id], onDelete: Cascade)
+  richDocument RichDocument @relation(fields: [richDocumentId], references: [id], onDelete: Restrict)
   createdBy    User         @relation(fields: [createdById], references: [id], onDelete: Restrict)
 
   @@index([richDocumentId])
@@ -4576,9 +4576,9 @@ model WorkSession {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  cabinet      Cabinet       @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  cabinet      Cabinet       @relation(fields: [cabinetId], references: [id], onDelete: Restrict)
   user         User          @relation(fields: [userId], references: [id], onDelete: Restrict)
-  dossier      Dossier       @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+  dossier      Dossier       @relation(fields: [dossierId], references: [id], onDelete: Restrict)
   client       Client        @relation(fields: [clientId], references: [id], onDelete: Restrict)
   richDocument RichDocument? @relation(fields: [richDocumentId], references: [id], onDelete: SetNull)
   timeEntry    TimeEntry?    @relation(fields: [timeEntryId], references: [id], onDelete: SetNull)

@@ -1,3 +1,4 @@
+import { richDocumentScope } from "@/lib/edition/access";
 import { NextRequest, NextResponse } from "next/server";
 import { requireCabinetAndUser } from "@/lib/auth/session";
 import { canViewDocuments } from "@/lib/auth/permissions";
@@ -25,7 +26,7 @@ export async function GET(
   if (!session) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
 
   const doc = await prisma.richDocument.findFirst({
-    where: { id, cabinetId: session.cabinetId, isArchived: false },
+    where: { id, ...richDocumentScope(session), isArchived: false },
     include: {
       createdBy: { select: { nom: true } },
       lastEditedBy: { select: { nom: true } },
@@ -68,18 +69,36 @@ export async function PUT(
   }
 
   const doc = await prisma.richDocument.findFirst({
-    where: { id, cabinetId: session.cabinetId },
+    where: { id, ...richDocumentScope(session), isArchived: false },
   });
   if (!doc) return NextResponse.json({ error: "Document introuvable" }, { status: 404 });
 
-  const updated = await prisma.richDocument.update({
-    where: { id },
-    data: {
-      ...parsed.data,
-      lastEditedById: session.userId,
-      lastEditedAt: new Date(),
-    },
+  // Sauvegarder l'état précédent dans la même transaction que l'écriture.
+  // Le verrou optimiste empêche deux requêtes concurrentes d'écraser un état
+  // qui n'était pas celui lu par la requête.
+  const updated = await prisma.$transaction(async (tx) => {
+    const changed = await tx.richDocument.updateMany({
+      where: { id, ...richDocumentScope(session), updatedAt: doc.updatedAt, isArchived: false },
+      data: {
+        ...parsed.data, lastEditedById: session.userId, lastEditedAt: new Date(),
+        updatedAt: new Date(Math.max(Date.now(), doc.updatedAt.getTime() + 1)),
+      },
+    });
+    if (changed.count !== 1) return null;
+    if (parsed.data.content !== undefined && parsed.data.content !== doc.content) {
+      const last = await tx.richDocumentVersion.findFirst({
+        where: { richDocumentId: id, cabinetId: session.cabinetId },
+        orderBy: { versionNumber: "desc" },
+      });
+      await tx.richDocumentVersion.create({ data: {
+        richDocumentId: id, cabinetId: session.cabinetId, createdById: session.userId,
+        content: doc.content, versionNumber: (last?.versionNumber ?? 0) + 1,
+        label: "Avant enregistrement",
+      } });
+    }
+    return tx.richDocument.findFirst({ where: { id, ...richDocumentScope(session) } });
   });
+  if (!updated) return NextResponse.json({ error: "Le document a changé. Rechargez-le avant de réessayer." }, { status: 409 });
 
   // P5 — signal navette « document prêt » à la transition brouillon → final.
   // Destinataire auto : l'assistante prévient l'avocate (ou inversement, courtoisie).
@@ -117,13 +136,13 @@ export async function DELETE(
   if (!session) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
 
   const doc = await prisma.richDocument.findFirst({
-    where: { id, cabinetId: session.cabinetId },
+    where: { id, ...richDocumentScope(session), isArchived: false },
   });
   if (!doc) return NextResponse.json({ error: "Document introuvable" }, { status: 404 });
 
   // JAMAIS de suppression réelle — Barreau du Québec
   await prisma.richDocument.update({
-    where: { id },
+    where: { ...richDocumentScope(session), id, isArchived: false },
     data: {
       isArchived: true,
       archivedAt: new Date(),

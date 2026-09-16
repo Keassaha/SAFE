@@ -1,3 +1,4 @@
+import { dossierDocumentScope } from "@/lib/edition/access";
 import { NextRequest, NextResponse } from "next/server";
 import { requireCabinetAndUser } from "@/lib/auth/session";
 import { canViewDocuments } from "@/lib/auth/permissions";
@@ -38,15 +39,15 @@ export async function POST(req: NextRequest) {
   const { documentId, dossierId, documentType, nom, iaConfidence, iaValidated } =
     parsed.data;
 
-  // Vérifier que le document appartient au cabinet
+  // Seul un téléversement non classé de cet utilisateur peut être confirmé.
   const doc = await prisma.document.findFirst({
-    where: { id: documentId, cabinetId: session.cabinetId },
+    where: { id: documentId, cabinetId: session.cabinetId, uploadedById: session.userId, dossierId: null, clientId: null },
   });
   if (!doc) return NextResponse.json({ error: "Document introuvable" }, { status: 404 });
 
-  // Vérifier que le dossier appartient au cabinet
+  // Vérifier aussi le droit sur le dossier destinataire.
   const dossier = await prisma.dossier.findFirst({
-    where: { id: dossierId, cabinetId: session.cabinetId },
+    where: { id: dossierId, ...dossierDocumentScope(session) },
     include: {
       client: { select: { id: true } },
       sections: { where: { archive: false }, select: { sectionKey: true } },
@@ -64,54 +65,64 @@ export async function POST(req: NextRequest) {
   const sectionKey = resolveAvailableSectionKey(suggestion.sectionKey, availableSectionKeys);
 
   // Mettre à jour le document avec le dossier et le type
-  const updated = await prisma.document.update({
-    where: { id: documentId },
-    data: {
-      dossierId,
-      clientId: dossier.client.id,
-      documentType,
-      sectionKey,
-      classificationSubtype: suggestion.subtype,
-      classificationConfidence: iaConfidence ?? suggestion.confidence,
-      classificationNeedsReview: suggestion.needsReview,
-      classificationReason: suggestion.reason,
-      templateCode: suggestion.subtype,
-      aiAssisted: iaValidated,
-      nom: nom ?? doc.nom,
-      reviewedAt: new Date(),
-      reviewedById: session.userId,
-    },
-  });
-
-  const docketResult = await createDocketEntryForImportedDocument({
-    dossier,
-    document: updated,
-    availableSectionKeys,
-    createdById: session.userId,
-  });
-
-  // Logguer la classification IA dans l'audit
-  if (iaValidated) {
-    await prisma.auditLog.create({
+  const result = await prisma.$transaction(async (tx) => {
+    const claimed = await tx.document.updateMany({
+      where: { id: documentId, cabinetId: session.cabinetId, uploadedById: session.userId, dossierId: null, clientId: null },
       data: {
-        cabinetId: session.cabinetId,
-        userId: session.userId,
-        entityType: "Document",
-        entityId: documentId,
-        action: "ia_classification_validated",
-        newValues: JSON.stringify({
-          dossierId,
-          documentType,
-          sectionKey,
-          classificationSubtype: suggestion.subtype,
-          iaConfidence,
-          validatedBy: session.userId,
-          docketEntryCreated: docketResult.created,
-        }),
-        performedAt: new Date(),
+        dossierId,
+        clientId: dossier.client.id,
+        documentType,
+        sectionKey,
+        classificationSubtype: suggestion.subtype,
+        classificationConfidence: iaConfidence ?? suggestion.confidence,
+        classificationNeedsReview: suggestion.needsReview,
+        classificationReason: suggestion.reason,
+        templateCode: suggestion.subtype,
+        aiAssisted: iaValidated,
+        nom: nom ?? doc.nom,
+        reviewedAt: new Date(),
+        reviewedById: session.userId,
       },
     });
-  }
 
-  return NextResponse.json({ document: updated, docket: docketResult });
+    if (claimed.count !== 1) return null;
+    const updated = await tx.document.findFirst({ where: { id: documentId, cabinetId: session.cabinetId } });
+    if (!updated) throw new Error("Document introuvable après classement");
+
+    const docketResult = await createDocketEntryForImportedDocument({
+      client: tx,
+      dossier,
+      document: updated,
+      availableSectionKeys,
+      createdById: session.userId,
+    });
+
+    // Journaliser tout classement, assisté ou non par IA.
+    {
+      await tx.auditLog.create({
+        data: {
+          cabinetId: session.cabinetId,
+          userId: session.userId,
+          entityType: "Document",
+          entityId: documentId,
+          action: iaValidated ? "ia_classification_validated" : "document_classified",
+          newValues: JSON.stringify({
+            dossierId,
+            documentType,
+            sectionKey,
+            classificationSubtype: suggestion.subtype,
+            iaConfidence,
+            validatedBy: session.userId,
+            docketEntryCreated: docketResult.created,
+          }),
+          performedAt: new Date(),
+        },
+      });
+    }
+
+    return { document: updated, docket: docketResult };
+  });
+  if (!result) return NextResponse.json({ error: "Ce document a déjà été classé." }, { status: 409 });
+
+  return NextResponse.json(result);
 }

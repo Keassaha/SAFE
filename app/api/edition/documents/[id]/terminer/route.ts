@@ -1,3 +1,4 @@
+import { richDocumentScope } from "@/lib/edition/access";
 import { NextRequest, NextResponse } from "next/server";
 import { requireCabinetAndUser } from "@/lib/auth/session";
 import { canViewDocuments } from "@/lib/auth/permissions";
@@ -38,7 +39,7 @@ export async function POST(
 
   // Récupérer le document pour ses métadonnées
   const doc = await prisma.richDocument.findFirst({
-    where: { id, cabinetId: session.cabinetId },
+    where: { id, ...richDocumentScope(session), isArchived: false },
     include: {
       dossier: { select: { tauxHoraire: true, modeFacturation: true } },
     },
@@ -47,9 +48,13 @@ export async function POST(
 
   // Récupérer la session de travail
   const workSession = await prisma.workSession.findFirst({
-    where: { id: sessionId, cabinetId: session.cabinetId, userId: session.userId },
+    where: { id: sessionId, cabinetId: session.cabinetId, userId: session.userId, richDocumentId: id, dossierId: doc.dossierId, clientId: doc.clientId },
   });
   if (!workSession) return NextResponse.json({ error: "Session introuvable" }, { status: 404 });
+
+  if (workSession.statut === "termine" || workSession.timeEntryId) {
+    return NextResponse.json({ error: "Cette session a déjà été terminée." }, { status: 409 });
+  }
 
   /* Le taux suivait ici sa propre règle, qui finissait par « 150 $ » écrit en
      dur : un cabinet à 300 $/h voyait ses heures de rédaction enregistrées à
@@ -78,6 +83,13 @@ export async function POST(
 
   // Transaction : fermer session + créer TimeEntry
   const result = await prisma.$transaction(async (tx) => {
+    // Réserver atomiquement la transition : deux clics ne créent pas deux fiches.
+    const claimed = await tx.workSession.updateMany({
+      where: { id: sessionId, cabinetId: session.cabinetId, userId: session.userId,
+        richDocumentId: id, statut: { in: ["en_cours", "pause"] }, timeEntryId: null },
+      data: { statut: "termine", endedAt: now },
+    });
+    if (claimed.count !== 1) return null;
     // 1. Créer la TimeEntry
     const timeEntry = await tx.timeEntry.create({
       data: {
@@ -133,6 +145,8 @@ export async function POST(
 
     return { timeEntry };
   });
+
+  if (!result) return NextResponse.json({ error: "Cette session a déjà été terminée." }, { status: 409 });
 
   return NextResponse.json({
     success: true,

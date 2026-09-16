@@ -1,3 +1,4 @@
+import { richDocumentScope } from "@/lib/edition/access";
 import { NextRequest, NextResponse } from "next/server";
 import { requireCabinetAndUser } from "@/lib/auth/session";
 import { canViewDocuments } from "@/lib/auth/permissions";
@@ -17,12 +18,12 @@ export async function GET(
   if (!session) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
 
   const doc = await prisma.richDocument.findFirst({
-    where: { id, cabinetId: session.cabinetId },
+    where: { id, ...richDocumentScope(session) },
   });
   if (!doc) return NextResponse.json({ error: "Document introuvable" }, { status: 404 });
 
   const versions = await prisma.richDocumentVersion.findMany({
-    where: { richDocumentId: id },
+    where: { richDocumentId: id, cabinetId: session.cabinetId },
     include: { createdBy: { select: { nom: true } } },
     orderBy: { versionNumber: "desc" },
   });
@@ -45,12 +46,12 @@ export async function POST(
   const { label } = await req.json().catch(() => ({}));
 
   const doc = await prisma.richDocument.findFirst({
-    where: { id, cabinetId: session.cabinetId, isArchived: false },
+    where: { id, ...richDocumentScope(session), isArchived: false },
   });
   if (!doc) return NextResponse.json({ error: "Document introuvable" }, { status: 404 });
 
   const lastVersion = await prisma.richDocumentVersion.findFirst({
-    where: { richDocumentId: id },
+    where: { richDocumentId: id, cabinetId: session.cabinetId },
     orderBy: { versionNumber: "desc" },
   });
 

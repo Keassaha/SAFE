@@ -8,8 +8,8 @@ App déployée injoignable : variables Vercel pointant sur un projet Supabase su
 - **Projet canonique = `rsblxmmqlnywcjxztebu`** (aws-1-ca-central-1). Seul projet vivant.
   Contient les vrais cabinets : Derisier Law (info@ / aaliyah@), Kouame, Cayard, SAFE.
   5 cabinets, 7 users, 7 clients, 7 dossiers, 93 tables.
-- **Mot de passe = `Jesuisjeremietiahou333`** (celui de `.env.local`, sans `@`). Testé valide
-  contre le pooler ports 5432 et 6543. Le mdp « périmé » n'était que dans `.env` (`Jesuisjeremie`).
+- **Mot de passe = `[SECRET RETIRÉ : rotation requise si encore actif]`** (celui de `.env.local`, sans `@`). Testé valide
+  contre le pooler ports 5432 et 6543. Le mdp « périmé » n'était que dans `.env` (`[SECRET RETIRÉ : rotation requise si encore actif]`).
 - Projet `nhiorvnljwmdyiedkkdd` (dans les vars Vercel) = **supprimé**, irrécupérable.
 - Portée : toute l'app tourne sur Prisma→Postgres. Seul usage runtime du SDK Supabase =
   stockage de fichiers (`lib/services/document.ts`, bucket `documents`).
@@ -22,7 +22,7 @@ App déployée injoignable : variables Vercel pointant sur un projet Supabase su
   (→ projet rsblx).
 - Redéployé la prod (`vercel redeploy … --scope keassahas-projects`) → `safe-jktx0w3w4`,
   aliasé sur www.safecabinet.ca.
-- Corrigé `.env.bak.claude` (mot de passe cloud → `Jesuisjeremietiahou333`) pour que la
+- Corrigé `.env.bak.claude` (mot de passe cloud → `[SECRET RETIRÉ : rotation requise si encore actif]`) pour que la
   restauration future fonctionne.
 
 ## Vérifié

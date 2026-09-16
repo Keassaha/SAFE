@@ -1,3 +1,4 @@
+import { dossierDocumentScope } from "@/lib/edition/access";
 import { requirePageAccess } from "@/lib/auth/page-guard";
 import { canViewDocuments } from "@/lib/auth/permissions";
 import { prisma } from "@/lib/db";
@@ -19,7 +20,7 @@ export default async function DossierAtelierPage({ params }: Props) {
   const { cabinetId } = session;
 
   const dossier = await prisma.dossier.findFirst({
-    where: { id: dossierId, cabinetId },
+    where: { id: dossierId, ...dossierDocumentScope(session) },
     include: {
       client: { select: { id: true, raisonSociale: true } },
       richDocuments: {
@@ -36,9 +37,9 @@ export default async function DossierAtelierPage({ params }: Props) {
 
   if (!dossier) notFound();
 
-  // Tous les dossiers du cabinet pour la classification IA (upload peut aller dans n'importe quel dossier)
+  // Dossiers autorisés pour le classement des pièces.
   const allDossiers = await prisma.dossier.findMany({
-    where: { cabinetId, statut: { not: "cloture" } },
+    where: { ...dossierDocumentScope(session), statut: { not: "cloture" } },
     include: { client: { select: { raisonSociale: true } } },
     orderBy: { updatedAt: "desc" },
     take: 100,
