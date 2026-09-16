@@ -52,7 +52,15 @@ export default async function ClientDetailPage({
       where: { clientId: id, dossierId: null, cabinetId },
       orderBy: { createdAt: "desc" },
       include: { uploadedBy: { select: { nom: true } } },
-    }),
+    }).then((docs) =>
+      // Trie sur la date PORTÉE PAR LA PIÈCE (ex: une facture reprise datée
+      // d'il y a six mois), pas sur l'heure de dépôt dans SAFE. `dateDocument`
+      // est absente pour la plupart des documents existants : ils gardent
+      // alors leur tri par heure de dépôt, inchangé.
+      [...docs].sort(
+        (a, b) => (b.dateDocument ?? b.createdAt).getTime() - (a.dateDocument ?? a.createdAt).getTime(),
+      ),
+    ),
     prisma.clientIdentityVerification.findMany({
       where: { clientId: id, client: { cabinetId } },
       include: { document: true },
