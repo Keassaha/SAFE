@@ -1620,6 +1620,13 @@ model Invoice {
   accesProlongeJusquau DateTime?
   shareToken           String?   @unique // token pour lien unique d'envoi au client
   shareTokenExpiresAt  DateTime? // expiration du lien (option config cabinet)
+
+  /// Facture reconstituée par la reprise d'historique (un cabinet qui arrive avec
+  /// sa clientèle), pas émise par SAFE le jour de sa création. Même doctrine que
+  /// `TrustTransaction.estSoldeOuverture` : documente le passé, n'est pas un
+  /// événement du jour.
+  estReprise Boolean @default(false)
+
   createdAt            DateTime  @default(now())
   updatedAt            DateTime  @updatedAt
 
@@ -1760,6 +1767,8 @@ model Payment {
   preuveHash        String? // SHA-256 du fichier de preuve — anti-doublon par contenu
   payerName         String? // payeur réel si tiers (source des fonds, distinct du client)
   payerEmail        String?
+  /// Paiement reconstitué par la reprise d'historique. Voir `Invoice.estReprise`.
+  estReprise        Boolean                  @default(false)
   // ── Annulation d'encaissement ─────────────────────────────────────────────
   // Doctrine: docs/accounting/DOCTRINE_ANNULATION_CORRECTION.md §1.1.
   // `allocationStatus = REVERSED` existait sans jamais être écrit : ces champs
@@ -3277,6 +3286,11 @@ model Document {
   sizeBytes       Int
   storageKey      String // chemin ou clé objet (fichier local ou S3)
   hash            String? // intégrité
+  /// Date PORTÉE PAR LA PIÈCE elle-même (ex. date d'émission d'une facture reprise),
+  /// distincte de `createdAt` qui est l'heure de dépôt dans SAFE. Sans cette colonne,
+  /// l'archive de documents d'un client trie sur l'ordre de dépôt en vrac plutôt que
+  /// sur la chronologie réelle des pièces.
+  dateDocument    DateTime?
   /// D'où vient le fichier. Blueprint §11, métadonnées canoniques.
   provenance      DocumentProvenance @default(CABINET)
   /// NULL = déposé hors du cabinet (client par lien, tiers). Attribuer un dépôt
