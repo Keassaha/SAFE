@@ -11,7 +11,8 @@ import {
   type StatutPaiementReprise,
 } from "@/lib/services/reprise-historique/construire-lot";
 import { controlerFacture, versable, type ControleFacture } from "@/lib/services/reprise-historique/controles";
-import type { MatchFacturePassee } from "@/lib/services/reprise-historique/matcher";
+import { ressemblancesClient, type MatchFacturePassee } from "@/lib/services/reprise-historique/matcher";
+import { cleCroisement } from "@/lib/clients/croisement-conflits";
 import type { PastInvoiceExtraction } from "@/lib/ai/extract-past-invoice";
 
 /**
@@ -196,6 +197,29 @@ export function ReprisePage() {
       ];
     }),
   );
+  // Une coquille entre DEUX factures du même dépôt : « Bélivau » et
+  // « Béliveau » sont l'un et l'autre inconnus de la base, donc le
+  // rapprochement serveur ne les voit pas se ressembler. Sans ça, le versement
+  // ouvre deux fiches pour le même client.
+  const nomsNouveauxDuLot = Array.from(
+    new Map(
+      saisies
+        .filter((s) => s.match.client.statut === "nouveau")
+        .map((s) => [cleCroisement(s.match.client.clientNom), s.match.client.clientNom]),
+    ).values(),
+  );
+  const ressemblancesDansLeLot = new Map<string, string[]>(
+    saisies
+      .filter((s) => s.match.client.statut === "nouveau")
+      .map((s) => [
+        s.id,
+        ressemblancesClient(
+          s.match.client.clientNom,
+          nomsNouveauxDuLot.map((nom) => ({ id: nom, nom, dossiers: [] })),
+        ).map((r) => r.nom),
+      ]),
+  );
+
   const toutesVersables = saisies.length > 0 && saisies.every((s) => versable(controles.get(s.id)!));
   const nombreBloquees = saisies.filter((s) => !versable(controles.get(s.id)!)).length;
   const encaissements = saisies.filter((s) => s.statutPaiement === "payee" || s.statutPaiement === "partielle").length;
@@ -325,6 +349,7 @@ export function ReprisePage() {
                   entree={entree}
                   controle={controles.get(s.id)}
                   clientsDuCabinet={clientsDuCabinet}
+                  ressemblancesDuLot={ressemblancesDansLeLot.get(s.id) ?? []}
                   // La carte entière dès le début : tout ce qui cloche se voit
                   // d'un coup, au lieu d'apparaître une fois la date remplie.
                   onDater={(valeur) => mettreAJour(s.id, { dateEmissionCorrigee: valeur })}
@@ -355,6 +380,7 @@ export function ReprisePage() {
                   entree={entree}
                   controle={controles.get(facture.id)}
                   clientsDuCabinet={clientsDuCabinet}
+                  ressemblancesDuLot={ressemblancesDansLeLot.get(facture.id) ?? []}
                   onChange={(patch) => mettreAJour(facture.id, patch)}
                 />
               );
@@ -467,6 +493,7 @@ function CarteFacture({
   entree,
   controle,
   clientsDuCabinet,
+  ressemblancesDuLot,
   onDater,
   onChange,
 }: {
@@ -474,6 +501,8 @@ function CarteFacture({
   entree: EntreeFacture;
   controle?: ControleFacture;
   clientsDuCabinet: { id: string; nom: string }[];
+  /** Noms d'autres factures du MÊME dépôt qui ressemblent à celui-ci. */
+  ressemblancesDuLot: string[];
   /** Fourni quand la date d'émission n'a pas été lue : la carte la demande. */
   onDater?: (valeur: string) => void;
   onChange: (patch: Partial<EntreeFacture>) => void;
@@ -531,6 +560,24 @@ function CarteFacture({
                   className="rounded-md border border-si-line bg-si-surface2 px-2 py-0.5 font-medium text-si-ink hover:bg-si-line2"
                 >
                   {r.nom}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* Coquille entre deux factures du MÊME dépôt, toutes deux inconnues
+              de la base. Sans ça, verser ouvrirait deux fiches. */}
+          {match.client.statut === "nouveau" && ressemblancesDuLot.length > 0 && (
+            <div className="mt-1.5 flex flex-wrap items-center gap-1.5 text-[13px]">
+              <span className="text-si-amber-ink">Ressemble à un autre nom de ce dépôt :</span>
+              {ressemblancesDuLot.map((nom) => (
+                <button
+                  key={nom}
+                  type="button"
+                  onClick={() => onChange({ clientNomSaisi: nom })}
+                  className="rounded-md border border-si-line bg-si-surface2 px-2 py-0.5 font-medium text-si-ink hover:bg-si-line2"
+                >
+                  Renommer celle-ci en « {nom} »
                 </button>
               ))}
             </div>

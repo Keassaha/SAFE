@@ -134,9 +134,22 @@ export async function POST(request: Request) {
 
       resultats.push({ id: item.id, ok: true, invoiceId: ecrit.invoiceId });
     } catch (err) {
-      const message =
-        err instanceof VerserFactureError || err instanceof Error ? err.message : "Erreur inconnue";
-      resultats.push({ id: item.id, ok: false, erreur: message });
+      // Nos refus à nous sont écrits pour être lus : on les montre tels quels.
+      // Tout le reste est une panne technique, et un cabinet n'a rien à faire
+      // d'une trace Prisma de deux écrans. Le détail va au journal du serveur,
+      // l'écran dit ce qui compte : cette facture n'est pas passée, et rien
+      // n'a été écrit pour elle.
+      if (err instanceof VerserFactureError) {
+        resultats.push({ id: item.id, ok: false, erreur: err.message });
+      } else {
+        console.error(`Versement de « ${item.fichierNom} » échoué :`, err);
+        resultats.push({
+          id: item.id,
+          ok: false,
+          erreur:
+            "Une panne technique a empêché d'écrire cette facture. Rien n'a été enregistré pour elle, vous pouvez la redéposer. Le détail est dans le journal du serveur.",
+        });
+      }
     }
   }
 
