@@ -154,6 +154,7 @@ export function ReprisePage() {
   // Ce qui empêche de verser se dit AVANT le clic, carte par carte : le service
   // refuserait de toute façon, mais après l'attente et le lot à moitié écrit.
   const empreintesDuLot = entrees.map((e) => ({ id: e.id, hash: e.hash }));
+  const numerosDuLot = saisies.map((s) => ({ id: s.id, numero: s.extraction.numeroFacture }));
   const controles = new Map<string, ControleFacture>(
     saisies.map((s) => {
       const entree = parId.get(s.id);
@@ -161,6 +162,7 @@ export function ReprisePage() {
         s.id,
         controlerFacture(s, {
           empreintesDuLot,
+          numerosDuLot,
           montantPaye: entree?.montantPaye ? Number(entree.montantPaye.replace(",", ".")) : null,
         }),
       ];
@@ -282,19 +284,25 @@ export function ReprisePage() {
       {lot.dateInconnue.length > 0 && (
         <div className="rounded-xl border border-si-amber/30 bg-si-amber/[0.05] p-4">
           <p className="mb-3 text-[13px] font-medium text-si-amber-ink">
-            Date d&apos;émission illisible — à corriger pour ranger ces factures dans la chronologie
+            Date d&apos;émission illisible — datez ces factures pour les ranger dans la chronologie
           </p>
-          <div className="space-y-2">
-            {lot.dateInconnue.map((s) => (
-              <div key={s.id} className="flex items-center gap-3 text-[13px]">
-                <span className="min-w-0 flex-1 truncate text-si-ink">{s.fichierNom}</span>
-                <input
-                  type="date"
-                  className="h-8 rounded-md border border-si-line bg-si-surface px-2 text-[13px]"
-                  onChange={(ev) => mettreAJour(s.id, { dateEmissionCorrigee: ev.target.value })}
+          <div className="space-y-3">
+            {lot.dateInconnue.map((s) => {
+              const entree = parId.get(s.id);
+              if (!entree) return null;
+              return (
+                <CarteFacture
+                  key={s.id}
+                  facture={s}
+                  entree={entree}
+                  controle={controles.get(s.id)}
+                  // La carte entière dès le début : tout ce qui cloche se voit
+                  // d'un coup, au lieu d'apparaître une fois la date remplie.
+                  onDater={(valeur) => mettreAJour(s.id, { dateEmissionCorrigee: valeur })}
+                  onChange={(patch) => mettreAJour(s.id, patch)}
                 />
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}
@@ -428,11 +436,14 @@ function CarteFacture({
   facture,
   entree,
   controle,
+  onDater,
   onChange,
 }: {
   facture: FactureRepriseSaisie;
   entree: EntreeFacture;
   controle?: ControleFacture;
+  /** Fourni quand la date d'émission n'a pas été lue : la carte la demande. */
+  onDater?: (valeur: string) => void;
   onChange: (patch: Partial<EntreeFacture>) => void;
 }) {
   const { extraction, match } = facture;
@@ -447,10 +458,25 @@ function CarteFacture({
     >
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
-          <p className="font-mono text-[12px] text-si-subtle">
-            {extraction.dateEmission ?? "date à confirmer"}
-            {extraction.numeroFacture ? ` · ${extraction.numeroFacture}` : ""}
-          </p>
+          {onDater ? (
+            <div className="flex items-center gap-2">
+              <span className="font-mono text-[12px] text-si-amber-ink">date à saisir</span>
+              <input
+                type="date"
+                value={entree.dateEmissionCorrigee}
+                onChange={(ev) => onDater(ev.target.value)}
+                className="h-7 rounded-md border border-si-line bg-si-surface px-2 text-[12px]"
+              />
+              {extraction.numeroFacture && (
+                <span className="font-mono text-[12px] text-si-subtle">· {extraction.numeroFacture}</span>
+              )}
+            </div>
+          ) : (
+            <p className="font-mono text-[12px] text-si-subtle">
+              {extraction.dateEmission}
+              {extraction.numeroFacture ? ` · ${extraction.numeroFacture}` : ""}
+            </p>
+          )}
           <div className="mt-0.5 flex items-center gap-2">
             <h3 className="text-[14px] font-medium text-si-ink">{match.client.clientNom}</h3>
             <StatusBadge

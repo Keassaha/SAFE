@@ -37,7 +37,12 @@ function facture(
       tvq: null,
       confianceOcr: "haute",
       champsIllisibles: [],
-      lignes: [ligne()],
+      // Un détail qui tombe juste : 400 + 128 = 528. Les contrôles comparent
+      // la somme des lignes au total, un échantillon bancal les ferait parler.
+      lignes: [
+        ligne(),
+        ligne({ description: "Frais de greffe", montant: 128, heures: null, tauxHoraire: null, nature: "debours" }),
+      ],
       ...extraction,
     },
   };
@@ -81,9 +86,16 @@ describe("quand la facture se lit mal", () => {
     expect(c.avertissements.join(" ")).toContain("seul le total sera repris");
   });
 
-  it("répète les champs que la lecture a signalés illisibles", () => {
-    const c = controlerFacture(facture({ champsIllisibles: ["taux horaire", "taxes"] }));
-    expect(c.avertissements.join(" ")).toContain("taux horaire, taxes");
+  it("dit en français les champs que la lecture a signalés illisibles", () => {
+    const c = controlerFacture(facture({ champsIllisibles: ["dossierIntitule", "montantTotal"] }));
+    // Jamais « dossierIntitule » à l'écran : ça ne veut rien dire pour une avocate.
+    expect(c.avertissements.join(" ")).toContain("l'objet du mandat, le montant total");
+    expect(c.avertissements.join(" ")).not.toContain("dossierIntitule");
+  });
+
+  it("laisse passer tel quel un champ qu'on ne sait pas traduire", () => {
+    const c = controlerFacture(facture({ champsIllisibles: ["mention manuscrite"] }));
+    expect(c.avertissements.join(" ")).toContain("mention manuscrite");
   });
 
   it("prévient quand la pièce se lit mal dans l'ensemble", () => {
@@ -155,6 +167,91 @@ describe("le même fichier déposé deux fois dans un lot pas encore versé", ()
 
   it("laisse passer un fichier différent", () => {
     expect(versable(controlerFacture({ ...facture(), id: "f2" }, { empreintesDuLot: empreintes }))).toBe(true);
+  });
+});
+
+describe("les chiffres et les dates qui ne tiennent pas debout", () => {
+  const LE_JOUR = new Date("2026-09-16T12:00:00.000Z");
+
+  it("refuse un total nul ou négatif", () => {
+    expect(controlerFacture(facture({ montantTotal: 0 })).bloquants.join(" ")).toContain("nul ou négatif");
+    expect(controlerFacture(facture({ montantTotal: -50 })).bloquants.join(" ")).toContain("mal lu");
+  });
+
+  it("refuse une facture datée dans le futur : un exercice précédent est derrière nous", () => {
+    const c = controlerFacture(facture({ dateEmission: "2027-04-10" }), { aujourdhui: LE_JOUR });
+    expect(versable(c)).toBe(false);
+    expect(c.bloquants.join(" ")).toContain("futur");
+  });
+
+  it("accepte une facture datée du jour même", () => {
+    const c = controlerFacture(facture({ dateEmission: "2026-09-16" }), { aujourdhui: LE_JOUR });
+    expect(versable(c)).toBe(true);
+  });
+
+  it("refuse une année invraisemblable", () => {
+    const c = controlerFacture(facture({ dateEmission: "1902-04-10" }), { aujourdhui: LE_JOUR });
+    expect(c.bloquants.join(" ")).toContain("invraisemblable");
+  });
+
+  it("refuse un paiement antérieur à la facture", () => {
+    const c = controlerFacture(
+      facture({ dateEmission: "2026-04-10" }, { statutPaiement: "payee", datePaiement: "2026-03-01" }),
+      { aujourdhui: LE_JOUR },
+    );
+    expect(versable(c)).toBe(false);
+    expect(c.bloquants.join(" ")).toContain("précède la facture");
+  });
+
+  it("signale quand le détail ne tombe pas sur le total", () => {
+    // 528 lu au total, mais une ligne lue 5 280 : le zéro de trop se voit.
+    const c = controlerFacture(facture({ montantTotal: 528, lignes: [ligne({ montant: 5280 })] }));
+    expect(c.avertissements.join(" ")).toContain("ne tombe pas sur le total");
+  });
+
+  it("accepte l'écart quand les taxes lues l'expliquent", () => {
+    const c = controlerFacture(
+      facture({ montantTotal: 574.87, tps: 25, tvq: 49.87, lignes: [ligne({ montant: 500 })] }),
+    );
+    expect(c.avertissements.join(" ")).not.toContain("ne tombe pas sur le total");
+  });
+
+  it("se tait quand une ligne manque : la somme ne peut pas être comparée", () => {
+    const c = controlerFacture(
+      facture({ montantTotal: 528, lignes: [ligne({ montant: 400 }), ligne({ montant: null })] }),
+    );
+    expect(c.avertissements.join(" ")).not.toContain("ne tombe pas sur le total");
+  });
+
+  it("signale une ligne plus grosse que la facture entière", () => {
+    const c = controlerFacture(facture({ montantTotal: 528, lignes: [ligne({ montant: 900 })] }));
+    expect(c.avertissements.join(" ")).toContain("dépasse le total");
+  });
+});
+
+describe("deux factures du lot qui portent le même numéro", () => {
+  const numeros = [
+    { id: "f0", numero: "F-2026-011" },
+    { id: "f1", numero: "F-2026-011" },
+    { id: "f2", numero: "F-2026-012" },
+  ];
+
+  it("bloque la seconde, pas la première", () => {
+    expect(versable(controlerFacture({ ...facture(), id: "f0" }, { numerosDuLot: numeros }))).toBe(true);
+    const seconde = controlerFacture({ ...facture(), id: "f1" }, { numerosDuLot: numeros });
+    expect(seconde.bloquants.join(" ")).toContain("porte déjà le numéro F-2026-011");
+  });
+
+  it("laisse passer un numéro unique", () => {
+    expect(versable(controlerFacture({ ...facture(), id: "f2" }, { numerosDuLot: numeros }))).toBe(true);
+  });
+
+  it("ne rapproche pas deux factures sans numéro lu", () => {
+    const sansNumero = [
+      { id: "f0", numero: null },
+      { id: "f1", numero: null },
+    ];
+    expect(versable(controlerFacture({ ...facture(), id: "f1" }, { numerosDuLot: sansNumero }))).toBe(true);
   });
 });
 
