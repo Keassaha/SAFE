@@ -30,9 +30,16 @@ interface TimeFiltersBarProps {
  * Deux rangées et treize contrôles, dont deux tris faits deux fois : les
  * onglets Actives / Archives doublaient le sélecteur de statut, la bascule
  * Toutes / Mes entrées doublait le sélecteur d'utilisateur. Il reste un
- * sélecteur par question : période, dossier, qui, statut, et une bascule
- * Liste / Semaine. Les pastilles pleines disparaissent : un filtre choisi ne
- * doit pas ressembler à l'action principale. Demande CEO du 2026-09-12.
+ * sélecteur par question : période, dossier, qui, statut, affichage. Les
+ * pastilles pleines disparaissent : un filtre choisi ne doit pas ressembler à
+ * l'action principale. Demande CEO du 2026-09-12.
+ *
+ * Une seule forme de contrôle, du premier au dernier : une recherche à gauche,
+ * cinq sélecteurs à droite, le compte au bout. Le cadre Liste / Semaine était
+ * le seul objet à ne pas en être un ; il est devenu le cinquième sélecteur le
+ * 2026-09-15. Chaque sélecteur nomme aussi son sujet au repos — « Toute
+ * période », « Tous les statuts » — parce que quatre « Tout » alignés ne
+ * disaient plus ce qu'ils triaient.
  */
 export function TimeFiltersBar({
   filters,
@@ -84,10 +91,6 @@ export function TimeFiltersBar({
 
   const qui = filters.userId ?? "";
   const statut = filters.facture === undefined ? "" : filters.facture ? "facture" : "non";
-  const bascule = (actif: boolean) =>
-    `min-h-tap px-3 text-[13px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-si-verified ${
-      actif ? "bg-si-ink text-si-surface" : "bg-si-surface text-si-body hover:text-si-ink"
-    }`;
 
   return (
     <RegistreBarreOutils
@@ -183,14 +186,22 @@ export function TimeFiltersBar({
             <option value="non">{t("statusToBill")}</option>
             <option value="facture">{t("statusBilled")}</option>
           </select>
-          <div role="group" aria-label={t("viewLabel")} className="inline-flex h-9 overflow-hidden rounded-md border border-si-line">
-            <button type="button" aria-pressed={viewMode === "list"} onClick={() => onViewModeChange("list")} className={bascule(viewMode === "list")}>
-              {t("viewList")}
-            </button>
-            <button type="button" aria-pressed={viewMode === "week"} onClick={() => onViewModeChange("week")} className={`${bascule(viewMode === "week")} border-l border-si-line`}>
-              {t("viewWeek")}
-            </button>
-          </div>
+          {/* L'affichage est un sélecteur, comme ses quatre voisins. Il portait
+              un cadre à deux moitiés dont celle qui est choisie s'emplissait de
+              noir : le seul objet de la barre à ne pas être un sélecteur, et un
+              second aplat noir face à « Nouvelle entrée », qui est l'action
+              principale de l'écran. Demande CEO du 2026-09-15, mot pour mot :
+              « je déteste le cadre que tu as fait Liste / Semaine [...] rajoute
+              une autre façon de filtrer ». */}
+          <select
+            value={viewMode}
+            onChange={(e) => onViewModeChange(e.target.value as "list" | "week")}
+            aria-label={t("viewLabel")}
+            className={registreSelectClass}
+          >
+            <option value="list">{t("viewList")}</option>
+            <option value="week">{t("viewWeek")}</option>
+          </select>
           <span className="text-[13px] text-si-muted">{t("entriesPlural", { count })}</span>
           <span className="sr-only">{tc("searchPlaceholder")}</span>
         </div>
