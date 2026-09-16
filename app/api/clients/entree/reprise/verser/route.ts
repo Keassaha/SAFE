@@ -4,7 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { canCreateClients } from "@/lib/auth/permissions";
 import { revalidatePath } from "next/cache";
 import { hashProofFile } from "@/lib/services/finance/proof-dedup";
-import { writeDocumentObject, createDocumentRecord } from "@/lib/services/document";
+import { writeDocumentObject } from "@/lib/services/document";
 import { verserFactureReprise, VerserFactureError } from "@/lib/services/reprise-historique/verser-reprise";
 import type { FactureRepriseSaisie } from "@/lib/services/reprise-historique/construire-lot";
 import { MemoireDuLot } from "@/lib/services/reprise-historique/memoire-du-lot";
@@ -99,38 +99,43 @@ export async function POST(request: Request) {
       continue;
     }
 
+    // Le fichier part sur le stockage AVANT l'écriture comptable, pour que son
+    // empreinte puisse s'inscrire dans la même transaction que la facture. Si
+    // le stockage refuse, on refuse la facture : rien n'a encore été écrit.
+    // Un fichier orphelin sur le disque ne coûte rien ; une facture sans
+    // empreinte se redépose indéfiniment.
+    const ext = EXT[item.mimeType] ?? "bin";
+    const storageKey = `factures-passees/${data.cabinetId}/${new Date().getFullYear()}/${randomUUID()}.${ext}`;
+    try {
+      await writeDocumentObject(storageKey, buffer, item.mimeType);
+    } catch (err) {
+      console.error(`Conservation de « ${item.fichierNom} » échouée :`, err);
+      resultats.push({
+        id: item.id,
+        ok: false,
+        erreur:
+          "Le fichier n'a pas pu être conservé, la facture n'a donc pas été enregistrée. Rien n'a été écrit pour elle, vous pouvez la redéposer.",
+      });
+      continue;
+    }
+
     try {
       const ecrit = await verserFactureReprise({
         cabinetId: data.cabinetId,
         userId: data.userId,
         facture: item,
         montantPaye: item.montantPaye,
-      });
-      memoire.retenir(item, ecrit);
-
-      // Conservation du fichier source (best-effort : un échec de stockage ne
-      // doit pas défaire l'écriture comptable déjà acquise).
-      try {
-        const ext = EXT[item.mimeType] ?? "bin";
-        const key = `factures-passees/${data.cabinetId}/${new Date().getFullYear()}/${randomUUID()}.${ext}`;
-        await writeDocumentObject(key, buffer, item.mimeType);
-        await createDocumentRecord({
-          cabinetId: data.cabinetId,
-          userId: data.userId,
-          clientId: ecrit.clientId,
-          dossierId: ecrit.dossierId,
+        piece: {
+          hash: item.hash,
+          documentType: FACTURE_PASSEE_DOCUMENT_TYPE,
           nom: item.fichierNom,
           mimeType: item.mimeType,
           sizeBytes: buffer.byteLength,
-          storageKey: key,
-          hash: item.hash,
-          documentType: FACTURE_PASSEE_DOCUMENT_TYPE,
-          aiAssisted: true,
+          storageKey,
           dateDocument: item.extraction.dateEmission ? new Date(item.extraction.dateEmission) : null,
-        });
-      } catch (err) {
-        console.error("Conservation du fichier de reprise échouée (facture enregistrée quand même):", err);
-      }
+        },
+      });
+      memoire.retenir(item, ecrit);
 
       resultats.push({ id: item.id, ok: true, invoiceId: ecrit.invoiceId });
     } catch (err) {

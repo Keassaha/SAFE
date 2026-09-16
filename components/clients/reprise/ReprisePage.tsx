@@ -415,7 +415,14 @@ export function ReprisePage() {
           </p>
           <Button
             variant="primary"
-            disabled={!toutesVersables || versement.phase === "en_cours"}
+            // Un second clic reverserait le lot entier. Le bouton reste éteint
+            // une fois le versement terminé : ce qui est passé est passé, ce
+            // qui a échoué se redépose, il ne se re-verse pas d'ici.
+            disabled={
+              !toutesVersables ||
+              versement.phase === "en_cours" ||
+              versement.phase === "termine"
+            }
             loading={versement.phase === "en_cours"}
             onClick={verser}
           >

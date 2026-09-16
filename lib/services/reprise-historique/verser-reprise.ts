@@ -1,10 +1,13 @@
 import { randomUUID } from "crypto";
 import { prisma } from "@/lib/db";
+import { createAuditLog } from "@/lib/services/audit";
 import { derivePaymentStatus } from "@/lib/billing/payment-status";
 import { writeJournalForIssuedInvoice, writeJournalForPayment } from "@/lib/services/journal/billing-journal";
 import { writeJournalForDeboursPaiement } from "@/lib/services/journal/debours-dossier-journal";
 import { getPeriodeFromDate, isPeriodLocked } from "@/lib/services/journal/period-lock";
 import type { FactureRepriseSaisie, StatutPaiementReprise } from "@/lib/services/reprise-historique/construire-lot";
+import { cleCroisement } from "@/lib/clients/croisement-conflits";
+import { normaliseIntitule } from "@/lib/services/reprise-historique/matcher";
 
 /**
  * Écrit une facture d'un exercice précédent, confirmée à l'écran : client et
@@ -31,12 +34,28 @@ import type { FactureRepriseSaisie, StatutPaiementReprise } from "@/lib/services
  * - Le statut de paiement est celui choisi par l'utilisateur, jamais deviné.
  */
 
+/**
+ * La pièce déposée, déjà écrite sur le stockage. Son empreinte est enregistrée
+ * DANS la même transaction que la facture : c'est elle qui interdit le second
+ * versement du même papier, donc elle ne peut pas être « au mieux ».
+ */
+export interface PieceSourceReprise {
+  hash: string;
+  documentType: string;
+  nom: string;
+  mimeType: string;
+  sizeBytes: number;
+  storageKey: string;
+  dateDocument: Date | null;
+}
+
 export interface VerserFactureParams {
   cabinetId: string;
   userId: string;
   facture: FactureRepriseSaisie;
   /** Requis si `statutPaiement` est "payee" ou "partielle". */
   montantPaye: number | null;
+  piece: PieceSourceReprise;
 }
 
 export interface VerserFactureResultat {
@@ -46,6 +65,7 @@ export interface VerserFactureResultat {
   dossierId: string;
   clientCree: boolean;
   dossierCree: boolean;
+  documentId: string;
 }
 
 export class VerserFactureError extends Error {
@@ -107,7 +127,7 @@ function resolveMontantPaye(
 export async function verserFactureReprise(
   params: VerserFactureParams,
 ): Promise<VerserFactureResultat> {
-  const { cabinetId, userId, facture, montantPaye } = params;
+  const { cabinetId, userId, facture, montantPaye, piece } = params;
   const { extraction, match, statutPaiement } = facture;
 
   if (!statutPaiement) {
@@ -138,45 +158,112 @@ export async function verserFactureReprise(
   }
 
   const resultat = await prisma.$transaction(async (tx) => {
+    // ── Le même papier, deux fois ─────────────────────────────────────────
+    // Le contrôle fait à l'analyse ne vaut que pour l'instant où il a été fait :
+    // entre l'analyse et le clic il peut s'écouler une heure, un second onglet,
+    // un second dépôt. C'est ici, dans la transaction qui écrit, que la question
+    // doit être reposée. Sans quoi la facture, ses heures, ses débours, son
+    // paiement et ses trois écritures au journal repassent une seconde fois.
+    const dejaVerse = await tx.document.findFirst({
+      where: { cabinetId, documentType: piece.documentType, hash: piece.hash },
+      select: { createdAt: true },
+    });
+    if (dejaVerse) {
+      throw new VerserFactureError(
+        facture.id,
+        `Ce fichier a déjà été repris le ${dejaVerse.createdAt.toISOString().slice(0, 10)}. Rien n'a été écrit une seconde fois.`,
+      );
+    }
+
     // ── Client ────────────────────────────────────────────────────────────
+    // « nouveau » a été décidé à l'analyse, contre la base telle qu'elle était
+    // à ce moment-là. Entre-temps, le client a pu naître : une autre facture du
+    // lot, un autre onglet, une saisie à la main. On repose la question ici,
+    // sur la même clé de croisement que le rapprochement, plutôt que d'ouvrir
+    // une seconde fiche au même nom.
     let clientId = match.client.clientId;
     let clientCree = false;
     if (!clientId) {
-      const client = await tx.client.create({
-        data: {
-          cabinetId,
-          typeClient: "personne_morale",
-          raisonSociale: match.client.clientNom,
-        },
-        select: { id: true },
+      const cleVoulue = cleCroisement(match.client.clientNom);
+      const existants = await tx.client.findMany({
+        where: { cabinetId },
+        select: { id: true, raisonSociale: true, prenom: true, nom: true },
       });
-      clientId = client.id;
-      clientCree = true;
+      const deja = existants.find(
+        (c) =>
+          cleCroisement(c.raisonSociale || [c.prenom, c.nom].filter(Boolean).join(" ") || "") ===
+          cleVoulue,
+      );
+      if (deja) {
+        clientId = deja.id;
+      } else {
+        const client = await tx.client.create({
+          data: {
+            cabinetId,
+            typeClient: "personne_morale",
+            raisonSociale: match.client.clientNom,
+          },
+          select: { id: true },
+        });
+        clientId = client.id;
+        clientCree = true;
+      }
     }
 
     // ── Dossier ───────────────────────────────────────────────────────────
+    // Même raisonnement : un dossier de même intitulé chez ce client, né depuis
+    // l'analyse, se reprend au lieu de se dédoubler.
     let dossierId = match.dossier.dossierId;
     let dossierCree = false;
     if (!dossierId) {
-      const dossier = await tx.dossier.create({
-        data: {
-          cabinetId,
-          clientId,
-          intitule: match.dossier.dossierIntitule,
-          statut: "actif",
-        },
-        select: { id: true },
+      const intituleVoulu = normaliseIntitule(match.dossier.dossierIntitule);
+      const dossiers = await tx.dossier.findMany({
+        where: { cabinetId, clientId },
+        select: { id: true, intitule: true },
       });
-      dossierId = dossier.id;
-      dossierCree = true;
+      const dejaLa = dossiers.find((d) => normaliseIntitule(d.intitule) === intituleVoulu);
+      if (dejaLa) {
+        dossierId = dejaLa.id;
+      } else {
+        const dossier = await tx.dossier.create({
+          data: {
+            cabinetId,
+            clientId,
+            intitule: match.dossier.dossierIntitule,
+            statut: "actif",
+          },
+          select: { id: true },
+        });
+        dossierId = dossier.id;
+        dossierCree = true;
+      }
     }
 
     // ── Facture ───────────────────────────────────────────────────────────
+    // Un même numéro peut légitimement exister chez deux clients différents :
+    // chaque ancien logiciel numérotait à sa façon, et « 001 » se retrouve
+    // partout. Chez le MÊME client, en revanche, c'est la même facture : on
+    // refuse, au lieu de lui inventer un numéro de repli qui la ferait passer
+    // pour une seconde facture et doublerait les écritures.
     const numeroLu = extraction.numeroFacture?.trim() || null;
-    const numeroDejaPris = numeroLu
+    if (numeroLu) {
+      const memeNumeroMemeClient = await tx.invoice.findFirst({
+        where: { cabinetId, clientId, numero: numeroLu },
+        select: { id: true, estReprise: true },
+      });
+      if (memeNumeroMemeClient) {
+        throw new VerserFactureError(
+          facture.id,
+          `La facture n° ${numeroLu} existe déjà pour ce client${
+            memeNumeroMemeClient.estReprise ? " (reprise d'un exercice précédent)" : ""
+          }. Rien n'a été écrit pour cette pièce.`,
+        );
+      }
+    }
+    const numeroPrisAilleurs = numeroLu
       ? await tx.invoice.findFirst({ where: { cabinetId, numero: numeroLu }, select: { id: true } })
       : null;
-    const numero = numeroLu && !numeroDejaPris ? numeroLu : numeroRepli();
+    const numero = numeroLu && !numeroPrisAilleurs ? numeroLu : numeroRepli();
 
     const invoice = await tx.invoice.create({
       data: {
@@ -434,7 +521,45 @@ export async function verserFactureReprise(
       );
     }
 
-    return { invoiceId: invoice.id, clientId, dossierId, clientCree, dossierCree };
+    // ── La pièce et son empreinte, dans la même transaction ─────────────
+    // Si cette ligne ne passe pas, la facture ne passe pas non plus : une
+    // facture reprise sans empreinte est une facture qu'on peut redéposer
+    // indéfiniment.
+    const document = await tx.document.create({
+      data: {
+        cabinetId,
+        uploadedById: userId,
+        clientId,
+        dossierId,
+        nom: piece.nom,
+        mimeType: piece.mimeType,
+        sizeBytes: piece.sizeBytes,
+        storageKey: piece.storageKey,
+        hash: piece.hash,
+        documentType: piece.documentType,
+        aiAssisted: true,
+        dateDocument: piece.dateDocument ?? undefined,
+      },
+      select: { id: true },
+    });
+
+    return {
+      invoiceId: invoice.id,
+      clientId,
+      dossierId,
+      clientCree,
+      dossierCree,
+      documentId: document.id,
+    };
+  });
+
+  await createAuditLog({
+    cabinetId,
+    userId,
+    entityType: "Document",
+    entityId: resultat.documentId,
+    action: "create",
+    metadata: { nom: piece.nom, clientId: resultat.clientId, dossierId: resultat.dossierId, reprise: true },
   });
 
   return { factureId: facture.id, ...resultat };
