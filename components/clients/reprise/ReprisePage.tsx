@@ -10,6 +10,7 @@ import {
   type FactureRepriseSaisie,
   type StatutPaiementReprise,
 } from "@/lib/services/reprise-historique/construire-lot";
+import { controlerFacture, versable, type ControleFacture } from "@/lib/services/reprise-historique/controles";
 import type { MatchFacturePassee } from "@/lib/services/reprise-historique/matcher";
 import type { PastInvoiceExtraction } from "@/lib/ai/extract-past-invoice";
 
@@ -149,8 +150,24 @@ export function ReprisePage() {
   }
 
   const parId = new Map(entrees.map((e) => [e.id, e]));
-  const pretesAVerser = lot.groupes.flatMap((g) => g.factures).length + lot.dateInconnue.filter((f) => f.extraction.dateEmission || parId.get(f.id)?.dateEmissionCorrigee).length;
-  const toutesChoisies = saisies.length > 0 && saisies.every((s) => s.statutPaiement !== null);
+
+  // Ce qui empêche de verser se dit AVANT le clic, carte par carte : le service
+  // refuserait de toute façon, mais après l'attente et le lot à moitié écrit.
+  const empreintesDuLot = entrees.map((e) => ({ id: e.id, hash: e.hash }));
+  const controles = new Map<string, ControleFacture>(
+    saisies.map((s) => {
+      const entree = parId.get(s.id);
+      return [
+        s.id,
+        controlerFacture(s, {
+          empreintesDuLot,
+          montantPaye: entree?.montantPaye ? Number(entree.montantPaye.replace(",", ".")) : null,
+        }),
+      ];
+    }),
+  );
+  const toutesVersables = saisies.length > 0 && saisies.every((s) => versable(controles.get(s.id)!));
+  const nombreBloquees = saisies.filter((s) => !versable(controles.get(s.id)!)).length;
   const encaissements = saisies.filter((s) => s.statutPaiement === "payee" || s.statutPaiement === "partielle").length;
 
   async function verser() {
@@ -299,6 +316,7 @@ export function ReprisePage() {
                   key={facture.id}
                   facture={facture}
                   entree={entree}
+                  controle={controles.get(facture.id)}
                   onChange={(patch) => mettreAJour(facture.id, patch)}
                 />
               );
@@ -313,10 +331,17 @@ export function ReprisePage() {
             À écrire : {saisies.length} facture{saisies.length > 1 ? "s" : ""}, {heureFmt(lot.synthese.heuresReprises)}{" "}
             déjà facturées, {lot.synthese.nombreClients} client{lot.synthese.nombreClients > 1 ? "s" : ""},{" "}
             {encaissements} encaissement{encaissements > 1 ? "s" : ""}. Rien n&apos;est enregistré avant ce bouton.
+            {nombreBloquees > 0 && (
+              <span className="ml-1 font-medium text-si-danger-ink">
+                {nombreBloquees === 1
+                  ? "Une facture demande une correction avant d'être versée."
+                  : `${nombreBloquees} factures demandent une correction avant d'être versées.`}
+              </span>
+            )}
           </p>
           <Button
             variant="primary"
-            disabled={!toutesChoisies || versement.phase === "en_cours"}
+            disabled={!toutesVersables || versement.phase === "en_cours"}
             loading={versement.phase === "en_cours"}
             onClick={verser}
           >
@@ -402,17 +427,24 @@ function SelecteurStatut({
 function CarteFacture({
   facture,
   entree,
+  controle,
   onChange,
 }: {
   facture: FactureRepriseSaisie;
   entree: EntreeFacture;
+  controle?: ControleFacture;
   onChange: (patch: Partial<EntreeFacture>) => void;
 }) {
   const { extraction, match } = facture;
   const nombreHeures = extraction.lignes.reduce((s, l) => s + (l.heures ?? 0), 0);
+  const bloquee = (controle?.bloquants.length ?? 0) > 0;
 
   return (
-    <div className="rounded-xl border border-si-line bg-si-surface p-4">
+    <div
+      className={`rounded-xl border bg-si-surface p-4 ${
+        bloquee ? "border-si-danger/40" : "border-si-line"
+      }`}
+    >
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
           <p className="font-mono text-[12px] text-si-subtle">
@@ -479,6 +511,25 @@ function CarteFacture({
         </div>
       </div>
 
+      {/* Ce qui empêche de verser, et ce qui mérite un coup d'œil. Dit ici,
+          avant le bouton, plutôt qu'en erreur une fois le lot parti. */}
+      {controle && (controle.bloquants.length > 0 || controle.avertissements.length > 0) && (
+        <div className="mt-3 space-y-1 border-t border-si-line pt-3">
+          {controle.bloquants.map((raison, i) => (
+            <p key={`b${i}`} className="flex items-start gap-1.5 text-[13px] text-si-danger-ink">
+              <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden />
+              {raison}
+            </p>
+          ))}
+          {controle.avertissements.map((raison, i) => (
+            <p key={`a${i}`} className="flex items-start gap-1.5 text-[13px] text-si-amber-ink">
+              <FileWarning className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden />
+              {raison}
+            </p>
+          ))}
+        </div>
+      )}
+
       {entree.expanded && (
         <div className="mt-3 border-t border-si-line pt-3">
           <p className="mb-2 text-[12px] text-si-muted">
@@ -502,12 +553,6 @@ function CarteFacture({
               </div>
             ))}
           </div>
-          {extraction.champsIllisibles.length > 0 && (
-            <p className="mt-2 flex items-start gap-1.5 text-[13px] text-si-amber-ink">
-              <FileWarning className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden />
-              Champs illisibles sur cette facture, à vérifier : {extraction.champsIllisibles.join(", ")}.
-            </p>
-          )}
         </div>
       )}
     </div>
