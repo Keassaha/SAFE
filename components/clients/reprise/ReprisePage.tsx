@@ -180,11 +180,14 @@ export function ReprisePage() {
   return (
     <div className="space-y-5">
       <div className="flex items-start justify-between gap-4">
-        <p className="max-w-[560px] text-[13px] text-si-muted">
+        <div>
+          <h2 className="mb-1 text-[15px] font-medium text-si-ink">Reprise d&apos;un exercice précédent</h2>
+          <p className="max-w-[560px] text-[13px] text-si-muted">
           {entrees.length === 0
             ? "Déposez d'anciennes factures en vrac, en n'importe quel ordre. SAFE en ressort le client, le dossier, les heures et les dates, rangées ici de la plus ancienne à la plus récente."
             : `${entrees.length} facture${entrees.length > 1 ? "s" : ""} lue${entrees.length > 1 ? "s" : ""}, déposée${entrees.length > 1 ? "s" : ""} en vrac, rangée${entrees.length > 1 ? "s" : ""} ici de la plus ancienne à la plus récente.`}
-        </p>
+          </p>
+        </div>
         <div>
           <input
             ref={fileInputRef}

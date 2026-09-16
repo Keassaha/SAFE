@@ -42,9 +42,9 @@ export default async function EntreeClientPage({
           title="Entrée d'un client"
           description="Ce que vous savez, ce que vous avez déjà fait, ce qui reste ouvert."
           action={
-            <Link href={routes.clientEntreeReprise}>
+            <Link href={routes.safeImportExercices}>
               <Button variant="secondary" type="button">
-                Reprendre l&apos;historique de facturation
+                Reprendre un exercice précédent
               </Button>
             </Link>
           }

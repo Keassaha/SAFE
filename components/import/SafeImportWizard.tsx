@@ -11,10 +11,11 @@ import { ColumnMappingForm } from "./ColumnMappingForm";
 import { PreviewTable } from "./PreviewTable";
 import { ImportResultSummary } from "./ImportResultSummary";
 import { ImportHistoryTable } from "./ImportHistoryTable";
+import { ReprisePage } from "@/components/clients/reprise/ReprisePage";
 import { analyzeFile, generatePreview, generateAccountingPreview } from "@/lib/import/pipeline";
 import { detectColumns, getFieldLabels } from "@/lib/import/detect-columns";
 import { executeImport, analyzeStatementPdf } from "@/app/(app)/import/actions";
-import { Loader2, Upload, ArrowRight, ArrowLeft, History } from "lucide-react";
+import { Loader2, Upload, ArrowRight, ArrowLeft, History, Archive } from "lucide-react";
 import { toast } from "sonner";
 import type {
   DocumentType,
@@ -26,9 +27,22 @@ import type {
 import type { AnalysisResult } from "@/lib/import/pipeline";
 
 type Step = "upload" | "classify" | "mapping" | "preview" | "importing" | "result";
-type Tab = "import" | "history";
+type Tab = "import" | "exercices" | "history";
 
-export function SafeImportWizard() {
+/**
+ * SAFE Import est la porte unique de tout ce qui entre dans SAFE depuis
+ * l'extérieur. Deux moyens, deux onglets : importer des documents (chiffriers,
+ * relevés) et reprendre des exercices précédents (d'anciennes factures d'où
+ * SAFE reconstitue client, dossier, heures, débours, facture et comptabilité).
+ */
+export function SafeImportWizard({
+  peutReprendreExercices = false,
+  ongletInitial = "import",
+}: {
+  /** La reprise crée des clients : réservée à qui a le droit d'en créer. */
+  peutReprendreExercices?: boolean;
+  ongletInitial?: Tab;
+} = {}) {
   const t = useTranslations("import");
   const tc = useTranslations("common");
 
@@ -39,7 +53,9 @@ export function SafeImportWizard() {
     { id: "preview", label: t("stepPreview") },
     { id: "result", label: t("stepResult") },
   ];
-  const [activeTab, setActiveTab] = useState<Tab>("import");
+  const [activeTab, setActiveTab] = useState<Tab>(
+    ongletInitial === "exercices" && !peutReprendreExercices ? "import" : ongletInitial,
+  );
   const [step, setStep] = useState<Step>("upload");
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
   const [docType, setDocType] = useState<DocumentType>("registre_clients");
@@ -178,8 +194,21 @@ export function SafeImportWizard() {
           }`}
         >
           <Upload className="w-4 h-4" />
-          {t("newImport")}
+          {t("importerDocuments")}
         </button>
+        {peutReprendreExercices && (
+          <button
+            onClick={() => setActiveTab("exercices")}
+            className={`min-h-tap flex items-center gap-2 px-4 py-2 rounded-[var(--safe-radius-md)] text-sm font-medium transition-all duration-200 ${
+              activeTab === "exercices"
+                ? "bg-white shadow-sm safe-text-title"
+                : "safe-text-secondary hover:safe-text-title hover:bg-white/50"
+            }`}
+          >
+            <Archive className="w-4 h-4" />
+            {t("exercicesPrecedents")}
+          </button>
+        )}
         <button
           onClick={() => setActiveTab("history")}
           className={`min-h-tap flex items-center gap-2 px-4 py-2 rounded-[var(--safe-radius-md)] text-sm font-medium transition-all duration-200 ${
@@ -358,6 +387,8 @@ export function SafeImportWizard() {
           )}
         </>
       )}
+
+      {activeTab === "exercices" && peutReprendreExercices && <ReprisePage />}
 
       {activeTab === "history" && <ImportHistoryTable />}
     </div>

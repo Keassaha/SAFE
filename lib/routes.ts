@@ -10,7 +10,6 @@ export const routes = {
   client: (id: string) => `/clients/${id}`,
   clientNouveau: "/clients/nouveau",
   clientEntree: "/clients/entree",
-  clientEntreeReprise: "/clients/entree/reprise",
   clientVerificationIdentite: (id: string) => `/clients/${id}/verification-identite`,
   dossiers: "/dossiers",
   dossier: (id: string) => `/dossiers/${id}`,
@@ -92,6 +91,8 @@ export const routes = {
   gestionLexTrackDossier: (dossierId: string) => `/gestion/lextrack?dossierId=${encodeURIComponent(dossierId)}`,
   gestionAssistante: "/gestion/assistante",
   safeImport: "/import",
+  /** Onglet « Exercices précédents » de SAFE Import (reprise de l'historique). */
+  safeImportExercices: "/import?section=exercices",
   edition: "/edition",
   editionBibliotheque: "/edition/bibliotheque",
   editionDossier: (dossierId: string) => `/edition/${dossierId}`,
