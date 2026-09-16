@@ -7,6 +7,7 @@ import { hashProofFile } from "@/lib/services/finance/proof-dedup";
 import { writeDocumentObject, createDocumentRecord } from "@/lib/services/document";
 import { verserFactureReprise, VerserFactureError } from "@/lib/services/reprise-historique/verser-reprise";
 import type { FactureRepriseSaisie } from "@/lib/services/reprise-historique/construire-lot";
+import { MemoireDuLot } from "@/lib/services/reprise-historique/memoire-du-lot";
 import { FACTURE_PASSEE_DOCUMENT_TYPE } from "@/app/api/clients/entree/reprise/analyser/route";
 import type { UserRole } from "@prisma/client";
 import { randomUUID } from "crypto";
@@ -75,8 +76,12 @@ export async function POST(request: Request) {
   }
 
   const resultats: FactureResultatApi[] = [];
+  // Deux factures du même client encore inconnu ne doivent pas créer deux
+  // fiches : ce qui est créé pour la première sert aux suivantes du lot.
+  const memoire = new MemoireDuLot();
 
-  for (const item of lot) {
+  for (const itemBrut of lot) {
+    const item = { ...itemBrut, ...memoire.appliquer(itemBrut) };
     const file = form.get(`file_${item.id}`);
     if (!(file instanceof File)) {
       resultats.push({ id: item.id, ok: false, erreur: "Fichier source manquant." });
@@ -101,6 +106,7 @@ export async function POST(request: Request) {
         facture: item,
         montantPaye: item.montantPaye,
       });
+      memoire.retenir(item, ecrit);
 
       // Conservation du fichier source (best-effort : un échec de stockage ne
       // doit pas défaire l'écriture comptable déjà acquise).

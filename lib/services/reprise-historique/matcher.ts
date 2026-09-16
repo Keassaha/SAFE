@@ -44,7 +44,7 @@ export interface MatchFacturePassee {
  * mots : l'ordre d'un intitulé de mandat est significatif (« Séparation de
  * corps » ≠ « Corps de séparation »).
  */
-function normaliseIntitule(intitule: string): string {
+export function normaliseIntitule(intitule: string): string {
   return intitule
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
