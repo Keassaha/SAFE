@@ -201,23 +201,33 @@ export function ReprisePage() {
   // « Béliveau » sont l'un et l'autre inconnus de la base, donc le
   // rapprochement serveur ne les voit pas se ressembler. Sans ça, le versement
   // ouvre deux fiches pour le même client.
-  const nomsNouveauxDuLot = Array.from(
-    new Map(
-      saisies
-        .filter((s) => s.match.client.statut === "nouveau")
-        .map((s) => [cleCroisement(s.match.client.clientNom), s.match.client.clientNom]),
-    ).values(),
-  );
+  //
+  // La suggestion ne va QUE vers l'orthographe la plus fréquente du dépôt.
+  // Mesuré sur un dépôt de huit factures : sans cette règle, les trois
+  // factures correctes proposaient chacune d'adopter la coquille, et une seule
+  // proposait de la corriger. Trois invitations à se tromper contre une.
+  // Quand les deux graphies sont à égalité, on ne sait pas laquelle est la
+  // bonne : on propose dans les deux sens.
+  const nouveaux = saisies.filter((s) => s.match.client.statut === "nouveau");
+  const compteParCle = new Map<string, number>();
+  const nomParCle = new Map<string, string>();
+  for (const s of nouveaux) {
+    const cle = cleCroisement(s.match.client.clientNom);
+    compteParCle.set(cle, (compteParCle.get(cle) ?? 0) + 1);
+    nomParCle.set(cle, s.match.client.clientNom);
+  }
+  const tousLesNoms = Array.from(nomParCle.entries()).map(([cle, nom]) => ({ id: cle, nom, dossiers: [] }));
   const ressemblancesDansLeLot = new Map<string, string[]>(
-    saisies
-      .filter((s) => s.match.client.statut === "nouveau")
-      .map((s) => [
+    nouveaux.map((s) => {
+      const maCle = cleCroisement(s.match.client.clientNom);
+      const monCompte = compteParCle.get(maCle) ?? 0;
+      return [
         s.id,
-        ressemblancesClient(
-          s.match.client.clientNom,
-          nomsNouveauxDuLot.map((nom) => ({ id: nom, nom, dossiers: [] })),
-        ).map((r) => r.nom),
-      ]),
+        ressemblancesClient(s.match.client.clientNom, tousLesNoms)
+          .filter((r) => (compteParCle.get(r.clientId) ?? 0) >= monCompte)
+          .map((r) => r.nom),
+      ];
+    }),
   );
 
   const toutesVersables = saisies.length > 0 && saisies.every((s) => versable(controles.get(s.id)!));
