@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { canCreateClients } from "@/lib/auth/permissions";
 import { prisma } from "@/lib/db";
 import { extractPastInvoice } from "@/lib/ai/extract-past-invoice";
+import { capaciteIAAutorisee } from "@/lib/ai/politique-donnees-client";
 import { hashProofFile } from "@/lib/services/finance/proof-dedup";
 import { matchFacturePassee } from "@/lib/services/reprise-historique/matcher";
 import { loadClientsCandidatsReprise } from "@/lib/services/reprise-historique/candidats";
@@ -76,6 +77,15 @@ export async function POST(request: Request) {
         duplicate: { importeLe: dejaImporte.createdAt.toISOString().slice(0, 10) },
       },
       { status: 200 },
+    );
+  }
+
+  // Un cabinet peut refuser que ses pièces soient lues par un service externe.
+  // Le dire franchement : ce n'est pas une pièce illisible, c'est un refus.
+  if (!capaciteIAAutorisee("lecture_facture_reprise", data.cabinetId)) {
+    return NextResponse.json(
+      { error: "La lecture automatique des pièces est désactivée pour ce cabinet. Saisissez la facture à la main." },
+      { status: 409 },
     );
   }
 

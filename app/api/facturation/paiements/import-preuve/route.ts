@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { canManageInvoices } from "@/lib/auth/permissions";
 import { extractPaymentProof } from "@/lib/ai/extract-payment-proof";
+import { capaciteIAAutorisee } from "@/lib/ai/politique-donnees-client";
 import { matchPaymentProof } from "@/lib/services/finance/match-payment";
 import { loadPaymentMatchCandidates } from "@/lib/services/finance/payment-match-candidates";
 import { hashProofFile, findDuplicateProofPayment } from "@/lib/services/finance/proof-dedup";
@@ -66,6 +67,16 @@ export async function POST(request: Request) {
 
   const buffer = Buffer.from(await file.arrayBuffer());
   const hash = hashProofFile(buffer);
+
+  // Le cabinet peut refuser que ses pièces soient lues par un service externe.
+  // Un cabinet peut refuser que ses pièces soient lues par un service externe.
+  // Le dire franchement : ce n'est pas une pièce illisible, c'est un refus.
+  if (!capaciteIAAutorisee("lecture_preuve_paiement", data.cabinetId)) {
+    return NextResponse.json(
+      { error: "La lecture automatique des pièces est désactivée pour ce cabinet. Saisissez le paiement à la main." },
+      { status: 409 },
+    );
+  }
 
   const extraction = await extractPaymentProof({ buffer, mimeType: file.type });
   if (!extraction) {

@@ -2,6 +2,7 @@ import { prisma } from "@/lib/db";
 import { readDocumentObject } from "@/lib/services/document";
 import { extractTextFromPDF } from "@/lib/ai/classify-document";
 import { summarizeDossier, type DossierSummary, type DossierSummaryInput } from "@/lib/ai/summarize-dossier";
+import { capaciteIAAutorisee } from "@/lib/ai/politique-donnees-client";
 
 const MAX_DOCS_TO_READ = 6;
 
@@ -42,6 +43,12 @@ export async function generateDossierSummary(params: {
   cabinetId: string;
 }): Promise<DossierSummary | null> {
   const { dossierId, cabinetId } = params;
+
+  // Ce résumé envoie le dossier ENTIER à un service externe : le texte intégral
+  // de chaque pièce, les notes, les procédures, les jugements. C'est la
+  // transmission la plus lourde de tout SAFE, pour un gain de confort. Coupée
+  // par défaut, comme la classification (décision CEO 2026-09-16).
+  if (!capaciteIAAutorisee("resume_dossier", cabinetId)) return null;
 
   const dossier = await prisma.dossier.findFirst({
     where: { id: dossierId, cabinetId },

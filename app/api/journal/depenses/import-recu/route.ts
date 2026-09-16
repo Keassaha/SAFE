@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { canManageExpenseJournal } from "@/lib/auth/permissions";
 import { prisma } from "@/lib/db";
 import { extractExpenseReceipt } from "@/lib/ai/extract-expense-receipt";
+import { capaciteIAAutorisee } from "@/lib/ai/politique-donnees-client";
 import { normalizeSupplier } from "@/lib/expense-journal/normalize-supplier";
 import { suggestCategoryFromRules } from "@/lib/expense-journal/categorization-rules";
 import { hashProofFile, findDuplicateExpense } from "@/lib/services/finance/proof-dedup";
@@ -72,6 +73,16 @@ export async function POST(request: Request) {
   const duplicate = await findDuplicateExpense(data.cabinetId, { hash });
   if (duplicate) {
     return NextResponse.json({ alreadyImported: true, duplicate });
+  }
+
+  // Le cabinet peut refuser que ses pièces soient lues par un service externe.
+  // Un cabinet peut refuser que ses pièces soient lues par un service externe.
+  // Le dire franchement : ce n'est pas une pièce illisible, c'est un refus.
+  if (!capaciteIAAutorisee("lecture_recu_depense", data.cabinetId)) {
+    return NextResponse.json(
+      { error: "La lecture automatique des pièces est désactivée pour ce cabinet. Saisissez la dépense à la main." },
+      { status: 409 },
+    );
   }
 
   const extraction = await extractExpenseReceipt({ buffer, mimeType: file.type });
