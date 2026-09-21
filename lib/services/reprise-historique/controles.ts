@@ -109,12 +109,20 @@ export function controlerFacture(
 
   // ── Ce sans quoi on n'écrit pas ───────────────────────────────────────────
   if (extraction.montantTotal === null) {
-    bloquants.push("Le montant total n'a pas été lu. Sans lui, la facture ne veut rien dire.");
+    bloquants.push(
+      facture.sansPiece
+        ? "Indiquez le montant total. Sans lui, la facture ne veut rien dire."
+        : "Le montant total n'a pas été lu. Sans lui, la facture ne veut rien dire.",
+    );
   } else if (extraction.montantTotal <= 0) {
     bloquants.push("Le montant total lu est nul ou négatif : un chiffre a été mal lu.");
   }
   if (!extraction.dateEmission) {
-    bloquants.push("La date d'émission n'a pas été lue. Indiquez-la pour ranger la facture.");
+    bloquants.push(
+      facture.sansPiece
+        ? "Indiquez la date d'émission, pour ranger la facture dans la chronologie."
+        : "La date d'émission n'a pas été lue. Indiquez-la pour ranger la facture.",
+    );
   } else {
     // Une reprise regarde le passé. Une date à venir, ou d'avant l'informatique
     // de bureau, est une année mal lue, pas une facture exotique.
@@ -133,7 +141,9 @@ export function controlerFacture(
   }
   if (match.client.statut === "nouveau" && match.client.clientNom === NOM_ILLISIBLE) {
     bloquants.push(
-      "Le nom du client n'a pas été lu. Verser créerait une fiche sans nom : corrigez-le d'abord.",
+      facture.sansPiece
+        ? "Indiquez le nom du client. Verser créerait une fiche sans nom."
+        : "Le nom du client n'a pas été lu. Verser créerait une fiche sans nom : corrigez-le d'abord.",
     );
   }
 
@@ -222,19 +232,30 @@ export function controlerFacture(
         : `${lignesSansMontant} lignes n'ont pas de montant lisible : elles ne seront pas reprises au détail.`,
     );
   }
-  if (extraction.lignes.length === 0) {
+  // Une facture tapée sans pièce n'a rien été « lu » : les avertissements qui
+  // renvoient au papier n'ont pas d'objet, et renvoyer un cabinet relire une
+  // pièce qu'il n'a pas, c'est lui demander l'impossible.
+  const lue = !facture.sansPiece;
+  if (lue && extraction.lignes.length === 0) {
     avertissements.push("Aucune ligne de détail n'a été lue : seul le total sera repris.");
   }
-  if (extraction.champsIllisibles.length > 0) {
+  if (lue && extraction.champsIllisibles.length > 0) {
     avertissements.push(
       `À vérifier sur la facture : ${extraction.champsIllisibles.map(enFrancais).join(", ")}.`,
     );
   }
-  if (extraction.confianceOcr === "basse") {
+  if (lue && extraction.confianceOcr === "basse") {
     avertissements.push("La facture se lit mal : relisez les montants avant de verser.");
   }
   if (!extraction.numeroFacture) {
-    avertissements.push("Le numéro de facture n'a pas été lu : SAFE lui en donnera un.");
+    avertissements.push(
+      lue
+        ? "Le numéro de facture n'a pas été lu : SAFE lui en donnera un."
+        : "Sans numéro de facture, SAFE lui en donnera un.",
+    );
+  }
+  if (!lue && extraction.lignes.length === 0) {
+    avertissements.push("Aucune ligne de détail : seul le total sera repris.");
   }
   if (match.client.statut === "nouveau" && ressembleAUnEnTeteDeCabinet(match.client.clientNom)) {
     // Mesuré le 2026-09-16 : sur une facture à papier à lettre, la lecture a

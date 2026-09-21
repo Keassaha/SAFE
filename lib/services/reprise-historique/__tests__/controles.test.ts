@@ -283,3 +283,41 @@ describe("une facture bien lue ne dit rien", () => {
     expect(c.avertissements).toEqual([]);
   });
 });
+
+describe("une facture tapée sans pièce", () => {
+  /** Même facture, mais déclarée sans aucun scan à l'appui. */
+  const sansPiece = (extraction: Partial<PastInvoiceExtraction> = {}): FactureRepriseSaisie => ({
+    ...facture(extraction),
+    sansPiece: true,
+  });
+
+  it("ne renvoie pas relire un papier qui n'existe pas", () => {
+    const c = controlerFacture(sansPiece({ confianceOcr: "basse" }), {});
+    expect(c.avertissements).not.toContain("La facture se lit mal : relisez les montants avant de verser.");
+  });
+
+  it("ne parle pas de champs « illisibles » sur une saisie volontaire", () => {
+    const c = controlerFacture(sansPiece({ champsIllisibles: ["montantTotal"] }), {});
+    expect(c.avertissements.some((a) => a.includes("À vérifier sur la facture"))).toBe(false);
+  });
+
+  it("dit quand même que SAFE donnera un numéro, sans prétendre l'avoir lu", () => {
+    const c = controlerFacture(sansPiece({ numeroFacture: null }), {});
+    expect(c.avertissements).toContain("Sans numéro de facture, SAFE lui en donnera un.");
+    expect(c.avertissements).not.toContain("Le numéro de facture n'a pas été lu : SAFE lui en donnera un.");
+  });
+
+  it("signale l'absence de détail sans invoquer une lecture", () => {
+    const c = controlerFacture(sansPiece({ lignes: [], montantTotal: 528 }), {});
+    expect(c.avertissements).toContain("Aucune ligne de détail : seul le total sera repris.");
+  });
+
+  it("garde tous les blocages de fond : un total manquant reste un blocage", () => {
+    const c = controlerFacture(sansPiece({ montantTotal: null }), {});
+    expect(versable(c)).toBe(false);
+  });
+
+  it("se verse quand elle est complète, comme une facture lue", () => {
+    expect(versable(controlerFacture(sansPiece(), {}))).toBe(true);
+  });
+});

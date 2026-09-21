@@ -804,7 +804,11 @@ function CarteFacture({
 
         <div className="shrink-0 text-right">
           <p className="mb-2 text-[15px] font-medium text-si-ink">
-            {extraction.montantTotal !== null ? devise.format(extraction.montantTotal) : "montant illisible"}
+            {extraction.montantTotal !== null
+              ? devise.format(extraction.montantTotal)
+              : entree.sansPiece
+                ? "montant à saisir"
+                : "montant illisible"}
           </p>
           <SelecteurStatut
             valeur={facture.statutPaiement}
@@ -868,8 +872,9 @@ function CarteFacture({
               est un calque, tracé au versement. */}
           <div>
             <p className="mb-2 text-[12px] text-si-muted">
-              Ce que SAFE a lu sur la pièce. Corrigez ce qui ne correspond pas au papier :
-              c&apos;est le papier qui fait foi.
+              {entree.sansPiece
+                ? "Saisissez la facture telle qu'elle a été émise : c'est le papier qui fait foi, même absent."
+                : "Ce que SAFE a lu sur la pièce. Corrigez ce qui ne correspond pas au papier : c'est le papier qui fait foi."}
             </p>
             <div className="grid gap-3 sm:grid-cols-3">
               <ChampTexte
@@ -928,7 +933,9 @@ function CarteFacture({
                 />
               ))}
               {extraction.lignes.length === 0 && (
-                <p className="text-[13px] text-si-muted">Aucune ligne lue sur cette pièce.</p>
+                <p className="text-[13px] text-si-muted">
+                  {entree.sansPiece ? "Aucune ligne saisie." : "Aucune ligne lue sur cette pièce."}
+                </p>
               )}
             </div>
             <button
