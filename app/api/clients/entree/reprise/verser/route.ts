@@ -21,8 +21,8 @@ const EXT: Record<string, string> = {
 };
 
 interface FactureRepriseEntree extends FactureRepriseSaisie {
-  hash: string;
-  mimeType: string;
+  hash?: string;
+  mimeType?: string;
   montantPaye: number | null;
 }
 
@@ -31,6 +31,18 @@ interface FactureResultatApi {
   ok: boolean;
   erreur?: string;
   invoiceId?: string;
+}
+
+/**
+ * Nos refus à nous sont écrits pour être lus : on les montre tels quels. Tout
+ * le reste est une panne technique, et un cabinet n'a rien à faire d'une trace
+ * Prisma de deux écrans. Le détail va au journal du serveur, l'écran dit ce qui
+ * compte : cette facture n'est pas passée, et rien n'a été écrit pour elle.
+ */
+function messageDErreur(err: unknown, fichierNom: string): string {
+  if (err instanceof VerserFactureError) return err.message;
+  console.error(`Versement de « ${fichierNom} » échoué :`, err);
+  return "Une panne technique a empêché d'écrire cette facture. Rien n'a été enregistré pour elle, vous pouvez la redéposer. Le détail est dans le journal du serveur.";
 }
 
 function getSessionData() {
@@ -82,6 +94,24 @@ export async function POST(request: Request) {
 
   for (const itemBrut of lot) {
     const item = { ...itemBrut, ...memoire.appliquer(itemBrut) };
+    // Une facture tapée sans aucun scan : pas de fichier attendu, pas
+    // d'empreinte à vérifier. Elle sera marquée « sans pièce ».
+    if (item.sansPiece) {
+      try {
+        const ecrit = await verserFactureReprise({
+          cabinetId: data.cabinetId,
+          userId: data.userId,
+          facture: item,
+          montantPaye: item.montantPaye,
+        });
+        memoire.retenir(item, ecrit);
+        resultats.push({ id: item.id, ok: true, invoiceId: ecrit.invoiceId });
+      } catch (err) {
+        resultats.push({ id: item.id, ok: false, erreur: messageDErreur(err, item.fichierNom) });
+      }
+      continue;
+    }
+
     const file = form.get(`file_${item.id}`);
     if (!(file instanceof File)) {
       resultats.push({ id: item.id, ok: false, erreur: "Fichier source manquant." });
@@ -90,7 +120,7 @@ export async function POST(request: Request) {
 
     const buffer = Buffer.from(await file.arrayBuffer());
     const hashVerifie = hashProofFile(buffer);
-    if (hashVerifie !== item.hash) {
+    if (!item.hash || !item.mimeType || hashVerifie !== item.hash) {
       resultats.push({
         id: item.id,
         ok: false,
@@ -139,22 +169,7 @@ export async function POST(request: Request) {
 
       resultats.push({ id: item.id, ok: true, invoiceId: ecrit.invoiceId });
     } catch (err) {
-      // Nos refus à nous sont écrits pour être lus : on les montre tels quels.
-      // Tout le reste est une panne technique, et un cabinet n'a rien à faire
-      // d'une trace Prisma de deux écrans. Le détail va au journal du serveur,
-      // l'écran dit ce qui compte : cette facture n'est pas passée, et rien
-      // n'a été écrit pour elle.
-      if (err instanceof VerserFactureError) {
-        resultats.push({ id: item.id, ok: false, erreur: err.message });
-      } else {
-        console.error(`Versement de « ${item.fichierNom} » échoué :`, err);
-        resultats.push({
-          id: item.id,
-          ok: false,
-          erreur:
-            "Une panne technique a empêché d'écrire cette facture. Rien n'a été enregistré pour elle, vous pouvez la redéposer. Le détail est dans le journal du serveur.",
-        });
-      }
+      resultats.push({ id: item.id, ok: false, erreur: messageDErreur(err, item.fichierNom) });
     }
   }
 

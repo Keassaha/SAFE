@@ -13,7 +13,7 @@ import {
 import { controlerFacture, versable, type ControleFacture } from "@/lib/services/reprise-historique/controles";
 import { ressemblancesClient, type MatchFacturePassee } from "@/lib/services/reprise-historique/matcher";
 import { cleCroisement } from "@/lib/clients/croisement-conflits";
-import type { PastInvoiceExtraction } from "@/lib/ai/extract-past-invoice";
+import type { PastInvoiceExtraction, PastInvoiceLigneExtraction } from "@/lib/ai/extract-past-invoice";
 
 /**
  * Reprise de l'historique de facturation.
@@ -36,25 +36,77 @@ type StatutEntree = "analyse" | "erreur" | "doublon" | "en_cours";
 
 interface EntreeFacture {
   id: string;
-  file: File;
+  /** Absent pour une facture tapée sans aucun scan. */
+  file?: File;
   statut: StatutEntree;
   erreur?: string;
   duplicateImporteLe?: string;
   fichierNom: string;
   hash?: string;
   mimeType?: string;
+  /** CE QUE LA LECTURE A PRODUIT. Jamais modifié : c'est la pièce à conviction. */
   extraction?: PastInvoiceExtraction;
   match?: MatchFacturePassee;
+  /**
+   * CE QUE L'HUMAIN A REPRIS PAR-DESSUS. Tenu à part de la lecture pour qu'on
+   * puisse toujours dire, devant une inspection, ce que la machine a lu et ce
+   * qu'un humain a déclaré. Le versement fusionne les deux, dans cet ordre.
+   */
+  corrections: CorrectionsLecture;
   statutPaiement: StatutPaiementReprise | null;
   datePaiement: string;
   montantPaye: string;
-  /** Correction manuelle si l'IA n'a pas pu lire la date d'émission. */
-  dateEmissionCorrigee: string;
   /** Client existant choisi à la main parmi les ressemblances proposées. */
   clientChoisi?: { clientId: string; nom: string };
-  /** Nom de client saisi à la main quand la lecture n'a pas su le nommer. */
-  clientNomSaisi?: string;
+  /** Facture tapée sans aucune pièce jointe. */
+  sansPiece?: boolean;
+  /** La lecture n'a rien donné : la carte est vide, à remplir à la main. */
+  lectureEchouee?: boolean;
+  raisonLecture?: string;
   expanded: boolean;
+}
+
+/** Les champs de la lecture qu'un humain peut reprendre à la main. */
+type CorrectionsLecture = Partial<
+  Pick<
+    PastInvoiceExtraction,
+    "numeroFacture" | "clientNom" | "dossierIntitule" | "dateEmission" | "montantTotal" | "tps" | "tvq" | "lignes"
+  >
+>;
+
+/** Noms français des champs corrigés, pour la trace laissée au versement. */
+const NOM_DU_CHAMP: Record<keyof CorrectionsLecture, string> = {
+  numeroFacture: "le numéro de facture",
+  clientNom: "le nom du client",
+  dossierIntitule: "l'intitulé du dossier",
+  dateEmission: "la date d'émission",
+  montantTotal: "le montant total",
+  tps: "la TPS",
+  tvq: "la TVQ",
+  lignes: "le détail des lignes",
+};
+
+/** Une lecture qui n'a rien donné : la carte s'affiche, tous les champs à remplir. */
+function extractionVide(): PastInvoiceExtraction {
+  return {
+    numeroFacture: null,
+    clientNom: null,
+    dossierIntitule: null,
+    dateEmission: null,
+    montantTotal: null,
+    tps: null,
+    tvq: null,
+    lignes: [],
+    confianceOcr: "basse",
+    champsIllisibles: [],
+  };
+}
+
+function matchVide(): MatchFacturePassee {
+  return {
+    client: { statut: "nouveau", clientId: null, clientNom: "" },
+    dossier: { statut: "nouveau", dossierId: null, dossierIntitule: "" },
+  };
 }
 
 function idUnique(): string {
@@ -63,10 +115,26 @@ function idUnique(): string {
     : `f${Date.now()}${Math.random().toString(36).slice(2)}`;
 }
 
+/** Les corrections réellement posées, dans l'ordre des champs de la carte. */
+function champsCorriges(c: CorrectionsLecture): string[] {
+  return (Object.keys(NOM_DU_CHAMP) as (keyof CorrectionsLecture)[])
+    .filter((k) => c[k] !== undefined)
+    .map((k) => NOM_DU_CHAMP[k]);
+}
+
 function versSaisie(e: EntreeFacture): FactureRepriseSaisie | null {
   if (e.statut !== "analyse" || !e.extraction || !e.match) return null;
-  const dateEmission = e.extraction.dateEmission ?? (e.dateEmissionCorrigee || null);
-  // Un client choisi à la main dans les ressemblances l'emporte sur la lecture.
+
+  // La lecture d'abord, les corrections par-dessus. `undefined` ne recouvre
+  // rien : seul un champ réellement repris à la main écrase ce qui a été lu.
+  const extraction: PastInvoiceExtraction = { ...e.extraction };
+  for (const [cle, valeur] of Object.entries(e.corrections)) {
+    if (valeur !== undefined) (extraction as unknown as Record<string, unknown>)[cle] = valeur;
+  }
+
+  // Un client choisi à la main dans les ressemblances l'emporte sur tout le
+  // reste : c'est une fiche existante désignée, pas un nom à interpréter.
+  const nomCorrige = e.corrections.clientNom?.trim();
   const match = e.clientChoisi
     ? {
         ...e.match,
@@ -76,19 +144,19 @@ function versSaisie(e: EntreeFacture): FactureRepriseSaisie | null {
           clientNom: e.clientChoisi.nom,
         },
       }
-    : e.clientNomSaisi?.trim()
-      ? {
-          ...e.match,
-          client: { ...e.match.client, clientNom: e.clientNomSaisi.trim() },
-        }
+    : nomCorrige
+      ? { ...e.match, client: { ...e.match.client, clientNom: nomCorrige } }
       : e.match;
+
   return {
     id: e.id,
     fichierNom: e.fichierNom,
-    extraction: { ...e.extraction, dateEmission },
+    extraction,
     match,
     statutPaiement: e.statutPaiement,
     datePaiement: e.datePaiement || null,
+    champsCorriges: champsCorriges(e.corrections),
+    sansPiece: e.sansPiece,
   };
 }
 
@@ -125,12 +193,13 @@ export function ReprisePage() {
       statutPaiement: null,
       datePaiement: "",
       montantPaye: "",
-      dateEmissionCorrigee: "",
+      corrections: {},
       expanded: false,
     }));
     setEntrees((prev) => [...prev, ...nouvelles]);
 
     for (const entree of nouvelles) {
+      if (!entree.file) continue;
       const fd = new FormData();
       fd.append("file", entree.file);
       try {
@@ -160,8 +229,13 @@ export function ReprisePage() {
                   statut: "analyse",
                   hash: data.hash,
                   mimeType: data.mimeType,
-                  extraction: data.extraction,
-                  match: data.match,
+                  // Lecture muette : la carte s'ouvre vide, dépliée, plutôt que
+                  // de sortir la pièce du lot.
+                  lectureEchouee: Boolean(data.lectureEchouee),
+                  raisonLecture: data.raisonLecture,
+                  extraction: data.extraction ?? extractionVide(),
+                  match: data.match ?? matchVide(),
+                  expanded: data.lectureEchouee ? true : e.expanded,
                 }
               : e,
           ),
@@ -176,6 +250,38 @@ export function ReprisePage() {
 
   function mettreAJour(id: string, patch: Partial<EntreeFacture>) {
     setEntrees((prev) => prev.map((e) => (e.id === id ? { ...e, ...patch } : e)));
+  }
+
+  /**
+   * Une facture dont le cabinet n'a aucun scan (décision CEO 2026-09-21). Elle
+   * entre dans le lot comme les autres, à ceci près qu'elle est marquée « sans
+   * pièce » : sa carte le dit, et la facture versée le porte. L'anti-doublon par
+   * empreinte ne peut pas jouer sur elle, c'est la règle numéro + client qui tient.
+   */
+  function ajouterSansPiece() {
+    setEntrees((prev) => [
+      ...prev,
+      {
+        id: idUnique(),
+        statut: "analyse",
+        fichierNom: "Saisie sans pièce",
+        sansPiece: true,
+        extraction: extractionVide(),
+        match: matchVide(),
+        corrections: {},
+        statutPaiement: null,
+        datePaiement: "",
+        montantPaye: "",
+        expanded: true,
+      },
+    ]);
+  }
+
+  /** Pose une correction par-dessus la lecture, sans jamais toucher à celle-ci. */
+  function corriger(id: string, patch: CorrectionsLecture) {
+    setEntrees((prev) =>
+      prev.map((e) => (e.id === id ? { ...e, corrections: { ...e.corrections, ...patch } } : e)),
+    );
   }
 
   const parId = new Map(entrees.map((e) => [e.id, e]));
@@ -249,7 +355,7 @@ export function ReprisePage() {
     fd.append("lot", JSON.stringify(lotEnvoye));
     for (const s of saisies) {
       const entree = parId.get(s.id);
-      if (entree) fd.append(`file_${s.id}`, entree.file);
+      if (entree?.file) fd.append(`file_${s.id}`, entree.file);
     }
     try {
       const res = await fetch("/api/clients/entree/reprise/verser", { method: "POST", body: fd });
@@ -307,10 +413,19 @@ export function ReprisePage() {
               ev.target.value = "";
             }}
           />
-          <Button variant="secondary" onClick={() => fileInputRef.current?.click()}>
-            <Upload className="mr-2 inline-block h-4 w-4" aria-hidden />
-            Ajouter des fichiers
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="secondary" onClick={() => fileInputRef.current?.click()}>
+              <Upload className="mr-2 inline-block h-4 w-4" aria-hidden />
+              Ajouter des fichiers
+            </Button>
+            <button
+              type="button"
+              onClick={ajouterSansPiece}
+              className="text-[13px] text-si-muted underline hover:text-si-ink"
+            >
+              Saisir une facture sans pièce
+            </button>
+          </div>
         </div>
       </div>
 
@@ -362,7 +477,7 @@ export function ReprisePage() {
                   ressemblancesDuLot={ressemblancesDansLeLot.get(s.id) ?? []}
                   // La carte entière dès le début : tout ce qui cloche se voit
                   // d'un coup, au lieu d'apparaître une fois la date remplie.
-                  onDater={(valeur) => mettreAJour(s.id, { dateEmissionCorrigee: valeur })}
+                  onCorriger={(patch) => corriger(s.id, patch)}
                   onChange={(patch) => mettreAJour(s.id, patch)}
                 />
               );
@@ -391,6 +506,7 @@ export function ReprisePage() {
                   controle={controles.get(facture.id)}
                   clientsDuCabinet={clientsDuCabinet}
                   ressemblancesDuLot={ressemblancesDansLeLot.get(facture.id) ?? []}
+                  onCorriger={(patch) => corriger(facture.id, patch)}
                   onChange={(patch) => mettreAJour(facture.id, patch)}
                 />
               );
@@ -511,7 +627,7 @@ function CarteFacture({
   controle,
   clientsDuCabinet,
   ressemblancesDuLot,
-  onDater,
+  onCorriger,
   onChange,
 }: {
   facture: FactureRepriseSaisie;
@@ -520,8 +636,8 @@ function CarteFacture({
   clientsDuCabinet: { id: string; nom: string }[];
   /** Noms d'autres factures du MÊME dépôt qui ressemblent à celui-ci. */
   ressemblancesDuLot: string[];
-  /** Fourni quand la date d'émission n'a pas été lue : la carte la demande. */
-  onDater?: (valeur: string) => void;
+  /** Pose une correction par-dessus la lecture. */
+  onCorriger: (patch: CorrectionsLecture) => void;
   onChange: (patch: Partial<EntreeFacture>) => void;
 }) {
   const { extraction, match } = facture;
@@ -534,15 +650,28 @@ function CarteFacture({
         bloquee ? "border-si-danger/40" : "border-si-line"
       }`}
     >
+      {/* Une carte qui ne vient pas d'une lecture réussie le dit d'entrée : le
+          cabinet doit savoir que ces chiffres sont les siens, pas ceux de SAFE. */}
+      {(entree.lectureEchouee || entree.sansPiece) && (
+        <div className="mb-3 flex items-start gap-1.5 rounded-lg border border-si-amber/40 bg-si-amber/[0.06] px-3 py-2 text-[13px] text-si-amber-ink">
+          <FileWarning className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden />
+          <span>
+            {entree.sansPiece
+              ? "Facture saisie sans pièce justificative. Elle sera versée avec cette mention."
+              : (entree.raisonLecture ?? "SAFE n'a rien pu lire sur cette pièce.")}
+          </span>
+        </div>
+      )}
+
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
-          {onDater ? (
+          {!entree.extraction?.dateEmission ? (
             <div className="flex items-center gap-2">
               <span className="font-mono text-[12px] text-si-amber-ink">date à saisir</span>
               <input
                 type="date"
-                value={entree.dateEmissionCorrigee}
-                onChange={(ev) => onDater(ev.target.value)}
+                value={entree.corrections.dateEmission ?? ""}
+                onChange={(ev) => onCorriger({ dateEmission: ev.target.value || null })}
                 className="h-7 rounded-md border border-si-line bg-si-surface px-2 text-[12px]"
               />
               {extraction.numeroFacture && (
@@ -591,7 +720,7 @@ function CarteFacture({
                 <button
                   key={nom}
                   type="button"
-                  onClick={() => onChange({ clientNomSaisi: nom })}
+                  onClick={() => onCorriger({ clientNom: nom })}
                   className="rounded-md border border-si-line bg-si-surface2 px-2 py-0.5 font-medium text-si-ink hover:bg-si-line2"
                 >
                   Renommer celle-ci en « {nom} »
@@ -621,16 +750,13 @@ function CarteFacture({
               </span>
               <input
                 list={`clients-${facture.id}`}
-                value={entree.clientNomSaisi ?? entree.extraction?.clientNom ?? ""}
+                value={entree.corrections.clientNom ?? entree.extraction?.clientNom ?? ""}
                 placeholder="Nom du client"
                 onChange={(ev) => {
                   const valeur = ev.target.value;
                   const existant = clientsDuCabinet.find((c) => c.nom === valeur);
-                  onChange(
-                    existant
-                      ? { clientChoisi: { clientId: existant.id, nom: existant.nom }, clientNomSaisi: valeur }
-                      : { clientNomSaisi: valeur },
-                  );
+                  onCorriger({ clientNom: valeur });
+                  if (existant) onChange({ clientChoisi: { clientId: existant.id, nom: existant.nom } });
                 }}
                 className="h-8 w-56 rounded-md border border-si-line bg-si-canvas px-2 text-[13px]"
               />
@@ -714,30 +840,229 @@ function CarteFacture({
       )}
 
       {entree.expanded && (
-        <div className="mt-3 border-t border-si-line pt-3">
-          <p className="mb-2 text-[12px] text-si-muted">
-            Les heures reprises sont rangées par date de travail et marquées facturées : elles ne
-            repartiront pas en facturation. Les débours rejoignent la fiche de débours du dossier.
-          </p>
-          <div className="space-y-1">
-            {extraction.lignes.map((ligne, i) => (
-              <div key={i} className="flex items-center justify-between text-[13px]">
-                <span className="text-si-subtle">{ligne.date ?? "—"}</span>
-                <span className="flex-1 px-3 text-si-ink">
-                  {ligne.description}
-                  {ligne.nature === "debours" && (
-                    <span className="ml-2 text-[12px] text-si-muted">débours</span>
-                  )}
-                </span>
-                {ligne.heures !== null && <span className="text-si-muted">{heureFmt(ligne.heures)}</span>}
-                <span className="ml-3 w-20 text-right text-si-ink">
-                  {ligne.montant !== null ? devise.format(ligne.montant) : "?"}
-                </span>
-              </div>
-            ))}
+        <div className="mt-3 space-y-4 border-t border-si-line pt-3">
+          {/* ── Ce que la lecture a produit, et qu'on peut reprendre ──────────
+              Tant que ces champs étaient en lecture seule, SAFE disait « à
+              vérifier sur la facture » sans donner le moyen de lever le doute.
+              La lecture d'origine reste intacte dessous : ce qu'on tape ici
+              est un calque, tracé au versement. */}
+          <div>
+            <p className="mb-2 text-[12px] text-si-muted">
+              Ce que SAFE a lu sur la pièce. Corrigez ce qui ne correspond pas au papier :
+              c&apos;est le papier qui fait foi.
+            </p>
+            <div className="grid gap-3 sm:grid-cols-3">
+              <ChampTexte
+                libelle="Numéro de facture"
+                valeur={extraction.numeroFacture ?? ""}
+                corrige={entree.corrections.numeroFacture !== undefined}
+                onChange={(v) => onCorriger({ numeroFacture: v.trim() || null })}
+              />
+              <ChampTexte
+                libelle="Dossier"
+                valeur={extraction.dossierIntitule ?? ""}
+                corrige={entree.corrections.dossierIntitule !== undefined}
+                className="sm:col-span-2"
+                onChange={(v) => onCorriger({ dossierIntitule: v.trim() || null })}
+              />
+              <ChampMontant
+                libelle="Total de la facture"
+                valeur={extraction.montantTotal}
+                corrige={entree.corrections.montantTotal !== undefined}
+                onChange={(v) => onCorriger({ montantTotal: v })}
+              />
+              <ChampMontant
+                libelle="TPS"
+                valeur={extraction.tps}
+                corrige={entree.corrections.tps !== undefined}
+                onChange={(v) => onCorriger({ tps: v })}
+              />
+              <ChampMontant
+                libelle="TVQ"
+                valeur={extraction.tvq}
+                corrige={entree.corrections.tvq !== undefined}
+                onChange={(v) => onCorriger({ tvq: v })}
+              />
+            </div>
+          </div>
+
+          {/* ── Le détail ───────────────────────────────────────────────────── */}
+          <div>
+            <p className="mb-2 text-[12px] text-si-muted">
+              Les heures reprises sont rangées par date de travail et marquées facturées : elles ne
+              repartiront pas en facturation. Les débours rejoignent la fiche de débours du dossier.
+            </p>
+            <div className="space-y-1.5">
+              {extraction.lignes.map((ligne, i) => (
+                <LigneCorrigeable
+                  key={i}
+                  ligne={ligne}
+                  onChange={(patch) =>
+                    onCorriger({
+                      lignes: extraction.lignes.map((l, j) => (j === i ? { ...l, ...patch } : l)),
+                    })
+                  }
+                  onRetirer={() =>
+                    onCorriger({ lignes: extraction.lignes.filter((_, j) => j !== i) })
+                  }
+                />
+              ))}
+              {extraction.lignes.length === 0 && (
+                <p className="text-[13px] text-si-muted">Aucune ligne lue sur cette pièce.</p>
+              )}
+            </div>
+            <button
+              type="button"
+              onClick={() =>
+                onCorriger({
+                  lignes: [
+                    ...extraction.lignes,
+                    { description: "", date: null, montant: null, heures: null, tauxHoraire: null, nature: "honoraire" },
+                  ],
+                })
+              }
+              className="mt-2 text-[13px] text-si-muted underline hover:text-si-ink"
+            >
+              Ajouter une ligne
+            </button>
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+/* ── Les champs de correction ─────────────────────────────────────────────
+   Un champ repris à la main se voit : le liseré ambre dit « ce chiffre vient
+   de vous, pas de la lecture ». Sans ce signe, on ne saurait plus, en
+   relisant la carte, ce qui a été lu et ce qui a été déclaré. */
+
+const CHAMP =
+  "h-8 w-full rounded-md border bg-si-canvas px-2 text-[13px] text-si-ink placeholder:text-si-subtle";
+
+function ChampTexte({
+  libelle,
+  valeur,
+  corrige,
+  className = "",
+  onChange,
+}: {
+  libelle: string;
+  valeur: string;
+  corrige: boolean;
+  className?: string;
+  onChange: (v: string) => void;
+}) {
+  return (
+    <label className={`block ${className}`}>
+      <span className="mb-1 block text-[12px] text-si-muted">{libelle}</span>
+      <input
+        type="text"
+        value={valeur}
+        placeholder="Non lu"
+        onChange={(ev) => onChange(ev.target.value)}
+        className={`${CHAMP} ${corrige ? "border-si-amber/60" : "border-si-line"}`}
+      />
+    </label>
+  );
+}
+
+function ChampMontant({
+  libelle,
+  valeur,
+  corrige,
+  onChange,
+}: {
+  libelle: string;
+  valeur: number | null;
+  corrige: boolean;
+  onChange: (v: number | null) => void;
+}) {
+  return (
+    <label className="block">
+      <span className="mb-1 block text-[12px] text-si-muted">{libelle}</span>
+      <input
+        type="text"
+        inputMode="decimal"
+        value={valeur === null ? "" : String(valeur)}
+        placeholder="Non lu"
+        onChange={(ev) => onChange(versNombre(ev.target.value))}
+        className={`${CHAMP} text-right tabular-nums ${corrige ? "border-si-amber/60" : "border-si-line"}`}
+      />
+    </label>
+  );
+}
+
+/**
+ * Un montant tapé à la main. La virgule décimale est la norme au Québec, et
+ * les espaces des milliers se collent au copier-coller : on accepte les deux
+ * plutôt que de renvoyer l'utilisateur à sa saisie.
+ */
+function versNombre(saisi: string): number | null {
+  const propre = saisi.replace(/[\s $]/g, "").replace(",", ".");
+  if (propre === "") return null;
+  const n = Number(propre);
+  return Number.isFinite(n) ? n : null;
+}
+
+function LigneCorrigeable({
+  ligne,
+  onChange,
+  onRetirer,
+}: {
+  ligne: PastInvoiceLigneExtraction;
+  onChange: (patch: Partial<PastInvoiceLigneExtraction>) => void;
+  onRetirer: () => void;
+}) {
+  return (
+    <div className="flex items-center gap-2">
+      <input
+        type="date"
+        value={ligne.date ?? ""}
+        onChange={(ev) => onChange({ date: ev.target.value || null })}
+        className={`${CHAMP} w-[130px] border-si-line`}
+      />
+      <input
+        type="text"
+        value={ligne.description}
+        placeholder="Description"
+        onChange={(ev) => onChange({ description: ev.target.value })}
+        className={`${CHAMP} flex-1 border-si-line`}
+      />
+      <input
+        type="text"
+        inputMode="decimal"
+        value={ligne.heures === null ? "" : String(ligne.heures)}
+        placeholder="h"
+        onChange={(ev) => onChange({ heures: versNombre(ev.target.value) })}
+        className={`${CHAMP} w-[64px] border-si-line text-right tabular-nums`}
+      />
+      <input
+        type="text"
+        inputMode="decimal"
+        value={ligne.montant === null ? "" : String(ligne.montant)}
+        placeholder="Montant"
+        onChange={(ev) => onChange({ montant: versNombre(ev.target.value) })}
+        className={`${CHAMP} w-[90px] border-si-line text-right tabular-nums`}
+      />
+      {/* Honoraire ou débours : ce choix décide si la ligne devient une heure
+          facturée ou un débours du dossier. Il se corrige ici. */}
+      <select
+        value={ligne.nature}
+        onChange={(ev) => onChange({ nature: ev.target.value as PastInvoiceLigneExtraction["nature"] })}
+        className={`${CHAMP} w-[104px] border-si-line`}
+      >
+        <option value="honoraire">Honoraire</option>
+        <option value="debours">Débours</option>
+      </select>
+      <button
+        type="button"
+        onClick={onRetirer}
+        aria-label="Retirer cette ligne"
+        className="px-1 text-[16px] leading-none text-si-subtle hover:text-si-danger-ink"
+      >
+        ×
+      </button>
     </div>
   );
 }

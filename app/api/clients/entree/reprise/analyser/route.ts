@@ -102,20 +102,34 @@ export async function POST(request: Request) {
     );
   }
 
+  // ── Quand la lecture ne donne rien ──────────────────────────────────────
+  // La pièce RESTE dans le lot, avec son empreinte, et sa carte s'affiche vide
+  // à remplir (décision CEO 2026-09-21). Avant, elle devenait un bandeau rouge
+  // et sortait du dépôt : mur complet pour le cabinet, qui n'avait plus aucun
+  // moyen de reprendre cette facture-là.
+  const carteVide = (raison: string) =>
+    NextResponse.json({
+      fichierNom: file.name,
+      hash,
+      mimeType: file.type,
+      lectureEchouee: true,
+      raisonLecture: raison,
+      extraction: null,
+      match: null,
+    });
+
   // Un cabinet peut refuser que ses pièces soient lues par un service externe.
   // Le dire franchement : ce n'est pas une pièce illisible, c'est un refus.
   if (!capaciteIAAutorisee("lecture_facture_reprise", data.cabinetId)) {
-    return NextResponse.json(
-      { error: "La lecture automatique des pièces est désactivée pour ce cabinet. Saisissez la facture à la main." },
-      { status: 409 },
+    return carteVide(
+      "La lecture automatique est désactivée pour ce cabinet. Saisissez cette facture à la main.",
     );
   }
 
   const extraction = await extractPastInvoice({ buffer, mimeType: file.type });
   if (!extraction) {
-    return NextResponse.json(
-      { error: "Extraction impossible (fichier illisible ou service indisponible)." },
-      { status: 422 },
+    return carteVide(
+      "SAFE n'a rien pu lire sur cette pièce. Saisissez-la à la main, ou redéposez-en un scan plus net.",
     );
   }
 

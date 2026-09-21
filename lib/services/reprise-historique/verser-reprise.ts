@@ -55,7 +55,12 @@ export interface VerserFactureParams {
   facture: FactureRepriseSaisie;
   /** Requis si `statutPaiement` est "payee" ou "partielle". */
   montantPaye: number | null;
-  piece: PieceSourceReprise;
+  /**
+   * Absente quand le cabinet tape une facture dont il n'a aucun scan (décision
+   * CEO 2026-09-21). La facture est alors marquée « sans pièce » : l'anti-doublon
+   * par empreinte ne peut pas jouer, c'est la règle numéro + client qui tient.
+   */
+  piece?: PieceSourceReprise;
 }
 
 export interface VerserFactureResultat {
@@ -65,7 +70,7 @@ export interface VerserFactureResultat {
   dossierId: string;
   clientCree: boolean;
   dossierCree: boolean;
-  documentId: string;
+  documentId: string | null;
 }
 
 export class VerserFactureError extends Error {
@@ -164,10 +169,12 @@ export async function verserFactureReprise(
     // un second dépôt. C'est ici, dans la transaction qui écrit, que la question
     // doit être reposée. Sans quoi la facture, ses heures, ses débours, son
     // paiement et ses trois écritures au journal repassent une seconde fois.
-    const dejaVerse = await tx.document.findFirst({
-      where: { cabinetId, documentType: piece.documentType, hash: piece.hash },
-      select: { createdAt: true },
-    });
+    const dejaVerse = piece
+      ? await tx.document.findFirst({
+          where: { cabinetId, documentType: piece.documentType, hash: piece.hash },
+          select: { createdAt: true },
+        })
+      : null;
     if (dejaVerse) {
       throw new VerserFactureError(
         facture.id,
@@ -525,23 +532,25 @@ export async function verserFactureReprise(
     // Si cette ligne ne passe pas, la facture ne passe pas non plus : une
     // facture reprise sans empreinte est une facture qu'on peut redéposer
     // indéfiniment.
-    const document = await tx.document.create({
-      data: {
-        cabinetId,
-        uploadedById: userId,
-        clientId,
-        dossierId,
-        nom: piece.nom,
-        mimeType: piece.mimeType,
-        sizeBytes: piece.sizeBytes,
-        storageKey: piece.storageKey,
-        hash: piece.hash,
-        documentType: piece.documentType,
-        aiAssisted: true,
-        dateDocument: piece.dateDocument ?? undefined,
-      },
-      select: { id: true },
-    });
+    const document = piece
+      ? await tx.document.create({
+          data: {
+            cabinetId,
+            uploadedById: userId,
+            clientId,
+            dossierId,
+            nom: piece.nom,
+            mimeType: piece.mimeType,
+            sizeBytes: piece.sizeBytes,
+            storageKey: piece.storageKey,
+            hash: piece.hash,
+            documentType: piece.documentType,
+            aiAssisted: true,
+            dateDocument: piece.dateDocument ?? undefined,
+          },
+          select: { id: true },
+        })
+      : null;
 
     return {
       invoiceId: invoice.id,
@@ -549,17 +558,37 @@ export async function verserFactureReprise(
       dossierId,
       clientCree,
       dossierCree,
-      documentId: document.id,
+      documentId: document?.id ?? null,
     };
   });
 
+  if (resultat.documentId) {
+    await createAuditLog({
+      cabinetId,
+      userId,
+      entityType: "Document",
+      entityId: resultat.documentId,
+      action: "create",
+      metadata: { nom: piece?.nom, clientId: resultat.clientId, dossierId: resultat.dossierId, reprise: true },
+    });
+  }
+
+  // Ce que la lecture a produit et ce qu'un humain a repris par-dessus ne
+  // doivent pas se confondre. Une inspection qui relit cette facture doit
+  // pouvoir dire lequel des deux a fourni chaque chiffre, et si une pièce
+  // existe seulement.
   await createAuditLog({
     cabinetId,
     userId,
-    entityType: "Document",
-    entityId: resultat.documentId,
+    entityType: "Invoice",
+    entityId: resultat.invoiceId,
     action: "create",
-    metadata: { nom: piece.nom, clientId: resultat.clientId, dossierId: resultat.dossierId, reprise: true },
+    metadata: {
+      reprise: true,
+      fichierNom: facture.fichierNom,
+      sansPiece: !piece,
+      champsCorriges: facture.champsCorriges ?? [],
+    },
   });
 
   return { factureId: facture.id, ...resultat };

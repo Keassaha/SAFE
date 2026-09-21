@@ -11,6 +11,13 @@ import type { MatchFacturePassee } from "@/lib/services/reprise-historique/match
 
 export type StatutPaiementReprise = "payee" | "partielle" | "impayee";
 
+/**
+ * Champs que l'humain a repris à la main par-dessus la lecture. Conservés à
+ * part de l'extraction : devant une inspection, il faut pouvoir distinguer ce
+ * que la machine a lu de ce qu'un humain a déclaré.
+ */
+export type ChampsCorriges = string[];
+
 export interface FactureRepriseSaisie {
   /** Identifiant côté écran (nom de fichier ou clé temporaire), pas un id Prisma. */
   id: string;
@@ -21,6 +28,10 @@ export interface FactureRepriseSaisie {
   statutPaiement: StatutPaiementReprise | null;
   /** Date de paiement/réception, requise pour "payee" et "partielle". */
   datePaiement: string | null;
+  /** Champs saisis ou rectifiés à la main par-dessus la lecture. */
+  champsCorriges?: ChampsCorriges;
+  /** Vrai quand la facture est tapée sans aucune pièce jointe. */
+  sansPiece?: boolean;
 }
 
 export interface GroupeMois {
