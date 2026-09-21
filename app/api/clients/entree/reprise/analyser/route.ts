@@ -7,6 +7,7 @@ import { extractPastInvoice } from "@/lib/ai/extract-past-invoice";
 import { capaciteIAAutorisee } from "@/lib/ai/politique-donnees-client";
 import { hashProofFile } from "@/lib/services/finance/proof-dedup";
 import { matchFacturePassee } from "@/lib/services/reprise-historique/matcher";
+import { controlerQualiteImage } from "@/lib/services/reprise-historique/qualite-piece";
 import { cleCroisement } from "@/lib/clients/croisement-conflits";
 import { loadClientsCandidatsReprise } from "@/lib/services/reprise-historique/candidats";
 import type { UserRole } from "@prisma/client";
@@ -118,6 +119,15 @@ export async function POST(request: Request) {
       match: null,
     });
 
+  // ── Ce qu'on sait AVANT de faire lire ───────────────────────────────────
+  // Une image trop petite ne portera jamais le détail d'une facture. Le dire
+  // ici épargne un appel, l'attente, et une carte vide sans explication. La
+  // pièce reste dans le lot : le cabinet peut la taper ou en redéposer un scan.
+  const qualite = controlerQualiteImage(buffer, file.type);
+  if (qualite.verdict === "refus") {
+    return carteVide(qualite.raison);
+  }
+
   // Un cabinet peut refuser que ses pièces soient lues par un service externe.
   // Le dire franchement : ce n'est pas une pièce illisible, c'est un refus.
   if (!capaciteIAAutorisee("lecture_facture_reprise", data.cabinetId)) {
@@ -162,5 +172,6 @@ export async function POST(request: Request) {
     mimeType: file.type,
     extraction: extractionRetenue,
     match,
+    reserveQualite: qualite.verdict === "reserve" ? qualite.raison : undefined,
   });
 }

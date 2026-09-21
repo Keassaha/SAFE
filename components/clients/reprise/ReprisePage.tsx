@@ -63,6 +63,8 @@ interface EntreeFacture {
   /** La lecture n'a rien donné : la carte est vide, à remplir à la main. */
   lectureEchouee?: boolean;
   raisonLecture?: string;
+  /** Pièce lisible, mais de petite taille : à relire de près. */
+  reserveQualite?: string;
   expanded: boolean;
 }
 
@@ -233,9 +235,18 @@ export function ReprisePage() {
                   // de sortir la pièce du lot.
                   lectureEchouee: Boolean(data.lectureEchouee),
                   raisonLecture: data.raisonLecture,
+                  reserveQualite: data.reserveQualite,
                   extraction: data.extraction ?? extractionVide(),
                   match: data.match ?? matchVide(),
-                  expanded: data.lectureEchouee ? true : e.expanded,
+                  // Une lecture qui a hésité s'ouvre d'office : les champs à
+                  // relire sont sous les yeux, sans un clic de plus.
+                  expanded:
+                    data.lectureEchouee ||
+                    data.reserveQualite ||
+                    data.extraction?.confianceOcr === "basse" ||
+                    (data.extraction?.champsIllisibles?.length ?? 0) > 0
+                      ? true
+                      : e.expanded,
                 }
               : e,
           ),
@@ -400,6 +411,15 @@ export function ReprisePage() {
             ? "Déposez d'anciennes factures en vrac, en n'importe quel ordre. SAFE en ressort le client, le dossier, les heures et les dates, rangées ici de la plus ancienne à la plus récente."
             : `${entrees.length} facture${entrees.length > 1 ? "s" : ""} lue${entrees.length > 1 ? "s" : ""}, déposée${entrees.length > 1 ? "s" : ""} en vrac, rangée${entrees.length > 1 ? "s" : ""} ici de la plus ancienne à la plus récente.`}
           </p>
+          {/* Dit avant le dépôt, pas après l'échec : c'est le seul moment où
+              le cabinet peut encore choisir un meilleur fichier. */}
+          {entrees.length === 0 && (
+            <p className="mt-2 max-w-[560px] text-[12px] text-si-muted">
+              Le PDF d&apos;origine donne toujours la meilleure lecture. À défaut, photographiez la
+              page entière, à plat et bien éclairée. Une facture que SAFE ne sait pas lire n&apos;est
+              pas perdue : sa carte s&apos;ouvre vide, à remplir à la main.
+            </p>
+          )}
         </div>
         <div>
           <input
@@ -652,13 +672,13 @@ function CarteFacture({
     >
       {/* Une carte qui ne vient pas d'une lecture réussie le dit d'entrée : le
           cabinet doit savoir que ces chiffres sont les siens, pas ceux de SAFE. */}
-      {(entree.lectureEchouee || entree.sansPiece) && (
+      {(entree.lectureEchouee || entree.sansPiece || entree.reserveQualite) && (
         <div className="mb-3 flex items-start gap-1.5 rounded-lg border border-si-amber/40 bg-si-amber/[0.06] px-3 py-2 text-[13px] text-si-amber-ink">
           <FileWarning className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden />
           <span>
             {entree.sansPiece
               ? "Facture saisie sans pièce justificative. Elle sera versée avec cette mention."
-              : (entree.raisonLecture ?? "SAFE n'a rien pu lire sur cette pièce.")}
+              : (entree.raisonLecture ?? entree.reserveQualite ?? "SAFE n'a rien pu lire sur cette pièce.")}
           </span>
         </div>
       )}
