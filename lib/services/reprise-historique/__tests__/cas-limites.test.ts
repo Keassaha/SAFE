@@ -216,3 +216,27 @@ describe("la chronologie du lot", () => {
     expect(lot.synthese.nombreClients).toBe(1);
   });
 });
+
+describe("les chiffres d'argent du bandeau", () => {
+  it("n'emporte pas le bruit de l'addition en virgule flottante", () => {
+    const lot = construireLotReprise([
+      f({ montantTotal: 3300.36, dateEmission: "2025-03-14" }, { id: "a", clientNom: "A" }),
+      f({ montantTotal: 1607.35, dateEmission: "2025-04-18" }, { id: "b", clientNom: "B" }),
+      f({ montantTotal: 1189.99, dateEmission: "2025-06-09" }, { id: "c", clientNom: "C" }),
+      f({ montantTotal: 2184.53, dateEmission: "2026-01-22" }, { id: "d", clientNom: "D" }),
+      f({ montantTotal: 1427.99, dateEmission: "2026-02-11" }, { id: "e", clientNom: "E" }),
+      f({ montantTotal: 5566.22, dateEmission: "2026-03-05" }, { id: "g", clientNom: "G" }),
+      f({ montantTotal: 546.13, dateEmission: "2026-04-02" }, { id: "h", clientNom: "H" }),
+      f({ montantTotal: 1728.24, dateEmission: "2026-05-20" }, { id: "i", clientNom: "I" }),
+    ]);
+    expect(lot.synthese.totalFacture).toBe(17550.81);
+    expect(lot.synthese.resteDu).toBe(17550.81);
+  });
+
+  it("arrondit aussi les heures", () => {
+    const lot = construireLotReprise([
+      f({ lignes: [ligne({ heures: 0.1 }), ligne({ heures: 0.2 })] }, { id: "a" }),
+    ]);
+    expect(lot.synthese.heuresReprises).toBe(0.3);
+  });
+});

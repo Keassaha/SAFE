@@ -165,14 +165,19 @@ export function construireLotReprise(factures: FactureRepriseSaisie[]): LotRepri
     // (ce module ne connaît pas le montant payé partiel, seulement le total facturé).
   }
 
+  // Additionner des sous en virgule flottante laisse du bruit : huit factures
+  // donnaient « 17550.809999999998 ». L'écran le masque en formatant, mais un
+  // chiffre d'argent ne doit jamais circuler ainsi — il finit par être comparé.
+  const auSou = (montant: number) => Math.round(montant * 100) / 100;
+
   const synthese: SyntheseLot = {
     periodeDebut: groupes[0]?.cle ?? null,
     periodeFin: groupes[groupes.length - 1]?.cle ?? null,
     nombreClients: nomsClientsVus.size,
     nombreClientsACreer: nomsClientsACreer.size,
-    heuresReprises,
-    totalFacture,
-    resteDu,
+    heuresReprises: Math.round(heuresReprises * 100) / 100,
+    totalFacture: auSou(totalFacture),
+    resteDu: auSou(resteDu),
   };
 
   return { groupes, dateInconnue, synthese };
