@@ -139,12 +139,22 @@ export function controlerFacture(
       bloquants.push(`L'année lue (${emission.getUTCFullYear()}) est invraisemblable : relisez la date.`);
     }
   }
-  if (match.client.statut === "nouveau" && match.client.clientNom === NOM_ILLISIBLE) {
+  // Un nom vide vaut un nom illisible : les deux ouvriraient une fiche anonyme.
+  // Se fier à la seule chaîne posée par le rapprochement laissait passer la
+  // saisie à la main, qui part d'un champ vide.
+  const nomDuClient = (match.client.clientNom ?? "").trim();
+  if (match.client.statut === "nouveau" && (nomDuClient === "" || nomDuClient === NOM_ILLISIBLE)) {
     bloquants.push(
       facture.sansPiece
         ? "Indiquez le nom du client. Verser créerait une fiche sans nom."
         : "Le nom du client n'a pas été lu. Verser créerait une fiche sans nom : corrigez-le d'abord.",
     );
+  }
+
+  // Le rapprochement pose toujours un intitulé par défaut sur une facture lue :
+  // ce cas ne vient que de la saisie à la main, qui part d'un champ vide.
+  if (match.dossier.statut === "nouveau" && (match.dossier.dossierIntitule ?? "").trim() === "") {
+    bloquants.push("Indiquez de quel dossier relève cette facture.");
   }
 
   // ── Le statut de paiement, qui se demande et ne se devine pas ────────────

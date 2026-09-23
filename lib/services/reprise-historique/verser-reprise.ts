@@ -191,7 +191,17 @@ export async function verserFactureReprise(
     let clientId = match.client.clientId;
     let clientCree = false;
     if (!clientId) {
-      const cleVoulue = cleCroisement(match.client.clientNom);
+      // Le service ne se repose pas sur les contrôles de l'écran : une API
+      // s'appelle aussi sans écran. Une fiche anonyme est irrattrapable une
+      // fois écrite, alors qu'un refus se corrige.
+      const nomVoulu = (match.client.clientNom ?? "").trim();
+      if (!nomVoulu) {
+        throw new VerserFactureError(
+          facture.id,
+          "Le nom du client est vide : verser ouvrirait une fiche sans nom.",
+        );
+      }
+      const cleVoulue = cleCroisement(nomVoulu);
       const existants = await tx.client.findMany({
         where: { cabinetId },
         select: { id: true, raisonSociale: true, prenom: true, nom: true },
@@ -208,7 +218,7 @@ export async function verserFactureReprise(
           data: {
             cabinetId,
             typeClient: "personne_morale",
-            raisonSociale: match.client.clientNom,
+            raisonSociale: nomVoulu,
           },
           select: { id: true },
         });
@@ -223,7 +233,14 @@ export async function verserFactureReprise(
     let dossierId = match.dossier.dossierId;
     let dossierCree = false;
     if (!dossierId) {
-      const intituleVoulu = normaliseIntitule(match.dossier.dossierIntitule);
+      const intituleDuDossier = (match.dossier.dossierIntitule ?? "").trim();
+      if (!intituleDuDossier) {
+        throw new VerserFactureError(
+          facture.id,
+          "L'intitulé du dossier est vide : indiquez de quel mandat relève cette facture.",
+        );
+      }
+      const intituleVoulu = normaliseIntitule(intituleDuDossier);
       const dossiers = await tx.dossier.findMany({
         where: { cabinetId, clientId },
         select: { id: true, intitule: true },
@@ -236,7 +253,7 @@ export async function verserFactureReprise(
           data: {
             cabinetId,
             clientId,
-            intitule: match.dossier.dossierIntitule,
+            intitule: intituleDuDossier,
             statut: "actif",
           },
           select: { id: true },
