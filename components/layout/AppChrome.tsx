@@ -25,9 +25,11 @@ type AppChromeProps = {
   province?: string | null;
   sidebarCounts?: SidebarCounts | null;
   isSafeInc?: boolean;
+  /** Demandes du site en attente de réponse (Console SAFE Inc. seulement). */
+  demandesEnAttente?: number;
 };
 
-export function AppChrome({ children, role, user, cabinetId, billingMode, activeNavIds, hiddenNavIds, trustStatus, province, sidebarCounts, isSafeInc, abonnement }: AppChromeProps) {
+export function AppChrome({ children, role, user, cabinetId, billingMode, activeNavIds, hiddenNavIds, trustStatus, province, sidebarCounts, isSafeInc, abonnement, demandesEnAttente }: AppChromeProps) {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   return (
@@ -56,16 +58,26 @@ export function AppChrome({ children, role, user, cabinetId, billingMode, active
           activeNavIds={activeNavIds}
           role={role}
           isSafeInc={isSafeInc}
+          demandesEnAttente={demandesEnAttente}
           onOpenMobileNav={() => setMobileNavOpen(true)}
           trustStatus={isSafeInc ? null : trustStatus}
           abonnement={isSafeInc ? null : abonnement}
           province={province}
         />
+        {/* Le rembourrage VERTICAL vit sur la colonne, pas sur `main`.
+            `main` est le conteneur de défilement : un `position: sticky;
+            top: 0` posé dans une page s'arrête au bord de son contenu, donc
+            sous son padding-top. Avec `py-6` ici, une barre collée laissait
+            24 px au-dessus d'elle où le contenu défilant restait visible
+            (vu sur « Nouvelle facture » le 2026-09-12 : la ligne des réglages
+            passait au-dessus de l'en-tête). Sur la colonne, le même
+            rembourrage donne exactement la même mise en page au repos, et
+            `top-0` désigne enfin le bord visible. */}
         <main
-          className="flex-1 px-3 sm:px-4 md:px-8 py-4 sm:py-6 overflow-y-auto flex flex-col relative overscroll-contain bg-transparent"
+          className="flex-1 px-3 sm:px-4 md:px-8 overflow-y-auto flex flex-col relative overscroll-contain bg-transparent"
           role="main"
         >
-          <div className="relative z-10 w-full max-w-7xl mx-auto">
+          <div className="relative z-10 w-full max-w-7xl mx-auto py-4 sm:py-6">
             <CabinetProvinceProvider province={province ?? null}>
               <PageTransition>{children}</PageTransition>
             </CabinetProvinceProvider>

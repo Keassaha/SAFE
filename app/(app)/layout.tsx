@@ -9,6 +9,7 @@ import { TimerProvider } from "@/lib/contexts/TimerContext";
 import { getCabinetInterfaceDerived } from "@/lib/services/cabinet-interface";
 import { getTrustReconciliationStatus } from "@/lib/services/trust-reconciliation-status";
 import { getSidebarCounts } from "@/lib/services/sidebar-counts";
+import { compterDemandesEnAttente } from "@/lib/services/demandes";
 import { QuickCapture } from "@/components/capture/QuickCapture";
 import { isSafeIncCabinet } from "@/lib/safe-inc";
 import { getCabinetSubscriptionState } from "@/lib/services/subscription-state";
@@ -107,6 +108,11 @@ export default async function AppLayout({
     cabinetId ? isSafeIncCabinet(cabinetId) : Promise.resolve(false),
   ]);
 
+  // Le compte des demandes du site ne concerne que la Console SAFE Inc. : il se
+  // demande donc APRÈS `isSafeInc`, pour qu'aucun cabinet client ne paye une
+  // requête qui ne s'affichera jamais chez lui.
+  const demandesEnAttente = isSafeInc ? await compterDemandesEnAttente() : undefined;
+
   return (
     <QueryProvider>
       <TimerProvider>
@@ -121,6 +127,7 @@ export default async function AppLayout({
           province={cabinetProvince}
           sidebarCounts={sidebarCounts}
           isSafeInc={isSafeInc}
+          demandesEnAttente={demandesEnAttente}
           abonnement={
             subscription
               ? {
