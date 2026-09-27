@@ -98,6 +98,29 @@ async function main() {
     if (n > 0) console.log(`${modelName}: ${n} supprimés`);
   }
 
+  // ── Les pièces AVANT leurs dossiers et leurs clients ────────────────────
+  // Depuis le 2026-09-16, six relations sont passées de Cascade à Restrict :
+  // un dossier ne part plus en emportant ses documents en silence, c'est le
+  // but. Conséquence pour ce script : ce qui porte une pièce doit être vidé
+  // AVANT le dossier et le client, sinon la suppression est refusée et le
+  // cabinet reste à moitié vidé.
+  // (`Document.dossierId` était déjà en Restrict depuis le 2026-07-28 : ce
+  // script n'avait sans doute jamais été rejoué sur un cabinet documenté.)
+  // Documents
+  n = await prisma.document.deleteMany({ where: { cabinetId: CABINET_ID } }).then((r) => r.count);
+  console.log(`Document: ${n} supprimés`);
+
+  // Rich documents
+  const richDocs = await prisma.richDocument.findMany({ where: { cabinetId: CABINET_ID }, select: { id: true } });
+  const richDocIds = richDocs.map((d) => d.id);
+  n = await prisma.richDocumentVersion.deleteMany({ where: { richDocumentId: { in: richDocIds } } }).then((r) => r.count);
+  console.log(`RichDocumentVersion: ${n} supprimées`);
+  n = await prisma.richDocument.deleteMany({ where: { cabinetId: CABINET_ID } }).then((r) => r.count);
+  console.log(`RichDocument: ${n} supprimés`);
+
+  n = await prisma.workSession.deleteMany({ where: { cabinetId: CABINET_ID } }).then((r) => r.count);
+  console.log(`WorkSession: ${n} supprimées`);
+
   n = await prisma.dossier.deleteMany({ where: { cabinetId: CABINET_ID } }).then((r) => r.count);
   console.log(`Dossier: ${n} supprimés`);
 
@@ -116,18 +139,6 @@ async function main() {
 
   n = await prisma.client.deleteMany({ where: { cabinetId: CABINET_ID } }).then((r) => r.count);
   console.log(`Client: ${n} supprimés`);
-
-  // Documents
-  n = await prisma.document.deleteMany({ where: { cabinetId: CABINET_ID } }).then((r) => r.count);
-  console.log(`Document: ${n} supprimés`);
-
-  // Rich documents
-  const richDocs = await prisma.richDocument.findMany({ where: { cabinetId: CABINET_ID }, select: { id: true } });
-  const richDocIds = richDocs.map((d) => d.id);
-  n = await prisma.richDocumentVersion.deleteMany({ where: { richDocumentId: { in: richDocIds } } }).then((r) => r.count);
-  console.log(`RichDocumentVersion: ${n} supprimées`);
-  n = await prisma.richDocument.deleteMany({ where: { cabinetId: CABINET_ID } }).then((r) => r.count);
-  console.log(`RichDocument: ${n} supprimés`);
 
   // Trust
   const trustAccounts = await prisma.trustAccount.findMany({ where: { cabinetId: CABINET_ID }, select: { id: true } });
@@ -186,8 +197,6 @@ async function main() {
   n = await prisma.calendarEvent.deleteMany({ where: { cabinetId: CABINET_ID } }).then((r) => r.count);
   console.log(`CalendarEvent: ${n} supprimés`);
 
-  n = await prisma.workSession.deleteMany({ where: { cabinetId: CABINET_ID } }).then((r) => r.count);
-  console.log(`WorkSession: ${n} supprimées`);
 
   // Audit logs
   n = await prisma.auditLog.deleteMany({ where: { cabinetId: CABINET_ID } }).then((r) => r.count);
