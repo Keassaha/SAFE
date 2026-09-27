@@ -216,6 +216,76 @@ npx prisma migrate diff \
 
 ---
 
+## 6bis. Résultats des contrôles — passés le 2026-09-27
+
+Exécutés en lecture seule sur la production (`aws-1-ca-central-1.pooler.supabase.com`),
+avec l'accord explicite du CEO. Aucune écriture.
+
+**P1 — version de Postgres : 17.6.** `ALTER TYPE ... ADD VALUE` en transaction
+est permis (il faut ≥ 12). ✅
+
+**P2 — les six contraintes : 6 sur 6 trouvées**, toutes en `CASCADE`
+aujourd'hui, exactement les noms que la migration va déposer. Aucune dérive de
+nommage : les `DROP CONSTRAINT` sans `IF EXISTS` trouveront leur cible. ✅
+
+**P3 — doublons d'empreinte : aucun.** La production porte **zéro** pièce de
+type `facture_passee_source`, ce qui était attendu puisque la fonction n'a
+jamais été déployée, mais qui est désormais vérifié et non supposé. L'index
+unique passera. ✅
+
+**P4 — état de l'historique.** Les cinq migrations sont bien en attente,
+**aucune en échec ni inachevée** (0 sur 63 lignes). Deux lignes anciennes
+`20250309180000_init` figurent en base sans exister dans le dépôt : l'une
+**annulée** le 2026-04-27 pendant la pose de la ligne de base Dérisier,
+l'autre **marquée appliquée à zéro étape** le 2026-06-05. Ce sont des
+cicatrices, pas des migrations en souffrance : `migrate deploy` ne les
+regarde pas. Elles expliquent le message « migrations from the database are
+not found locally », qui est cosmétique. ✅
+
+> À noter : `migrate status` annonce comme dernière migration commune
+> `20260824120000_credit_note_numero_unique`, alors que les deux du
+> 2026-09-14 sont bien appliquées en production. C'est un artefact de
+> comparaison : ces deux migrations **partagent le même horodatage**
+> (`20260914120000`), ce qui rend leur ordre ambigu. Sans conséquence ici, mais
+> à ne plus refaire : deux migrations ne doivent jamais porter le même préfixe.
+
+**P5 — écart réel production → schéma du dépôt.** Le script produit par
+`migrate diff --from-url` fait 100 lignes et contient **exactement** les
+opérations des cinq migrations : 2 types, 1 valeur d'enum, 3 colonnes,
+1 table, 5 index, 6 contraintes retirées et 7 reposées. **Aucune dérive
+cachée, aucune opération étrangère.** ✅
+
+> Confirmation du piège de l'index partiel : le diff **ne mentionne pas**
+> `Document_reprise_empreinte_unique`, parce que Prisma ne sait pas l'exprimer.
+> Une fois déployé, le prochain `migrate diff` voudra le **supprimer**.
+
+**P6 — orphelins et volumes** (contrôle ajouté : une contrainte `RESTRICT`
+valide les lignes existantes, et une seule ligne orpheline ferait tout
+échouer).
+
+| Relation | Lignes | Orphelins |
+|---|---|---|
+| `RichDocument.cabinetId` | 3 | 0 |
+| `RichDocument.dossierId` | 3 | 0 |
+| `RichDocumentVersion.richDocumentId` | 3 | 0 |
+| `WorkSession.cabinetId` | 5 | 0 |
+| `WorkSession.dossierId` | 5 | 0 |
+| `Document.cabinetId` | 0 | 0 |
+
+Aucun orphelin, et des volumes dérisoires : les verrous exclusifs seront
+instantanés, le `lock_timeout` de 5 s ne sera jamais atteint. ✅
+
+**Contexte de la production** : 6 cabinets, 49 clients, 8 factures,
+0 document.
+
+### Verdict
+
+**Les cinq migrations peuvent partir.** Aucun contrôle n'a levé d'obstacle.
+Ce qui reste avant de lancer n'est pas technique : rotation du secret,
+sauvegarde vérifiée, essai de restauration (§7, marches 1 à 3).
+
+---
+
 ## 7. Ordre de mise en ligne
 
 Les migrations sont la **quatrième** marche, pas la première.
@@ -236,9 +306,11 @@ Les migrations sont la **quatrième** marche, pas la première.
 
 ## 8. Ce que cette revue ne couvre pas
 
-- **Je n'ai pas interrogé la production.** Tout ce qui précède est établi
-  depuis le dépôt et la base locale. Les contrôles P1 à P5 sont écrits pour
-  être passés par vous, sur la vraie base, et peuvent contredire ce document.
+- ~~Je n'ai pas interrogé la production.~~ **Fait le 2026-09-27** : les
+  contrôles ont été passés en lecture seule sur la vraie base, résultats au
+  §6bis. Ils confirment l'analyse sur tous les points.
+- **Aucune migration n'a encore été appliquée.** Les contrôles disent qu'elles
+  le peuvent, pas qu'elles l'ont été.
 - **L'écran de correction des exercices précédents** n'a jamais été ouvert dans
   un navigateur.
 - **L'extraction n'a jamais vu de pièce difficile** : scan de travers, photo au
