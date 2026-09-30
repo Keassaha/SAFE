@@ -8,6 +8,7 @@ import { writeDocumentObject } from "@/lib/services/document";
 import { verserFactureReprise, VerserFactureError } from "@/lib/services/reprise-historique/verser-reprise";
 import type { FactureRepriseSaisie } from "@/lib/services/reprise-historique/construire-lot";
 import { MemoireDuLot } from "@/lib/services/reprise-historique/memoire-du-lot";
+import { estModePaiement } from "@/lib/services/reprise-un-client/saisie";
 import { FACTURE_PASSEE_DOCUMENT_TYPE } from "@/app/api/clients/entree/reprise/analyser/route";
 import type { UserRole } from "@prisma/client";
 import { randomUUID } from "crypto";
@@ -24,6 +25,8 @@ interface FactureRepriseEntree extends FactureRepriseSaisie {
   hash?: string;
   mimeType?: string;
   montantPaye: number | null;
+  /** « Reprendre un client » seulement : comment la facture a été réglée. */
+  modePaiement?: string | null;
 }
 
 interface FactureResultatApi {
@@ -103,6 +106,7 @@ export async function POST(request: Request) {
           userId: data.userId,
           facture: item,
           montantPaye: item.montantPaye,
+        modePaiement: estModePaiement(item.modePaiement) ? item.modePaiement : null,
         });
         memoire.retenir(item, ecrit);
         resultats.push({ id: item.id, ok: true, invoiceId: ecrit.invoiceId });
@@ -155,6 +159,7 @@ export async function POST(request: Request) {
         userId: data.userId,
         facture: item,
         montantPaye: item.montantPaye,
+        modePaiement: estModePaiement(item.modePaiement) ? item.modePaiement : null,
         piece: {
           hash: item.hash,
           documentType: FACTURE_PASSEE_DOCUMENT_TYPE,

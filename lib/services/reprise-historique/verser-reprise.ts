@@ -7,6 +7,7 @@ import { writeJournalForDeboursPaiement } from "@/lib/services/journal/debours-d
 import { getPeriodeFromDate, isPeriodLocked } from "@/lib/services/journal/period-lock";
 import type { FactureRepriseSaisie, StatutPaiementReprise } from "@/lib/services/reprise-historique/construire-lot";
 import { cleCroisement } from "@/lib/clients/croisement-conflits";
+import { colonnesPaiement, type ModePaiementSaisie } from "@/lib/services/reprise-un-client/saisie";
 import { normaliseIntitule } from "@/lib/services/reprise-historique/matcher";
 
 /**
@@ -61,6 +62,12 @@ export interface VerserFactureParams {
    * par empreinte ne peut pas jouer, c'est la règle numéro + client qui tient.
    */
   piece?: PieceSourceReprise;
+  /**
+   * Comment la facture a été réglée (« Reprendre un client », décision CEO du
+   * 2026-09-30). Absent pour la reprise en lot, qui ne le demandait pas : le
+   * paiement garde alors « autre », comme avant.
+   */
+  modePaiement?: ModePaiementSaisie | null;
 }
 
 export interface VerserFactureResultat {
@@ -132,7 +139,8 @@ function resolveMontantPaye(
 export async function verserFactureReprise(
   params: VerserFactureParams,
 ): Promise<VerserFactureResultat> {
-  const { cabinetId, userId, facture, montantPaye, piece } = params;
+  const { cabinetId, userId, facture, montantPaye, piece, modePaiement } = params;
+  const colonnes = colonnesPaiement(modePaiement);
   const { extraction, match, statutPaiement } = facture;
 
   if (!statutPaiement) {
@@ -480,9 +488,12 @@ export async function verserFactureReprise(
           invoiceId: invoice.id,
           datePaiement,
           montant: montantAAllouer,
-          method: "autre",
-          paymentMethod: "other",
-          sourceAccountType: "operating",
+          // Réglée à même le fidéicommis : le fait est porté ici, mais AUCUN
+          // mouvement n'est inventé au registre de fidéicommis (voir
+          // `colonnesPaiement`).
+          method: colonnes.method,
+          paymentMethod: colonnes.paymentMethod,
+          sourceAccountType: colonnes.sourceAccountType,
           allocationStatus: montantAAllouer >= montantTotal ? "ALLOCATED" : "PARTIALLY_ALLOCATED",
           estReprise: true,
           receivedById: userId,
