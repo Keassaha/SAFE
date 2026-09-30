@@ -11,7 +11,7 @@ import { ColumnMappingForm } from "./ColumnMappingForm";
 import { PreviewTable } from "./PreviewTable";
 import { ImportResultSummary } from "./ImportResultSummary";
 import { ImportHistoryTable } from "./ImportHistoryTable";
-import { ReprisePage } from "@/components/clients/reprise/ReprisePage";
+import { ExercicesPrecedents } from "@/components/clients/reprise-un-client/ExercicesPrecedents";
 import { analyzeFile, generatePreview, generateAccountingPreview } from "@/lib/import/pipeline";
 import { detectColumns, getFieldLabels } from "@/lib/import/detect-columns";
 import { executeImport, analyzeStatementPdf } from "@/app/(app)/import/actions";
@@ -388,7 +388,7 @@ export function SafeImportWizard({
         </>
       )}
 
-      {activeTab === "exercices" && peutReprendreExercices && <ReprisePage />}
+      {activeTab === "exercices" && peutReprendreExercices && <ExercicesPrecedents />}
 
       {activeTab === "history" && <ImportHistoryTable />}
     </div>
