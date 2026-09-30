@@ -44,6 +44,8 @@ export interface IdentiteClientEntree {
   email?: string | null;
   telephone?: string | null;
   langue?: string | null;
+  /** Adresse postale, en une ligne. Ajoutée pour « Reprendre un client ». */
+  adresse?: string | null;
 }
 
 export interface DossierEntree {
@@ -52,6 +54,10 @@ export interface DossierEntree {
   enCours: boolean;
   tauxHoraire?: number | null;
   objetDuMandat?: string | null;
+  /** Date d'ouverture réelle du mandat. Absente : la date du mandat signé, sinon aujourd'hui. */
+  dateOuverture?: Date | null;
+  /** Avocat responsable du dossier. Doit appartenir au cabinet (vérifié par l'appelant). */
+  avocatResponsableId?: string | null;
 }
 
 export interface VerificationIdentiteEntree {
@@ -203,7 +209,7 @@ function valider(params: EnregistrerEntreeClientParams): void {
  * carte ne balancerait pas. D'où `estSoldeOuverture` : elle pèse dans les
  * soldes, elle ne ment pas sur son origine.
  */
-async function ecrireSoldeOuverture(
+export async function ecrireSoldeOuverture(
   db: Prisma.TransactionClient,
   params: {
     cabinetId: string;
@@ -279,6 +285,9 @@ export async function enregistrerEntreeClient(
       email: params.identite.email?.trim() || null,
       telephone: params.identite.telephone?.trim() || null,
       langue: params.identite.langue?.trim() || null,
+      // Seulement si fourni : l'écran d'Entrée ne le demande pas, et une fiche
+      // reprise ne doit pas perdre une adresse qu'elle portait déjà.
+      ...(params.identite.adresse !== undefined ? { adresse: params.identite.adresse?.trim() || null } : {}),
 
       // Les déclarations, chacune avec son auteur. Une case cochée sans nom
       // n'engage personne et ne vaut rien à l'inspection.
@@ -344,7 +353,8 @@ export async function enregistrerEntreeClient(
         intitule: params.dossier.intitule.trim(),
         statut: params.dossier.enCours ? "actif" : "cloture",
         tauxHoraire: params.dossier.tauxHoraire ?? null,
-        dateOuverture: params.mandatSigneAt ?? params.mandatEnvoyeAt ?? maintenant,
+        dateOuverture: params.dossier.dateOuverture ?? params.mandatSigneAt ?? params.mandatEnvoyeAt ?? maintenant,
+        avocatResponsableId: params.dossier.avocatResponsableId ?? null,
         dateCloture: params.dossier.enCours ? null : maintenant,
         descriptionConfidentielle: params.dossier.objetDuMandat?.trim() || null,
       },
