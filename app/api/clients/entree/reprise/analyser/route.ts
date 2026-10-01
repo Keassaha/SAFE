@@ -156,6 +156,10 @@ export async function POST(request: Request) {
       ? {
           ...extraction,
           clientNom: null,
+          // Lues sous l'en-tête du cabinet, ce seraient SES coordonnées.
+          clientAdresse: null,
+          clientCourriel: null,
+          clientTelephone: null,
           champsIllisibles: [
             ...extraction.champsIllisibles,
             "le nom du client (c'est l'en-tête du cabinet qui a été lu)",

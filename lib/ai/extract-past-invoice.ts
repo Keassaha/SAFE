@@ -42,6 +42,14 @@ export interface PastInvoiceLigneExtraction {
 export interface PastInvoiceExtraction {
   numeroFacture: string | null;
   clientNom: string | null;
+  /**
+   * Coordonnées du CLIENT, telles qu'imprimées sous son nom (« Facturé à »).
+   * Facultatives : une facture ne les porte pas toujours, et leur absence n'est
+   * pas un champ illisible. Ajoutées pour « Reprendre un client » (2026-10-01).
+   */
+  clientAdresse?: string | null;
+  clientCourriel?: string | null;
+  clientTelephone?: string | null;
   /** Objet du mandat tel que mentionné sur la facture (ex: « Bail commercial, rue Laurier »). */
   dossierIntitule: string | null;
   /** Date d'émission de la facture, ISO AAAA-MM-JJ. */
@@ -143,6 +151,7 @@ RÈGLES STRICTES :
 - N'invente JAMAIS un statut de paiement. Ne le déduis pas d'une mention « payé » ou d'un tampon : ignore-le complètement, ce n'est pas demandé ici.
 - "numeroFacture" = le numéro tel qu'imprimé sur la facture (ex: "F-2026-011").
 - "clientNom" = le nom du CLIENT FACTURÉ, celui qui doit payer. ATTENTION, c'est le piège le plus fréquent : le nom le plus gros et le plus haut de la page est celui du CABINET qui émet la facture, pas celui du client. Le client se trouve sous une mention du genre « Facturé à », « Client », « Destinataire », « À l'attention de », souvent avec son adresse. Ne prends JAMAIS pour un client une ligne d'en-tête de cabinet (un nom suivi de « Avocats », « Avocat », « Notaires », « S.E.N.C.R.L. », « s.a. », d'une ville seule, d'un numéro de permis ou du Barreau). Si tu n'es pas certain d'avoir le client et non l'émetteur, mets null et ajoute "clientNom" à "champsIllisibles".
+- "clientAdresse", "clientCourriel", "clientTelephone" = les coordonnées DU CLIENT, imprimées avec son nom dans le bloc « Facturé à ». L'adresse sur une seule ligne, telle qu'imprimée. ATTENTION : l'adresse, le téléphone et le courriel du CABINET figurent presque toujours en en-tête ou en pied de page ; ne les prends JAMAIS. Si une coordonnée du client n'est pas imprimée, ou si tu n'es pas certain qu'elle est celle du client, mets null. Ne les ajoute PAS à "champsIllisibles" : une facture ne les porte pas toujours, ce n'est pas une illisibilité.
 - "dossierIntitule" = l'objet du mandat mentionné (ex: « Bail commercial, rue Laurier », « Séparation de corps »). null si aucun objet n'est mentionné.
 - "dateEmission" = la date d'émission de la facture, au format AAAA-MM-JJ.
 - "montantTotal" = le montant TOTAL de la facture, taxes comprises, celui que le client devait payer. En nombre décimal, sans symbole ni séparateur de milliers.
@@ -155,6 +164,9 @@ Réponds UNIQUEMENT en JSON valide, format exact :
 {
   "numeroFacture": "F-2026-011",
   "clientNom": "Société Kaboré et fils",
+  "clientAdresse": "1200, boulevard Saint-Laurent, Ottawa (Ontario) K1G 3V5",
+  "clientCourriel": null,
+  "clientTelephone": "613 555-0117",
   "dossierIntitule": "Bail commercial, rue Laurier",
   "dateEmission": "2026-03-08",
   "montantTotal": 2875.00,
@@ -213,6 +225,9 @@ export async function extractPastInvoice(params: {
     return {
       numeroFacture: asStringOrNull(parsed.numeroFacture),
       clientNom: asStringOrNull(parsed.clientNom),
+      clientAdresse: asStringOrNull(parsed.clientAdresse),
+      clientCourriel: asStringOrNull(parsed.clientCourriel),
+      clientTelephone: asStringOrNull(parsed.clientTelephone),
       dossierIntitule: asStringOrNull(parsed.dossierIntitule),
       dateEmission: asStringOrNull(parsed.dateEmission),
       montantTotal: asNumberOrNull(parsed.montantTotal),
