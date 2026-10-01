@@ -330,3 +330,68 @@ L'écran en anglais : aucun reste de français.
 québécois : la TPS et la TVQ lues se replacent dans le champ TVH, somme juste), et
 l'onglet « Corriger une écriture » dans un navigateur.
 
+---
+
+## 10. Version 4 — « tout commence par un dépôt » (2026-10-01)
+
+Remplace la présentation en quatre étapes du §3. Maquettes validées le 2026-10-01
+après quatre tours de simplification, puis construite et éprouvée le même jour.
+
+### Ce que le CEO a décidé
+
+- **Tout commence par un dépôt.** Saisir un nom à la main devient « Sans facture ».
+- **Un dépôt ne concerne qu'un client.** Une facture adressée à quelqu'un d'autre est
+  écartée et nommée, avec « Rattacher » pour une coquille.
+- **Le premier réflexe est de lire le client** : nom, adresse, courriel, téléphone.
+  Un client déjà au cabinet est reconnu d'office (nom identique) ; un nom seulement
+  proche est proposé (« C'est lui »), jamais rattaché seul.
+- **La fiche n'est jamais réécrite en silence** : si la facture porte une autre
+  coordonnée, SAFE le signale et propose « Mettre la fiche à jour ».
+- **Typographie de la section** : une famille (SAFE Grotesk, chiffres tabulaires),
+  deux tailles (20 px pour le nom, 14 px pour tout le reste), deux graisses. Plus de
+  police mono : **écart assumé à la lettre de la loi L1** du référentiel, dont le but
+  (des chiffres alignés, jamais tronqués) est tenu. À reporter dans le référentiel, et
+  à décider pour le reste de SAFE.
+- **Deux correctifs** demandés à la validation : une lecture hésitante s'ouvre
+  d'emblée en correction ; ce que le parcours allégé a laissé (identité, fidéicommis)
+  revient, nommé, à la fin du client.
+
+### Ajouté en construisant
+
+- **Un dépôt, un mandat.** Un client a souvent plusieurs dossiers : une facture du
+  bon client dont l'objet ne recoupe pas le mandat retenu est mise de côté, nommée,
+  et reprise à la fin du client par « Les reprendre maintenant », sans être
+  redéposée. La ranger d'office dans le mandat courant aurait été une erreur
+  silencieuse.
+- **L'avocat responsable** n'est demandé que si le cabinet en compte plusieurs.
+- **Le solde en fidéicommis** se déclare depuis l'écran de fin. Refusé sur un dossier
+  déjà mouvementé : le service fixe le solde du compte et écraserait le vrai.
+
+### Où c'est
+
+| Où | Quoi |
+|---|---|
+| `lib/ai/extract-past-invoice.ts` | lit aussi `clientAdresse`, `clientCourriel`, `clientTelephone` (facultatifs), jamais ceux du cabinet |
+| `lib/services/reprise-un-client/depot.ts` | client du dépôt, reconnaissance du client et du mandat, comparaison des coordonnées, relevé ou correction, reste à compléter. 27 tests. |
+| `app/api/clients/reprise-un-client/fiche`, `/fideicommis` | mettre une coordonnée à jour ; déclarer un solde d'ouverture |
+| `components/clients/reprise-un-client/RepriseParDepot.tsx` | l'orchestrateur ; `EcranClient`, `EcranFacture`, `EcranFin`, `ui.tsx` |
+
+L'écran en quatre étapes du §3 est supprimé. Le dépôt multi-clients reste conservé
+(`components/clients/reprise/`), sans porte.
+
+### Éprouvé dans un navigateur réel, cabinet de test local
+
+Dépôt de quatre factures : Ouellet écartée (autre client), le litige mis de côté
+(autre mandat). Nouveau client créé avec l'adresse lue, conflits déclarés. Deux
+factures enregistrées, chacune suivie d'une phrase qui dit ce qui a été écrit. Fin :
+1 500 $ déclarés en fidéicommis, identité signalée. Le litige repris aussitôt. Client
+suivant : un fichier déjà repris refusé, une coquille de nom rattachée par « C'est
+lui ». En base : **un seul client**, deux mandats, quatre factures aux totaux du
+papier, TVH dans la colonne `tps`, 9 écritures (4 factures, 3 débours, 2 paiements).
+Typographie mesurée sur chaque écran : une famille, deux tailles, deux graisses. En
+anglais : aucun reste de français. Aucune erreur console.
+
+**Pas éprouvé** : une vraie facture ontarienne ; une lecture des coordonnées sur une
+facture réelle qui porterait courriel et téléphone ; la mise à jour d'une fiche sur un
+client existant (la route est écrite, le cas ne s'est pas présenté dans l'essai).
+

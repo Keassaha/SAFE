@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { CorrectionsReprise } from "@/components/clients/reprise/CorrectionsReprise";
-import { RepriseUnClient } from "./RepriseUnClient";
+import { RepriseParDepot } from "./RepriseParDepot";
 
 /**
  * L'onglet « Exercices précédents » de SAFE Import.
@@ -26,8 +26,8 @@ export function ExercicesPrecedents() {
             type="button"
             aria-pressed={vue === cle}
             onClick={() => setVue(cle)}
-            className={`min-h-8 rounded-[6px] px-3 text-[13px] font-medium transition-all ${
-              vue === cle ? "bg-si-surface text-si-ink shadow-[0_1px_2px_rgba(22,24,23,0.10)]" : "text-si-muted hover:text-si-ink"
+            className={`min-h-8 rounded-[6px] px-3 text-[14px] transition-all ${
+              vue === cle ? "bg-si-surface font-medium text-si-ink shadow-[0_1px_2px_rgba(22,24,23,0.10)]" : "text-si-muted hover:text-si-ink"
             }`}
           >
             {t(cle)}
@@ -38,7 +38,7 @@ export function ExercicesPrecedents() {
       {vue === "corriger" && <CorrectionsReprise />}
       {/* Gardé monté pendant une correction : on ne perd pas le client en cours. */}
       <div className={vue === "reprendre" ? "" : "hidden"}>
-        <RepriseUnClient onCorriger={() => setVue("corriger")} />
+        <RepriseParDepot />
       </div>
     </div>
   );

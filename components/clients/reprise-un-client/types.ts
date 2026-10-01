@@ -1,56 +1,7 @@
 import type { FactureSaisie } from "@/lib/services/reprise-un-client/saisie";
-import type { ContexteRepriseUnClient } from "@/lib/services/reprise-un-client/contexte";
+import type { PastInvoiceExtraction } from "@/lib/ai/extract-past-invoice";
 
-export type { ContexteRepriseUnClient };
-
-export type Etape = 1 | 2 | 3 | 4;
-
-export interface IdentiteSaisie {
-  typeClient: "personne_physique" | "personne_morale";
-  prenom: string;
-  nom: string;
-  raisonSociale: string;
-  occupation: string;
-  natureActivites: string;
-  email: string;
-  telephone: string;
-  langue: string;
-  adresse: string;
-}
-
-export type ChoixClient =
-  | { mode: "existant"; id: string; nom: string }
-  | { mode: "nouveau"; identite: IdentiteSaisie };
-
-export interface MandatSaisi {
-  intitule: string;
-  objetDuMandat: string;
-  tauxHoraire: string;
-  enCours: boolean;
-  dateOuverture: string;
-  avocatResponsableId: string;
-}
-
-export type ChoixMandat =
-  | { mode: "existant"; id: string; intitule: string; tauxHoraire: number | null }
-  | { mode: "nouveau"; mandat: MandatSaisi };
-
-export interface SectionsSaisies {
-  identite: { etat: "A_FAIRE" | "VERIFIEE" | "EXEMPTEE"; pieceVue: string; ouConservee: string; faiteLe: string; motifExemption: string };
-  fonds: { montant: string; arreteAu: string; recuATitreDe: string };
-  echeances: { id: string; date: string; libelle: string }[];
-  parties: { id: string; nomAffiche: string; role: "partie_adverse" | "tiers" }[];
-}
-
-export interface EtatConflits {
-  phase: "attente" | "verification" | "fait" | "erreur";
-  nombre: number;
-  details: { label: string; reason: string }[];
-  /** Nom vérifié, pour ne pas relancer la vérification à chaque rendu. */
-  pour: string;
-}
-
-export type StatutFacture = "lecture" | "a_verifier" | "enregistree" | "deja_reprise";
+export type StatutFacture = "a_verifier" | "enregistree" | "deja_reprise";
 
 export interface EntreeFacture {
   id: string;
@@ -69,6 +20,12 @@ export interface EntreeFacture {
   dejaRepriseLe?: string;
   erreur?: string;
   invoiceId?: string;
+  /** Ce que la lecture a rendu, pour décider du client et de la présentation (v4). */
+  extraction?: PastInvoiceExtraction | null;
+  /** Adressée à un autre client que celui du dépôt : écartée, jamais versée en silence. */
+  ecarteeNom?: string;
+  /** Du bon client, mais d'un autre mandat : mise de côté, reprise ensuite avec ce mandat. */
+  ecarteeMandat?: string;
 }
 
 export interface Ids {
