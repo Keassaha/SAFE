@@ -102,10 +102,10 @@ export function Choix<T extends string>({
   );
 }
 
-/** La barre du bas : une phrase d'état à gauche, l'action pleine à droite. */
+/** Le pied de l'espace de travail : une phrase d'état à gauche, l'action pleine à droite. */
 export function BarreDecision({ etat, children }: { etat: ReactNode; children: ReactNode }) {
   return (
-    <div className="sticky bottom-0 z-10 -mx-3 mt-6 border-t border-si-line bg-si-surface/95 px-3 py-3 backdrop-blur sm:-mx-4 sm:px-4 md:-mx-8 md:px-8">
+    <div className="sticky bottom-0 z-10 border-t border-si-line bg-si-surface/95 px-7 py-3.5 backdrop-blur">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="min-w-0 text-si-muted">{etat}</div>
         <div className="flex items-center gap-5">{children}</div>

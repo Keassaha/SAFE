@@ -4616,8 +4616,6 @@
       "corriger": "Correct an entry"
     },
     "depot": {
-      "titre": "Bring in a client",
-      "phrase": "Drop the invoices of a single client. Nothing is saved until you confirm.",
       "choisir": "Choose invoices",
       "sansFacture": "Without an invoice",
       "lecture": "Reading {n, plural, one {# invoice} other {# invoices}}…",
@@ -4710,7 +4708,12 @@
       "annuler": "Cancel",
       "autreMandat": "{fichier} mentions another matter, “{objet}”: it is set aside and will be brought in next, under that matter.",
       "resteAutreMandat": "{n, plural, one {One invoice for this client belongs} other {# invoices for this client belong}} to another matter, “{objet}”.",
-      "lesReprendre": "Bring them in now"
+      "lesReprendre": "Bring them in now",
+      "deposezTitre": "Drop the invoices of a single client",
+      "glissez": "Drag them here. Nothing is saved until you confirm.",
+      "ouvrir": "Open",
+      "ouvrirPiece": "Open {nom} full size",
+      "apercuImpossible": "Preview unavailable. Open the document."
     }
   }
 }

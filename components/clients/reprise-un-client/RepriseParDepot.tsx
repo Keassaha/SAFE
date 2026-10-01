@@ -36,6 +36,7 @@ import {
   type MandatChoisi,
 } from "./EcranClient";
 import { EcranFin } from "./EcranFin";
+import { ApercuPiece } from "./ApercuPiece";
 import { Alerte, BarreDecision, Erreur, Lien, Section, racine, titre } from "./ui";
 import type { EntreeFacture, Ids } from "./types";
 
@@ -82,6 +83,7 @@ export function RepriseParDepot() {
   const [erreurContexte, setErreurContexte] = useState(false);
   const [phase, setPhase] = useState<Phase>("depart");
   const [nbEnLecture, setNbEnLecture] = useState(0);
+  const [survol, setSurvol] = useState(false);
 
   const [entrees, setEntrees] = useState<EntreeFacture[]>([]);
   const [client, setClient] = useState<ClientChoisi | null>(null);
@@ -611,89 +613,108 @@ export function RepriseParDepot() {
       </>
     ) : null;
 
-  return (
-    <div
-      data-section="reprise-par-depot"
-      className={racine}
-      onDragOver={(e) => phase === "depart" && e.preventDefault()}
-      onDrop={(e) => {
-        if (phase !== "depart") return;
-        e.preventDefault();
-        void deposer(Array.from(e.dataTransfer.files));
-      }}
-    >
-      {fichiersInput}
-      <div className="max-w-[760px]">
-        {phase === "depart" && (
+  const enteteClient = client && (
+    <Section premiere>
+      <h2 className={titre}>{client.nom}</h2>
+      <p className="mt-1 text-si-muted">
+        <EtatClient client={client} conflits={conflits} />
+        {phase === "facture" && (
           <>
-            <h2 className={titre}>{t("titre")}</h2>
-            <p className="mt-1.5">{t("phrase")}</p>
-            {alertesDepot}
-            <div className="mt-6 flex items-center gap-5">
-              <Button variant="primary" className="!text-[14px]" onClick={() => choisirFichiers(false)}>
-                {t("choisir")}
-              </Button>
-              <Lien onClick={sansFacture}>{t("sansFacture")}</Lien>
-            </div>
+            {" · "}
+            {tauxMandat !== null ? t("mandatTaux", { intitule: mandatIntitule, taux: f.devise.format(tauxMandat) }) : mandatIntitule}
+            {!ids && (
+              <>
+                {" · "}
+                <Lien onClick={() => setPhase("client")}>{t("changer")}</Lien>
+              </>
+            )}
+            {" · "}
+            <Lien onClick={() => choisirFichiers(true)}>{t("ajouterFacture")}</Lien>
           </>
         )}
+      </p>
+      {phase === "facture" && confirmation && <p className="mt-3 text-si-verified">{confirmation}</p>}
+      {alertesFiche}
+      {alertesDepot}
+    </Section>
+  );
 
-        {phase === "lecture" && <p className="text-si-muted">{t("lecture", { n: nbEnLecture })}</p>}
+  // La pièce s'affiche à côté de la lecture quand il y a un fichier à montrer.
+  const piece = phase === "facture" && courante?.fichier ? courante.fichier : null;
 
-        {phase === "client" && client && mandat?.mode === "nouveau" && client.mode === "nouveau" && (
-          <EcranNouveauClient
-            client={client}
-            onClient={(c) => setClient(c)}
-            conflits={conflits}
-            declaration={declaration}
-            onDeclaration={setDeclaration}
-            mandat={mandat}
-            onMandat={setMandat}
-            avocats={avocats}
-            onCestLui={cestLui}
-            alertes={
-              <>
-                {!client.nom && entrees.length > 0 && <Alerte>{t("lectureRien")}</Alerte>}
-                {alertesDepot}
-              </>
-            }
-          />
-        )}
+  return (
+    <div data-section="reprise-par-depot" className={racine}>
+      {fichiersInput}
 
-        {phase === "client" && client?.mode === "connu" && (
-          <Section premiere>
-            <h2 className={titre}>{client.nom}</h2>
-            <p className="mt-1 text-si-muted">
-              <EtatClient client={client} conflits={conflits} />
-            </p>
-            {alertesFiche}
-            {alertesDepot}
-            <ChoixMandat mandats={client.mandats} valeur={mandat} onChange={setMandat} tauxDefaut={contexte.tauxDefaut} avocats={avocats} />
-          </Section>
-        )}
+      {phase === "depart" && (
+        <div className="p-7">
+          {alertesDepot}
+          {/* L'espace entier est la zone de dépôt : on y glisse les factures. */}
+          <div
+            onDragOver={(e) => {
+              e.preventDefault();
+              setSurvol(true);
+            }}
+            onDragLeave={() => setSurvol(false)}
+            onDrop={(e) => {
+              e.preventDefault();
+              setSurvol(false);
+              void deposer(Array.from(e.dataTransfer.files));
+            }}
+            className={`mt-1 grid min-h-[360px] place-items-center rounded-[10px] border border-dashed px-6 text-center transition-colors ${
+              survol ? "border-si-ink/45 bg-si-canvas" : "border-si-ink/20"
+            }`}
+          >
+            <div>
+              <h2 className={titre}>{t("deposezTitre")}</h2>
+              <p className="mt-1.5 text-si-muted">{t("glissez")}</p>
+              <div className="mt-5 flex items-center justify-center gap-5">
+                <Button variant="primary" className="!text-[14px]" onClick={() => choisirFichiers(false)}>
+                  {t("choisir")}
+                </Button>
+                <Lien onClick={sansFacture}>{t("sansFacture")}</Lien>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
-        {phase === "facture" && client && mandat && (
-          <>
-            <Section premiere>
-              <h2 className={titre}>{client.nom}</h2>
-              <p className="mt-1 text-si-muted">
-                <EtatClient client={client} conflits={conflits} />
-                {" · "}
-                {tauxMandat !== null ? t("mandatTaux", { intitule: mandatIntitule, taux: f.devise.format(tauxMandat) }) : mandatIntitule}
-                {!ids && (
-                  <>
-                    {" · "}
-                    <Lien onClick={() => setPhase("client")}>{t("changer")}</Lien>
-                  </>
-                )}
-                {" · "}
-                <Lien onClick={() => choisirFichiers(true)}>{t("ajouterFacture")}</Lien>
-              </p>
-              {confirmation && <p className="mt-3 text-si-verified">{confirmation}</p>}
-              {alertesFiche}
-              {alertesDepot}
-            </Section>
+      {phase === "lecture" && <p className="p-7 text-si-muted">{t("lecture", { n: nbEnLecture })}</p>}
 
+      {phase === "client" && client && (
+        <div className="max-w-[820px] px-7 py-6">
+          {mandat?.mode === "nouveau" && client.mode === "nouveau" && (
+            <EcranNouveauClient
+              client={client}
+              onClient={(c) => setClient(c)}
+              conflits={conflits}
+              declaration={declaration}
+              onDeclaration={setDeclaration}
+              mandat={mandat}
+              onMandat={setMandat}
+              avocats={avocats}
+              onCestLui={cestLui}
+              alertes={
+                <>
+                  {!client.nom && entrees.length > 0 && <Alerte>{t("lectureRien")}</Alerte>}
+                  {alertesDepot}
+                </>
+              }
+            />
+          )}
+          {client.mode === "connu" && (
+            <>
+              {enteteClient}
+              <ChoixMandat mandats={client.mandats} valeur={mandat} onChange={setMandat} tauxDefaut={contexte.tauxDefaut} avocats={avocats} />
+            </>
+          )}
+        </div>
+      )}
+
+      {phase === "facture" && client && mandat && (
+        <div className={piece ? "grid lg:grid-cols-[minmax(0,1fr)_380px]" : ""}>
+          <div className={`min-w-0 px-7 py-6 ${piece ? "" : "max-w-[820px]"}`}>
+            {enteteClient}
             {courante && (
               <>
                 <Section>
@@ -724,11 +745,20 @@ export function RepriseParDepot() {
                 </Section>
               </>
             )}
-          </>
-        )}
+          </div>
+          {piece && courante && (
+            <aside className="border-t border-si-line2 bg-si-canvas/60 p-6 lg:border-l lg:border-t-0">
+              <div className="lg:sticky lg:top-6">
+                <ApercuPiece key={courante.id} fichier={piece} />
+              </div>
+            </aside>
+          )}
+        </div>
+      )}
 
-        {phase === "fin" &&
-          (recap ? (
+      {phase === "fin" && (
+        <div className="max-w-[820px] px-7 py-6">
+          {recap ? (
             <>
               <EcranFin recap={recap} onRecap={() => ids && void chargerRecap(ids.dossierId)} />
               {autreMandat.length > 0 && (
@@ -742,8 +772,9 @@ export function RepriseParDepot() {
             </>
           ) : (
             <p className="text-si-muted">{erreurRecap ? t("erreurFin") : t("chargementFin")}</p>
-          ))}
-      </div>
+          )}
+        </div>
+      )}
 
       {/* ── La barre de décision ─────────────────────────────────────────── */}
       {phase === "client" && client && (

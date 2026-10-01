@@ -4616,8 +4616,6 @@
       "corriger": "Corriger une écriture"
     },
     "depot": {
-      "titre": "Reprendre un client",
-      "phrase": "Déposez les factures d'un seul client. Rien n'est enregistré avant votre validation.",
       "choisir": "Choisir des factures",
       "sansFacture": "Sans facture",
       "lecture": "Lecture de {n, plural, one {# facture} other {# factures}}…",
@@ -4710,7 +4708,12 @@
       "annuler": "Annuler",
       "autreMandat": "{fichier} mentionne un autre mandat, « {objet} » : elle est mise de côté et sera reprise ensuite avec ce mandat.",
       "resteAutreMandat": "{n, plural, one {Une facture de ce client relève} other {# factures de ce client relèvent}} d'un autre mandat, « {objet} ».",
-      "lesReprendre": "Les reprendre maintenant"
+      "lesReprendre": "Les reprendre maintenant",
+      "deposezTitre": "Déposez les factures d'un seul client",
+      "glissez": "Glissez-les ici. Rien n'est enregistré avant votre validation.",
+      "ouvrir": "Ouvrir",
+      "ouvrirPiece": "Ouvrir {nom} en grand",
+      "apercuImpossible": "Aperçu indisponible. Ouvrez la pièce."
     }
   }
 }
