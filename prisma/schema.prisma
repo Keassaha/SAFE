@@ -164,6 +164,8 @@ model Cabinet {
   stripeWebhookEvents        StripeWebhookEvent[]
   dossierDocketEntries       DossierDocketEntry[]
   employeeHoursEntries       EmployeeHoursEntry[]
+  employeeCompensationPlans  EmployeeCompensationPlan[]
+  employeeCompensationClaims EmployeeCompensationClaim[]
 
   // --- CRM / Console SAFE Inc. (Spec v1.1) ---
   lead                 Lead?                                @relation("CabinetLead")
@@ -300,6 +302,8 @@ model User {
   readyForReviewSignalsAcknowledged DossierReadyForReviewSignal[] @relation("ReadyForReviewSignalAcknowledgedBy")
   navetteAuthored                   DossierNavetteMessage[]       @relation("NavetteAuthor")
   hoursReviewed                     EmployeeHoursEntry[]          @relation("EmployeeHoursReviewer")
+  compensationClaimsReviewed        EmployeeCompensationClaim[]   @relation("CompensationClaimReviewer")
+  compensationPlansCreated          EmployeeCompensationPlan[]    @relation("CompensationPlanCreatedBy")
 
   resetToken       String?
   resetTokenExpiry DateTime?
@@ -338,6 +342,7 @@ enum EmployeeStatus {
 
 enum PayrollFrequency {
   weekly
+  monthly
 }
 
 enum PayrollPeriodStatus {
@@ -349,6 +354,13 @@ enum PayslipStatus {
   draft
   generated
   paid
+}
+
+/// Nature d'une ligne de bulletin. Doctrine : docs/product/SPEC_REMUNERATION_AALIYAH.md
+enum PayslipLineKind {
+  salaire_fixe
+  compensation_dossier
+  heures_aide_juridique
 }
 
 enum PayslipAdjustmentType {
@@ -384,12 +396,14 @@ model Employee {
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
 
-  cabinet      Cabinet              @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
-  user         User?                @relation(fields: [userId], references: [id], onDelete: SetNull)
-  supervisor   Employee?            @relation("EmployeeSupervisor", fields: [supervisorId], references: [id], onDelete: SetNull)
-  subordinates Employee[]           @relation("EmployeeSupervisor")
-  payslips     Payslip[]
-  hoursEntries EmployeeHoursEntry[]
+  cabinet            Cabinet                     @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  user               User?                       @relation(fields: [userId], references: [id], onDelete: SetNull)
+  supervisor         Employee?                   @relation("EmployeeSupervisor", fields: [supervisorId], references: [id], onDelete: SetNull)
+  subordinates       Employee[]                  @relation("EmployeeSupervisor")
+  payslips           Payslip[]
+  hoursEntries       EmployeeHoursEntry[]
+  compensationPlans  EmployeeCompensationPlan[]
+  compensationClaims EmployeeCompensationClaim[]
 
   @@index([cabinetId])
   @@index([cabinetId, status])
@@ -428,10 +442,12 @@ model Payslip {
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
 
-  employee     Employee             @relation(fields: [employeeId], references: [id], onDelete: Cascade)
-  period       PayrollPeriod        @relation(fields: [payrollPeriodId], references: [id], onDelete: Cascade)
-  adjustments  PayslipAdjustment[]
-  hoursEntries EmployeeHoursEntry[]
+  employee           Employee                    @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  period             PayrollPeriod               @relation(fields: [payrollPeriodId], references: [id], onDelete: Cascade)
+  adjustments        PayslipAdjustment[]
+  hoursEntries       EmployeeHoursEntry[]
+  lines              PayslipLine[]
+  compensationClaims EmployeeCompensationClaim[]
 
   @@index([employeeId])
   @@index([payrollPeriodId])
@@ -821,6 +837,7 @@ model Dossier {
   docketEntries         DossierDocketEntry[]
   navetteMessages       DossierNavetteMessage[]
   employeeHoursEntries  EmployeeHoursEntry[]
+  compensationClaims    EmployeeCompensationClaim[]
   parties               DossierPartie[]
 
   expectedDocuments ExpectedDocument[]
@@ -1627,8 +1644,8 @@ model Invoice {
   /// événement du jour.
   estReprise Boolean @default(false)
 
-  createdAt            DateTime  @default(now())
-  updatedAt            DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   cabinet                Cabinet                 @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
   client                 Client                  @relation(fields: [clientId], references: [id], onDelete: Restrict)
@@ -4395,6 +4412,80 @@ model EmployeeHoursEntry {
 
   @@index([cabinetId, employeeId, status])
   @@index([cabinetId, status])
+  @@index([payslipId])
+}
+
+/// Ligne d'un bulletin de paie : salaire fixe, compensations dossiers, heures
+/// d'aide juridique. Le brut du bulletin est la somme de ses lignes.
+/// Doctrine : docs/product/SPEC_REMUNERATION_AALIYAH.md
+model PayslipLine {
+  id        String          @id @default(cuid())
+  payslipId String
+  kind      PayslipLineKind
+  label     String
+  quantity  Float           @default(1)
+  rate      Float           @default(0)
+  amount    Float
+  createdAt DateTime        @default(now())
+
+  payslip Payslip @relation(fields: [payslipId], references: [id], onDelete: Cascade)
+
+  @@index([payslipId])
+}
+
+/// Entente de rémunération d'une employée. Versionnée : une nouvelle version
+/// prend effet à sa date, les paies passées gardent l'ancienne. Une version
+/// n'est jamais modifiée après coup.
+/// Doctrine : docs/product/SPEC_REMUNERATION_AALIYAH.md
+model EmployeeCompensationPlan {
+  id                  String   @id @default(cuid())
+  cabinetId           String
+  employeeId          String
+  monthlySalary       Float    @default(0)
+  legalAidHourlyRate  Float    @default(0)
+  /// Sujet de dossier payé à l'heure (LAO chez Derisier). Jamais dans la grille.
+  legalAidSubjectCode String   @default("LAO")
+  /// JSON { "IMM": 150, "RE": 120 } : montant par dossier terminé, par sujet.
+  grid                Json
+  effectiveFrom       DateTime
+  createdById         String?
+  createdAt           DateTime @default(now())
+
+  cabinet   Cabinet  @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  employee  Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  createdBy User?    @relation("CompensationPlanCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@index([cabinetId, employeeId, effectiveFrom])
+}
+
+/// Une ligne du relevé de dossiers : l'employée déclare un dossier terminé, le
+/// montant vient de la grille et se fige à la déclaration. Même cycle de
+/// statuts que les heures (submitted → approved/rejected → paid).
+/// Doctrine : docs/product/SPEC_REMUNERATION_AALIYAH.md
+model EmployeeCompensationClaim {
+  id              String              @id @default(cuid())
+  cabinetId       String
+  employeeId      String
+  dossierId       String
+  subjectCode     String
+  amount          Float
+  status          EmployeeHoursStatus @default(submitted)
+  submittedAt     DateTime            @default(now())
+  reviewedById    String?
+  reviewedAt      DateTime?
+  rejectionReason String?
+  payslipId       String?
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+
+  cabinet  Cabinet  @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  dossier  Dossier  @relation(fields: [dossierId], references: [id], onDelete: Restrict)
+  reviewer User?    @relation("CompensationClaimReviewer", fields: [reviewedById], references: [id], onDelete: SetNull)
+  payslip  Payslip? @relation(fields: [payslipId], references: [id], onDelete: SetNull)
+
+  @@index([cabinetId, employeeId, status])
+  @@index([dossierId])
   @@index([payslipId])
 }
 

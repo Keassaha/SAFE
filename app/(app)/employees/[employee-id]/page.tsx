@@ -17,13 +17,22 @@ import {
   getPendingHoursForEmployee,
   getApprovedUnbilledHours,
 } from "@/lib/payroll/employee-hours-service";
+import {
+  getCabinetSubjects,
+  getPayView,
+  serializePayView,
+} from "@/lib/payroll/remuneration-service";
+import { toCalendarDayUTC } from "@/lib/utils/calendar-date";
 
 export default async function EmployeeDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ "employee-id": string }>;
+  searchParams: Promise<{ onglet?: string }>;
 }) {
   const { "employee-id": employeeId } = await params;
+  const { onglet } = await searchParams;
   const { cabinetId, role } = await requireCabinetAndUser();
   const userRole = role as UserRole;
 
@@ -114,6 +123,14 @@ export default async function EmployeeDetailPage({
   const canEdit = canEditEmployees(userRole);
   const canPayroll = canPayrollEarly;
   const locale = normalizeAppLocale(await getLocale());
+
+  // Rémunération à trois sources (docs/product/SPEC_REMUNERATION_AALIYAH.md).
+  const [payView, subjects] = canPayroll
+    ? await Promise.all([
+        getPayView(cabinetId, employeeId, toCalendarDayUTC(new Date())),
+        getCabinetSubjects(cabinetId, locale),
+      ])
+    : [null, []];
   const t = await getTranslations("employees");
 
   const serializedPending = pendingHours.map((p) => ({
@@ -175,6 +192,8 @@ export default async function EmployeeDetailPage({
         pendingHours={serializedPending}
         approvedSummary={approvedSummary}
         locale={locale}
+        remuneration={payView ? { view: serializePayView(payView), subjects } : null}
+        initialTab={onglet === "paie" ? "payroll" : "info"}
       />
     </div>
   );

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import type { EmployeeRole, EmployeeStatus, EmploymentType } from "@prisma/client";
 import { EmployeeProfileTabs, type EmployeeProfileTabId } from "./EmployeeProfileTabs";
 import { EmployeeInfoTab } from "./EmployeeInfoTab";
@@ -13,6 +14,8 @@ import type { SerializedPendingHour, ApprovedSummary } from "./PendingHoursAppro
 import type { ActivityRow } from "./EmployeeActivityTab";
 import { updateEmployee, generatePayslipForCurrentWeek } from "@/app/(app)/employees/actions";
 import { EmployeeYearEndPanel } from "./EmployeeYearEndPanel";
+import { ValidationPaiePanel } from "@/components/paie/ValidationPaiePanel";
+import type { SerializedPayView } from "@/lib/payroll/remuneration-service";
 
 export type EmployeeProfileData = {
   id: string;
@@ -48,6 +51,9 @@ interface EmployeeProfileProps {
   pendingHours?: SerializedPendingHour[];
   approvedSummary?: ApprovedSummary | null;
   locale?: "fr" | "en";
+  /** Rémunération à trois sources, quand l'utilisateur gère la paie. */
+  remuneration?: { view: SerializedPayView; subjects: { code: string; label: string }[] } | null;
+  initialTab?: EmployeeProfileTabId;
 }
 
 export function EmployeeProfile({
@@ -60,9 +66,14 @@ export function EmployeeProfile({
   pendingHours = [],
   approvedSummary = null,
   locale = "en",
+  remuneration = null,
+  initialTab = "info",
 }: EmployeeProfileProps) {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<EmployeeProfileTabId>("info");
+  const [activeTab, setActiveTab] = useState<EmployeeProfileTabId>(initialTab);
+  const [showPlanSetup, setShowPlanSetup] = useState(false);
+  const tr = useTranslations("remuneration");
+  const hasPlan = !!remuneration?.view.plan;
 
   async function handleRoleChange(newRole: EmployeeRole) {
     await updateEmployee(employee.id, { role: newRole });
@@ -90,8 +101,25 @@ export function EmployeeProfile({
         />
       )}
 
-      {activeTab === "payroll" && (
+      {activeTab === "payroll" && hasPlan && remuneration && (
+        <ValidationPaiePanel view={remuneration.view} employeeId={employee.id} subjects={remuneration.subjects} />
+      )}
+
+      {activeTab === "payroll" && !hasPlan && (
         <div className="space-y-4">
+          {remuneration ? (
+            showPlanSetup ? (
+              <ValidationPaiePanel view={remuneration.view} employeeId={employee.id} subjects={remuneration.subjects} />
+            ) : (
+              <button
+                type="button"
+                onClick={() => setShowPlanSetup(true)}
+                className="text-sm text-si-ink underline underline-offset-2"
+              >
+                {tr("setupPlan")}
+              </button>
+            )
+          ) : null}
           <EmployeeYearEndPanel
             employeeId={employee.id}
             employmentType={employee.employmentType}
