@@ -11,14 +11,12 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { GettingStarted } from "@/components/dashboard/GettingStarted";
 import { CashflowChart } from "@/components/dashboard/CashflowChart";
 import {
-  ComplianceStrip,
   KpiCard,
   Obligations,
   type ComplianceItem,
   type Obligation,
 } from "@/components/ds-safe/sections";
 import { Card, CardTitle } from "@/components/ds-safe/core";
-import { ArrowUpRight } from "lucide-react";
 import { routes } from "@/lib/routes";
 
 /**
@@ -96,6 +94,8 @@ export async function DashboardViewSafe({
     year: "numeric",
   });
 
+  const moisCourant = new Date().toLocaleDateString(intlLocale, { month: "long" });
+
   const compliance: ComplianceItem[] = [
     { label: "Dossiers actifs", value: String(activeDossiersCount), state: "ok" },
     { label: "Clients actifs", value: String(activeClientsCount), state: "ok" },
@@ -139,7 +139,17 @@ export async function DashboardViewSafe({
           l'avait perdu : la page s'ouvrait directement sur la décision du jour,
           seule de l'application à ne pas se présenter. Titre seul, sans
           sous-titre : le premier écran doit rester des chiffres. */}
-      <PageHeader title={t("title")} />
+      <PageHeader
+        title={t("title")}
+        action={<span className="text-[13px] text-si-muted">{dateLabel}</span>}
+      />
+      {/* 2. L'état du cabinet, en une ligne de texte sous le titre.
+          ── Refonte du 2026-10-01 (déc. CEO, maquette validée) ──────────────
+          C'était une bande pleine en dégradé encre→vert, avec halo, qui pesait
+          plus que la décision du jour placée au-dessus d'elle. Trois mentions
+          d'état n'ont pas besoin d'une surface : une ligne suffit, et seule la
+          mention qui appelle un geste prend la couleur ambre. */}
+      <EtatCabinet items={compliance} />
 
       {/* 1. La décision du jour, en une bande. */}
       <BandeauAction
@@ -158,9 +168,6 @@ export async function DashboardViewSafe({
         actionLabel="Rapprocher le fidéicommis"
       />
 
-      {/* 2. L'état réglementaire, en une bande fine. */}
-      <ComplianceStrip items={compliance} rightNote={dateLabel} />
-
       {/* 3. Les montants, fidéicommis en tête. */}
       <MontantsEssentiels
         fiducie={soldeFideicommis ?? kpis.trustBalance.value}
@@ -169,40 +176,41 @@ export async function DashboardViewSafe({
         resteARecevoir={kpis.outstandingInvoices.value}
         encaisse={kpis.paymentsReceived.value}
         factured={kpis.revenueThisMonth.value}
+        mois={moisCourant}
       />
 
       {/* 4. Le diagramme des flux et les ratios, côte à côte. */}
       <div className="mt-6 grid grid-cols-1 gap-5 lg:grid-cols-[1.7fr_1fr]">
         <Card className="px-6 py-[22px]">
-          <div className="mb-1">
-            <div className="font-mono text-[11px] uppercase tracking-[1.4px] text-si-verified">
-              Flux du cabinet
-            </div>
-            <CardTitle className="mt-2">Facturé et encaissé</CardTitle>
-          </div>
-          <p className="mb-4 text-[12.5px] text-si-muted">
-            L&apos;écart entre les deux barres, c&apos;est l&apos;argent que vous avez gagné mais
-            qui n&apos;est pas encore rentré.
+          <CardTitle>Facturé et encaissé</CardTitle>
+          <p className="mb-4 mt-1 text-[13px] text-si-muted">
+            L&apos;écart entre les deux barres, c&apos;est l&apos;argent gagné qui n&apos;est pas
+            encore rentré.
           </p>
           <CashflowChart data={revenueChartData} />
         </Card>
 
         <Performances
           items={[
+            /* Le nom dit le calcul (page.tsx : paiements du mois ÷ factures
+               émises du mois). « Taux d'encaissement » laissait croire à une
+               cohorte : on lisait 168 % comme une erreur, alors que des
+               paiements de factures antérieures entrent au numérateur. */
             {
-              label: "Taux d'encaissement",
+              label: `Encaissé ÷ facturé, ${moisCourant}`,
               value: kpis.recoveryRate.value,
-              aide: "Part du facturé réellement rentrée.",
+              aide: "Peut dépasser 100 % : inclut des paiements de factures antérieures.",
             },
+            /* Calculé sur toutes les entrées de temps, sans borne de date. */
             {
-              label: "Taux de facturation",
+              label: "Heures portées à une facture",
               value: kpis.billingRate.value,
-              aide: "Part des heures travaillées qui a été facturée.",
+              aide: "Part de toutes les heures saisies.",
             },
             {
               label: "Heures travaillées",
               value: kpis.hoursWorked.value,
-              aide: "Total saisi sur la période.",
+              aide: "Toutes les heures saisies.",
             },
             {
               label: "Heures facturées",
@@ -299,6 +307,14 @@ function decrireDernierRapprochement(
   return `Rapprochement de ${recon.periode} équilibré, il reste à le certifier.`;
 }
 
+/** Ce que la ligne d'alerte ouvre, dit en mots. */
+function libelleDestination(href: string): string {
+  if (href.startsWith(routes.temps)) return "Préparer la facturation";
+  if (href.startsWith(routes.comptes)) return "Voir le fidéicommis";
+  if (href.startsWith(routes.facturation)) return "Voir les factures";
+  return "Ouvrir";
+}
+
 function BandeauAction({
   titre,
   contexte,
@@ -313,17 +329,14 @@ function BandeauAction({
   actionLabel: string;
 }) {
   return (
-    <Card elevated className="mb-5 px-6 py-5 sm:px-7">
+    <Card className="mb-5 px-6 py-5 sm:px-7">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div className="min-w-0">
-          <div className="font-mono text-[11px] uppercase tracking-[1.4px] text-si-verified">
-            À traiter maintenant
-          </div>
-          {/* `h2` et non `h1` : le titre de la page est celui de l'écran. */}
-          <h2 className="mt-1.5 font-serif text-[24px] leading-[1.15] text-si-ink sm:text-[26px]">
-            {titre}
-          </h2>
-          <p className="mt-1 text-[13px] text-si-muted">{contexte}</p>
+          {/* `h2` et non `h1` : le titre de la page est celui de l'écran. Plus
+              de surtitre en capitales : la place de la bande, en tête, dit déjà
+              qu'elle est la chose à traiter (refonte du 2026-10-01). */}
+          <h2 className="text-[22px] font-normal leading-[1.2] text-si-ink">{titre}</h2>
+          <p className="mt-1 text-[14px] text-si-muted">{contexte}</p>
         </div>
         <Link
           href={actionHref}
@@ -334,24 +347,22 @@ function BandeauAction({
       </div>
 
       {alertes.length > 0 && (
-        <div className="mt-4 border-t border-si-line2 pt-3">
-          {alertes.map((a) => (
+        <div className="mt-4 border-t border-si-line2">
+          {alertes.map((a, i) => (
             <Link
               key={a.message}
               href={a.href}
-              className="min-h-tap safe-zoom-menu -mx-2 flex items-center gap-2.5 rounded-lg px-2 py-1.5 no-underline"
+              className={cn(
+                "min-h-tap safe-zoom-menu -mx-2 flex items-center gap-2.5 rounded-lg px-2 py-2.5 no-underline",
+                i > 0 && "border-t border-si-line2",
+              )}
             >
-              <span
-                aria-hidden
-                className={cn(
-                  "h-[6px] w-[6px] shrink-0 rounded-full",
-                  /trust|fidei|overdue|retard|urgent/i.test(a.type)
-                    ? "bg-si-amber"
-                    : "bg-si-verified",
-                )}
-              />
-              <span className="min-w-0 flex-1 truncate text-[13px] text-si-body">{a.message}</span>
-              <ArrowUpRight className="h-3.5 w-3.5 shrink-0 text-si-muted" aria-hidden />
+              {/* Toutes ambre : une alerte appelle un geste. Le vert ne dit que
+                  « validé », il n'a rien à faire sur une ligne d'alerte. */}
+              <span aria-hidden className="h-[6px] w-[6px] shrink-0 rounded-full bg-si-amber" />
+              <span className="min-w-0 flex-1 truncate text-[14px] text-si-body">{a.message}</span>
+              {/* La destination en mots, à la place d'une flèche ↗ muette. */}
+              <span className="shrink-0 text-[13px] text-si-muted">{libelleDestination(a.href)}</span>
             </Link>
           ))}
         </div>
@@ -376,7 +387,9 @@ function MontantsEssentiels({
   resteARecevoir,
   encaisse,
   factured,
+  mois,
 }: {
+  mois: string;
   fiducie: string;
   clientsEnFiducie: number;
   fiducieARapprocher: boolean;
@@ -385,95 +398,111 @@ function MontantsEssentiels({
   factured: string;
 }) {
   const secondaires = [
-    {
-      label: "Reste à recevoir",
-      value: resteARecevoir,
-      href: routes.facturationCreancesAging,
-      pill: "Créances",
-    },
-    {
-      label: "Encaissé ce mois",
-      value: encaisse,
-      href: routes.facturationPaiements,
-      pill: "Encaissements",
-    },
-    {
-      label: "Facturé ce mois",
-      value: factured,
-      href: routes.facturation,
-      pill: "Facturation",
-    },
+    { label: "Reste à recevoir", value: resteARecevoir, href: routes.facturationCreancesAging, lien: "Créances" },
+    { label: `Encaissé en ${mois}`, value: encaisse, href: routes.facturationPaiements, lien: "Paiements" },
+    { label: `Facturé en ${mois}`, value: factured, href: routes.facturation, lien: "Factures" },
   ];
 
+  /* ── Refonte du 2026-10-01 (déc. CEO, maquette validée) ────────────────────
+     C'étaient quatre tuiles pleines en dégradé encre→vert, chacune avec halo,
+     pastille en capitales et flèche. Le gabarit le plus reconnaissable des
+     tableaux de bord générés, et une contradiction avec la palette : le vert
+     ne dit que « validé » (lib/ds/palettes.ts), or un fidéicommis à rapprocher
+     n'est justement pas validé.
+
+     Une seule surface blanche, découpée en colonnes par des filets. Le
+     fidéicommis garde ses deux colonnes sur cinq et son chiffre au double :
+     il se distingue par la taille et la place, plus par la couleur. Le seul
+     dégradé de l'écran reste celui du bouton d'action. */
   return (
-    <section aria-label="Montants du cabinet" className="mt-5">
-      <div className="mb-3 font-mono text-[11px] uppercase tracking-[1.4px] text-si-muted">
-        Les montants à surveiller
-      </div>
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-5">
-        {/* Fidéicommis : deux colonnes sur cinq, chiffre au double de la taille. */}
-        <Link
-          href={routes.comptes}
-          className="safe-carte-chiffre safe-zoom group relative overflow-hidden rounded-2xl safe-action-degrade px-[26px] py-6 text-si-surface no-underline sm:col-span-2"
-          aria-label="Fidéicommis client"
-        >
-          <div
-            aria-hidden
-            className="absolute -left-[50px] -bottom-[70px] h-[220px] w-[220px] glow-verified"
-          />
-          <span className="relative z-10 mb-3.5 inline-flex items-center gap-2 rounded-full bg-si-verified/25 px-2.5 py-[5px] font-mono text-[10.5px] uppercase tracking-wider text-si-verified-on-forest">
-            <span className="h-1.5 w-1.5 rounded-full bg-si-verified-dot" aria-hidden />
-            Fidéicommis
+    /* La feuille commune (components/ui/Card) : même rayon et même ombre que
+       les autres blocs de l'écran, plutôt qu'un cadre recopié à la main. */
+    <Card
+      role="region"
+      aria-label="Montants du cabinet"
+      className="mt-5 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5"
+    >
+      <Link
+        href={routes.comptes}
+        aria-label="Fidéicommis client"
+        className="safe-carte-chiffre safe-zoom block px-[26px] pb-6 pt-[22px] text-si-ink no-underline sm:col-span-2"
+      >
+        <div className="text-[13px] text-si-body">Fidéicommis · sommes détenues pour vos clients</div>
+        <div title={fiducie} className="safe-chiffre-porteur mt-2.5 font-mono tabular-nums">
+          {fiducie}
+        </div>
+        <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-[13px] text-si-muted">
+          <span>
+            {clientsEnFiducie} client{clientsEnFiducie > 1 ? "s" : ""} avec des fonds
           </span>
-          <ArrowUpRight
-            className="absolute right-[26px] top-6 z-10 h-4 w-4 opacity-50"
-            aria-hidden
-          />
-          <div className="relative z-10 text-xs opacity-75">Sommes détenues pour vos clients</div>
-          <div
-            title={fiducie}
-            className="safe-chiffre-porteur relative z-10 mt-1 font-mono"
-          >
-            {fiducie}
+          {fiducieARapprocher ? (
+            <span className="inline-flex items-center gap-1.5 text-si-amber-ink">
+              <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-si-amber" />
+              Rapprochement à faire
+            </span>
+          ) : (
+            <span>Rapprochement à jour</span>
+          )}
+        </div>
+      </Link>
+      {secondaires.map((tile, i) => (
+        <Link
+          key={tile.href}
+          href={tile.href}
+          aria-label={tile.label}
+          className={cn(
+            "safe-carte-chiffre safe-zoom block border-t border-si-line2 px-[26px] pb-6 pt-[22px] text-si-ink no-underline sm:border-l xl:border-t-0",
+            /* Sur deux colonnes, la première tuile secondaire ouvre une rangée :
+               pas de filet contre le bord du cadre. */
+            i === 0 && "sm:border-l-0 xl:border-l",
+          )}
+        >
+          <div className="text-[13px] text-si-muted">{tile.label}</div>
+          <div title={tile.value} className="safe-chiffre mt-2.5 font-mono tabular-nums">
+            {tile.value}
           </div>
-          <div className="relative z-10 mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11.5px] opacity-80">
-            <span>
-              {clientsEnFiducie} client{clientsEnFiducie > 1 ? "s" : ""} avec des fonds
-            </span>
-            <span aria-hidden className="opacity-50">
-              ·
-            </span>
-            <span>{fiducieARapprocher ? "Rapprochement à faire" : "Rapprochement à jour"}</span>
+          <div className="mt-3 text-[13px] text-si-muted underline decoration-si-line underline-offset-[3px]">
+            {tile.lien}
           </div>
         </Link>
+      ))}
+    </Card>
+  );
+}
 
-        {secondaires.map((tile) => (
-          <Link
-            key={tile.label}
-            href={tile.href}
-            className="safe-carte-chiffre safe-zoom group relative overflow-hidden rounded-2xl safe-action-degrade px-[26px] py-6 text-si-surface no-underline"
-            aria-label={tile.label}
-          >
-            <div
-              aria-hidden
-              className="absolute -left-[50px] -bottom-[70px] h-[200px] w-[200px] glow-verified"
-            />
-            <span className="relative z-10 mb-3.5 inline-flex items-center gap-2 rounded-full bg-si-verified/25 px-2.5 py-[5px] font-mono text-[10.5px] uppercase tracking-wider text-si-verified-on-forest">
-              <span className="h-1.5 w-1.5 rounded-full bg-si-verified-dot" aria-hidden />
-              {tile.pill}
+/**
+ * L'état du cabinet, en une ligne sous le titre.
+ *
+ * Les mentions au repos se lisent « 43 dossiers actifs » ; celle qui appelle
+ * un geste prend l'ambre et se lit d'un tenant : « Fidéicommis à rapprocher ».
+ */
+function EtatCabinet({ items }: { items: ComplianceItem[] }) {
+  return (
+    <div className="-mt-1 mb-6 flex flex-wrap items-center gap-x-4 gap-y-1 text-[13px] text-si-body">
+      {items.map((it, i) => (
+        <span key={it.label} className="inline-flex items-center gap-4">
+          {i > 0 && (
+            <span aria-hidden className="text-si-subtle">
+              ·
             </span>
-            <ArrowUpRight
-              className="absolute right-[26px] top-6 z-10 h-4 w-4 opacity-50"
-              aria-hidden
-            />
-            <div className="relative z-10 text-xs opacity-75">{tile.label}</div>
-            <div title={tile.value} className="safe-chiffre relative z-10 mt-1 font-mono">
-              {tile.value}
-            </div>
-          </Link>
-        ))}
-      </div>
-    </section>
+          )}
+          {it.state === "warn" ? (
+            <span className="inline-flex items-center gap-1.5 text-si-amber-ink">
+              <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-si-amber" />
+              {it.label} {it.value.toLowerCase()}
+            </span>
+          ) : /^\d/.test(it.value) ? (
+            <span>
+              <b className="font-medium text-si-ink">{it.value}</b> {it.label.toLowerCase()}
+            </span>
+          ) : (
+            <span>
+              {it.label} {it.value.toLowerCase()}
+            </span>
+          )}
+        </span>
+      ))}
+    </div>
   );
 }
 
@@ -485,10 +514,7 @@ function Performances({
 }) {
   return (
     <Card className="px-6 py-[22px]">
-      <div className="font-mono text-[11px] uppercase tracking-[1.4px] text-si-verified">
-        Vos performances
-      </div>
-      <CardTitle className="mb-1 mt-2">Ce que ça donne</CardTitle>
+      <CardTitle>Ce que ça donne</CardTitle>
       <div className="mt-3">
         {items.map((k, i) => (
           <div
@@ -496,7 +522,7 @@ function Performances({
             className={cn("py-[11px]", i > 0 && "border-t border-si-line2")}
           >
             <div className="flex items-baseline justify-between gap-3">
-              <span className="text-[13px] text-si-body">{k.label}</span>
+              <span className="text-[14px] text-si-body">{k.label}</span>
               <span
                 className={cn(
                   "font-mono text-base tabular-nums",
@@ -506,7 +532,7 @@ function Performances({
                 {k.value}
               </span>
             </div>
-            <p className="mt-0.5 text-[11.5px] text-si-muted">{k.aide}</p>
+            <p className="mt-0.5 text-[12px] text-si-muted">{k.aide}</p>
           </div>
         ))}
       </div>

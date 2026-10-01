@@ -29,23 +29,12 @@ import type { RevenueChartPoint } from "@/lib/dashboard/types";
  *
  * ## Pourquoi ces deux couleurs
  *
- * Emphase, pas catégoriel : une teinte porteuse et un gris de retrait.
- * L'encaissé est ce qui est réellement rentré, il prend le vert de l'état
- * validé ; le facturé n'est qu'une créance, il reste gris. Le couple
- * `#26654A` / `#888E94` a été passé au validateur du référentiel dataviz :
- * séparation daltonisme ΔE 17,2 (protan) et 19,8 (tritan), vision normale
- * 20,2, contraste supérieur à 3:1 sur les deux. Le plancher de chroma est
- * volontairement échoué : le gris DOIT lire gris, c'est son rôle, et le vert
- * de la marque est désaturé par décision de palette.
- *
- * ## Le relief
- *
- * Le CEO a demandé un diagramme « 3D ». Une vraie perspective fausse la
- * lecture des hauteurs : c'est le seul point où je n'ai pas suivi la demande à
- * la lettre. Le relief est donc porté par la matière et non par la géométrie —
- * dégradé vertical, capuchon arrondi, arête haute éclairée, ombre au sol — de
- * sorte que les colonnes se lisent comme des objets posés, pendant que leur
- * hauteur reste mesurée sur un axe plat.
+ * Emphase, pas catégoriel : l'encre porte l'encaissé, ce qui est réellement
+ * rentré ; un gris de retrait porte le facturé, qui n'est qu'une créance.
+ * Jusqu'au 2026-10-01, l'encaissé prenait le vert de l'état validé et les
+ * colonnes portaient un relief (dégradé, arête éclairée, ombre au sol), à la
+ * demande d'un diagramme « 3D ». Les deux sont retirés avec la refonte du
+ * tableau de bord validée par le CEO : voir la note sur les jetons plus bas.
  */
 
 interface Props {
@@ -82,34 +71,32 @@ function Colonne(props: {
   width?: number;
   height?: number;
   fill?: string;
-  /** Identifiant du dégradé et de l'arête, propre à la série. */
-  degrade?: string;
 }) {
-  const { x = 0, y = 0, width = 0, height = 0, fill, degrade } = props;
+  const { x = 0, y = 0, width = 0, height = 0, fill } = props;
   if (height <= 0 || width <= 0) return null;
   return (
-    <g filter="url(#ombre-colonne)">
-      <path d={cheminColonne(x, y, width, height)} fill={degrade ? `url(#${degrade})` : fill} />
-      {/* Arête éclairée : l'objet reçoit la lumière par le haut. Elle ne change
-          pas la hauteur lue, elle habille le capuchon. */}
-      <path
-        d={cheminColonne(x, y, width, Math.min(4, height))}
-        fill="var(--si-surface)"
-        opacity={0.32}
-      />
-    </g>
+    <path d={cheminColonne(x, y, width, height, 2)} fill={fill} />
   );
 }
 
 /**
  * Les deux couleurs viennent des jetons, jamais d'une hexadécimale recopiée :
  * la palette est pilotable depuis `lib/ds/palettes.ts`, et un diagramme figé
- * dériverait d'elle à la première retouche. Contrepartie assumée : la
- * séparation mesurée plus haut vaut pour la palette « Ardoise » en vigueur ;
- * qui change `verified` ou `border-strong` doit repasser le validateur.
+ * dériverait d'elle à la première retouche. Les deux séries partagent la
+ * même encre : elles se distinguent par la luminance (17,4:1 contre environ
+ * 1,4:1), lisible en daltonisme comme en impression noir et blanc.
  */
-const VERT = "var(--si-verified)";
-const GRIS = "var(--si-border-strong)";
+/* ── Refonte du 2026-10-01 (déc. CEO, maquette validée) ─────────────────────
+   Gris et encre, plus de vert. Le vert ne dit que « validé » dans la palette ;
+   un encaissement n'est pas un état validé, c'est un montant. Le gris clair
+   porte la créance, l'encre porte ce qui est réellement rentré : l'emphase va
+   toujours à l'encaissé. Le relief (dégradé, arête, ombre au sol) est retiré
+   pour la même raison que les tuiles : de la matière sans information.
+   Contraste mesuré : #161817 sur blanc 17,4:1 ; le gris de retrait reste un
+   élément non textuel repris en légende et dans le tableau « Voir les
+   chiffres », qui porte les valeurs. */
+const ENCRE = "var(--si-ink)";
+const GRIS = "rgb(var(--si-ink-rgb) / 0.18)";
 
 export function CashflowChart({ data }: Props) {
   const locale = useLocale();
@@ -134,7 +121,7 @@ export function CashflowChart({ data }: Props) {
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-4">
           <LegendeItem couleur={GRIS} label="Facturé" />
-          <LegendeItem couleur={VERT} label="Encaissé" />
+          <LegendeItem couleur={ENCRE} label="Encaissé" />
         </div>
         <div className="flex items-center gap-1" role="group" aria-label="Période affichée">
           {([6, 12] as Fenetre[]).map((f) => (
@@ -175,29 +162,6 @@ export function CashflowChart({ data }: Props) {
                 barGap={5}
                 barCategoryGap="26%"
               >
-                <defs>
-                  {/* Le dégradé se fait par l'opacité du MÊME jeton, pas par
-                      une seconde teinte : la carte est blanche, donc 80 % du
-                      jeton y lit exactement comme sa version claire, et il n'y
-                      a qu'une couleur à maintenir par série. */}
-                  <linearGradient id="grad-facture" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor={GRIS} stopOpacity={0.76} />
-                    <stop offset="100%" stopColor={GRIS} stopOpacity={1} />
-                  </linearGradient>
-                  <linearGradient id="grad-encaisse" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor={VERT} stopOpacity={0.8} />
-                    <stop offset="100%" stopColor={VERT} stopOpacity={1} />
-                  </linearGradient>
-                  <filter id="ombre-colonne" x="-40%" y="-20%" width="180%" height="150%">
-                    <feDropShadow
-                      dx="0"
-                      dy="4"
-                      stdDeviation="3.5"
-                      floodColor="var(--si-ink)"
-                      floodOpacity="0.2"
-                    />
-                  </filter>
-                </defs>
                 {/* Grille en retrait : elle sert la lecture, elle ne la dispute pas. */}
                 <CartesianGrid
                   vertical={false}
@@ -239,7 +203,7 @@ export function CashflowChart({ data }: Props) {
                           valeur={formatCurrency(facture, "CAD", intlLocale)}
                         />
                         <LigneTooltip
-                          couleur={VERT}
+                          couleur={ENCRE}
                           label="Encaissé"
                           valeur={formatCurrency(encaisse, "CAD", intlLocale)}
                         />
@@ -254,7 +218,7 @@ export function CashflowChart({ data }: Props) {
                   dataKey="facture"
                   name="Facturé"
                   maxBarSize={34}
-                  shape={<Colonne degrade="grad-facture" />}
+                  shape={<Colonne fill={GRIS} />}
                   isAnimationActive={false}
                 >
                   {points.map((p) => (
@@ -265,7 +229,7 @@ export function CashflowChart({ data }: Props) {
                   dataKey="encaisse"
                   name="Encaissé"
                   maxBarSize={34}
-                  shape={<Colonne degrade="grad-encaisse" />}
+                  shape={<Colonne fill={ENCRE} />}
                   isAnimationActive={false}
                 >
                   {points.map((p) => (
