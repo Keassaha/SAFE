@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -62,6 +62,8 @@ function urlNouvelleFacture(row: HonorairesRow): string {
   return `${routes.facturationFactureNouvelle}?${params.toString()}`;
 }
 
+const abonnementVide = () => () => {};
+
 interface HonorairesAFacturerViewProps {
   cabinetId: string;
 }
@@ -88,7 +90,13 @@ export function HonorairesAFacturerView({ cabinetId }: HonorairesAFacturerViewPr
   const { data, isLoading } = useFacturationHonoraires(filtres);
   const { data: contexte } = useTempsContext(cabinetId);
   const seuil = data?.seuil ?? SEUIL_FACTURATION_DEFAUT;
-  const users = contexte?.users ?? [];
+  // Les avocats viennent du même contexte que le chrono de la barre du haut.
+  // La barre s'hydrate tout de suite, ce bloc seulement après l'écran de
+  // chargement : le contexte est alors souvent déjà en mémoire, et la liste
+  // dessinerait des options que le serveur n'a pas dessinées (erreur React
+  // #418, constatée le 2026-10-01). On attend donc la fin de l'hydratation.
+  const hydrate = useSyncExternalStore(abonnementVide, () => true, () => false);
+  const users = hydrate ? (contexte?.users ?? []) : [];
 
   // Le filtre client se fait ici : côté API, `clientId` bascule la réponse
   // en détail d'un seul client, ce n'est pas un filtre de liste.
