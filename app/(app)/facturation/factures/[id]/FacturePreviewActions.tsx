@@ -15,7 +15,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { CheckCircle2, ExternalLink, Mail, Trash2 } from "lucide-react";
+import { CheckCircle2, ExternalLink, Mail, PencilLine, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/Button";
@@ -25,11 +25,14 @@ import { routes } from "@/lib/routes";
 type FacturePreviewActionsProps = {
   invoiceId: string;
   invoiceStatus: string | null;
+  /** Présent seulement pour une facture reprise d'un exercice précédent. */
+  corrigerHref?: string;
 };
 
-export function FacturePreviewActions({ invoiceId, invoiceStatus }: FacturePreviewActionsProps) {
+export function FacturePreviewActions({ invoiceId, invoiceStatus, corrigerHref }: FacturePreviewActionsProps) {
   const router = useRouter();
   const t = useTranslations("billingUi");
+  const tc = useTranslations("repriseUnClient.correction");
   const [pendingAction, setPendingAction] = useState<string | null>(null);
   const [showSend, setShowSend] = useState(false);
 
@@ -61,6 +64,15 @@ export function FacturePreviewActions({ invoiceId, invoiceStatus }: FacturePrevi
 
   return (
     <div className="flex flex-wrap items-center justify-end gap-2">
+      {corrigerHref && (
+        <Link
+          href={corrigerHref}
+          className="inline-flex min-h-tap items-center justify-center gap-1.5 rounded-md border border-si-line px-4 text-sm font-medium text-si-ink transition-colors hover:bg-si-canvas"
+        >
+          <PencilLine className="h-4 w-4" />
+          {tc("boutonFacture")}
+        </Link>
+      )}
       <Link
         href={`/api/facturation/factures/${invoiceId}/pdf`}
         target="_blank"

@@ -511,6 +511,26 @@ export function colonnesPaiement(mode: ModePaiementSaisie | null | undefined): C
   }
 }
 
+/** L'inverse de `colonnesPaiement` : le mode tel que l'écran le nomme. */
+export function modeDepuisColonnes(paymentMethod: string | null | undefined): ModePaiementSaisie {
+  switch (paymentMethod) {
+    case "cheque":
+      return "cheque";
+    case "bank_transfer":
+      return "virement";
+    case "e_transfer":
+      return "interac";
+    case "cash":
+      return "comptant";
+    case "card":
+      return "carte";
+    case "trust":
+      return "fideicommis";
+    default:
+      return "autre";
+  }
+}
+
 export function estModePaiement(v: unknown): v is ModePaiementSaisie {
   return typeof v === "string" && (MODES_PAIEMENT as string[]).includes(v);
 }

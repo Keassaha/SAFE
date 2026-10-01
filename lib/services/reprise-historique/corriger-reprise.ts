@@ -9,6 +9,11 @@ import { createAuditLog } from "@/lib/services/audit";
 import { JOURNAL_MOTIVE_LABELS } from "@/types/journal";
 import { toCalendarDayUTC } from "@/lib/utils/calendar-date";
 import {
+  colonnesPaiement,
+  modeDepuisColonnes,
+  type ModePaiementSaisie,
+} from "@/lib/services/reprise-un-client/saisie";
+import {
   assertFactureCorrigible,
   calculerEffetNet,
   changementsMateriels,
@@ -35,8 +40,8 @@ import {
  * - le motif est obligatoire à chaque passage et vit sur l'écriture de
  *   correction, jamais sur l'originale.
  *
- * Hors de ce lot : la nature d'une ligne (honoraire ↔ débours) ne se corrige
- * pas encore ici, elle demande de défaire l'entrée de temps ou le débours liés.
+ * Une facture reprise impayée qui se révèle payée reçoit ICI son encaissement :
+ * paiement, allocation et écriture au journal, à la date réelle de réception.
  */
 
 export interface CorrigerRepriseParams {
@@ -51,6 +56,8 @@ export interface CorrigerRepriseParams {
     statutPaiement?: StatutPaiementCorrige;
     montantPaye?: number;
     datePaiement?: string | null;
+    /** Comment l'argent est arrivé. Sans valeur, le mode déjà inscrit est gardé. */
+    modePaiement?: ModePaiementSaisie;
     /** Reclassement d'une ligne lue de travers : honoraire ↔ débours. */
     lignes?: { invoiceLineId: string; nature: "honoraire" | "debours" }[];
   };
@@ -114,7 +121,7 @@ export async function corrigerFactureReprise(
       client: { select: { raisonSociale: true, prenom: true, nom: true } },
       payments: {
         where: { estReprise: true },
-        select: { id: true, montant: true, datePaiement: true },
+        select: { id: true, montant: true, datePaiement: true, paymentMethod: true },
         orderBy: { createdAt: "asc" },
       },
       invoiceLines: {
@@ -193,7 +200,14 @@ export async function corrigerFactureReprise(
       `ligne « ${r.ligne.description} » ${r.vers === "debours" ? "honoraire → débours" : "débours → honoraire"}`,
     );
   }
-  if (!changements.material && reclassements.length === 0) {
+  // Le mode ne compte que s'il reste un encaissement à décrire.
+  const modeAvant = paiement ? modeDepuisColonnes(paiement.paymentMethod) : null;
+  const modeApres: ModePaiementSaisie | null =
+    apres.statutPaiement === "impayee" ? null : (corrections.modePaiement ?? modeAvant ?? "autre");
+  const modeChange = paiement !== null && modeApres !== null && modeApres !== modeAvant;
+  if (modeChange) changements.raisons.push(`mode de paiement ${modeAvant} → ${modeApres}`);
+
+  if (!changements.material && reclassements.length === 0 && !modeChange) {
     return { corrige: false, raisons: [], correctionIds: [], message: "Rien n'a changé." };
   }
 
@@ -411,11 +425,15 @@ export async function corrigerFactureReprise(
         await tx.payment.delete({ where: { id: paiement.id } });
       } else {
         const datePaiement = jourCalendaire(apres.datePaiement as string);
+        const colonnes = colonnesPaiement(modeApres);
         await tx.payment.update({
           where: { id: paiement.id },
           data: {
             montant: apres.montantPaye,
             datePaiement,
+            method: colonnes.method,
+            paymentMethod: colonnes.paymentMethod,
+            sourceAccountType: colonnes.sourceAccountType,
             allocationStatus: paymentStatus === "PAID" ? "ALLOCATED" : "PARTIALLY_ALLOCATED",
           },
         });
@@ -432,7 +450,7 @@ export async function corrigerFactureReprise(
             invoiceId: facture.id,
             datePaiement,
             montant: apres.montantPaye,
-            paymentMethod: "other",
+            paymentMethod: colonnes.paymentMethod,
             referenceNumber: null,
             reference: null,
             receivedById: userId,
@@ -442,6 +460,54 @@ export async function corrigerFactureReprise(
           { client: tx, utilisateurId: userId, sourceIdOverride: `${paiement.id}#v${versionPaiement}` },
         );
       }
+    } else if (apres.statutPaiement !== "impayee") {
+      // Reprise inscrite impayée, payée en réalité : l'encaissement n'a jamais
+      // été écrit. Il naît ici, à sa vraie date, comme au versement.
+      const datePaiement = jourCalendaire(apres.datePaiement as string);
+      const colonnes = colonnesPaiement(modeApres);
+      const nouveau = await tx.payment.create({
+        data: {
+          cabinetId,
+          clientId: facture.clientId,
+          invoiceId: facture.id,
+          datePaiement,
+          montant: apres.montantPaye,
+          method: colonnes.method,
+          paymentMethod: colonnes.paymentMethod,
+          sourceAccountType: colonnes.sourceAccountType,
+          allocationStatus: paymentStatus === "PAID" ? "ALLOCATED" : "PARTIALLY_ALLOCATED",
+          estReprise: true,
+          receivedById: userId,
+        },
+        select: {
+          id: true,
+          cabinetId: true,
+          clientId: true,
+          invoiceId: true,
+          datePaiement: true,
+          montant: true,
+          paymentMethod: true,
+          referenceNumber: true,
+          reference: true,
+          receivedById: true,
+        },
+      });
+      await tx.paymentAllocation.create({
+        data: {
+          paymentId: nouveau.id,
+          invoiceId: facture.id,
+          allocatedAmount: apres.montantPaye,
+          allocatedAt: datePaiement,
+        },
+      });
+      await writeJournalForPayment(
+        {
+          ...nouveau,
+          invoice: { numero: facture.numero, dossierId: facture.dossierId },
+          client: facture.client,
+        },
+        { client: tx, utilisateurId: userId },
+      );
     }
 
     // Les débours de la facture suivent son sort.
@@ -461,7 +527,7 @@ export async function corrigerFactureReprise(
     // Contrepassation motivée puis re-jeu : la même famille que `reverse`,
     // jamais une suppression. Rien n'est effacé du journal.
     action: "reverse",
-    newValues: { ...apres, motifCode, motifTexte },
+    newValues: { ...apres, modePaiement: modeApres, raisons: changements.raisons, motifCode, motifTexte },
     performedBy: userId,
     performedAt: new Date(),
   });

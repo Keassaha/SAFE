@@ -19,7 +19,7 @@ import type { JournalCorrectionMotive } from "@prisma/client";
  * grammaire de motifs dans tout le produit, jamais deux listes qui divergent.
  */
 
-const MOTIF_ORDER: JournalCorrectionMotive[] = [
+export const MOTIF_ORDER: JournalCorrectionMotive[] = [
   "ERREUR_SAISIE",
   "MAUVAIS_TYPE",
   "DOUBLON",
@@ -29,7 +29,7 @@ const MOTIF_ORDER: JournalCorrectionMotive[] = [
   "AUTRE",
 ];
 
-const MOTIF_KEY: Record<JournalCorrectionMotive, string> = {
+export const MOTIF_KEY: Record<JournalCorrectionMotive, string> = {
   ERREUR_SAISIE: "motifErreurSaisie",
   MAUVAIS_TYPE: "motifMauvaisType",
   DOUBLON: "motifDoublon",
@@ -40,7 +40,7 @@ const MOTIF_KEY: Record<JournalCorrectionMotive, string> = {
 };
 
 /** Doit rester aligné sur `MOTIF_TEXTE_MIN` du service. */
-const TEXTE_MIN = 10;
+export const TEXTE_MIN = 10;
 
 export function MotifAnnulationModal({
   open,

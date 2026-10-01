@@ -14,6 +14,9 @@ import { FacturePreviewActions } from "./FacturePreviewActions";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { deriveLegacyStatut } from "@/lib/billing/invoice-status";
 import { getFormatteurs } from "@/lib/i18n/formatteurs-serveur";
+import { prisma } from "@/lib/db";
+import { canCreateClients } from "@/lib/auth/permissions";
+import type { UserRole } from "@prisma/client";
 
 function toIsoDate(value: string | Date) {
   return new Date(value).toISOString();
@@ -68,13 +71,22 @@ export default async function FacturePreviewPage({
   const { formatCurrency, formatCalendarDate } = await getFormatteurs();
   const t = await getTranslations("billingUi");
   const locale = await getLocale();
-  const { cabinetId } = await requireCabinetAndUser();
+  const { cabinetId, role } = await requireCabinetAndUser();
   const { id } = await params;
   const invoice = await loadPresentedInvoiceForCabinet(id, cabinetId);
 
   if (!invoice) {
     notFound();
   }
+
+  // Une facture reprise d'un exercice précédent se corrige depuis sa page,
+  // par contrepassation motivée. Les autres gardent leur chemin habituel.
+  const reprise = await prisma.invoice.findFirst({
+    where: { id: invoice.id, cabinetId, estReprise: true, cancelledAt: null },
+    select: { id: true },
+  });
+  const corrigerHref =
+    reprise && canCreateClients(role as UserRole) ? routes.facturationFactureCorriger(invoice.id) : undefined;
 
   const items: InvoiceCleanItem[] = invoice.lines.map((line) => ({
     id: line.id,
@@ -129,6 +141,7 @@ export default async function FacturePreviewPage({
         <FacturePreviewActions
           invoiceId={invoice.id}
           invoiceStatus={invoice.invoiceStatus}
+          corrigerHref={corrigerHref}
         />
       </header>
 

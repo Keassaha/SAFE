@@ -7,6 +7,8 @@ import {
   depuisExtraction,
   enregistrable,
   lireNombre,
+  MODES_PAIEMENT,
+  modeDepuisColonnes,
   montantLigne,
   resteDu,
   versExtraction,
@@ -257,5 +259,17 @@ describe("le mode de paiement, vers le paiement enregistré", () => {
   });
   it("sans mode : autre", () => {
     expect(colonnesPaiement(null).paymentMethod).toBe("other");
+  });
+});
+
+describe("modeDepuisColonnes", () => {
+  it("retrouve chaque mode depuis les colonnes qu'il a écrites", () => {
+    for (const mode of MODES_PAIEMENT) {
+      expect(modeDepuisColonnes(colonnesPaiement(mode).paymentMethod)).toBe(mode);
+    }
+  });
+  it("une méthode inconnue devient autre", () => {
+    expect(modeDepuisColonnes("wire")).toBe("autre");
+    expect(modeDepuisColonnes(null)).toBe("autre");
   });
 });

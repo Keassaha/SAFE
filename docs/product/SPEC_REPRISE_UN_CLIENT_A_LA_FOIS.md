@@ -395,3 +395,40 @@ anglais : aucun reste de français. Aucune erreur console.
 facture réelle qui porterait courriel et téléphone ; la mise à jour d'une fiche sur un
 client existant (la route est écrite, le cas ne s'est pas présenté dans l'essai).
 
+
+## 11. Corriger une facture là où elle vit (décision CEO du 2026-10-01)
+
+La vue « Corriger une écriture » quitte SAFE Import. Une liste de toutes les factures
+reprises, à part, obligeait à retrouver une facture qu'on avait sous les yeux ailleurs.
+La capacité reste, l'écran de la maquette « d » aussi ; seule la liste disparaît.
+
+Deux portes :
+
+- **la page de la facture en Facturation** : un bouton « Corriger », visible seulement
+  pour une facture `estReprise` non annulée et pour qui peut créer des clients. Il
+  ouvre `/facturation/factures/[id]/corriger` ;
+- **la fin d'un client** : les factures qu'on vient d'enregistrer, chacune avec
+  « Corriger ». C'est le moment où une erreur de lecture se remarque.
+
+L'écran (`components/clients/reprise-un-client/CorrigerFacture.tsx`) : le client et
+l'historique de la facture (« jamais corrigée », ou combien de fois, quand, par qui) ;
+total, date, nature de chaque ligne ; le paiement et son mode ; « Ce qui sera corrigé »
+en avant → après ; le motif en liste fermée, précision obligatoire pour « Autre » ; la
+pièce d'origine à droite. Le pied dit le nombre de changements, ou ce qui bloque.
+
+Défaut corrigé au passage dans `corriger-reprise.ts` : une facture reprise **impayée**
+corrigée en payée changeait de statut sans qu'aucun paiement ni écriture d'encaissement
+n'existe. Le paiement naît maintenant à la correction, à sa vraie date, avec son mode.
+Le mode se corrige aussi seul.
+
+Le lien facture → pièce est consigné au versement (`documentId` dans le journal d'audit
+de la facture). Pour les factures versées avant, la pièce se retrouve par son nom de
+fichier dans le même mandat.
+
+**Essai du 2026-10-01**, navigateur réel, Cabinet Test : facture déposée et enregistrée
+impayée, corrigée depuis la fin du client en « payée le 2 mai 2025 par chèque ». En
+base : paiement repris de 1 607,35 $ au 2025-05-02 par chèque, facture soldée,
+contrepassation datée du jour avec son motif, facture réinscrite en `#v2`, encaissement
+au journal à sa vraie date. Depuis la page de la facture : bouton présent, l'écran
+affiche « corrigée une fois … par Admin Cabinet Test » et la pièce. En anglais : aucun
+reste de français. Aucune erreur console. Cabinet Test vidé après l'essai.

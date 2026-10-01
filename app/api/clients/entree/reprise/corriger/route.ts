@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { canCreateClients } from "@/lib/auth/permissions";
 import { revalidatePath } from "next/cache";
-import { prisma } from "@/lib/db";
+import { chargerFactureReprise } from "@/lib/services/reprise-historique/facture-reprise-detail";
 import {
   corrigerFactureReprise,
   CorrigerRepriseError,
@@ -13,7 +13,7 @@ import type { JournalCorrectionMotive, UserRole } from "@prisma/client";
 /**
  * L'espace de correction des exercices précédents.
  *
- * GET  — les factures reprises du cabinet, avec ce qui les décrit aujourd'hui.
+ * GET  — UNE facture reprise (`?invoiceId=`), son historique et sa pièce.
  * POST — corrige l'une d'elles par contrepassation motivée puis re-jeu.
  */
 
@@ -28,61 +28,19 @@ function getSessionData() {
   });
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   const data = await getSessionData();
   if (!data) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
   if (!canCreateClients(data.role)) {
     return NextResponse.json({ error: "Droits insuffisants" }, { status: 403 });
   }
 
-  const factures = await prisma.invoice.findMany({
-    where: { cabinetId: data.cabinetId, estReprise: true, cancelledAt: null },
-    orderBy: { dateEmission: "desc" },
-    take: 100,
-    select: {
-      id: true,
-      numero: true,
-      dateEmission: true,
-      totalInvoiceAmount: true,
-      montantTotal: true,
-      montantPaye: true,
-      paymentStatus: true,
-      client: { select: { raisonSociale: true, prenom: true, nom: true } },
-      payments: {
-        where: { estReprise: true },
-        select: { datePaiement: true },
-        orderBy: { createdAt: "asc" },
-        take: 1,
-      },
-      invoiceLines: {
-        select: { id: true, description: true, montant: true, lineType: true },
-        orderBy: { sortOrder: "asc" },
-      },
-    },
-  });
+  const invoiceId = new URL(request.url).searchParams.get("invoiceId");
+  if (!invoiceId) return NextResponse.json({ error: "Facture requise" }, { status: 400 });
 
-  return NextResponse.json({
-    factures: factures.map((f) => ({
-      id: f.id,
-      numero: f.numero,
-      dateEmission: f.dateEmission.toISOString().slice(0, 10),
-      montantTotal: f.totalInvoiceAmount || f.montantTotal,
-      montantPaye: f.montantPaye,
-      statutPaiement:
-        f.paymentStatus === "PAID" ? "payee" : f.paymentStatus === "PARTIAL" ? "partielle" : "impayee",
-      datePaiement: f.payments[0]?.datePaiement.toISOString().slice(0, 10) ?? null,
-      clientNom:
-        f.client?.raisonSociale ||
-        [f.client?.prenom, f.client?.nom].filter(Boolean).join(" ") ||
-        "Client",
-      lignes: f.invoiceLines.map((l) => ({
-        id: l.id,
-        description: l.description,
-        montant: l.montant,
-        nature: l.lineType === "expense" ? "debours" : "honoraire",
-      })),
-    })),
-  });
+  const facture = await chargerFactureReprise(data.cabinetId, invoiceId);
+  if (!facture) return NextResponse.json({ error: "Facture reprise introuvable" }, { status: 404 });
+  return NextResponse.json({ facture });
 }
 
 export async function POST(request: Request) {
@@ -121,6 +79,7 @@ export async function POST(request: Request) {
     revalidatePath("/comptabilite");
     revalidatePath("/journal/general");
     revalidatePath("/facturation");
+    revalidatePath(`/facturation/factures/${body.invoiceId}`);
 
     return NextResponse.json(resultat);
   } catch (err) {

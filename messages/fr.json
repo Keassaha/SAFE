@@ -4611,10 +4611,6 @@
         "FIDEICOMMIS": "Réglée à même le fidéicommis : le paiement le portera, mais aucun mouvement ne sera inscrit au registre de fidéicommis. Le solde restant se déclare à l'étape du mandat."
       }
     },
-    "onglets": {
-      "reprendre": "Reprendre un client",
-      "corriger": "Corriger une écriture"
-    },
     "depot": {
       "choisir": "Choisir des factures",
       "sansFacture": "Sans facture",
@@ -4714,6 +4710,60 @@
       "ouvrir": "Ouvrir",
       "ouvrirPiece": "Ouvrir {nom} en grand",
       "apercuImpossible": "Aperçu indisponible. Ouvrez la pièce."
+    },
+    "correction": {
+      "chargement": "Chargement de la facture…",
+      "introuvable": "Cette facture ne se corrige pas ici. Seules les factures reprises d'un exercice précédent le peuvent.",
+      "entete": "Facture {numero} du {date} · reprise le {reprise}",
+      "jamaisCorrigee": "jamais corrigée",
+      "corrigeeFois": "{n, plural, one {corrigée une fois} other {corrigée # fois}}, la dernière le {date}",
+      "parAuteur": " par {auteur}",
+      "corrigee": "Facture corrigée. L'écriture d'origine est contrepassée et la version corrigée est inscrite.",
+      "laFacture": "La facture",
+      "total": "Total",
+      "dateEmission": "Date d'émission",
+      "honoraire": "Honoraire",
+      "debours": "Débours",
+      "natureDe": "Nature de « {ligne} »",
+      "lePaiement": "Le paiement",
+      "paiement": "Paiement",
+      "recuLe": "Reçu le",
+      "montantRecu": "Montant reçu",
+      "par": "Par",
+      "mode": "Mode de paiement",
+      "statutPayee": "payée",
+      "statutPartielle": "partielle",
+      "statutImpayee": "impayée",
+      "statutLe": "{statut} le {date}",
+      "natureHonoraire": "honoraire",
+      "natureDebours": "débours",
+      "ceQuiSera": "Ce qui sera corrigé",
+      "pourquoi": "Pourquoi cette correction ?",
+      "motif": "Motif",
+      "precision": "Précision",
+      "precisionFacultative": "Une précision, si elle aide à comprendre plus tard",
+      "precisionRequise": "Précisez ce qui s'est passé ({min} caractères au minimum)",
+      "conserve": "Le motif est conservé avec votre nom et la date.",
+      "aucunChangement": "Aucun changement pour l'instant",
+      "etat": "{n, plural, one {1 changement} other {# changements}} · l'écriture d'origine sera contrepassée, puis réinscrite corrigée",
+      "bloqueTotal": "Le total doit être un montant positif.",
+      "bloqueDate": "Il manque la date d'émission.",
+      "bloqueDatePaiement": "Il manque la date de réception du paiement.",
+      "bloqueMontantRecu": "Le montant reçu doit être inférieur au total.",
+      "bloqueMode": "Dites comment le paiement a été reçu.",
+      "bloquePrecision": "Le motif « Autre » demande une précision de {min} caractères au minimum.",
+      "corriger": "Corriger la facture",
+      "enCours": "Correction…",
+      "erreur": "La correction n'a pas pu être enregistrée.",
+      "retour": "Retour",
+      "retourFacture": "Retour à la facture",
+      "pageTitre": "Corriger la facture {numero}",
+      "lesFactures": "Les factures reprises",
+      "corrigerUne": "Corriger",
+      "boutonFacture": "Corriger"
+    },
+    "onglets": {
+      "reprendre": "Reprendre un client"
     }
   }
 }

@@ -4611,10 +4611,6 @@
         "FIDEICOMMIS": "Paid from trust: the payment will show it, but no movement will be recorded in the trust ledger. The remaining balance is declared at the matter step."
       }
     },
-    "onglets": {
-      "reprendre": "Bring in a client",
-      "corriger": "Correct an entry"
-    },
     "depot": {
       "choisir": "Choose invoices",
       "sansFacture": "Without an invoice",
@@ -4714,6 +4710,60 @@
       "ouvrir": "Open",
       "ouvrirPiece": "Open {nom} full size",
       "apercuImpossible": "Preview unavailable. Open the document."
+    },
+    "correction": {
+      "chargement": "Loading the invoice…",
+      "introuvable": "This invoice can't be corrected here. Only invoices brought in from a previous fiscal year can.",
+      "entete": "Invoice {numero} of {date} · brought in on {reprise}",
+      "jamaisCorrigee": "never corrected",
+      "corrigeeFois": "{n, plural, one {corrected once} other {corrected # times}}, last on {date}",
+      "parAuteur": " by {auteur}",
+      "corrigee": "Invoice corrected. The original entry is reversed and the corrected version is recorded.",
+      "laFacture": "The invoice",
+      "total": "Total",
+      "dateEmission": "Issue date",
+      "honoraire": "Fee",
+      "debours": "Disbursement",
+      "natureDe": "Type of “{ligne}”",
+      "lePaiement": "The payment",
+      "paiement": "Payment",
+      "recuLe": "Received on",
+      "montantRecu": "Amount received",
+      "par": "By",
+      "mode": "Payment method",
+      "statutPayee": "paid",
+      "statutPartielle": "partial",
+      "statutImpayee": "unpaid",
+      "statutLe": "{statut} on {date}",
+      "natureHonoraire": "fee",
+      "natureDebours": "disbursement",
+      "ceQuiSera": "What will be corrected",
+      "pourquoi": "Why this correction?",
+      "motif": "Reason",
+      "precision": "Details",
+      "precisionFacultative": "A detail, if it helps understand later",
+      "precisionRequise": "Explain what happened ({min} characters minimum)",
+      "conserve": "The reason is kept with your name and the date.",
+      "aucunChangement": "No changes yet",
+      "etat": "{n, plural, one {1 change} other {# changes}} · the original entry will be reversed, then recorded again corrected",
+      "bloqueTotal": "The total must be a positive amount.",
+      "bloqueDate": "The issue date is missing.",
+      "bloqueDatePaiement": "The date the payment was received is missing.",
+      "bloqueMontantRecu": "The amount received must be less than the total.",
+      "bloqueMode": "Say how the payment was received.",
+      "bloquePrecision": "The reason “Other” needs at least {min} characters of detail.",
+      "corriger": "Correct the invoice",
+      "enCours": "Correcting…",
+      "erreur": "The correction could not be saved.",
+      "retour": "Back",
+      "retourFacture": "Back to the invoice",
+      "pageTitre": "Correct invoice {numero}",
+      "lesFactures": "Invoices brought in",
+      "corrigerUne": "Correct",
+      "boutonFacture": "Correct"
+    },
+    "onglets": {
+      "reprendre": "Bring in a client"
     }
   }
 }

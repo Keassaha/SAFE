@@ -23,6 +23,8 @@ export const routes = {
   facturationHonorairesClient: (clientId: string) => `/facturation/honoraires/${clientId}`,
   facturationFactureNouvelle: "/facturation/nouvelle",
   facturationFactureApercu: (id: string) => `/facturation/factures/${id}`,
+  /** Correction d'une facture reprise d'un exercice précédent. */
+  facturationFactureCorriger: (id: string) => `/facturation/factures/${id}/corriger`,
   /** @deprecated Le chemin affiche maintenant l'aperçu canonique de la facture. */
   facturationFactureEdit: (id: string) => `/facturation/factures/${id}`,
   /** Lien public pour que le client consulte sa facture (sans auth) */

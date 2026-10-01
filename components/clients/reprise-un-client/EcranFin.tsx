@@ -14,9 +14,22 @@ import { Champ, Erreur, Lien, Section, champ, titre } from "./ui";
  * La fin d'un client. Second correctif de la version 4 : ce que le parcours
  * allégé a laissé de côté (l'identité, le fidéicommis) revient ICI, nommé, avec
  * de quoi le compléter tout de suite. Rien ne tombe dans l'oubli.
+ *
+ * Les factures qu'on vient d'enregistrer y sont listées, chacune avec
+ * « Corriger » : c'est le moment où une erreur de lecture se remarque.
  */
-export function EcranFin({ recap, onRecap }: { recap: RecapitulatifMandat; onRecap: () => void }) {
+export function EcranFin({
+  recap,
+  onRecap,
+  onCorriger,
+}: {
+  recap: RecapitulatifMandat;
+  onRecap: () => void;
+  /** Ouvre la correction d'une facture qu'on vient d'enregistrer. */
+  onCorriger: (invoiceId: string) => void;
+}) {
   const t = useTranslations("repriseUnClient.depot");
+  const tc = useTranslations("repriseUnClient.correction");
   const locale = useLocale();
   const f = formats(locale);
   const [aucunSolde, setAucunSolde] = useState(false);
@@ -72,6 +85,23 @@ export function EcranFin({ recap, onRecap }: { recap: RecapitulatifMandat; onRec
           <p className="mt-1 text-si-muted">{t("soldeDeclare", { montant: f.devise.format(recap.fideicommis) })}</p>
         )}
       </Section>
+
+      {recap.factures.length > 0 && (
+        <Section>
+          <div className="text-si-muted">{tc("lesFactures")}</div>
+          <ul className="mt-2">
+            {recap.factures.map((fa) => (
+              <li key={fa.id} className="grid grid-cols-[minmax(0,1fr)_auto_auto] items-baseline gap-5 border-b border-si-line2 py-2.5 last:border-b-0">
+                <span className="min-w-0 truncate">
+                  {fa.numero} · {f.jourLong(fa.dateEmission)}
+                </span>
+                <span className="text-right">{f.devise.format(fa.total)}</span>
+                <Lien onClick={() => onCorriger(fa.id)}>{tc("corrigerUne")}</Lien>
+              </li>
+            ))}
+          </ul>
+        </Section>
+      )}
 
       <Section>
         <div className="text-si-muted">{t("resteFiche")}</div>

@@ -615,6 +615,7 @@ export async function verserFactureReprise(
       reprise: true,
       fichierNom: facture.fichierNom,
       sansPiece: !piece,
+      documentId: resultat.documentId,
       champsCorriges: facture.champsCorriges ?? [],
     },
   });

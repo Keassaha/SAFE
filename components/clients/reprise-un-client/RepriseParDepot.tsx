@@ -36,6 +36,7 @@ import {
   type MandatChoisi,
 } from "./EcranClient";
 import { EcranFin } from "./EcranFin";
+import { CorrigerFacture } from "./CorrigerFacture";
 import { ApercuPiece } from "./ApercuPiece";
 import { Alerte, BarreDecision, Erreur, Lien, Section, racine, titre } from "./ui";
 import type { EntreeFacture, Ids } from "./types";
@@ -74,6 +75,7 @@ function copie<T>(v: T): T {
 export function RepriseParDepot() {
   const t = useTranslations("repriseUnClient.depot");
   const tf = useTranslations("repriseUnClient.factures");
+  const tc = useTranslations("repriseUnClient.correction");
   const locale = useLocale();
   const f = useMemo(() => formats(locale), [locale]);
   const inputFichiers = useRef<HTMLInputElement>(null);
@@ -82,6 +84,8 @@ export function RepriseParDepot() {
   const [contexte, setContexte] = useState<ContexteRepriseUnClient | null>(null);
   const [erreurContexte, setErreurContexte] = useState(false);
   const [phase, setPhase] = useState<Phase>("depart");
+  /** La facture qu'on corrige depuis la fin du client, le cas échéant. */
+  const [aCorriger, setACorriger] = useState<string | null>(null);
   const [nbEnLecture, setNbEnLecture] = useState(0);
   const [survol, setSurvol] = useState(false);
 
@@ -529,6 +533,7 @@ export function RepriseParDepot() {
   };
 
   const clientSuivant = () => {
+    setACorriger(null);
     setEntrees([]);
     setClient(null);
     setCoordLues({ adresse: null, courriel: null, telephone: null });
@@ -756,11 +761,20 @@ export function RepriseParDepot() {
         </div>
       )}
 
-      {phase === "fin" && (
+      {phase === "fin" && aCorriger && (
+        <CorrigerFacture
+          key={aCorriger}
+          invoiceId={aCorriger}
+          onCorrigee={() => ids && void chargerRecap(ids.dossierId)}
+          retour={<Lien onClick={() => setACorriger(null)}>{tc("retour")}</Lien>}
+        />
+      )}
+
+      {phase === "fin" && !aCorriger && (
         <div className="max-w-[820px] px-7 py-6">
           {recap ? (
             <>
-              <EcranFin recap={recap} onRecap={() => ids && void chargerRecap(ids.dossierId)} />
+              <EcranFin recap={recap} onRecap={() => ids && void chargerRecap(ids.dossierId)} onCorriger={setACorriger} />
               {autreMandat.length > 0 && (
                 <Section>
                   <p>
@@ -832,7 +846,7 @@ export function RepriseParDepot() {
         </BarreDecision>
       )}
 
-      {phase === "fin" && recap && (
+      {phase === "fin" && recap && !aCorriger && (
         <BarreDecision etat={null}>
           <Button variant="primary" className="!text-[14px]" onClick={clientSuivant}>
             {t("clientSuivant")}

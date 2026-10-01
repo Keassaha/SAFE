@@ -4,7 +4,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { AlertTriangle, ChevronDown, FileWarning, Upload } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { StatusBadge } from "@/components/ui/StatusBadge";
-import { CorrectionsReprise } from "@/components/clients/reprise/CorrectionsReprise";
 import {
   construireLotReprise,
   type FactureRepriseSaisie,
@@ -168,7 +167,6 @@ function labelDatePaiement(statut: StatutPaiementReprise | null): string {
 }
 
 export function ReprisePage() {
-  const [vue, setVue] = useState<"deposer" | "corriger">("deposer");
   const [entrees, setEntrees] = useState<EntreeFacture[]>([]);
   const [versement, setVersement] = useState<
     { phase: "idle" } | { phase: "en_cours" } | { phase: "termine"; resultats: { id: string; ok: boolean; erreur?: string }[] }
@@ -379,30 +377,7 @@ export function ReprisePage() {
 
   return (
     <div className="space-y-5">
-      <div className="inline-flex rounded-lg border border-si-line bg-si-surface2 p-0.5">
-        {([
-          { cle: "deposer", libelle: "Déposer des factures" },
-          { cle: "corriger", libelle: "Corriger une écriture" },
-        ] as const).map((o) => (
-          <button
-            key={o.cle}
-            type="button"
-            aria-pressed={vue === o.cle}
-            onClick={() => setVue(o.cle)}
-            className={`min-h-8 rounded-[6px] px-3 text-[13px] font-medium transition-all ${
-              vue === o.cle
-                ? "bg-si-surface text-si-ink shadow-[0_1px_2px_rgba(22,24,23,0.10)]"
-                : "text-si-muted hover:text-si-ink"
-            }`}
-          >
-            {o.libelle}
-          </button>
-        ))}
-      </div>
-
-      {vue === "corriger" && <CorrectionsReprise />}
-
-      <div className={vue === "deposer" ? "space-y-5" : "hidden"}>
+      <div className="space-y-5">
       <div className="flex items-start justify-between gap-4">
         <div>
           <h2 className="mb-1 text-[15px] font-medium text-si-ink">Reprise d&apos;un exercice précédent</h2>
