@@ -60,6 +60,8 @@ export const routes = {
   rejoindre: (token: string) => `/rejoindre/${token}`,
   employees: "/employees",
   employee: (id: string) => `/employees/${id}`,
+  /** Espace de paie de l'employée, ouvert depuis le compte de l'avocate. */
+  employeeEspace: (id: string) => `/employees/${id}/espace`,
   employeeNouveau: "/employees/nouveau",
   employeeYearEnd: "/employees/year-end",
   comptes: "/comptes",

@@ -49,15 +49,24 @@ export function DigestPreferenceToggle({ enabled: initial }: Props) {
         type="button"
         role="switch"
         aria-checked={enabled}
+        aria-label={t("title")}
         disabled={pending}
         onClick={toggle}
-        className="relative inline-flex h-tap w-tap shrink-0 items-center rounded-full transition-colors disabled:opacity-50"
-        style={{ backgroundColor: enabled ? FOREST : "#D4D4D8" }}
+        className="relative inline-flex h-tap w-tap shrink-0 items-center justify-center rounded-full disabled:opacity-50"
       >
+        {/* La zone de clic garde ses 44 px ; le dessin, lui, reste un
+            interrupteur plus large que haut. Remplir toute la zone de couleur
+            en faisait un rond plein, illisible comme bascule. */}
         <span
-          className="inline-block h-5 w-5 transform rounded-full bg-si-surface shadow transition-transform"
-          style={{ transform: enabled ? "translateX(22px)" : "translateX(2px)" }}
-        />
+          aria-hidden
+          className="relative inline-flex h-6 w-10 items-center rounded-full transition-colors"
+          style={{ backgroundColor: enabled ? FOREST : "#D4D4D8" }}
+        >
+          <span
+            className="inline-block h-5 w-5 transform rounded-full bg-si-surface shadow transition-transform"
+            style={{ transform: enabled ? "translateX(18px)" : "translateX(2px)" }}
+          />
+        </span>
         {pending ? (
           <Loader2 className="absolute -right-6 h-4 w-4 animate-spin text-si-muted/50" aria-hidden />
         ) : null}
