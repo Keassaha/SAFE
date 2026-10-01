@@ -60,8 +60,15 @@ codé, cabinet démo local sans factures).
   désormais une ombre courte (16 px). Une capture « avant » prise avant le rechargement
   du style avait fait croire à un défaut ancien : c'était bien cette ombre.
 - Emoji 📖 retiré de la réplique de la comptabilité (« Journal général »). L'écran réel
-  ne l'a plus. ⚠ La réplique montre encore un sélecteur unique là où l'écran réel porte
-  trois onglets depuis le 2026-09-09 : à refaire par la procédure des extraits.
+  ne l'a plus.
+- ~~La réplique de la comptabilité montre un écran qui n'existe plus.~~ Refaite le même
+  jour sur une capture de l'écran réel : quatre mesures en ligne, trois journaux en
+  onglets, boutons sur la ligne des onglets, ligne de filtres, six colonnes de
+  `MovementsTable`. Montants inchangés (relevé du 2026-09-01). Image validée par le CEO :
+  `captures/2026-10-01_accueil_extrait_comptabilite.png`. Hauteur de fiche posée à
+  958 px pour que « egaliserDuo » garde à la fiche de temps voisine sa coupe actuelle.
+  À compléter à la prochaine recapture complète : compteurs des onglets, provenance du
+  paiement (mode), et confirmation de la pièce 2026-008 et du dossier 2026-063.
   Reste le critère 6 (relevé périmé), qui demande une recapture des données complètes
   de Me Roy.
 - `ComplianceStrip` n'est plus monté que par `/ds-preview`.

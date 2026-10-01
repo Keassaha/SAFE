@@ -3821,11 +3821,6 @@ const CSS = `
     padding-top: 12px; font-size: 12px; color: var(--si-muted);
   }
 
-  /* Le journal : la vue par defaut dit ce que l'ecriture FAIT. */
-  .xc .fiche .tbl-journal { font-size: 12px; }
-  .xc .fiche .tbl-journal .baisse { color: var(--si-danger-ink, #a32d2d); }
-  .xc .fiche .tbl-journal .hausse { color: var(--si-verified); }
-  .xc .fiche .tbl-journal .du { color: var(--si-amber-ink); }
   .xc .fiche .ct .segments { display: inline-flex; align-items: center; gap: 4px; }
   .xc .fiche .ct .segments span {
     padding: 5px 11px; border-radius: 8px; font-size: 12px; color: var(--si-muted);
@@ -3838,22 +3833,72 @@ const CSS = `
   .xc .fiche .lignes .lg small {
     display: block; margin-top: 3px; font-size: 11.5px; color: var(--si-muted);
   }
-  .xc .fiche .pa-fid {
-    margin-left: 8px; padding: 2px 8px; border-radius: 8px;
-    background: rgb(var(--si-amber-rgb) / 0.13); color: var(--si-amber-ink);
-    font-size: 11px;
+  /* ── Comptabilité, écran du 2026-09-12 (réplique refaite le 2026-10-01) ── */
+  .xc .fiche .compta-aide { align-self: flex-end; font-size: 13px; color: var(--si-muted); }
+  .xc .fiche .compta-mesures {
+    display: flex; gap: 40px; flex-wrap: wrap;
+    margin: 16px 0 0; padding-bottom: 18px;
+    border-bottom: 1px solid var(--si-line);
   }
-  /* L'en-tete de « Details comptables » vit HORS carte, comme dans l'ecran. */
-  .xc .fiche .ct-detail {
-    display: flex; align-items: flex-end; justify-content: space-between;
-    gap: 16px; flex-wrap: wrap; margin-top: 22px;
+  .xc .fiche .compta-mesures dt {
+    font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--si-muted);
   }
-  .xc .fiche .journal-choix {
-    display: inline-flex; align-items: center; gap: 8px;
-    height: 38px; margin: 14px 0 4px; padding: 0 14px;
-    border: 1px solid var(--si-line); border-radius: 10px;
-    background: var(--si-surface); font-size: 13px; color: var(--si-ink);
+  .xc .fiche .compta-mesures dd { margin: 6px 0 0; display: flex; align-items: baseline; gap: 8px; }
+  .xc .fiche .compta-mesures .v { font-family: var(--mono); font-size: 22px; font-weight: 500; color: var(--si-ink); }
+  .xc .fiche .compta-mesures .d { font-size: 12px; color: var(--si-muted); }
+  .xc .fiche .compta-feuille { margin-top: 22px; padding: 0; overflow: hidden; }
+  /* Sous la feuille, l'écran réel continue sur le fond de page. La réplique
+     garde cet espace, pour deux raisons.
+     1. « egaliserDuo » coupe les DEUX fenêtres à la hauteur de la plus courte.
+        Refaite d'après l'écran réel, la comptabilité est plus compacte que
+        l'ancienne (850 px de dessin contre 1 085) : laissée telle quelle, elle
+        coupait la fiche de temps voisine au-dessus de ses lignes, celles qui
+        portent l'argument de la section.
+     2. Le fondu de 120 px tombe ainsi sur le fond, pas sur la deuxième
+        écriture ni sur la mention légale.
+     1 085 px était la hauteur de dessin de la FENÊTRE précédente ; les deux
+     barres et le rembourrage en prennent 127, d'où 958 pour la fiche. La
+     fiche de temps garde ainsi exactement la coupe validée jusqu'ici. */
+  .xc .fiche.fiche-compta { min-height: 958px; }
+  .xc .fiche.fiche-compta .reserve-compta { margin-top: 20px; }
+  .xc .fiche .compta-onglets {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding-right: 12px; border-bottom: 1px solid var(--si-line);
   }
+  .xc .fiche .compta-onglets .onglets-fiche { margin-top: 0; border-bottom: 0; }
+  .xc .fiche .compta-filtres {
+    display: flex; align-items: center; gap: 8px;
+    padding: 16px 18px; border-bottom: 1px solid var(--si-line);
+    font-size: 13px;
+  }
+  .xc .fiche .compta-filtres .champ {
+    width: 340px; padding: 8px 12px;
+    border: 1px solid var(--si-border); border-radius: 6px; color: var(--si-subtle);
+  }
+  .xc .fiche .compta-filtres .ecart { flex: 1; }
+  .xc .fiche .compta-filtres .choix {
+    min-width: 140px; padding: 8px 12px;
+    border: 1px solid var(--si-border); border-radius: 6px; color: var(--si-ink);
+  }
+  .xc .fiche .compta-filtres .bascule {
+    margin-left: 4px; font-weight: 500; color: var(--si-ink);
+    text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--si-line);
+  }
+  .xc .fiche .compta-filtres .cpt { color: var(--si-muted); }
+  .xc .fiche .tbl-mouv { font-size: 13px; }
+  .xc .fiche .tbl-mouv th:first-child, .xc .fiche .tbl-mouv td:first-child { padding-left: 18px; }
+  .xc .fiche .tbl-mouv th:last-child, .xc .fiche .tbl-mouv td:last-child { padding-right: 18px; }
+  .xc .fiche .tbl-mouv .date, .xc .fiche .tbl-mouv .muted { color: var(--si-muted); }
+  .xc .fiche .tbl-mouv .type { display: inline-flex; align-items: center; gap: 8px; }
+  .xc .fiche .tbl-mouv .type i { width: 6px; height: 6px; border-radius: 1px; }
+  .xc .fiche .tbl-mouv .type i.pos { background: var(--si-verified); }
+  .xc .fiche .tbl-mouv .type i.att { background: var(--si-amber); }
+  .xc .fiche .tbl-mouv .cl { display: block; font-weight: 500; color: var(--si-ink); }
+  .xc .fiche .tbl-mouv .sous { display: block; font-size: 12px; color: var(--si-muted); }
+  .xc .fiche .tbl-mouv .hausse { color: var(--si-verified); }
+  .xc .fiche .tbl-mouv .du { color: var(--si-amber-ink); }
+  .xc .fiche .tbl-mouv .vide { color: var(--si-muted); }
 
   /* Le journal a son propre cadre, sous celui du client : ce n'est pas le meme
      ecran, et la vitrine ne les confond pas. */
@@ -7888,113 +7933,96 @@ export default function ExperienceCinema() {
                   <span>Finances · Comptabilité</span>
                 </div>
                 <BarreAppVitrine actif="finances" />
-                <div className="fiche">
+                <div className="fiche fiche-compta">
                   {/* ── L'ECRAN /comptabilite, RECOPIE SUR CAPTURE ───────────
-                      Captures du CEO le 2026-08-30. La version precedente se
-                      trompait de VUE : elle montrait les colonnes Entree et
-                      Sortie, qui sont celles du « Journal brut (expert) ». La
-                      vue par defaut est « Mouvements expliques », et ses
-                      colonnes disent ce que l'ecriture FAIT : augmente le du,
-                      reduit le du, impact tresorerie.
+                      Refait le 2026-10-01 sur une capture de l'écran réel
+                      (ComptabilitePageView.tsx, refonte du 2026-09-12). La
+                      version du 2026-08-30 montrait un écran qui n'existe plus :
+                      cinq lignes « sans mélange », un bloc « Détails
+                      comptables » et un sélecteur unique de journal, précédé
+                      d'un emoji. L'écran réel ouvre sur quatre mesures en
+                      ligne, puis une feuille dont les TROIS journaux sont des
+                      onglets, avec leurs boutons sur la même ligne.
 
-                      L'ecran s'ouvre par « L'argent du cabinet, sans melange »,
-                      cinq lignes qui separent le cash, les creances, les
-                      depenses et le fideicommis. Ce bloc porte tout le propos
-                      de la section : il ne se resume pas, il se montre. */}
+                      Les montants sont ceux du relevé du 2026-09-01 (état au
+                      31 août), déjà portés par la version précédente. Les
+                      compteurs d'onglets ne sont PAS affichés : ils ne figurent
+                      dans aucun relevé, et un nombre posé à l'œil serait une
+                      donnée inventée. À ajouter à la prochaine recapture. */}
                   <div className="fiche-tete">
                     <div>
                       <h4>Comptabilité</h4>
-                      <p className="fiche-sous">
-                        Une vue claire des flux : cash, factures, créances, dépenses et
-                        fidéicommis restent séparés.
-                      </p>
+                      <p className="fiche-sous">Les livres du cabinet, et ce qu&rsquo;ils disent ce mois-ci.</p>
                     </div>
+                    <span className="lien compta-aide">Comprendre les mouvements</span>
                   </div>
 
-                  <div className="vues">
-                    <div className="vue on">
-                      <div className="carte-bloc">
-                        <div className="ct">
-                          <p className="ctt">L&rsquo;argent du cabinet, sans mélange</p>
-                          <span className="lien">Comprendre les chiffres</span>
-                        </div>
-                        <div className="lignes">
-                          {[
-                            ["Facturé ce mois", "Ce que vous avez facturé. Pas encore encaissé.", "15 924,06 $", ""],
-                            ["Encaissé ce mois", "L’argent réellement reçu de vos clients.", "19 373,82 $", ""],
-                            ["Reste à recevoir", "Ce que vos clients vous doivent encore.", "33 133,61 $", ""],
-                            ["Dépenses", "Les sorties d’argent du cabinet.", "0,00 $", ""],
-                            ["Fidéicommis", "Argent du client, séparé du cabinet. Jamais un revenu.", "0,00 $", "Argent du client"],
-                          ].map(([k, d, v, pastille]) => (
-                            <div className="lg" key={k}>
-                              <span>
-                                {k}
-                                {pastille ? <span className="pa-fid">{pastille}</span> : null}
-                                <small>{d}</small>
-                              </span>
-                              <span className="v">{v}</span>
-                            </div>
-                          ))}
-                        </div>
+                  <dl className="compta-mesures">
+                    {[
+                      ["Facturé ce mois", "15 924,06 $", "pas encore encaissé"],
+                      ["Encaissé ce mois", "19 373,82 $", "reçu des clients"],
+                      ["Reste à recevoir", "33 133,61 $", "dû par les clients"],
+                      ["Dépenses", "0,00 $", "sorties du cabinet"],
+                    ].map(([k, v, d]) => (
+                      <div key={k}>
+                        <dt>{k}</dt>
+                        <dd><span className="v">{v}</span><span className="d">{d}</span></dd>
                       </div>
+                    ))}
+                  </dl>
 
-                      <div className="ct ct-detail">
-                        <div>
-                          <p className="ctt">Détails comptables</p>
-                          <p className="fiche-sous">Journaux et tableaux, pour aller plus loin.</p>
+                      <div className="carte-bloc compta-feuille">
+                        {/* Les trois journaux en onglets, motif de la fiche
+                            dossier ; les boutons du journal actif à droite. */}
+                        <div className="compta-onglets">
+                          <div className="onglets-fiche" role="tablist" aria-label="Onglets comptabilité">
+                            <button type="button" className="on" role="tab" aria-selected="true">Journal général</button>
+                            <button type="button" className="inerte" role="tab" aria-selected="false" tabIndex={-1}>Journal des dépenses</button>
+                            <button type="button" className="inerte" role="tab" aria-selected="false" tabIndex={-1}>Paiements</button>
+                          </div>
+                          <div className="actes">
+                            <span className="bt principal">Nouvelle écriture</span>
+                            <span className="bt">Exporter CSV</span>
+                          </div>
                         </div>
-                        <div className="actes">
-                          <span className="bt principal">+ Nouvelle écriture</span>
-                          <span className="bt">Exporter CSV</span>
+                        <div className="compta-filtres">
+                          <span className="champ">Référence, description, client&hellip;</span>
+                          <span className="ecart" />
+                          <span className="choix">Ce mois</span>
+                          <span className="choix">Tous les types</span>
+                          <span className="bascule">Mouvements expliqués</span>
+                          <span className="cpt">2 écritures</span>
                         </div>
-                      </div>
-                      <span className="sel journal-choix">Journal général</span>
+                        {/* Les six colonnes de MovementsTable. Un seul montant
+                            signé par colonne : l'ambre monte le dû, le vert le
+                            réduit ; en trésorerie, le vert entre.
 
-                      <div className="carte-bloc">
-                        <div className="ct">
-                          <p className="ctt">Écritures</p>
-                          <span className="segments">
-                            <span className="on">Mouvements expliqués</span>
-                            <span>Journal brut (expert)</span>
-                            <span>Corrections</span>
-                            <span className="cpt">2 écritures</span>
-                          </span>
-                        </div>
-                        {/* Les colonnes de la vue par defaut. Une ecriture n'y
-                            est pas un debit ou un credit : elle augmente le du,
-                            le reduit, ou touche la tresorerie.
-
-                            ⚠ Ce que la vitrine N'INVENTE PAS : la ligne de
-                            paiement n'a ni reference ni dossier. Le service ne
-                            les y porte pas, la colonne reste vide. */}
-                        <table className="ha-tbl tbl-journal">
+                            ⚠ Ce que la vitrine N'INVENTE PAS : la provenance
+                            d'un paiement est son mode (Interac, chèque...), qui
+                            n'est dans aucun relevé. La colonne reste à « — ». */}
+                        <table className="ha-tbl tbl-mouv">
                           <thead>
                             <tr>
-                              <th>Date</th><th>Type</th><th>Client</th><th>Dossier</th><th>Description</th>
-                              <th style={{ textAlign: "right" }}>Augmente le dû</th>
-                              <th style={{ textAlign: "right" }}>Réduit le dû</th>
+                              <th>Date</th><th>Type</th><th>Client · dossier</th><th>Provenance · pièce</th>
+                              <th style={{ textAlign: "right" }}>Effet sur le dû</th>
                               <th style={{ textAlign: "right" }}>Impact trésorerie</th>
                             </tr>
                           </thead>
                           <tbody>
                             <tr>
-                              <td className="mono">2026-08-30</td>
-                              <td><span className="pastille-nf"><i aria-hidden />Paiement reçu</span></td>
-                              <td>Lafleur, Étienne</td>
-                              <td className="mono">2026-063</td>
-                              <td>Paiement reçu &mdash; facture 2026-008</td>
-                              <td className="num vide">&mdash;</td>
-                              <td className="num baisse">- 407,44 $</td>
+                              <td className="date">2026-08-30</td>
+                              <td><span className="type"><i className="pos" aria-hidden />Paiement reçu</span></td>
+                              <td><span className="cl">Lafleur, Étienne</span><span className="sous mono">2026-063</span></td>
+                              <td className="muted">&mdash;</td>
+                              <td className="num hausse">&minus; 407,44 $</td>
                               <td className="num hausse">+ 407,44 $</td>
                             </tr>
                             <tr>
-                              <td className="mono">2026-08-10</td>
-                              <td><span className="pastille-nf"><i aria-hidden />Facture envoyée</span></td>
-                              <td>Lafleur, Étienne</td>
-                              <td className="mono">2026-063</td>
-                              <td>Facture 2026-008 &mdash; Étienne Lafleur</td>
-                              <td className="num du">1 358,14 $</td>
-                              <td className="num vide">&mdash;</td>
+                              <td className="date">2026-08-10</td>
+                              <td><span className="type"><i className="att" aria-hidden />Facture envoyée</span></td>
+                              <td><span className="cl">Lafleur, Étienne</span><span className="sous mono">2026-063</span></td>
+                              <td className="muted">&mdash;<span className="sous mono">2026-008</span></td>
+                              <td className="num du">+ 1 358,14 $</td>
                               <td className="num vide">&mdash;</td>
                             </tr>
                           </tbody>
@@ -8007,8 +8035,6 @@ export default function ExperienceCinema() {
                         prépare l&apos;information destinée au comptable. Ce n&apos;est pas un
                         logiciel de comptabilité générale.
                       </p>
-                    </div>
-                  </div>
                 </div>
               </figure>
               </div>
