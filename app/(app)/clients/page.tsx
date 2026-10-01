@@ -152,7 +152,6 @@ export default async function ClientsPage({
       <PageHeader
         variant="dashboard"
         title={t("registryTitle")}
-        description={t("manageClientsDesc")}
         action={
           <div className="flex items-center gap-2">
             <Link href={exportHref} target="_blank" rel="noopener noreferrer">

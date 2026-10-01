@@ -1132,7 +1132,12 @@
     "notApplicableHeading": "{count, plural, one {# domain not applicable} other {# domains not applicable}}"
   },
   "clients": {
-    "registryTitle": "Client Registry",
+    "filterStatusAll": "Status: all",
+    "filterTypeAll": "Type: all",
+    "etatActifs": "<b>{count}</b> active {count, plural, one {client} other {clients}}",
+    "etatDossiers": "<b>{count}</b> active {count, plural, one {matter} other {matters}}",
+    "etatHonoraires": "<b>{montant}</b> in accumulated fees",
+    "registryTitle": "Clients",
     "newClient": "New client",
     "noClients": "No clients",
     "noMatch": "No clients match",

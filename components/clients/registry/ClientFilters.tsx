@@ -3,7 +3,6 @@
 import { useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { RefreshCw } from "lucide-react";
 import { registreSelectClass } from "@/components/ui/registre";
 
 const PARAMS = {
@@ -14,18 +13,18 @@ const PARAMS = {
 export function ClientFilters() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [isPending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
   const t = useTranslations("clients");
 
   const STATUS_OPTIONS = [
-    { value: "", label: t("allStatuses") },
+    { value: "", label: t("filterStatusAll") },
     { value: "actif", label: t("statusActive") },
     { value: "inactif", label: t("statusInactive") },
     { value: "archive", label: t("statusArchived") },
   ];
 
   const TYPE_OPTIONS = [
-    { value: "", label: t("allTypes") },
+    { value: "", label: t("filterTypeAll") },
     { value: "personne_physique", label: t("individual") },
     { value: "personne_morale", label: t("company") },
   ];
@@ -40,11 +39,6 @@ export function ClientFilters() {
     });
   }
 
-  function handleRefresh() {
-    startTransition(() => {
-      router.refresh();
-    });
-  }
 
   const selectClass = registreSelectClass;
 
@@ -74,16 +68,8 @@ export function ClientFilters() {
           </option>
         ))}
       </select>
-      <button
-        type="button"
-        onClick={handleRefresh}
-        disabled={isPending}
-        className="safe-zoom-menu inline-flex h-tap w-9 shrink-0 items-center justify-center rounded-md border border-si-line bg-si-surface text-si-muted hover:text-si-ink-strong disabled:opacity-50"
-        aria-label={t("refresh")}
-        title={t("refresh")}
-      >
-        <RefreshCw className={`w-4 h-4 ${isPending ? "animate-spin" : ""}`} />
-      </button>
+      {/* Bouton « Actualiser » retiré le 2026-10-01, comme sur Dossiers :
+          la liste se recharge déjà à chaque filtre et après chaque action. */}
     </div>
   );
 }
