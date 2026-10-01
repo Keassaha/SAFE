@@ -3,7 +3,7 @@
 import { useId, useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { RefreshCw, SlidersHorizontal } from "lucide-react";
+import { SlidersHorizontal } from "lucide-react";
 import { registreChampClass, registreSelectClass } from "@/components/ui/registre";
 
 const PARAMS = {
@@ -42,12 +42,12 @@ export function DossierFilters({ clients, canViewTrust = false }: DossierFilters
   const t = useTranslations("matters");
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [isPending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
   const [avancesOuverts, setAvancesOuverts] = useState(false);
   const zoneAvancesId = useId();
 
   const STATUS_OPTIONS = [
-    { value: "", label: t("allStatuses") },
+    { value: "", label: t("filterStatusAll") },
     { value: "ouvert", label: t("statusOpen") },
     { value: "actif", label: t("statusActive") },
     { value: "en_attente", label: t("statusPending") },
@@ -56,11 +56,15 @@ export function DossierFilters({ clients, canViewTrust = false }: DossierFilters
   ];
 
   const TYPE_OPTIONS = [
-    { value: "", label: t("allTypes") },
+    { value: "", label: t("filterTypeAll") },
     { value: "droit_famille", label: t("typeFamily") },
     { value: "litige_civil", label: t("typeCivilLitigation") },
     { value: "criminel", label: t("typeCriminal") },
     { value: "immigration", label: t("typeImmigration") },
+    /* Valeur acceptée par la validation, la requête et la taxonomie (code RE),
+       mais absente de ce filtre jusqu'au 2026-10-01 : un dossier immobilier
+       ne pouvait pas être retrouvé par son domaine. */
+    { value: "immobilier", label: t("typeRealEstate") },
     { value: "corporate", label: t("typeCorporate") },
     { value: "autre", label: t("typeOther") },
   ];
@@ -84,14 +88,9 @@ export function DossierFilters({ clients, canViewTrust = false }: DossierFilters
     });
   }
 
-  function handleRefresh() {
-    startTransition(() => {
-      router.refresh();
-    });
-  }
 
   const clientOptions = [
-    { value: "", label: t("allClients") },
+    { value: "", label: t("filterClientAll") },
     ...clients.map((c) => ({ value: c.id, label: c.raisonSociale })),
   ];
 
@@ -172,16 +171,6 @@ export function DossierFilters({ clients, canViewTrust = false }: DossierFilters
           )}
         </button>
 
-        <button
-          type="button"
-          onClick={handleRefresh}
-          disabled={isPending}
-          className="safe-zoom-menu inline-flex h-tap w-9 shrink-0 items-center justify-center rounded-md border border-si-line bg-si-surface text-si-muted hover:text-si-ink-strong disabled:opacity-50"
-          aria-label={t("refresh")}
-          title={t("refresh")}
-        >
-          <RefreshCw className={`h-4 w-4 ${isPending ? "animate-spin" : ""}`} aria-hidden />
-        </button>
       </div>
 
       {/* Seconde ligne, et non un panneau flottant : la feuille du registre est

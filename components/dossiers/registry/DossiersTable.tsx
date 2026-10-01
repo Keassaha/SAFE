@@ -169,6 +169,7 @@ export function DossiersTable({
     litige_civil: t("typeCivilLitigation"),
     criminel: t("typeCriminal"),
     immigration: t("typeImmigration"),
+    immobilier: t("typeRealEstate"),
     corporate: t("typeCorporate"),
     autre: t("typeOther"),
   };
@@ -269,10 +270,14 @@ export function DossiersTable({
                   getSortUrl={getSortUrl}
                 />
               </th>
-              <th scope="col" className={registreHeadCellClass}>
+              {/* Largeur posée : sans elle, le client et l'intitulé se
+                  partageaient la place libre à parts égales, et l'intitulé
+                  se coupait (« achat immeuble commer… ») à côté d'un client
+                  qui n'utilisait pas la sienne. */}
+              <th scope="col" className={`w-[200px] ${registreHeadCellClass}`}>
                 <RegistrePlainHeader label={tc("client")} />
               </th>
-              <th scope="col" className={`w-[150px] ${registreHeadCellClass}`}>
+              <th scope="col" className={`w-[136px] ${registreHeadCellClass}`}>
                 <RegistreSortHeader
                   label={t("lawyer")}
                   field="avocatResponsable"
@@ -281,8 +286,8 @@ export function DossiersTable({
                   getSortUrl={getSortUrl}
                 />
               </th>
-              <th scope="col" className={`w-[128px] ${registreHeadCellClass}`}>
-                <RegistrePlainHeader label={tc("type")} />
+              <th scope="col" className={`w-[124px] ${registreHeadCellClass}`}>
+                <RegistrePlainHeader label={t("colDomaine")} />
               </th>
               <th scope="col" className={`w-[104px] ${registreHeadCellClass}`}>
                 <RegistreSortHeader
@@ -293,7 +298,7 @@ export function DossiersTable({
                   getSortUrl={getSortUrl}
                 />
               </th>
-              <th scope="col" className={`w-[128px] ${registreHeadCellClass} text-right`}>
+              <th scope="col" className={`w-[120px] ${registreHeadCellClass} text-right`}>
                 <RegistreSortHeader
                   label={t("openingDateHeader")}
                   field="dateOuverture"

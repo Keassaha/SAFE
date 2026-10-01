@@ -47,6 +47,7 @@ export function DossierOverview({ data }: DossierOverviewProps) {
     litige_civil: t("typeCivilLitigation"),
     criminel: t("typeCriminal"),
     immigration: t("typeImmigration"),
+    immobilier: t("typeRealEstate"),
     corporate: t("typeCorporate"),
     autre: t("typeOther"),
   };
