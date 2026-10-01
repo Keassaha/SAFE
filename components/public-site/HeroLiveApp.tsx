@@ -260,16 +260,30 @@ export function HeroLiveApp() {
            Une maquette différente du produit qu'elle vend se voit (retour
            CEO du 24 août 2026). */}
         <div className="ha-screen on" data-ha-pane="dash">
-          {/* Le titre de page, comme dans l'application. */}
-          <p className="ha-titre">Tableau de bord</p>
-          {/* Bandeau d'action, identique à BandeauAction. Le bouton est A
-             DROITE sur la ligne du titre, comme dans l'application : empile
-             dessous, il allongeait la carte et separait « ce qu'il y a a
-             faire » de « le faire ». */}
+          {/* ── Refonte du 2026-10-01 ───────────────────────────────────────
+             Suit l'écran réel livré le même jour (commit 146ef4f) : la date
+             passe à droite du titre, la bande d'état pleine devient une ligne
+             de texte, plus aucun surtitre en capitales, les quatre tuiles en
+             dégradé deviennent une feuille à filets, le diagramme passe en
+             gris et encre. Les CHIFFRES ne bougent pas : ce sont ceux du
+             relevé du 2026-09-01 (voir l'en-tête de ce fichier). */}
+          <div className="ha-titre-ligne">
+            <p className="ha-titre">Tableau de bord</p>
+            <span className="ha-date">lundi 31 août 2026</span>
+          </div>
+          <p className="ha-etat">
+            <span><b>50</b> dossiers actifs</span>
+            <span className="pt" aria-hidden>·</span>
+            <span><b>26</b> clients actifs</span>
+            <span className="pt" aria-hidden>·</span>
+            <span className="ha-ambre"><i aria-hidden />Fidéicommis à rapprocher</span>
+          </p>
+
+          {/* Bandeau d'action, identique à BandeauAction : bouton à droite,
+             alertes toutes ambre, chacune dit où elle mène. */}
           <div className="ha-card">
             <div className="ha-tete">
               <div>
-                <p className="ha-kicker">À traiter maintenant</p>
                 <p className="ha-h">Rapprochez le fidéicommis</p>
                 <p className="ha-mini">Rapprochement de 2026-07 équilibré, il reste à le certifier.</p>
               </div>
@@ -278,93 +292,58 @@ export function HeroLiveApp() {
               </span>
             </div>
             <div className="ha-alertes">
-              {/* Les deux alertes de BandeauAction : une puce de 6 px, le
-                  message, et la flèche oblique poussée à droite. La puce est
-                  ambre quand l'alerte parle de retard ou de fidéicommis, verte
-                  sinon (le test est dans DashboardViewSafe). */}
               <div className="ha-bullet safe-zoom-menu" data-ha-screen="facturation" role="button" tabIndex={0}>
-                <i className="warn" aria-hidden />13 facture(s) en retard
-                <b aria-hidden>↗</b>
+                <i className="warn" aria-hidden />13 factures en retard
+                <b>Voir les factures</b>
               </div>
               <div className="ha-bullet safe-zoom-menu" data-ha-screen="temps" role="button" tabIndex={0}>
-                <i aria-hidden />128 337,50 $ en heures non facturées
-                <b aria-hidden>↗</b>
+                <i className="warn" aria-hidden />128 337,50 $ en heures non facturées
+                <b>Préparer la facturation</b>
               </div>
             </div>
           </div>
 
-          {/* Bandeau d'état, à sa VRAIE place.
-             `DashboardViewSafe.tsx` le monte en position 2, entre la carte
-             d'action et les montants (« 2. L'état réglementaire, en une bande
-             fine »). La réplique le posait au-dessus du titre, collé sous la
-             barre de menu, et le montrait sur les quinze écrans : dans
-             l'application il n'appartient qu'au tableau de bord. Il descend
-             donc dans le corps, et il ne vit plus que dans ce panneau.
-             Séparateurs et date en chasse fixe, comme ComplianceStrip. */}
-          <div className="ha-strip">
-            <span className="s"><i aria-hidden />Dossiers actifs <b>50</b></span>
-            <span className="sep" aria-hidden />
-            <span className="s"><i aria-hidden />Clients actifs <b>26</b></span>
-            <span className="sep" aria-hidden />
-            <span className="s warn"><i aria-hidden />Fidéicommis <b>À rapprocher</b></span>
-            <span className="date">lundi 31 août 2026</span>
-          </div>
-
-          {/* Les montants à surveiller : fidéicommis sur deux colonnes, comme
-             MontantsEssentiels (grid-cols-5, la tuile fiducie span-2). */}
-          <div className="ha-card" style={{ marginTop: 11 }}>
-            <p className="ha-kicker">Les montants à surveiller</p>
-            <div className="ha-tiles" style={{ marginTop: 11 }}>
-              <div className="ha-tile safe-zoom" style={{ gridColumn: "span 2" }} data-ha-screen="comptes" role="button" tabIndex={0} aria-label="Fidéicommis : 96 300,00 $. Ouvrir l'écran.">
-                <p className="lab">Fidéicommis</p>
-                <p className="sub">Sommes détenues pour vos clients</p>
-                <p className="val" style={{ fontSize: 21 }}>96 300,00 $</p>
-                <p className="sub" style={{ marginTop: 8 }}>6 clients avec des fonds · Rapprochement à faire</p>
-              </div>
-              {[
-                { lab: "Créances", sub: "Reste à recevoir", val: "33 133,61 $" },
-                { lab: "Encaissements", sub: "Encaissé ce mois", val: "19 373,82 $" },
-                { lab: "Facturation", sub: "Facturé ce mois", val: "15 924,06 $" },
-              ].map((t) => (
-                <div
-                  key={t.lab}
-                  className="ha-tile safe-zoom"
-                  data-ha-screen="facturation"
-                  role="button"
-                  tabIndex={0}
-                  aria-label={`${t.lab} : ${t.val}. Ouvrir l'écran.`}
-                >
-                  <p className="lab">{t.lab}</p>
-                  <p className="sub">{t.sub}</p>
-                  <p className="val">{t.val}</p>
-                </div>
-              ))}
+          {/* Les montants : une feuille, cinq colonnes, le fidéicommis sur deux,
+             comme MontantsEssentiels. */}
+          <div className="ha-card ha-montants">
+            <div className="ha-m porteur safe-zoom" data-ha-screen="comptes" role="button" tabIndex={0} aria-label="Fidéicommis : 96 300,00 $. Ouvrir l'écran.">
+              <p className="lib">Fidéicommis · sommes détenues pour vos clients</p>
+              <p className="val">96 300,00 $</p>
+              <p className="sous">6 clients avec des fonds <span className="ha-ambre"><i aria-hidden />Rapprochement à faire</span></p>
             </div>
+            {[
+              { lib: "Reste à recevoir", val: "33 133,61 $", lien: "Créances" },
+              { lib: "Encaissé en août", val: "19 373,82 $", lien: "Paiements" },
+              { lib: "Facturé en août", val: "15 924,06 $", lien: "Factures" },
+            ].map((t) => (
+              <div
+                key={t.lib}
+                className="ha-m safe-zoom"
+                data-ha-screen="facturation"
+                role="button"
+                tabIndex={0}
+                aria-label={`${t.lib} : ${t.val}. Ouvrir l'écran.`}
+              >
+                <p className="lib">{t.lib}</p>
+                <p className="val">{t.val}</p>
+                <p className="lien">{t.lien}</p>
+              </div>
+            ))}
           </div>
 
-          {/* Flux du cabinet ET Vos performances, CÔTE À CÔTE.
-             `DashboardViewSafe.tsx` : `lg:grid-cols-[1.7fr_1fr]`. Les deux
-             cartes étaient empilées en pleine largeur ici, ce qui étirait le
-             diagramme sur toute la fenêtre et faisait descendre les ratios
-             hors de l'écran. */}
+          {/* Le diagramme et les ratios, côte à côte (lg:grid-cols-[1.7fr_1fr]). */}
           <div className="ha-flux-rangee">
-            {/* Le diagramme est recopié de components/dashboard/CashflowChart.tsx :
-               légende à gauche, bascule 6/12 mois à droite, axe des montants en
-               forme courte, grille horizontale seule, colonnes groupées à
-               capuchon arrondi, et le repli « Voir les chiffres » dessous.
-               Facturé porte le gris de retrait (--si-border-strong), encaissé le
-               vert de l'état validé (--si-verified) : l'argent réellement rentré
-               est le seul qui prend une teinte. */}
+            {/* Recopié de CashflowChart.tsx : facturé en encre à 18 %, encaissé
+               en encre pleine, colonnes plates. */}
             <div className="ha-card">
-              <p className="ha-kicker">Flux du cabinet</p>
               <p className="ha-titre-carte">Facturé et encaissé</p>
               <p className="ha-mini" style={{ marginBottom: 10 }}>
-                L&apos;écart entre les deux barres, c&apos;est l&apos;argent que vous avez gagné mais qui
-                n&apos;est pas encore rentré.
+                L&apos;écart entre les deux barres, c&apos;est l&apos;argent gagné qui n&apos;est pas
+                encore rentré.
               </p>
               <div className="ha-legend">
                 <span className="ha-legend-i"><i aria-hidden />Facturé</span>
-                <span className="ha-legend-i verified"><i aria-hidden />Encaissé</span>
+                <span className="ha-legend-i encre"><i aria-hidden />Encaissé</span>
                 <span className="ha-fenetre">
                   <span className="on">6 mois</span>
                   <span>12 mois</span>
@@ -413,11 +392,9 @@ export function HeroLiveApp() {
               <p className="ha-repli">Voir les chiffres</p>
             </div>
 
-            {/* Vos performances : les cinq lignes de Performances, aide comprise.
-               Filet entre les lignes à partir de la deuxième, valeur en chasse
-               fixe, et la valeur non facturée seule en encre ambre. */}
+            {/* Les ratios, sous les noms que leur donne le produit depuis le
+               2026-10-01 : le nom dit le calcul. */}
             <div className="ha-card">
-              <p className="ha-kicker">Vos performances</p>
               <p className="ha-titre-carte">Ce que ça donne</p>
               <div style={{ marginTop: 3 }}>
                 {[
@@ -425,9 +402,9 @@ export function HeroLiveApp() {
                      rapporte les paiements du mois au FACTURE du mois : en
                      aout, le cabinet a encaisse 19 373,82 $ pour 15 924,06 $
                      emis, le reste venant de factures plus anciennes. */
-                  { k: "Taux d’encaissement", v: "122 %", a: "Part du facturé réellement rentrée." },
-                  { k: "Taux de facturation", v: "0 %", a: "Part des heures travaillées qui a été facturée." },
-                  { k: "Heures travaillées", v: "518 h", a: "Total saisi sur la période." },
+                  { k: "Encaissé ÷ facturé, août", v: "122 %", a: "Peut dépasser 100 % : inclut des paiements de factures antérieures." },
+                  { k: "Heures portées à une facture", v: "0 %", a: "Part de toutes les heures saisies." },
+                  { k: "Heures travaillées", v: "518 h", a: "Toutes les heures saisies." },
                   { k: "Heures facturées", v: "0 h", a: "Portion portée à une facture." },
                   { k: "Valeur non facturée", v: "128 337,50 $", a: "Travail fait, pas encore porté à une facture.", amber: true },
                 ].map((r, i) => (

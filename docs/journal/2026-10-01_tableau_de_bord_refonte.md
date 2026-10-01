@@ -46,9 +46,12 @@ codé, cabinet démo local sans factures).
 
 ## Reste à faire
 
-- La vitrine reprend l'ancien tableau de bord (`HeroLiveApp.tsx`, `ExperienceCinema.tsx`,
-  `mockups.tsx`). Elle se met à jour maintenant que l'écran existe, selon
-  `PROCEDURE_EXTRAITS_VITRINE.md`.
+- ~~La vitrine reprend l'ancien tableau de bord.~~ Fait le même jour : l'extrait du hero
+  (`HeroLiveApp.tsx` + règles `#hero-app` d'`ExperienceCinema.tsx`) suit l'écran, chiffres
+  inchangés (relevé du 2026-09-01). Image validée par le CEO :
+  `captures/2026-10-01_accueil_extrait_tableau_de_bord.png`. Le vérificateur sort avec les
+  deux mêmes échecs qu'avant le changement (ombre rognée sur 2 fenêtres sur 4 ; relevé
+  `references-app/releve.json` daté du 27 août, antérieur aux chiffres du hero).
 - `ComplianceStrip` n'est plus monté que par `/ds-preview`.
 - Le diagramme avec données n'a pas été vu à l'écran : le cabinet démo local n'a aucune
   facture.

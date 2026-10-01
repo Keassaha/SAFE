@@ -858,37 +858,24 @@ const CSS = `
      Promettre un geste inexistant apprend à l'œil à se méfier de l'animation. */
   .xc #hero-app .ha-drop a.inerte { color: var(--si-muted); cursor: default; }
 
-  /* Bandeau d'état */
-  /* Pastille arrondie et detachee, comme dans l'application. Elle vit
-     maintenant DANS le corps du tableau de bord, entre la carte d'action et
-     les montants, a la meme marge que les cartes : c'est la position que lui
-     donne DashboardViewSafe.tsx, et elle n'existe que sur cet ecran. */
-  .xc #hero-app .ha-strip {
-    display: flex; align-items: center; gap: 13px;
-    height: 32px;
-    margin-top: 11px;
-    padding: 0 14px;
-    border-radius: 10px;
-    background: var(--si-ink-strong);
-    color: var(--si-surface);
-    font-size: 11px;
+  /* Ligne d'état sous le titre (refonte du 2026-10-01).
+     Elle remplace une bande d'encre pleine : trois mentions d'état n'ont pas
+     besoin d'une surface. Seule la mention qui appelle un geste prend l'ambre,
+     comme EtatCabinet dans DashboardViewSafe.tsx. */
+  .xc #hero-app .ha-titre-ligne {
+    display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
   }
-  .xc #hero-app .ha-strip .s { display: flex; align-items: center; gap: 6px; opacity: 0.92; }
-  .xc #hero-app .ha-strip .s i {
-    width: 5px; height: 5px; border-radius: 50%;
-    background: var(--si-verified-on-forest);
+  .xc #hero-app .ha-titre-ligne .ha-titre { margin-bottom: 2px; }
+  .xc #hero-app .ha-date { font-size: 11px; color: var(--si-muted); margin-right: 2px; }
+  .xc #hero-app .ha-etat {
+    display: flex; align-items: center; gap: 9px;
+    margin: 0 2px 11px;
+    font-size: 11px; color: var(--si-body);
   }
-  .xc #hero-app .ha-strip .s.warn i { background: var(--si-amber-on-forest, #E0B54A); }
-  .xc #hero-app .ha-strip .s b { font-weight: 600; }
-  /* Le filet vertical entre deux mesures, comme ComplianceStrip. Sans lui, les
-     trois couples libelle/valeur se lisent comme une seule phrase. */
-  .xc #hero-app .ha-strip .sep {
-    width: 1px; height: 13px;
-    background: rgb(var(--si-surface-rgb) / 0.16);
-  }
-  /* La date est en chasse fixe dans l'application (font-mono), et c'est ce
-     qui la range du cote des donnees plutot que du texte. */
-  .xc #hero-app .ha-strip .date { margin-left: auto; opacity: 0.7; font-family: var(--mono); font-size: var(--t-menu); }
+  .xc #hero-app .ha-etat b { font-weight: 500; color: var(--si-ink); }
+  .xc #hero-app .ha-etat .pt { color: var(--si-subtle); }
+  .xc #hero-app .ha-ambre { display: inline-flex; align-items: center; gap: 5px; color: var(--si-amber-ink); }
+  .xc #hero-app .ha-ambre i { width: 5px; height: 5px; border-radius: 50%; background: var(--si-amber); }
 
   /* Corps */
   .xc #hero-app .ha-body { padding: 12px 12px 14px; }
@@ -931,50 +918,33 @@ const CSS = `
     font-size: 21px; line-height: 1.1; margin-top: 5px;
     letter-spacing: -0.015em;
   }
-  .xc #hero-app .ha-tiles {
-    display: grid; grid-template-columns: repeat(5, 1fr); gap: 9px; margin-top: 11px;
+  /* Les montants : une feuille découpée par des filets (refonte du 2026-10-01).
+     Les quatre tuiles en dégradé encre→vert, avec lueur, sont retirées comme
+     dans le produit : le vert ne dit que « validé », et un fidéicommis à
+     rapprocher ne l'est pas. Le fidéicommis se distingue par sa place (deux
+     colonnes sur cinq) et par la taille de son chiffre. */
+  .xc #hero-app .ha-montants {
+    display: grid; grid-template-columns: repeat(5, 1fr);
+    margin-top: 11px; padding: 0; overflow: hidden;
   }
-  /* Les tuiles de chiffres, comme dans le produit.
-     Elles étaient un aplat d'encre. Le tableau de bord réel les peint avec
-     « safe-action-degrade », un dégradé de l'encre vers le vert forêt
-     profond, et pose une lueur verte dans le coin bas gauche
-     (« glow-verified »). Un
-     aplat noir ne ressemble pas à SAFE, il ressemble à un cadre de
-     démonstration. Les deux règles sont recopiées ici depuis globals.css
-     parce que la vitrine ne charge pas les classes utilitaires du produit. */
-  .xc #hero-app .ha-tile {
-    position: relative;
-    overflow: hidden;
-    background-color: var(--si-ink);
-    background-image: linear-gradient(135deg, var(--si-ink) 0%, var(--si-action-vert) 100%);
-    color: var(--si-surface);
-    border-radius: 10px;
-    padding: 9px 11px 11px;
-    cursor: pointer;
-  }
-  .xc #hero-app .ha-tile::after {
-    content: "";
-    position: absolute;
-    left: -34px;
-    bottom: -48px;
-    width: 150px;
-    height: 150px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(46, 125, 91, 0.4), transparent 70%);
-    pointer-events: none;
-  }
-  .xc #hero-app .ha-tile > * { position: relative; z-index: 1; }
-  .xc #hero-app .ha-tile .lab {
-    font-family: var(--sans);
-    font-size: var(--t-menu); letter-spacing: 0.09em; text-transform: uppercase;
-    opacity: 0.72;
-  }
-  .xc #hero-app .ha-tile .sub { font-size: var(--t-menu); opacity: 0.66; margin-top: 6px; }
-  .xc #hero-app .ha-tile .val {
+  .xc #hero-app .ha-m { padding: 11px 13px 12px; cursor: pointer; }
+  .xc #hero-app .ha-m + .ha-m { border-left: 1px solid var(--si-line2); }
+  .xc #hero-app .ha-m.porteur { grid-column: span 2; }
+  .xc #hero-app .ha-m .lib { font-size: 11px; color: var(--si-muted); }
+  .xc #hero-app .ha-m.porteur .lib { color: var(--si-body); }
+  .xc #hero-app .ha-m .val {
     font-family: var(--mono);
-    font-size: 16px; letter-spacing: -0.02em; margin-top: 2px;
+    font-size: 15px; letter-spacing: -0.02em; margin-top: 5px; color: var(--si-ink);
   }
-  .xc #hero-app .ha-tile.amber .val { color: var(--si-amber-on-forest, #E7C36A); }
+  .xc #hero-app .ha-m.porteur .val { font-size: 22px; }
+  .xc #hero-app .ha-m .sous {
+    display: flex; align-items: center; gap: 8px;
+    margin-top: 6px; font-size: 10.5px; color: var(--si-muted);
+  }
+  .xc #hero-app .ha-m .lien {
+    margin-top: 6px; font-size: 10.5px; color: var(--si-muted);
+    text-decoration: underline; text-decoration-color: var(--si-line); text-underline-offset: 2px;
+  }
   .xc #hero-app .ha-cols {
     display: grid; grid-template-columns: 1.42fr 1fr; gap: 11px; margin-top: 11px;
   }
@@ -1066,11 +1036,11 @@ const CSS = `
   }
   .xc #hero-app .ha-legend-i i {
     width: 9px; height: 9px; border-radius: 3px;
-    /* Le facture n'est qu'une creance : il reste gris. L'encaisse est ce qui
-       est reellement rentre, il prend le vert de l'etat valide. */
-    background: var(--si-border-strong);
+    /* Le facture n'est qu'une creance : encre a 18 %. L'encaisse est ce qui
+       est reellement rentre : encre pleine (CashflowChart, 2026-10-01). */
+    background: rgb(var(--si-ink-rgb) / 0.18);
   }
-  .xc #hero-app .ha-legend-i.verified i { background: var(--si-verified); }
+  .xc #hero-app .ha-legend-i.encre i { background: var(--si-ink); }
   /* La bascule 6 / 12 mois, a droite de la legende. */
   .xc #hero-app .ha-fenetre { display: flex; align-items: center; gap: 3px; margin-left: auto; }
   .xc #hero-app .ha-fenetre span {
@@ -1106,22 +1076,14 @@ const CSS = `
     display: flex; flex-direction: column; align-items: center; gap: 6px;
   }
   .xc #hero-app .ha-bar-pair { display: flex; align-items: flex-end; gap: 4px; height: 132px; }
-  /* Le relief est porte par la matiere, jamais par la geometrie : degrade
-     vertical, capuchon arrondi, ombre au sol. La hauteur reste mesuree sur un
-     axe plat, sinon le diagramme ment. */
+  /* Colonnes plates, comme CashflowChart depuis le 2026-10-01 : le relief
+     (degrade, ombre au sol) est retire avec les tuiles vertes. */
   .xc #hero-app .ha-bar {
     width: 24px;
-    border-radius: 4px 4px 0 0;
-    background: linear-gradient(180deg,
-      rgb(var(--si-border-strong-rgb) / 0.76) 0%,
-      var(--si-border-strong) 100%);
-    box-shadow: 0 4px 7px -3px rgb(var(--si-ink-rgb) / 0.2);
+    border-radius: 2px 2px 0 0;
+    background: rgb(var(--si-ink-rgb) / 0.18);
   }
-  .xc #hero-app .ha-bar.v {
-    background: linear-gradient(180deg,
-      rgb(var(--si-verified-rgb) / 0.8) 0%,
-      var(--si-verified) 100%);
-  }
+  .xc #hero-app .ha-bar.v { background: var(--si-ink); }
   .xc #hero-app .ha-bar-lbl { font-size: 10px; color: var(--si-muted); }
   /* Le repli textuel : le diagramme n'est jamais le seul porteur du chiffre. */
   .xc #hero-app .ha-repli { margin-top: 9px; font-size: 11px; color: var(--si-muted); }
