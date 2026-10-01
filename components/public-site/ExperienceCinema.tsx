@@ -4154,11 +4154,15 @@ const CSS = `
      masque porte sur la FENETRE entiere, donc le bord s'eteint avec ce qu'il
      borde. Un masque coupe l'ombre portee, peinte hors de la boite : l'ombre
      longue vit donc sur le parent, hors du masque. */
-  /* La piste à deux fenêtres de « continuité » n'était pas visée : ses deux
-     fenêtres n'avaient aucune ombre longue, seules sur quatre (relevé du
-     vérificateur, 2026-10-01). Même règle, même parent non masqué. */
-  .xc .scene-produit .fenetre-fondante,
-  .xc .scene-duo .piste > .fenetre-fondante { filter: drop-shadow(0 30px 66px rgb(var(--si-line-ink-rgb) / 0.26)); }
+  .xc .scene-produit .fenetre-fondante { filter: drop-shadow(0 30px 66px rgb(var(--si-line-ink-rgb) / 0.26)); }
+  /* La piste à deux fenêtres de « continuité » n'avait aucune ombre (relevé du
+     vérificateur, 2026-10-01). Elle la porte sur le même parent non masqué,
+     mais COURTE : l'ombre longue, floue de 66 px, débordait sur les côtés et
+     remplissait l'interstice de 37 px entre les deux fenêtres d'une bande
+     grise pleine (#CCCCC9 sur un fond #EFEFEC), vue par le CEO le jour même.
+     À 16 px de flou, le milieu de l'interstice reste à 234 sur 239 : l'ombre
+     se pose sous les fenêtres sans les relier. */
+  .xc .scene-duo .piste > .fenetre-fondante { filter: drop-shadow(0 30px 16px rgb(var(--si-line-ink-rgb) / 0.18)); }
   /* Le fondu part a 88 % et non a 68 % (decision CEO du 2026-08-29).
      A 68 %, il mangeait la fin du contenu au lieu de fondre un bord : releve
      sur la fenetre du dossier, quatre des neuf sections du cartable
@@ -7944,7 +7948,7 @@ export default function ExperienceCinema() {
                           <span className="bt">Exporter CSV</span>
                         </div>
                       </div>
-                      <span className="sel journal-choix">&#128214; Journal général</span>
+                      <span className="sel journal-choix">Journal général</span>
 
                       <div className="carte-bloc">
                         <div className="ct">

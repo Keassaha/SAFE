@@ -55,6 +55,13 @@ codé, cabinet démo local sans factures).
 - ~~Ombre rognée sur 2 fenêtres sur 4.~~ Corrigé le même jour : la règle d'ombre longue
   ne visait que `.scene-produit` ; les deux fenêtres de la piste « continuité »
   (`.scene-duo`) la reçoivent sur le même parent non masqué. Vérificateur : 4/4.
+  Effet de bord vu par le CEO le même jour : l'ombre longue (66 px de flou) remplissait
+  l'interstice de 37 px entre les deux fenêtres d'une bande grise pleine. La piste porte
+  désormais une ombre courte (16 px). Une capture « avant » prise avant le rechargement
+  du style avait fait croire à un défaut ancien : c'était bien cette ombre.
+- Emoji 📖 retiré de la réplique de la comptabilité (« Journal général »). L'écran réel
+  ne l'a plus. ⚠ La réplique montre encore un sélecteur unique là où l'écran réel porte
+  trois onglets depuis le 2026-09-09 : à refaire par la procédure des extraits.
   Reste le critère 6 (relevé périmé), qui demande une recapture des données complètes
   de Me Roy.
 - `ComplianceStrip` n'est plus monté que par `/ds-preview`.
