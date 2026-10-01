@@ -156,7 +156,7 @@ export function HonorairesAFacturerView({ cabinetId }: HonorairesAFacturerViewPr
               aria-label={t("client")}
               className={registreSelectClass}
             >
-              <option value="">{t("allClients")}</option>
+              <option value="">{t("filterClientAll")}</option>
               {clients.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.nom}
@@ -172,7 +172,7 @@ export function HonorairesAFacturerView({ cabinetId }: HonorairesAFacturerViewPr
               aria-label={t("lawyer")}
               className={registreSelectClass}
             >
-              <option value="">{t("allLawyers")}</option>
+              <option value="">{t("filterLawyerAll")}</option>
               {users.map((u) => (
                 <option key={u.id} value={u.id}>
                   {u.nom}
@@ -188,7 +188,7 @@ export function HonorairesAFacturerView({ cabinetId }: HonorairesAFacturerViewPr
               aria-label={t("period")}
               className={registreSelectClass}
             >
-              <option value="">{t("anyPeriod")}</option>
+              <option value="">{t("filterPeriodAll")}</option>
               <option value="mois">{t("periodThisMonth")}</option>
               <option value="trois_mois">{t("periodThreeMonths")}</option>
               <option value="annee">{t("periodThisYear")}</option>

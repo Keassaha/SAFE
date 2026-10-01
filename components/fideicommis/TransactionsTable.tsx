@@ -161,16 +161,20 @@ export function TransactionsTable({ cabinetId, clients, dossiers, filtres, onFil
 
   return (
     <RegistreFeuille ariaLabel={tf("registerLabel")}>
+      {/* Les deux listes occupent l'emplacement de la recherche, plafonné à
+          384 px pour un champ texte : elles s'y empilaient. `rechercheLarge`
+          lève le plafond, et les deux tiennent sur une ligne (2026-10-01). */}
       <RegistreBarreOutils
+        rechercheLarge
         recherche={
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 lg:flex-nowrap">
             <select
               value={filtres.clientId}
               onChange={(e) => onFiltres({ ...filtres, clientId: e.target.value, dossierId: "" })}
               aria-label={tc("client")}
               className={`${registreSelectClass} max-w-[240px]`}
             >
-              <option value="">{tf("allClients")}</option>
+              <option value="">{tf("filterClientAll")}</option>
               {clients.map((c) => (
                 <option key={c.id} value={c.id}>
                   {clientDisplayName(c)}
@@ -183,7 +187,7 @@ export function TransactionsTable({ cabinetId, clients, dossiers, filtres, onFil
               aria-label={tc("dossier")}
               className={`${registreSelectClass} max-w-[240px]`}
             >
-              <option value="">{tf("allMatters")}</option>
+              <option value="">{tf("filterMatterAll")}</option>
               {dossiersDuClient.map((d) => (
                 <option key={d.id} value={d.id}>
                   {d.numeroDossier ? `${d.numeroDossier} – ` : ""}

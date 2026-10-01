@@ -6,7 +6,8 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
-import { BookOpen, Pencil, ArrowRight, Receipt, Loader2 } from "lucide-react";
+import { ChevronRight, Receipt } from "lucide-react";
+import { routes } from "@/lib/routes";
 
 interface DossierWithTasks {
   id: string;
@@ -35,6 +36,9 @@ export function NewInvoiceChoiceModal({ isOpen, onClose, preferRegistre = false 
   const [mode, setMode] = useState<"choose" | "registre">("choose");
   const [dossiers, setDossiers] = useState<DossierWithTasks[]>([]);
   const [selectedDossierId, setSelectedDossierId] = useState<string>("");
+  /* Deux attentes distinctes. Un seul drapeau servait aux deux : pendant le
+     simple chargement de la liste, le bouton annonçait déjà « Génération… ». */
+  const [chargementListe, setChargementListe] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -51,7 +55,7 @@ export function NewInvoiceChoiceModal({ isOpen, onClose, preferRegistre = false 
   useEffect(() => {
     if (mode !== "registre" || !isOpen) return;
     (async () => {
-      setLoading(true);
+      setChargementListe(true);
       try {
         const res = await fetch("/api/registre-taches?statut=complete");
         if (!res.ok) throw new Error("Failed to load unbilled tasks");
@@ -81,7 +85,7 @@ export function NewInvoiceChoiceModal({ isOpen, onClose, preferRegistre = false 
       } catch (e) {
         setError(e instanceof Error ? e.message : "Error");
       } finally {
-        setLoading(false);
+        setChargementListe(false);
       }
     })();
   }, [mode, isOpen]);
@@ -112,53 +116,55 @@ export function NewInvoiceChoiceModal({ isOpen, onClose, preferRegistre = false 
 
   const handleFromScratch = () => {
     onClose();
-    router.push("/facturation/nouvelle");
+    router.push(routes.facturationFactureNouvelle);
   };
+
+  /* Les heures et débours se facturent depuis « Honoraires à facturer », sur
+     la page même. La fenêtre n'en parlait pas : son seul chemin « recommandé »
+     cherchait dans le registre des tâches, propre au forfait, et répondait
+     « aucune tâche » à un cabinet horaire qui avait des heures prêtes. */
+  const handleFromHours = () => {
+    onClose();
+    const section = document.getElementById("facturables");
+    if (section) section.scrollIntoView({ behavior: "smooth", block: "start" });
+    else router.push(`${routes.facturation}#facturables`);
+  };
+
+  const chemins = [
+    { cle: "heures", titre: t("pathHours"), aide: t("pathHoursDesc"), action: handleFromHours },
+    { cle: "registre", titre: t("pathRegister"), aide: t("pathRegisterDesc"), action: () => setMode("registre") },
+    { cle: "vierge", titre: t("pathBlank"), aide: t("pathBlankDesc"), action: handleFromScratch },
+  ];
+  /* Au forfait, le registre des tâches passe en tête : c'est le chemin
+     habituel de ce mode. Aucune pastille « recommandé » : l'ordre suffit. */
+  if (preferRegistre) chemins.unshift(chemins.splice(1, 1)[0]!);
 
   return (
     <Modal open={isOpen} onClose={onClose} title={t("newInvoice")} maxWidth="max-w-xl">
       {mode === "choose" && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <button
-            type="button"
-            onClick={() => setMode("registre")}
-            className="group text-left p-5 rounded-xl border-2 border-si-line hover:border-si-ink-strong hover:bg-si-verified/10 transition-all"
-          >
-            <div className="flex items-start gap-3 mb-3">
-              <span className="flex w-10 h-10 shrink-0 items-center justify-center rounded-xl bg-si-verified/10 text-si-verified border border-si-verified/30">
-                <BookOpen className="w-5 h-5" />
-              </span>
-              <span className="inline-flex items-center px-2 py-0.5 rounded-full safe-action-degrade text-white text-[10px] font-medium tracking-wide uppercase">
-                {t("recommended")}
-              </span>
-            </div>
-            <h3 className="text-sm font-medium text-si-ink mb-1">{t("fromRegister")}</h3>
-            <p className="text-xs text-si-muted leading-snug">
-              {t("fromRegisterDescription")}
-            </p>
-            <span className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-si-verified group-hover:gap-2 transition-all">
-              {t("continue")} <ArrowRight className="w-3 h-3" />
-            </span>
-          </button>
-
-          <button
-            type="button"
-            onClick={handleFromScratch}
-            className="group text-left p-5 rounded-xl border-2 border-si-line hover:border-si-line hover:bg-si-canvas transition-all"
-          >
-            <div className="flex items-start gap-3 mb-3">
-              <span className="flex w-10 h-10 shrink-0 items-center justify-center rounded-xl bg-si-canvas text-si-ink border border-si-line">
-                <Pencil className="w-5 h-5" />
-              </span>
-            </div>
-            <h3 className="text-sm font-medium text-si-ink mb-1">{t("fromScratch")}</h3>
-            <p className="text-xs text-si-muted leading-snug">
-              {t("fromScratchDescription")}
-            </p>
-            <span className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-si-ink group-hover:gap-2 transition-all">
-              {t("createBlankInvoice")} <ArrowRight className="w-3 h-3" />
-            </span>
-          </button>
+        /* ── Refonte du 2026-10-01 (déc. CEO, image validée) ──────────────
+           Deux grandes cartes à icône et une pastille « RECOMMANDÉ » en
+           dégradé deviennent une liste de trois chemins : une question, trois
+           réponses, un filet entre chacune. */
+        <div>
+          <p className="mb-1.5 px-1 text-[13px] text-si-muted">{t("pathQuestion")}</p>
+          <ul className="border-b border-si-line2">
+            {chemins.map((c) => (
+              <li key={c.cle} className="border-t border-si-line2">
+                <button
+                  type="button"
+                  onClick={c.action}
+                  className="safe-zoom-menu flex min-h-tap w-full items-center gap-4 rounded-md px-1 py-4 text-left"
+                >
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-[15px] font-medium text-si-ink">{c.titre}</span>
+                    <span className="mt-0.5 block text-[13px] text-si-muted">{c.aide}</span>
+                  </span>
+                  <ChevronRight className="h-4 w-4 shrink-0 text-si-muted" aria-hidden />
+                </button>
+              </li>
+            ))}
+          </ul>
         </div>
       )}
 
@@ -179,12 +185,12 @@ export function NewInvoiceChoiceModal({ isOpen, onClose, preferRegistre = false 
               {t("matterToInvoice")}
             </label>
 
-            {loading && dossiers.length === 0 ? (
-              <div className="flex items-center justify-center p-8 text-si-muted text-sm">
-                <Loader2 className="w-4 h-4 animate-spin mr-2" /> {t("loadingMatters")}
-              </div>
+            {chargementListe ? (
+              <p className="p-8 text-center text-sm text-si-muted" role="status">
+                {t("loadingMatters")}
+              </p>
             ) : dossiers.length === 0 ? (
-              <div className="p-6 text-center rounded-xl bg-si-canvas border border-si-line">
+              <div className="p-6 text-center rounded-lg border border-si-line">
                 <p className="text-sm text-si-muted mb-2">{t("noUnbilledTasks")}</p>
                 <p className="text-xs text-si-muted">
                   {t("addTasksBeforeInvoicing")}
@@ -198,10 +204,8 @@ export function NewInvoiceChoiceModal({ isOpen, onClose, preferRegistre = false 
                 {dossiers.map((d) => (
                   <label
                     key={d.id}
-                    className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-colors ${
-                      selectedDossierId === d.id
-                        ? "border-si-ink-strong bg-si-verified/10"
-                        : "border-si-line hover:bg-si-canvas"
+                    className={`safe-zoom-menu flex items-center gap-3 p-3 rounded-lg border cursor-pointer ${
+                      selectedDossierId === d.id ? "border-si-ink bg-si-surface2" : "border-si-line"
                     }`}
                   >
                     <input
@@ -228,32 +232,34 @@ export function NewInvoiceChoiceModal({ isOpen, onClose, preferRegistre = false 
             )}
           </div>
 
-          <div className="flex gap-3 pt-2">
-            <Button
-              variant="primary"
-              onClick={handleFromRegistre}
-              disabled={!selectedDossierId || loading}
-              className="gap-2"
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" /> {t("generating")}
-                </>
-              ) : (
-                <>
-                  <Receipt className="w-4 h-4" /> {t("generateInvoice")}
-                </>
-              )}
-            </Button>
-            <Button variant="secondary" onClick={onClose}>
-              {t("cancel")}
-            </Button>
-          </div>
+          {/* Sans dossier à choisir, « Générer la facture » ne mène nulle part :
+              il ne s'affiche qu'à partir d'un dossier. */}
+          {!chargementListe && dossiers.length > 0 && (
+            <div className="flex gap-3 pt-2">
+              <Button
+                variant="primary"
+                onClick={handleFromRegistre}
+                disabled={!selectedDossierId || loading}
+                className="gap-2"
+              >
+                {loading ? (
+                  t("generating")
+                ) : (
+                  <>
+                    <Receipt className="w-4 h-4" /> {t("generateInvoice")}
+                  </>
+                )}
+              </Button>
+              <Button variant="secondary" onClick={onClose}>
+                {t("cancel")}
+              </Button>
+            </div>
+          )}
         </div>
       )}
 
       {error && (
-        <p className="mt-3 text-sm text-[#B84A3E]">{error}</p>
+        <p className="mt-3 text-sm text-si-danger-ink">{error}</p>
       )}
     </Modal>
   );

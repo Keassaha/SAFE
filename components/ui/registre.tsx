@@ -187,13 +187,17 @@ export function RegistreFeuille({
 export function RegistreBarreOutils({
   recherche,
   filtres,
+  rechercheLarge = false,
 }: {
   recherche: ReactNode;
   filtres?: ReactNode;
+  /** Lève le plafond de 384 px quand l'emplacement porte des listes et non
+      un champ de recherche (registre du fidéicommis). */
+  rechercheLarge?: boolean;
 }) {
   return (
     <div className="flex flex-col gap-3 border-b border-si-line px-5 py-3.5 lg:flex-row lg:items-center lg:justify-between">
-      <div className="min-w-0 flex-1 lg:max-w-sm">{recherche}</div>
+      <div className={`min-w-0 flex-1 ${rechercheLarge ? "" : "lg:max-w-sm"}`}>{recherche}</div>
       {filtres ? <div className="shrink-0">{filtres}</div> : null}
     </div>
   );

@@ -1,7 +1,6 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useFormatteurs } from "@/lib/i18n/formatteurs";
 
 interface DossierSummaryCardsProps {
   totalDossiers: number;
@@ -37,87 +36,58 @@ interface DossierSummaryCardsProps {
  * signe. `Intl` la pose, et ne pose rien en anglais.
  */
 export function DossierSummaryCards({
-  totalDossiers,
   actifsCount,
   cloturesCount,
   totalActes = 0,
-  actesEnCours = 0,
   actesUrgents = 0,
-  actesTermines = 0,
 }: DossierSummaryCardsProps) {
   const t = useTranslations("matters");
-  const { intlLocale } = useFormatteurs();
 
-  const pourcent = (part: number, tout: number) =>
-    new Intl.NumberFormat(intlLocale, { style: "percent" }).format(tout > 0 ? part / tout : 0);
+  /* ── Refonte du 2026-10-01 (déc. CEO, maquette validée) ────────────────────
+     Les sept mesures en capitales deviennent une ligne d'état, comme celle du
+     tableau de bord. Trois d'entre elles ne portaient rien : le total répétait
+     actifs + clôturés, le pourcentage répétait le total, et « En cours » /
+     « Terminés » ne demandent aucun geste depuis cette page. Restent ce qui
+     situe le registre (actifs, clôturés) et ce qui appelle un geste : les
+     actes urgents ou en retard, seuls en ambre, seulement au-dessus de zéro.
+     Les props `totalDossiers`, `actesEnCours` et `actesTermines` restent
+     acceptées pour ne pas casser l'appelant ; elles ne s'affichent plus. */
+  const gras = (chunks: React.ReactNode) => <b className="font-medium text-si-ink">{chunks}</b>;
 
-  const familles: {
-    cle: string;
-    label: string;
-    valeur: number;
-    appoint: string | null;
-    attention?: boolean;
-  }[][] = [
-    [
-      { cle: "total", label: t("totalMatters"), valeur: totalDossiers, appoint: null },
-      {
-        cle: "actifs",
-        label: t("activeMatters"),
-        valeur: actifsCount,
-        appoint: `${pourcent(actifsCount, totalDossiers)} ${t("ofTotal")}`,
-      },
-      { cle: "clotures", label: t("closedMatters"), valeur: cloturesCount, appoint: null },
-    ],
-    [
-      {
-        cle: "actes",
-        label: t("totalActs"),
-        valeur: totalActes,
-        appoint: `${pourcent(actesTermines, totalActes)} ${t("completed")}`,
-      },
-      { cle: "encours", label: t("inProgress"), valeur: actesEnCours, appoint: null },
-      {
-        cle: "urgents",
-        label: t("urgentOverdue"),
-        valeur: actesUrgents,
-        appoint: null,
-        /* L'ambre ne s'allume qu'au-dessus de zéro : « 0 acte urgent » est une
-           bonne nouvelle, pas une alerte. Le libellé porte le sens des deux
-           côtés, donc la couleur ne travaille jamais seule (C3, WCAG 1.4.1). */
-        attention: actesUrgents > 0,
-      },
-      { cle: "termines", label: t("completed2"), valeur: actesTermines, appoint: null },
-    ],
+  const mentions: React.ReactNode[] = [
+    t.rich("etatActifs", { count: actifsCount, b: gras }),
+    t.rich("etatClotures", { count: cloturesCount, b: gras }),
+    actesUrgents > 0 ? (
+      <span className="inline-flex items-center gap-1.5 text-si-amber-ink">
+        <span aria-hidden className="h-1.5 w-1.5 rounded-sm bg-si-amber" />
+        {t("etatActesAlerte", { count: actesUrgents })}
+      </span>
+    ) : totalActes > 0 ? (
+      t.rich("etatActesCalme", { count: totalActes, b: gras })
+    ) : (
+      t("etatAucunActe")
+    ),
   ];
 
+  /* « sm:!-mt-3 » : la page empile ses blocs en `space-y-6`, dont la règle
+     est plus spécifique qu'une marge simple. Sur écran large, la ligne doit
+     coller au titre comme celle du tableau de bord, pas flotter à 30 px
+     dessous. Sur téléphone, les boutons passent sous le titre : la ligne
+     garde alors l'écart qui la sépare d'eux. */
   return (
-    <dl className="flex flex-col gap-y-5 border-b border-si-line pb-5 lg:flex-row lg:gap-x-14">
-      {familles.map((famille, i) => (
-        <div
-          key={i}
-          className="grid grid-cols-2 gap-x-8 gap-y-4 min-[560px]:grid-cols-4 lg:flex lg:gap-x-8"
-        >
-          {famille.map(({ cle, label, valeur, appoint, attention }) => (
-            <div key={cle} className="min-w-0">
-              <dt className="text-[11px] font-medium uppercase tracking-[0.08em] text-si-muted">
-                {label}
-              </dt>
-              <dd className="mt-1.5 flex items-baseline gap-2">
-                {/* 18 px sous `sm` : un nombre à cinq chiffres ne tient pas en
-                    22 px dans une demi-colonne de 375 px. */}
-                <span
-                  className={`font-mono text-[18px] font-medium leading-[24px] tabular-nums sm:text-[22px] sm:leading-[26px] ${
-                    attention ? "text-si-amber-ink" : "text-si-ink"
-                  }`}
-                >
-                  {valeur.toLocaleString(intlLocale)}
-                </span>
-                {appoint && <span className="truncate text-[12px] text-si-muted">{appoint}</span>}
-              </dd>
-            </div>
-          ))}
-        </div>
+    <p className="-mt-2 sm:!-mt-3 flex flex-wrap items-center gap-x-3.5 gap-y-1 text-[13px] text-si-body">
+      {mentions.map((m, i) => (
+        /* Le point voyage avec la mention qui le suit : au repli, aucune
+           ligne ne se termine sur un séparateur orphelin. */
+        <span key={i} className="inline-flex items-center gap-3.5">
+          {i > 0 && (
+            <span aria-hidden className="text-si-subtle">
+              ·
+            </span>
+          )}
+          <span>{m}</span>
+        </span>
       ))}
-    </dl>
+    </p>
   );
 }

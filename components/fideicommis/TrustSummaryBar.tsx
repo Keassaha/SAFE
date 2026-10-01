@@ -69,7 +69,7 @@ export function TrustSummaryBarView({
   const { formatCurrency, intlLocale } = useFormatteurs();
 
   /* ── Rapprochement ── */
-  let rapprochement: { texte: string; ton: "ok" | "amber" | "danger" | "muted"; lien: boolean } = {
+  let rapprochement: { texte: string; ton: "ok" | "amber" | "danger" | "muted" | "ink"; lien: boolean } = {
     texte: "—",
     ton: "muted",
     lien: false,
@@ -87,7 +87,11 @@ export function TrustSummaryBarView({
         lien: true,
       };
     else if (reconciliation.overdue) rapprochement = { texte: tf("reconciliationDue"), ton: "amber", lien: true };
-    else rapprochement = { texte: tf("reconciliationPending"), ton: "muted", lien: true };
+    /* À faire, pas en retard : en encre (déc. CEO 2026-10-01). En gris, la
+       mention se lisait comme un élément désactivé alors que c'est une tâche
+       et un lien. L'ambre reste au rapprochement en retard, le rouge au
+       retard critique. */
+    else rapprochement = { texte: tf("reconciliationPending"), ton: "ink", lien: true };
   }
 
   /* ── Surveillance ── */
@@ -102,14 +106,16 @@ export function TrustSummaryBarView({
   const tonSurveillance: "danger" | "amber" | "muted" =
     nbNegatifs > 0 || ecart ? "danger" : nbDormants > 0 ? "amber" : "muted";
 
-  const couleur = (ton: "ok" | "amber" | "danger" | "muted") =>
+  const couleur = (ton: "ok" | "amber" | "danger" | "muted" | "ink") =>
     ton === "ok"
       ? "text-si-verified"
       : ton === "amber"
         ? "text-si-amber-ink"
         : ton === "danger"
           ? "text-si-danger-ink"
-          : "text-si-muted";
+          : ton === "ink"
+            ? "text-si-ink"
+            : "text-si-muted";
 
   const dt = "text-[11px] font-medium uppercase tracking-[0.08em] text-si-muted";
   const chiffre =

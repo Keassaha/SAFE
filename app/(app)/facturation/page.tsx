@@ -354,6 +354,7 @@ export default async function FacturationPage({
               <RegistreAucunResultat message={t("noMatch")} />
             ) : (
               <EmptyState
+                sansIcone
                 title={t("emptyTitle")}
                 description={t("emptyDesc")}
                 action={

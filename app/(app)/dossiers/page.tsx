@@ -203,7 +203,6 @@ export default async function DossiersPage({
     <div className="space-y-6">
       <PageHeader
         title={t("title")}
-        description={t("manageMattersDesc")}
         action={
           <div className="flex items-center gap-2">
             <Link href={exportHref} target="_blank" rel="noopener noreferrer">

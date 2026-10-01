@@ -114,11 +114,20 @@ export function FideicommisDashboard({ cabinetId, canEdit, clients, dossiers }: 
         <Link href={routes.securite} className={lienClasse}>
           {tf("linkWatch")}
         </Link>
+        {/* « …depuis la Facturation. section Facturation » : la phrase
+            nommait la Facturation, puis le lien la renommait. Le mot de la
+            phrase est désormais le lien (2026-10-01). */}
         <span className="ml-3 text-si-muted">
-          {tf("allocateHint")}{" "}
-          <Link href={routes.facturation} className="underline decoration-si-line underline-offset-2 hover:text-si-ink">
-            {tf("billingSection")}
-          </Link>
+          {tf.rich("allocateHintLink", {
+            link: (chunks) => (
+              <Link
+                href={routes.facturation}
+                className="underline decoration-si-line underline-offset-2 hover:text-si-ink"
+              >
+                {chunks}
+              </Link>
+            ),
+          })}
         </span>
       </nav>
 
