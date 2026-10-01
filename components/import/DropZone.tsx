@@ -46,27 +46,34 @@ export function DropZone({
   );
   const [dragOver, setDragOver] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<SelectedFile[]>([]);
+  const [erreur, setErreur] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  /* ── Un fichier à la fois (2026-10-01) ─────────────────────────────────────
+     La zone acceptait plusieurs fichiers, mais l'assistant n'analyse que le
+     premier : les autres disparaissaient sans un mot. Un fichier refusé pour
+     son format disparaissait de la même façon. Tant qu'aucune file de
+     traitement n'existe, la zone n'accepte qu'un fichier, et chaque refus dit
+     pourquoi, à l'endroit où l'on vient de déposer. */
   const processFiles = useCallback(
     (fileList: FileList | File[]) => {
       const files = Array.from(fileList);
-      const valid = files.filter((f) => {
-        const ext = f.name.split(".").pop()?.toLowerCase() ?? "";
-        return ACCEPTED_EXTENSIONS.includes(`.${ext}`) || ACCEPTED_MIME.includes(f.type);
-      });
-      if (valid.length === 0) return;
-
-      const selected: SelectedFile[] = valid.map((f) => ({
-        file: f,
-        name: f.name,
-        size: formatSize(f.size, sizeUnits),
-        ext: f.name.split(".").pop()?.toLowerCase() ?? "",
-      }));
-      setSelectedFiles((prev) => [...prev, ...selected]);
-      onFilesSelected(valid);
+      if (files.length === 0) return;
+      if (files.length > 1) {
+        setErreur(t("dropzoneOneFile", { count: files.length }));
+        return;
+      }
+      const f = files[0]!;
+      const ext = f.name.split(".").pop()?.toLowerCase() ?? "";
+      if (!ACCEPTED_EXTENSIONS.includes(`.${ext}`) && !ACCEPTED_MIME.includes(f.type)) {
+        setErreur(t("dropzoneBadFormat", { name: f.name }));
+        return;
+      }
+      setErreur(null);
+      setSelectedFiles([{ file: f, name: f.name, size: formatSize(f.size, sizeUnits), ext }]);
+      onFilesSelected([f]);
     },
-    [onFilesSelected, sizeUnits],
+    [onFilesSelected, sizeUnits, t],
   );
 
   const handleDrop = useCallback(
@@ -121,7 +128,6 @@ export function DropZone({
           ref={inputRef}
           type="file"
           accept=".xlsx,.xls,.csv,.txt,.pdf"
-          multiple
           className="hidden"
           onChange={handleChange}
           disabled={disabled}
@@ -138,6 +144,12 @@ export function DropZone({
           </p>
         </div>
       </div>
+
+      {erreur && (
+        <p role="alert" className="text-[13px] text-si-danger-ink">
+          {erreur}
+        </p>
+      )}
 
       {selectedFiles.length > 0 && (
         <div className="space-y-2">
