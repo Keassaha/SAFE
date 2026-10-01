@@ -8,6 +8,8 @@ import { getCurrentEmployee, getMyHours } from "@/lib/payroll/employee-hours-ser
 import { MyHoursPanel } from "@/components/temps/MyHoursPanel";
 import { DigestPreferenceToggle } from "@/components/temps/DigestPreferenceToggle";
 import { toCalendarDayUTC, toIsoDay } from "@/lib/utils/calendar-date";
+import { getPayView, hasCompensationPlan, serializePayView } from "@/lib/payroll/remuneration-service";
+import { EspacePaiePanel } from "@/components/paie/EspacePaiePanel";
 
 /**
  * « Mon temps & ma paye » (N8) — l'employée (Aaliyah) soumet ses heures
@@ -32,6 +34,20 @@ export default async function MesHeuresPage() {
         <PageHeader title={t("pageTitle")} description={t("pageDescription")} />
         <DigestPreferenceToggle enabled={digestEnabled} />
         <EmptyState title={t("noEmployeeTitle")} description={t("noEmployeeBody")} />
+      </div>
+    );
+  }
+
+  // Rémunération à trois sources (salaire, dossiers, aide juridique) : l'espace
+  // de paie remplace la simple saisie d'heures dès qu'une entente existe.
+  // Doctrine : docs/product/SPEC_REMUNERATION_AALIYAH.md
+  if (await hasCompensationPlan(cabinetId, employee.id)) {
+    const todayDay = toCalendarDayUTC(new Date());
+    const payView = await getPayView(cabinetId, employee.id, todayDay);
+    return (
+      <div className="space-y-6">
+        <EspacePaiePanel view={serializePayView(payView!)} employeeId={employee.id} today={toIsoDay(todayDay)} />
+        <DigestPreferenceToggle enabled={digestEnabled} />
       </div>
     );
   }
