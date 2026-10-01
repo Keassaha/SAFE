@@ -37,6 +37,8 @@ export interface RecapitulatifMandat {
     ecritures: number;
   };
   periode: { debut: string | null; fin: string | null };
+  /** Solde déclaré ou mouvementé en fidéicommis pour ce mandat ; `null` si aucun mouvement. */
+  fideicommis: number | null;
 }
 
 const auSou = (n: number) => Math.round((n + Number.EPSILON) * 100) / 100;
@@ -96,6 +98,15 @@ export async function chargerRecapitulatif(
           where: { cabinetId, OR: sources.map((id) => ({ sourceId: { startsWith: id } })) },
         });
 
+  // Le solde vient du compte de fidéicommis du dossier, qui le tient à jour à
+  // chaque mouvement : le recalculer ici depuis les mouvements serait fragile
+  // (une correction peut être positive ou négative).
+  const [compteFiducie, mouvementsFiducie] = await Promise.all([
+    prisma.trustAccount.findFirst({ where: { cabinetId, matterId: dossierId }, select: { currentBalance: true } }),
+    prisma.trustTransaction.count({ where: { cabinetId, dossierId } }),
+  ]);
+  const fideicommis = mouvementsFiducie > 0 ? auSou(compteFiducie?.currentBalance ?? 0) : null;
+
   const minutesParFacture = new Map(temps.map((t) => [t.invoiceId, t._sum.dureeMinutes ?? 0]));
 
   const lignes: FactureRecap[] = factures.map((f) => {
@@ -139,5 +150,6 @@ export async function chargerRecapitulatif(
       debut: lignes[0]?.dateEmission ?? null,
       fin: lignes[lignes.length - 1]?.dateEmission ?? null,
     },
+    fideicommis,
   };
 }

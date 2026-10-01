@@ -23,6 +23,11 @@ export interface ClientConnu {
   nom: string;
   typeClient: string;
   mandats: MandatConnu[];
+  /** Coordonnées de la fiche, pour les comparer à celles imprimées sur la facture. */
+  adresse?: string | null;
+  courriel?: string | null;
+  telephone?: string | null;
+  identiteVerifiee?: boolean;
 }
 
 export interface ContexteRepriseUnClient {
@@ -49,6 +54,10 @@ export async function chargerContexteRepriseUnClient(cabinetId: string): Promise
         raisonSociale: true,
         prenom: true,
         nom: true,
+        adresse: true,
+        email: true,
+        telephone: true,
+        identityVerified: true,
         dossiers: {
           select: { id: true, intitule: true, tauxHoraire: true, statut: true },
           orderBy: { dateOuverture: "desc" },
@@ -72,6 +81,10 @@ export async function chargerContexteRepriseUnClient(cabinetId: string): Promise
         id: c.id,
         nom: nomDuClient(c),
         typeClient: String(c.typeClient),
+        adresse: c.adresse ?? null,
+        courriel: c.email ?? null,
+        telephone: c.telephone ?? null,
+        identiteVerifiee: Boolean(c.identityVerified),
         mandats: c.dossiers.map((d) => ({
           id: d.id,
           intitule: d.intitule,

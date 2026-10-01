@@ -84,7 +84,7 @@ const LONGUEUR_PARLANTE = 10;
  *     retrouve « 2026-050 — Bail commercial », mais « Divorce » ne se colle pas
  *     à « Divorce 2 », et « Dossier 1 » ne se colle pas à « Dossier 12 ».
  */
-function intitulesSeRecoupent(a: string, b: string): boolean {
+export function intitulesSeRecoupent(a: string, b: string): boolean {
   const na = normaliseIntitule(a);
   const nb = normaliseIntitule(b);
   if (!na || !nb) return false;
