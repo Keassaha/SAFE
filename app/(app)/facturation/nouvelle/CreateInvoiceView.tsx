@@ -47,6 +47,7 @@ import {
   Receipt,
   RotateCcw,
 } from "lucide-react";
+import { clientNomListe } from "@/lib/clients/normalize-name";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -1731,7 +1732,9 @@ export function CreateInvoiceView({
                         <option value="">{t("selectClient")}</option>
                         {clients.map((c) => (
                           <option key={c.id} value={c.id}>
-                            {clientDisplayName(c)}
+                            {/* Liste : « Tremblay, Marie » (règle du 2026-10-01).
+                                Le rappel en tête d'écran garde « Marie Tremblay ». */}
+                            {clientNomListe(c)}
                           </option>
                         ))}
                       </select>

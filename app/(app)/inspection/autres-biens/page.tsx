@@ -11,6 +11,7 @@ import {
   listTrustProperties,
 } from "@/lib/services/fideicommis/trust-property-service";
 import { TrustPropertyScreen } from "@/components/conformite/TrustPropertyScreen";
+import { clientNomListe } from "@/lib/clients/normalize-name";
 
 /**
  * Autres biens en fidéicommis.
@@ -24,7 +25,8 @@ import { TrustPropertyScreen } from "@/components/conformite/TrustPropertyScreen
 
 function nomClient(c: { raisonSociale: string | null; prenom: string | null; nom: string | null } | null) {
   if (!c) return "—";
-  return c.raisonSociale ?? [c.prenom, c.nom].filter(Boolean).join(" ") ?? "—";
+  /* Écriture des listes, règle CEO du 2026-10-01 : « Tremblay, Marie ». */
+  return clientNomListe(c);
 }
 
 export default async function AutresBiensPage() {

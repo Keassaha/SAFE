@@ -4,7 +4,7 @@ import { requirePageAccess } from "@/lib/auth/page-guard";
 import { canViewBilling } from "@/lib/auth/permissions";
 import { prisma } from "@/lib/db";
 import { displayInvoiceNumero } from "@/lib/facturation/invoice-numero-format";
-import { clientDisplayName } from "@/lib/clients/normalize-name";
+import { clientNomListe } from "@/lib/clients/normalize-name";
 import { FacturationPageHero } from "@/components/facturation/FacturationPageHero";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { routes } from "@/lib/routes";
@@ -55,7 +55,7 @@ export default async function FacturationVerificationPage() {
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="font-medium text-si-ink">
-                        {displayInvoiceNumero(inv.numero)} — {clientDisplayName(inv.client)}
+                        {displayInvoiceNumero(inv.numero)} — {clientNomListe(inv.client)}
                       </p>
                       <p className="text-sm text-si-muted">
                         {inv.dossier?.intitule ?? t("noMatter")} · {t("issuedColon")}{" "}

@@ -7,6 +7,7 @@ import { getCabinetBillingMode } from "@/lib/services/cabinet-interface";
 import { prisma } from "@/lib/db";
 import { PageHeader } from "@/components/ui/PageHeader";
 import type { UserRole } from "@prisma/client";
+import { clientNomListe } from "@/lib/clients/normalize-name";
 
 const DOSSIER_SELECT = {
   id: true,
@@ -32,8 +33,8 @@ function clientLabel(c: {
   nom: string | null;
 } | null): string {
   if (!c) return "—";
-  if (c.raisonSociale) return c.raisonSociale;
-  return [c.prenom, c.nom].filter(Boolean).join(" ") || "—";
+  /* Écriture des listes, règle CEO du 2026-10-01 : « Tremblay, Marie ». */
+  return clientNomListe(c);
 }
 
 export default async function TempsPage() {

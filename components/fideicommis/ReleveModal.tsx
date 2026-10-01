@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
-import { clientDisplayName } from "@/lib/clients/normalize-name";
+import { clientNomListe } from "@/lib/clients/normalize-name";
 
 const MONTH_KEYS = [
   "monthJanuary", "monthFebruary", "monthMarch", "monthApril", "monthMay", "monthJune",
@@ -117,7 +117,7 @@ export function ReleveModal({
             <option value="">{tf("all")}</option>
             {clients.map((c) => (
               <option key={c.id} value={c.id}>
-                {clientDisplayName(c)}
+                {clientNomListe(c)}
               </option>
             ))}
           </select>

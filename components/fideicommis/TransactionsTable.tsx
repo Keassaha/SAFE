@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 import { useFormatteurs } from "@/lib/i18n/formatteurs";
 import { useTrustTransactions, type TrustTransactionRow } from "@/lib/hooks/useFideicommis";
-import { clientDisplayName } from "@/lib/clients/normalize-name";
+import { clientNomListe } from "@/lib/clients/normalize-name";
 import {
   RegistreAucunResultat,
   RegistreBarreOutils,
@@ -89,7 +89,7 @@ export function TrustTransactionsRegistre({ rangees }: { rangees: OperationRange
                 <td className={`whitespace-nowrap ${registreCellMutedClass}`}>{formatCalendarDate(t.date)}</td>
                 <td className={registreCellClass}>
                   <span className="block truncate text-[14px] font-medium leading-5 text-si-ink">
-                    {t.client ? clientDisplayName(t.client) : "—"}
+                    {t.client ? clientNomListe(t.client) : "—"}
                   </span>
                   <span className="block truncate text-[12px] leading-4 text-si-muted">
                     {t.dossier ? (
@@ -177,7 +177,7 @@ export function TransactionsTable({ cabinetId, clients, dossiers, filtres, onFil
               <option value="">{tf("filterClientAll")}</option>
               {clients.map((c) => (
                 <option key={c.id} value={c.id}>
-                  {clientDisplayName(c)}
+                  {clientNomListe(c)}
                 </option>
               ))}
             </select>

@@ -18,6 +18,7 @@ import {
   CreditCard,
   FileCheck,
 } from "lucide-react";
+import { clientNomListe } from "@/lib/clients/normalize-name";
 
 interface TaxonomyOption {
   value: string;
@@ -554,8 +555,6 @@ function CreateDossierSubmitButton({
 
 function formatClientLabel(client?: DossierCreationWizardProps["clients"][number]) {
   if (!client) return "";
-  if (client.typeClient === "personne_physique") {
-    return [client.prenom, client.nom].filter(Boolean).join(" ").trim() || client.raisonSociale || "";
-  }
-  return client.raisonSociale || [client.prenom, client.nom].filter(Boolean).join(" ").trim();
+  /* Écriture des listes, règle CEO du 2026-10-01 : « Tremblay, Marie ». */
+  return clientNomListe(client, "");
 }

@@ -13,6 +13,7 @@ import {
   registreRowClass,
   RegistrePlainHeader,
 } from "@/components/ui/registre";
+import { clientNomListe } from "@/lib/clients/normalize-name";
 
 /**
  * Une ligne du registre des paiements, telle que `/api/facturation/paiements`
@@ -46,10 +47,8 @@ const MODE_LABEL_KEY: Record<string, string> = {
 
 export function libelleClientPaiement(client: PaiementRangee["client"]): string {
   if (!client) return "—";
-  const company = client.raisonSociale?.trim();
-  if (company) return company;
-  const person = [client.prenom, client.nom].filter(Boolean).join(" ").trim();
-  return person || "Client sans nom";
+  /* Écriture des listes, règle CEO du 2026-10-01 : « Tremblay, Marie ». */
+  return clientNomListe(client, "Client sans nom");
 }
 
 export function paiementAllouable(p: PaiementRangee): boolean {

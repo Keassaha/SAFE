@@ -14,7 +14,7 @@ import {
   getPermittedWithdrawalMethods,
 } from "@/lib/compliance/electronic-transfer";
 import { listTrustBankAccounts } from "@/lib/services/fideicommis/trust-bank-account-service";
-import { clientDisplayName } from "@/lib/clients/normalize-name";
+import { clientNomListe } from "@/lib/clients/normalize-name";
 import { TransfersScreen } from "@/components/conformite/TransfersScreen";
 import { Panel } from "@/components/conformite/primitives";
 
@@ -189,7 +189,7 @@ export default async function VirementsPage() {
           };
         })}
         users={users.map((u) => ({ id: u.id, name: u.nom }))}
-        clients={clients.map((c) => ({ id: c.id, name: clientDisplayName(c) }))}
+        clients={clients.map((c) => ({ id: c.id, name: clientNomListe(c) }))}
         countersignSteps={
           getCountersignatureDuty({ confirmationSentAt: now }).steps
         }

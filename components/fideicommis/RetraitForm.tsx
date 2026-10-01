@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { useCreateTrustWithdrawal, useTrustBalance } from "@/lib/hooks/useFideicommis";
-import { clientDisplayName } from "@/lib/clients/normalize-name";
+import { clientNomListe } from "@/lib/clients/normalize-name";
 import { toast } from "sonner";
 import { toCalendarDayUTC, toIsoDay } from "@/lib/utils/calendar-date";
 
@@ -224,7 +224,7 @@ export function RetraitForm({
                 <option value="">{tf("selectClient")}</option>
                 {clients.map((c) => (
                   <option key={c.id} value={c.id}>
-                    {clientDisplayName(c)}
+                    {clientNomListe(c)}
                   </option>
                 ))}
               </select>

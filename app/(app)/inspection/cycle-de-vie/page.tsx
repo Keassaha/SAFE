@@ -17,7 +17,7 @@ import {
   getSuccessionStatus,
   listProtectedClientOriginals,
 } from "@/lib/services/compliance/practice-lifecycle-service";
-import { clientDisplayName } from "@/lib/clients/normalize-name";
+import { clientNomListe } from "@/lib/clients/normalize-name";
 import { LifecycleScreen } from "@/components/conformite/LifecycleScreen";
 import { Panel } from "@/components/conformite/primitives";
 
@@ -128,7 +128,7 @@ export default async function CycleDeViePage() {
       : Promise.resolve([]),
   ]);
 
-  const nomClient = new Map(clients.map((c) => [c.id, clientDisplayName(c)]));
+  const nomClient = new Map(clients.map((c) => [c.id, clientNomListe(c)]));
   const refDossier = new Map(dossiers.map((d) => [d.id, d.reference]));
 
   return (

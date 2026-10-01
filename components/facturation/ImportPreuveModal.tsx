@@ -12,6 +12,7 @@ import { UploadCloud, CheckCircle2, AlertTriangle, HelpCircle, Users } from "luc
 import type { PaymentProofExtraction } from "@/lib/ai/extract-payment-proof";
 import type { PaymentMatch } from "@/lib/services/finance/match-payment";
 import { toCalendarDayUTC, toIsoDay } from "@/lib/utils/calendar-date";
+import { clientNomListe } from "@/lib/clients/normalize-name";
 
 const selectClass =
   "w-full h-10 px-3 rounded-lg border border-si-line bg-si-canvas/80 text-sm text-si-ink placeholder:text-si-muted/50 focus:bg-si-surface focus:ring-2 focus:ring-si-verified/20 focus:border-si-verified outline-none transition-all";
@@ -20,10 +21,8 @@ type ClientOpt = { id: string; raisonSociale: string | null; prenom?: string | n
 type InvoiceOpt = { id: string; numero: string; clientId: string | null; balanceDue: number };
 
 function clientLabel(c: ClientOpt) {
-  const company = c.raisonSociale?.trim();
-  if (company) return company;
-  const person = [c.prenom, c.nom].filter(Boolean).join(" ").trim();
-  return person || "Client sans nom";
+  /* Écriture des listes, règle CEO du 2026-10-01 : « Tremblay, Marie ». */
+  return clientNomListe(c, "Client sans nom");
 }
 
 export interface ImportPreuveModalProps {

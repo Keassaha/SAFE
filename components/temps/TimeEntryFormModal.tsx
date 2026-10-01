@@ -21,6 +21,7 @@ import {
   type DureeParseError,
 } from "@/lib/temps/duree";
 import { computeMontant } from "@/lib/temps/utils";
+import { clientNomListe } from "@/lib/clients/normalize-name";
 
 type ClientOption = { id: string; typeClient?: string; raisonSociale: string | null; prenom?: string | null; nom?: string | null };
 type DossierOption = { id: string; intitule: string; numeroDossier: string | null; reference: string | null; clientId: string; tauxHoraire?: number | null; client: { raisonSociale: string | null; prenom?: string | null; nom?: string | null } };
@@ -29,8 +30,8 @@ type UserOption = { id: string; nom: string; defaultHourlyRate?: number | null }
 // Personnes physiques : `raisonSociale` est null → on retombe sur prénom + nom
 // pour afficher un libellé sélectionnable dans la liste déroulante.
 function clientLabel(c: { raisonSociale: string | null; prenom?: string | null; nom?: string | null }): string {
-  if (c.raisonSociale) return c.raisonSociale;
-  return [c.prenom, c.nom].filter(Boolean).join(" ") || "—";
+  /* Écriture des listes, règle CEO du 2026-10-01 : « Tremblay, Marie ». */
+  return clientNomListe(c);
 }
 
 interface TimeEntryFormModalProps {

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { normalizeClientName, clientDedupeKey, clientDisplayName } from "../normalize-name";
+import { normalizeClientName, clientDedupeKey, clientDisplayName, clientNomListe, clientNomDocument } from "../normalize-name";
 
 describe("clientDisplayName", () => {
   it("utilise la raison sociale pour une personne morale", () => {
@@ -108,5 +108,28 @@ describe("clientDedupeKey", () => {
       raisonSociale: "Marie Tremblay",
     });
     expect(key).toBe("marie tremblay");
+  });
+});
+
+describe("clientNomListe / clientNomDocument (règle CEO du 2026-10-01)", () => {
+  it("écrit une personne « Nom, Prénom » dans une liste", () => {
+    expect(clientNomListe({ typeClient: "personne_physique", prenom: "Marie", nom: "Tremblay" })).toBe("Tremblay, Marie");
+  });
+  it("écrit la même personne « Prénom Nom » dans un document", () => {
+    expect(clientNomDocument({ prenom: "Marie", nom: "Tremblay" })).toBe("Marie Tremblay");
+  });
+  it("garde la raison sociale d'une personne morale", () => {
+    expect(clientNomListe({ typeClient: "personne_morale", raisonSociale: "Constructions Beaulieu inc." })).toBe("Constructions Beaulieu inc.");
+  });
+  it("préfère le nom de la personne physique à une raison sociale résiduelle", () => {
+    expect(clientNomListe({ typeClient: "personne_physique", raisonSociale: "Ancien nom", prenom: "Marie", nom: "Tremblay" })).toBe("Tremblay, Marie");
+  });
+  it("sans type, retombe sur la raison sociale puis sur Nom, Prénom", () => {
+    expect(clientNomListe({ prenom: "Marie", nom: "Tremblay" })).toBe("Tremblay, Marie");
+    expect(clientNomListe({ raisonSociale: "Acme" , prenom: "X", nom: "Y" })).toBe("Acme");
+  });
+  it("n'écrit ni virgule orpheline ni espaces", () => {
+    expect(clientNomListe({ prenom: " ", nom: "Tremblay" })).toBe("Tremblay");
+    expect(clientNomListe({}, "?")).toBe("?");
   });
 });

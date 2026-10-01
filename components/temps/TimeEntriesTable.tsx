@@ -6,7 +6,7 @@ import { Pencil, Trash2, Check } from "lucide-react";
 import { RowMenu, rowMenuItemClass, rowMenuItemDangerClass } from "@/components/ui/RowMenu";
 import { routes } from "@/lib/routes";
 import { formatCalendarDate, formatCurrency } from "@/lib/utils/format";
-import { clientDisplayName } from "@/lib/clients/normalize-name";
+import { clientNomListe } from "@/lib/clients/normalize-name";
 import { useUpdateTimeEntry, useDeleteTimeEntry } from "@/lib/hooks/useTemps";
 import { TimeEntryFormModal } from "./TimeEntryFormModal";
 import {
@@ -153,7 +153,7 @@ export function TimeEntriesTable({
                           {entry.dossier.numeroDossier ?? entry.dossier.reference ?? "—"}
                         </Link>
                         <p className="mt-0.5 max-w-[180px] truncate text-xs text-si-muted">
-                          {clientDisplayName(entry.dossier.client)}
+                          {clientNomListe(entry.dossier.client)}
                         </p>
                       </div>
                     ) : (
@@ -161,7 +161,7 @@ export function TimeEntriesTable({
                         <span className="text-si-muted">{t("noMatter")}</span>
                         {entry.client && (
                           <p className="mt-0.5 max-w-[180px] truncate text-xs text-si-muted">
-                            {clientDisplayName(entry.client)}
+                            {clientNomListe(entry.client)}
                           </p>
                         )}
                       </div>

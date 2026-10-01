@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { createDeboursDossier } from "@/lib/actions/debours";
-import { clientDisplayName } from "@/lib/clients/normalize-name";
+import { clientNomListe } from "@/lib/clients/normalize-name";
 import { toCalendarDayUTC, toIsoDay } from "@/lib/utils/calendar-date";
 
 export interface DeboursAddFormProps {
@@ -57,7 +57,7 @@ export function DeboursAddForm({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-si-muted mb-1">
-                {tc("client")} <span className="text-[#B84A3E]">*</span>
+                {tc("client")} <span className="text-si-danger-ink">*</span>
               </label>
               <select
                 name="clientId"
@@ -69,14 +69,14 @@ export function DeboursAddForm({
                 <option value="">{td("chooseClient")}</option>
                 {clients.map((c) => (
                   <option key={c.id} value={c.id}>
-                    {clientDisplayName(c)}
+                    {clientNomListe(c)}
                   </option>
                 ))}
               </select>
             </div>
             <div>
               <label className="block text-sm font-medium text-si-muted mb-1">
-                {tc("dossier")} <span className="text-[#B84A3E]">*</span>
+                {tc("dossier")} <span className="text-si-danger-ink">*</span>
               </label>
               <select
                 name="dossierId"
@@ -174,7 +174,7 @@ export function DeboursAddForm({
           </div>
 
           {submitError && (
-            <p className="text-sm text-[#B84A3E]">{submitError}</p>
+            <p className="text-sm text-si-danger-ink">{submitError}</p>
           )}
 
           <Button type="submit">{td("saveDisbursement")}</Button>

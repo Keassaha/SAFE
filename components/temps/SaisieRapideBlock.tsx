@@ -10,6 +10,7 @@ import { NewClientModal } from "./NewClientModal";
 import { useLocale, useTranslations } from "next-intl";
 import { formatHeuresDecimales, minutesFacturablesDuChrono } from "@/lib/temps/duree";
 import { DEFAULT_ROUNDING_MINUTES } from "@/lib/constants";
+import { clientNomListe } from "@/lib/clients/normalize-name";
 
 interface SaisieRapideBlockProps {
   cabinetId: string | null;
@@ -20,8 +21,8 @@ const NEW_CLIENT_OPTION_VALUE = "__new_client__";
 
 // Personnes physiques : `raisonSociale` est null → on retombe sur prénom + nom.
 function clientLabel(c: { raisonSociale: string | null; prenom?: string | null; nom?: string | null }): string {
-  if (c.raisonSociale) return c.raisonSociale;
-  return [c.prenom, c.nom].filter(Boolean).join(" ") || "—";
+  /* Écriture des listes, règle CEO du 2026-10-01 : « Tremblay, Marie ». */
+  return clientNomListe(c);
 }
 
 export function SaisieRapideBlock({ cabinetId, currentUserId }: SaisieRapideBlockProps) {

@@ -12,6 +12,7 @@ import {
   CASH_THRESHOLD_CAD,
 } from "@/lib/services/fideicommis/cash-service";
 import { CashScreen } from "@/components/conformite/CashScreen";
+import { clientNomListe } from "@/lib/clients/normalize-name";
 
 /**
  * Espèces : reçus et déclarations.
@@ -63,7 +64,7 @@ export default async function EspecesPage() {
   const nomClient = new Map(
     clients.map((c) => [
       c.id,
-      c.raisonSociale ?? [c.prenom, c.nom].filter(Boolean).join(" ") ?? "—",
+      clientNomListe(c),
     ]),
   );
   const refDossier = new Map(dossiers.map((d) => [d.id, d.numeroDossier ?? d.intitule]));

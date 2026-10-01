@@ -8,6 +8,7 @@ import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Tag, FolderOpen } from "lucide-react";
+import { clientNomListe } from "@/lib/clients/normalize-name";
 
 interface ForfaitService {
   id: string;
@@ -332,10 +333,8 @@ export function AjouterTacheModal({ isOpen, onClose, dossiers, preselectedDossie
 
 function formatClientLabel(client: DossierOption["client"]) {
   if (!client) return "";
-  if (client.typeClient === "personne_physique") {
-    return [client.prenom, client.nom].filter(Boolean).join(" ").trim() || client.raisonSociale || "";
-  }
-  return client.raisonSociale || [client.prenom, client.nom].filter(Boolean).join(" ").trim();
+  /* Écriture des listes, règle CEO du 2026-10-01 : « Tremblay, Marie ». */
+  return clientNomListe(client, "");
 }
 
 function formatDossierLabel(dossier: DossierOption) {

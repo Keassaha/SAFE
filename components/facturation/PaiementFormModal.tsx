@@ -11,15 +11,14 @@ import { Input } from "@/components/ui/Input";
 import { MotifAnnulationModal } from "@/components/comptabilite/MotifAnnulationModal";
 import type { JournalCorrectionMotive } from "@prisma/client";
 import { toCalendarDayUTC, toIsoDay } from "@/lib/utils/calendar-date";
+import { clientNomListe } from "@/lib/clients/normalize-name";
 
 const selectClass =
   "w-full h-10 px-3 rounded-lg border border-si-line bg-si-canvas/80 text-sm text-si-ink placeholder:text-si-muted/50 focus:bg-si-surface focus:ring-2 focus:ring-si-verified/20 focus:border-si-verified outline-none transition-all";
 
 function clientLabel(client: { raisonSociale: string | null; prenom?: string | null; nom?: string | null }) {
-  const company = client.raisonSociale?.trim();
-  if (company) return company;
-  const person = [client.prenom, client.nom].filter(Boolean).join(" ").trim();
-  return person || "Client sans nom";
+  /* Écriture des listes, règle CEO du 2026-10-01 : « Tremblay, Marie ». */
+  return clientNomListe(client, "Client sans nom");
 }
 
 type PendingEdit = {

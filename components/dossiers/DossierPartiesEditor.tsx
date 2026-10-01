@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { UserPlus, Users, ShieldAlert, X, Search, Plus } from "lucide-react";
 import type { PartieDraft, PartieExterneRole, CoClientTypeClient } from "@/lib/dossiers/parties";
+import { clientNomListe } from "@/lib/clients/normalize-name";
 
 export interface PartiesEditorClient {
   id: string;
@@ -15,14 +16,8 @@ export interface PartiesEditorClient {
 
 function formatClientLabel(client?: PartiesEditorClient): string {
   if (!client) return "";
-  if (client.typeClient === "personne_physique") {
-    return (
-      [client.prenom, client.nom].filter(Boolean).join(" ").trim() ||
-      client.raisonSociale ||
-      ""
-    );
-  }
-  return client.raisonSociale || [client.prenom, client.nom].filter(Boolean).join(" ").trim();
+  /* Écriture des listes, règle CEO du 2026-10-01 : « Tremblay, Marie ». */
+  return clientNomListe(client, "");
 }
 
 type CoClient =

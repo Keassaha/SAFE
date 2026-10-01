@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Users, Trash2, Plus, Loader2 } from "lucide-react";
+import { clientNomListe } from "@/lib/clients/normalize-name";
 
 const selectClass =
   "w-full h-10 px-3 rounded-xl border border-si-line bg-si-canvas/80 text-sm text-si-ink focus:bg-si-surface focus:ring-2 focus:ring-si-verified/20 focus:border-si-verified outline-none transition-all";
@@ -25,11 +26,8 @@ export interface PayerRuleRow {
 }
 
 function clientLabel(c: ClientOpt) {
-  return (
-    c.raisonSociale?.trim() ||
-    [c.prenom, c.nom].filter(Boolean).join(" ").trim() ||
-    "Client sans nom"
-  );
+  /* Écriture des listes, règle CEO du 2026-10-01 : « Tremblay, Marie ». */
+  return clientNomListe(c, "Client sans nom");
 }
 
 export function PayeursReglesView({

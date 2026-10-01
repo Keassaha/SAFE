@@ -5,7 +5,7 @@ import type { Invoice } from "@prisma/client";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/Button";
 import { displayInvoiceNumero } from "@/lib/facturation/invoice-numero-format";
-import { clientDisplayName } from "@/lib/clients/normalize-name";
+import { clientNomListe } from "@/lib/clients/normalize-name";
 
 interface InvoiceCardProps {
   invoice: Invoice & {
@@ -52,7 +52,7 @@ export function InvoiceCard({ invoice, onPreview, status }: InvoiceCardProps) {
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium text-si-ink truncate">
-            {clientDisplayName(invoice.client, t("noClient"))}
+            {clientNomListe(invoice.client, t("noClient"))}
           </p>
           {invoice.dossier && (
             <p className="text-xs text-si-muted truncate">

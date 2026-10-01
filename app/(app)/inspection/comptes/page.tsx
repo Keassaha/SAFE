@@ -14,7 +14,7 @@ import {
   getTrustBankAccountBalance,
   listTrustBankAccounts,
 } from "@/lib/services/fideicommis/trust-bank-account-service";
-import { clientDisplayName } from "@/lib/clients/normalize-name";
+import { clientNomListe } from "@/lib/clients/normalize-name";
 import { TrustAccountsScreen } from "@/components/conformite/TrustAccountsScreen";
 
 /**
@@ -83,7 +83,7 @@ export default async function ComptesFiduciePage() {
       : Promise.resolve([]),
   ]);
 
-  const nomClient = new Map(clients.map((c) => [c.id, clientDisplayName(c)]));
+  const nomClient = new Map(clients.map((c) => [c.id, clientNomListe(c)]));
 
   return (
     <div className="space-y-6">
@@ -102,7 +102,7 @@ export default async function ComptesFiduciePage() {
         canEdit={canEdit}
         province={province}
         interestNoteFr={INTERET[province] ?? INTERET.QC!}
-        clients={clientsDuCabinet.map((c) => ({ id: c.id, name: clientDisplayName(c) }))}
+        clients={clientsDuCabinet.map((c) => ({ id: c.id, name: clientNomListe(c) }))}
         accounts={accounts.map((a, i) => ({
           id: a.id,
           type: a.type,

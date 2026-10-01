@@ -8,6 +8,7 @@ import type { UserRole } from "@prisma/client";
 import { getTranslations } from "next-intl/server";
 import { listPayerRules } from "@/lib/services/finance/payer-rules";
 import { PayeursReglesView } from "@/components/parametres/PayeursReglesView";
+import { clientNomListe } from "@/lib/clients/normalize-name";
 
 export default async function ParametresPayeursTiersPage() {
   const { cabinetId, role } = await requireCabinetAndUser();
@@ -37,9 +38,7 @@ export default async function ParametresPayeursTiersPage() {
     active: r.active,
     source: r.source,
     clientLabel: r.client
-      ? r.client.raisonSociale?.trim() ||
-        [r.client.prenom, r.client.nom].filter(Boolean).join(" ").trim() ||
-        null
+      ? clientNomListe(r.client, "") || null
       : null,
   }));
 

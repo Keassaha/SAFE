@@ -73,11 +73,20 @@ export function normalizeClientName(input: string | null | undefined): string {
 }
 
 /**
- * Libellé d'affichage d'un client, robuste aux personnes physiques.
+ * Nom d'un client tel qu'il s'écrit dans un DOCUMENT ou une phrase :
+ * « Marie Tremblay ». Factures, relevés, mandats, courriels, en-têtes.
+ *
+ * ── Règle CEO du 2026-10-01 ────────────────────────────────────────────────
+ * Deux écritures, chacune à sa place :
+ *   - documents et phrases → `clientDisplayName` (alias `clientNomDocument`) ;
+ *   - listes, registres, menus déroulants → `clientNomListe`, « Tremblay,
+ *     Marie », pour lire et trier par nom de famille.
+ * Avant cette règle, ce fichier se disait « source de vérité unique pour tous
+ * les écrans » pendant que Dossiers et Facturation écrivaient l'inverse : un
+ * même client changeait d'écriture d'un écran à l'autre.
  *
  * `raisonSociale` est `null` pour les personnes physiques : on retombe alors
- * sur `prénom + nom`. Source de vérité unique pour tous les écrans (facturation,
- * temps, dossiers) afin qu'aucune personne physique n'apparaisse "vide".
+ * sur `prénom + nom`, afin qu'aucune personne physique n'apparaisse « vide ».
  *
  * @example
  *   clientDisplayName({ raisonSociale: "Acme Inc." })            // "Acme Inc."
@@ -96,6 +105,39 @@ export function clientDisplayName(
     return client.raisonSociale.trim();
   }
   const personne = [client.prenom, client.nom].filter(Boolean).join(" ").trim();
+  return personne || fallback;
+}
+
+/** Alias explicite de `clientDisplayName` : l'écriture des documents. */
+export const clientNomDocument = clientDisplayName;
+
+/**
+ * Nom d'un client tel qu'il s'écrit dans une LISTE : « Tremblay, Marie ».
+ * Registres, tableaux, menus déroulants, filtres. Voir la règle ci-dessus.
+ *
+ * Une personne physique s'écrit « Nom, Prénom » même si une raison sociale
+ * traîne dans sa fiche ; une personne morale garde sa raison sociale.
+ *
+ * @example
+ *   clientNomListe({ typeClient: "personne_physique", prenom: "Marie", nom: "Tremblay" }) // "Tremblay, Marie"
+ *   clientNomListe({ raisonSociale: "Acme Inc." })                                        // "Acme Inc."
+ *   clientNomListe({ prenom: "Marie", nom: "Tremblay" })                                  // "Tremblay, Marie"
+ */
+export function clientNomListe(
+  client: {
+    typeClient?: string | null;
+    raisonSociale?: string | null;
+    prenom?: string | null;
+    nom?: string | null;
+  },
+  fallback = "—",
+): string {
+  const personne = [client.nom, client.prenom]
+    .map((s) => s?.trim())
+    .filter(Boolean)
+    .join(", ");
+  if (client.typeClient === "personne_physique" && personne) return personne;
+  if (client.raisonSociale && client.raisonSociale.trim()) return client.raisonSociale.trim();
   return personne || fallback;
 }
 

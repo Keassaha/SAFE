@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import { FolderOpen, Clock, FileText, ChevronRight, Plus } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
-import { clientDisplayName } from "@/lib/clients/normalize-name";
+import { clientDisplayName, clientNomListe } from "@/lib/clients/normalize-name";
 
 // Couleurs par type de dossier — Vert + Beige clair (Option 2)
 // Clés alignées avec l'enum DossierType de Prisma
@@ -101,7 +101,7 @@ export function AtelierView({ clients, activeSessions }: AtelierViewProps) {
             </span>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium truncate">
-                {clientDisplayName(client, t("noName"))}
+                {clientNomListe(client, t("noName"))}
               </p>
               <p
                 className={`text-xs ${

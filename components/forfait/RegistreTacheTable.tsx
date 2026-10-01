@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { Receipt, Trash2, Tag } from "lucide-react";
+import { clientNomListe } from "@/lib/clients/normalize-name";
 
 type StatusVariant = "success" | "warning" | "neutral" | "error";
 
@@ -193,8 +194,6 @@ export function RegistreTacheTable({ dossierId, onFacturer }: RegistreTacheTable
 
 function formatClientName(client: NonNullable<RegistreTache["dossier"]>["client"]) {
   if (!client) return "";
-  if (client.typeClient === "personne_physique") {
-    return [client.prenom, client.nom].filter(Boolean).join(" ").trim() || client.raisonSociale || "";
-  }
-  return client.raisonSociale || [client.prenom, client.nom].filter(Boolean).join(" ").trim();
+  /* Écriture des listes, règle CEO du 2026-10-01 : « Tremblay, Marie ». */
+  return clientNomListe(client, "");
 }

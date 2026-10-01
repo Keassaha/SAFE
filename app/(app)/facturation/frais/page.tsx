@@ -7,15 +7,15 @@ import { routes } from "@/lib/routes";
 import { FacturationFraisActions } from "@/components/facturation/FacturationFraisActions";
 import { DeboursPageView } from "@/components/facturation/DeboursPageView";
 import type { DeboursLigne } from "@/lib/debours/vue";
+import { clientNomListe } from "@/lib/clients/normalize-name";
 
 function nomDuClient(c: {
   raisonSociale: string | null;
   prenom?: string | null;
   nom?: string | null;
 }): string {
-  const societe = c.raisonSociale?.trim();
-  if (societe) return societe;
-  return [c.prenom, c.nom].filter(Boolean).join(" ").trim() || "Client sans nom";
+  /* Écriture des listes, règle CEO du 2026-10-01 : « Tremblay, Marie ». */
+  return clientNomListe(c, "Client sans nom");
 }
 
 /**
