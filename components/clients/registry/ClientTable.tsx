@@ -247,7 +247,9 @@ export function ClientTable({
             </div>
             <div className="mt-2 flex items-baseline gap-4 text-[12px] text-si-muted">
               <span>
-                {row.dossiersActifsCount} {t("activeMatters").toLowerCase()}
+                {/* « 1 dossiers actifs » : le libellé de colonne, mis en
+                    minuscules, ne s'accordait pas. Pluriel ICU (2026-10-01). */}
+                {t.rich("etatDossiers", { count: row.dossiersActifsCount, b: (c) => c })}
               </span>
               <span className="font-mono tabular-nums text-si-ink">
                 {formatCurrency(row.honorairesAccumules, "CAD", locale)}
@@ -290,10 +292,10 @@ export function ClientTable({
                   getSortUrl={getSortUrl}
                 />
               </th>
-              <th scope="col" className="w-[88px] px-3 py-2.5 text-right">
+              <th scope="col" className="w-[136px] whitespace-nowrap px-3 py-2.5 text-right">
                 <RegistrePlainHeader label={t("activeMatters")} align="right" />
               </th>
-              <th scope="col" className="w-[140px] px-3 py-2.5 text-right">
+              <th scope="col" className="w-[140px] whitespace-nowrap px-3 py-2.5 text-right">
                 <RegistreSortHeader
                   label={t("trustAccount")}
                   field="trustAccountBalance"
@@ -303,7 +305,7 @@ export function ClientTable({
                   align="right"
                 />
               </th>
-              <th scope="col" className="w-[140px] px-3 py-2.5 text-right">
+              <th scope="col" className="w-[184px] whitespace-nowrap px-3 py-2.5 text-right">
                 <RegistrePlainHeader label={t("accumulatedFees")} align="right" />
               </th>
               <th scope="col" className="w-[104px] px-3 py-2.5 text-left">
@@ -315,7 +317,7 @@ export function ClientTable({
                   getSortUrl={getSortUrl}
                 />
               </th>
-              <th scope="col" className="w-[108px] px-3 py-2.5 text-right">
+              <th scope="col" className="w-[156px] whitespace-nowrap px-3 py-2.5 text-right">
                 <RegistreSortHeader
                   label={t("lastActivity")}
                   field="updatedAt"
