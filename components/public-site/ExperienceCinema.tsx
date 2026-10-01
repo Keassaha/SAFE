@@ -4154,7 +4154,11 @@ const CSS = `
      masque porte sur la FENETRE entiere, donc le bord s'eteint avec ce qu'il
      borde. Un masque coupe l'ombre portee, peinte hors de la boite : l'ombre
      longue vit donc sur le parent, hors du masque. */
-  .xc .scene-produit .fenetre-fondante { filter: drop-shadow(0 30px 66px rgb(var(--si-line-ink-rgb) / 0.26)); }
+  /* La piste à deux fenêtres de « continuité » n'était pas visée : ses deux
+     fenêtres n'avaient aucune ombre longue, seules sur quatre (relevé du
+     vérificateur, 2026-10-01). Même règle, même parent non masqué. */
+  .xc .scene-produit .fenetre-fondante,
+  .xc .scene-duo .piste > .fenetre-fondante { filter: drop-shadow(0 30px 66px rgb(var(--si-line-ink-rgb) / 0.26)); }
   /* Le fondu part a 88 % et non a 68 % (decision CEO du 2026-08-29).
      A 68 %, il mangeait la fin du contenu au lieu de fondre un bord : releve
      sur la fenetre du dossier, quatre des neuf sections du cartable

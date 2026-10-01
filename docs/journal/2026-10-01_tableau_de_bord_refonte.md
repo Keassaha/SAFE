@@ -52,6 +52,11 @@ codé, cabinet démo local sans factures).
   `captures/2026-10-01_accueil_extrait_tableau_de_bord.png`. Le vérificateur sort avec les
   deux mêmes échecs qu'avant le changement (ombre rognée sur 2 fenêtres sur 4 ; relevé
   `references-app/releve.json` daté du 27 août, antérieur aux chiffres du hero).
+- ~~Ombre rognée sur 2 fenêtres sur 4.~~ Corrigé le même jour : la règle d'ombre longue
+  ne visait que `.scene-produit` ; les deux fenêtres de la piste « continuité »
+  (`.scene-duo`) la reçoivent sur le même parent non masqué. Vérificateur : 4/4.
+  Reste le critère 6 (relevé périmé), qui demande une recapture des données complètes
+  de Me Roy.
 - `ComplianceStrip` n'est plus monté que par `/ds-preview`.
 - Le diagramme avec données n'a pas été vu à l'écran : le cabinet démo local n'a aucune
   facture.
