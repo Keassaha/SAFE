@@ -499,7 +499,7 @@
     "expensesThisMonth": "Dépenses du mois",
     "vsLastMonth": "vs mois dernier",
     "overdueInvoices": "Factures en retard",
-    "overdueInvoicesCount": "{count} facture(s) en retard",
+    "overdueInvoicesCount": "{count} facture{count, plural, one {} other {s}} en retard",
     "trustBalanceNegative": "Le solde fiduciaire est négatif",
     "unbilledHoursAlert": "{amount} en heures non facturées",
     "revenueThisMonth": "Argent reçu ce mois",

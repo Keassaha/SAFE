@@ -499,7 +499,7 @@
     "expensesThisMonth": "Expenses this month",
     "vsLastMonth": "vs last month",
     "overdueInvoices": "Overdue invoices",
-    "overdueInvoicesCount": "{count} overdue invoice(s)",
+    "overdueInvoicesCount": "{count} overdue invoice{count, plural, one {} other {s}}",
     "trustBalanceNegative": "The trust balance is negative",
     "unbilledHoursAlert": "{amount} in unbilled hours",
     "revenueThisMonth": "Revenue this month",
