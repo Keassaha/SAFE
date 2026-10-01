@@ -128,6 +128,21 @@ const nextConfig: NextConfig = {
       { source: "/terms", destination: "/conditions", permanent: true },
       { source: "/privacy", destination: "/confidentialite", permanent: true },
       { source: "/security", destination: "/confidentialite#securite", permanent: true },
+      // Anciennes pages de l'application, conservées pour les signets et les
+      // liens déjà envoyés. La redirection se fait ICI, avant tout rendu, et
+      // jamais par un `redirect()` dans une page : sous un dossier qui a son
+      // `loading.tsx`, ce `redirect()` arrive au navigateur pendant l'écran de
+      // chargement et fait planter React (« Rendered more hooks… », #310),
+      // en développement comme en production. Constaté le 2026-10-01.
+      // Temporaires (307) : une 308 resterait gravée dans les navigateurs.
+      { source: "/facturation/honoraires", destination: "/facturation#facturables", permanent: false },
+      { source: "/gestion", destination: "/gestion/lextrack", permanent: false },
+      { source: "/clients/entree/reprise", destination: "/import?section=exercices", permanent: false },
+      { source: "/parametres/equipe", destination: "/employees", permanent: false },
+      { source: "/console/leads/:id", destination: "/console/clients/:id", permanent: false },
+      { source: "/fiches-de-temps", destination: "/temps", permanent: false },
+      { source: "/onboarding", destination: "/tableau-de-bord", permanent: false },
+      { source: "/inscription", destination: "/inscription-gate", permanent: false },
     ];
   },
 
