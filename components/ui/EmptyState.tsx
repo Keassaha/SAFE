@@ -12,6 +12,9 @@ interface EmptyStateProps {
   description?: string;
   action?: ReactNode;
   icon?: ReactNode;
+  /** Sans le rond à icône. Le pictogramme générique (une boîte de réception)
+      n'apprend rien : sur un registre vide, le titre et le bouton suffisent. */
+  sansIcone?: boolean;
 }
 
 export function EmptyState({
@@ -19,6 +22,7 @@ export function EmptyState({
   description,
   action,
   icon,
+  sansIcone = false,
 }: EmptyStateProps) {
   const { reduceMotion } = useSafeMotion();
   const variants = reduceMotion ? fadeInUpReduced : fadeIn;
@@ -30,9 +34,11 @@ export function EmptyState({
       initial="hidden"
       animate="visible"
     >
-      <div className="w-12 h-12 rounded-full bg-si-canvas border border-si-line flex items-center justify-center text-si-ink-strong mb-4">
-        {icon ?? <Inbox className="w-6 h-6" aria-hidden />}
-      </div>
+      {!sansIcone && (
+        <div className="w-12 h-12 rounded-full bg-si-canvas border border-si-line flex items-center justify-center text-si-ink-strong mb-4">
+          {icon ?? <Inbox className="w-6 h-6" aria-hidden />}
+        </div>
+      )}
       <h3 className="font-serif text-[17px] leading-tight text-si-ink">
         {title}
       </h3>

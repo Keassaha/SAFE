@@ -115,24 +115,31 @@ export function FacturationFiltres({ statutOptions, ...props }: FacturationFilte
       >
         {statutOptions.map((opt) => (
           <option key={opt.value || "all"} value={opt.value}>
-            {tStatutPlural(opt.value || "all")}
+            {opt.value ? tStatutPlural(opt.value) : tFacturation("filterStatusAll")}
           </option>
         ))}
       </select>
-      <input
-        type="date"
-        value={props.dateFrom}
-        onChange={(e) => updateParams({ dateFrom: e.target.value })}
-        aria-label={t("from")}
-        className={`px-2.5 ${registreChampClass}`}
-      />
-      <input
-        type="date"
-        value={props.dateTo}
-        onChange={(e) => updateParams({ dateTo: e.target.value })}
-        aria-label={t("to")}
-        className={`px-2.5 ${registreChampClass}`}
-      />
+      {/* Les deux dates n'avaient aucune étiquette visible : deux champs
+          « jj/mm/aaaa » côte à côte, sans dire lequel ouvre la période. Même
+          écriture que le registre du fidéicommis (2026-10-01). */}
+      <label className="flex items-center gap-1.5 text-[13px] text-si-muted">
+        {tFacturation("filterFrom")}
+        <input
+          type="date"
+          value={props.dateFrom}
+          onChange={(e) => updateParams({ dateFrom: e.target.value })}
+          className={`px-2.5 ${registreChampClass}`}
+        />
+      </label>
+      <label className="flex items-center gap-1.5 text-[13px] text-si-muted">
+        {tFacturation("filterTo")}
+        <input
+          type="date"
+          value={props.dateTo}
+          onChange={(e) => updateParams({ dateTo: e.target.value })}
+          className={`px-2.5 ${registreChampClass}`}
+        />
+      </label>
       {isPending && <span className="text-xs text-si-muted">{t("loading")}</span>}
     </div>
   );

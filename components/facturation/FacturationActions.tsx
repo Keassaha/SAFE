@@ -12,8 +12,6 @@ import {
   FileMinus,
   Receipt,
   Bell,
-  Download,
-  Settings,
 } from "lucide-react";
 import { routes } from "@/lib/routes";
 
@@ -50,7 +48,9 @@ export function FacturationActions({ billingMode = "horaire" }: FacturationActio
   const closeMenu = () => setMenuOpen(false);
 
   const menuItemClass =
-    "flex min-h-tap items-center gap-3 w-full px-3 py-2 text-sm text-left text-si-ink hover:bg-si-canvas transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-si-verified";
+    /* `safe-zoom-menu` et non un aplat gris au survol : règle CEO du
+       2026-08-11, « zéro aplat gris de survol dans tout le site ». */
+    "safe-zoom-menu flex min-h-tap items-center gap-3 w-full px-3 py-2 text-sm text-left text-si-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-si-verified";
 
   return (
     <div className="flex items-center gap-2">
@@ -87,31 +87,10 @@ export function FacturationActions({ billingMode = "horaire" }: FacturationActio
               <Bell className="h-4 w-4 text-si-muted/50" aria-hidden />
               <span className="flex-1">{t("remindersAndOverdue")}</span>
             </Link>
-
-            <div className="my-1 h-px bg-si-canvas" />
-
-            <button
-              type="button"
-              className={`${menuItemClass} opacity-50 cursor-not-allowed`}
-              disabled
-              title={t("comingSoon")}
-              role="menuitem"
-            >
-              <Download className="h-4 w-4 text-si-muted/50" aria-hidden />
-              <span className="flex-1">{t("exportCsvPdf")}</span>
-              <span className="text-[10px] uppercase tracking-wide text-si-muted/50">{t("soonBadge")}</span>
-            </button>
-            <button
-              type="button"
-              className={`${menuItemClass} opacity-50 cursor-not-allowed`}
-              disabled
-              title={t("comingSoon")}
-              role="menuitem"
-            >
-              <Settings className="h-4 w-4 text-si-muted/50" aria-hidden />
-              <span className="flex-1">{t("billingSettings")}</span>
-              <span className="text-[10px] uppercase tracking-wide text-si-muted/50">{t("soonBadge")}</span>
-            </button>
+            {/* Deux entrées grisées « Bientôt » (export CSV/PDF, paramètres de
+                facturation) sont retirées le 2026-10-01 : une promesse
+                affichée pour une fonction absente se lit comme un produit
+                inachevé. Elles reviendront quand elles existeront. */}
           </div>
         )}
       </div>
